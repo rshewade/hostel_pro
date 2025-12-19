@@ -1,0 +1,394 @@
+🎨 FINAL FIGMA DESIGN PROMPT
+
+Application Name: Hostel Management
+
+## 1. Product Overview
+Design a web-based Hostel Management Application for a Jain Hostel (covering Boys Hostel, Girls Ashram, and Dharamshala) that manages the complete lifecycle of a student/resident, starting from admission application through approvals, interviews, payments, room allocation, stay management, renewal (every 6 months), and final exit, with strict governance, auditability, and institutional discipline.
+The system must support multi-role workflows, manual approvals, formal undertakings, financial tracking, parent communication, and DPDP Act compliance.
+
+
+
+## 2. User Roles & Access
+Design role-based interfaces for the following users:
+Applicant (Pre-approval, OTP-based verification only)
+Resident Student (Post-approval, full Dashboard access)
+Superintendent (Boys / Girls / Dharamshala)
+Trustees
+Accounts / Accounting Team
+Parents / Local Guardians (View-only, OTP-based login)
+Each role should see only relevant data, actions, and dashboards, with a clear separation of responsibilities.
+
+
+## 3. Language, Branding & Visual Identity
+
+Language
+
+English-only UI
+
+Clear, formal institutional tone
+
+Branding & Colors
+
+
+
+Use design palette derived from the official hostel logo
+
+Primary colors: Blue + Brownish-Yellow
+
+Interface theme: White & Blue
+
+Minimal, clean, institutional design
+
+Same design system for:
+
+Boys Hostel
+
+Girls Ashram
+
+Dharamshala
+
+Clear typography with high readability
+
+Fully responsive (Desktop, Tablet, Mobile) 4. Core Screens & Functional Modules
+
+
+
+### A. Landing Page (Completed)
+
+Purpose: Awareness + entry point + Vertical Selection
+Include:
+Hostel overview, values, and facilities
+Highlights: discipline, safety, amenities
+Vertical Selection (Clear entry points):
+Boys Hostel
+Girls Ashram
+Dharamshala
+Admission process shown as a visual step-by-step flow
+Announcements & notices section
+
+
+
+Clear CTAs:
+Apply Now
+Check Application Status (Redirects to Tracking Page)
+Login (For existing residents)
+
+
+
+
+
+
+
+### B. Registration & Login Flow
+
+Applicant Flow (Pre-Approval)
+User selects Vertical (Boys/Girls/Dharamshala)
+OTP Verification (Mobile/Email) to validate identity for submission
+No persistent "Dashboard" account created yet
+Application submits directly to mapped Superintendent
+Application Tracking Page (Public Access)
+Accessible via "Check Status" CTA or direct link from SMS/Email
+Requires Application Tracking Number + OTP (on registered mobile)
+
+
+
+Displays:
+Live status on the visual timeline
+Interview schedule details (if applicable)
+Actionable prompts (e.g., "Interview link is active", "Pending document re-upload")
+Download links for provisional letters
+
+
+
+
+
+
+
+Student Login (Post-Approval)
+Credentials generated systematically ONLY upon Final Approval
+Sent via Email/SMS to student
+First-time login prompts password change
+Grants access to Student Dashboard
+Role-based redirection after login
+
+
+
+Parent / Guardian Login
+Separate OTP-based login
+Uses parent/guardian mobile number
+View-only access
+
+
+
+### C. Student Dashboard
+
+
+
+Purpose: Central command center for APPROVED Students/Residents
+(Not accessible to applicants)
+
+
+
+Include:
+High-level status tracker (Resident Journey):
+Checked-in → Renewal Due → Renewed → Exited
+Quick action cards:
+Pay Fees
+Download Letters
+Apply for Leave
+View Room Details
+
+Notifications & alerts:
+Fee reminders
+Renewal reminders (6-month cycle)
+
+
+
+### D. Admission Application Form
+
+Design:
+Multi-step wizard with progress indicator:
+Personal Details
+Academic & Course Information
+Hostel Preferences
+References (Ex-student references)
+Document Upload
+Upload formats: PDF / JPG
+Save as Draft
+Strong inline validations & helper text
+
+
+
+Routing Logic:
+
+Boys Hostel Application → Routes to Boys Superintendent
+Girls Ashram Application → Routes to Girls Superintendent
+Dharamshala Application → Routes to Dharamshala Superintendent
+
+
+### E. Documents, Undertakings & Sign-offs
+At Time of Application
+Upload signed documents for:
+Student declaration
+Parent consent
+Local guardian undertaking
+Acceptance of hostel rules & regulations
+Admission terms & conditions
+Post Admission
+
+In-app digital acknowledgement via application interface
+Design Requirements
+
+Document preview before submission
+Status indicators: Pending / Uploaded / Verified
+Downloadable copies
+Print-optimized layouts for audit and physical submission
+
+
+### F. Approval & Interview Workflow
+
+Superintendent Panel
+
+Application list with filters:
+New
+Under Review
+Approved
+Rejected
+Detailed application view:
+Student details
+Uploaded documents
+Payment status
+Actions:
+Approve
+Reject
+Forward to Trustees
+Admin configuration screens:
+Define leave approval rules
+Define parent notification rules
+Trustee Panel
+
+Provisional approval / rejection
+Interview scheduling:
+Mode: Online (Zoom / Google Meet) or Physical
+Date, time, location / meeting link
+Interview remarks form
+Final selection / rejection
+Students see only high-level outcome, not internal remarks
+
+### G. Embedded Communication (Across All Modules)
+
+No single communication center.
+Communication is embedded wherever interaction occurs.
+
+Channels
+
+WhatsApp
+SMS
+Email
+Design Features
+
+“Send Message” button within:
+Interview scheduling
+Selection / rejection
+Fee reminders
+Leave approval / rejection
+Editable message templates (Superintendent / Trustees)
+Auto interview reminders (24 hours before)
+Fee reminder schedule:
+T–15 days
+T–7 days
+T–3 days
+Due date
+Escalation:
+Parents notified
+Superintendent receives consolidated report
+
+### H. Payment & Accounting Module
+
+Student View
+
+Fee breakup:
+Processing fee
+Hostel fees
+Security deposit
+Key deposit
+Payment methods:
+UPI
+QR Code
+Status badges:
+Paid / Pending / Failed / Overdue
+Receipt download (print-friendly)
+Accounts View
+
+Receivables dashboard
+Receipt generation under multiple heads
+Payment logs
+Export-ready layouts for Tally integration
+
+### I. Room Allocation & Check-in
+
+Admin View
+
+Room matrix with capacity indicators
+Allocate / change rooms
+Occupancy status
+Student View
+
+Room number
+Sharing details
+Joining date
+Check-in confirmation
+
+### J. Leave Management (Strict Governance)
+
+Student
+
+Apply for leave:
+Short leave
+Night-out
+Multi-day leave
+Superintendent
+
+All leaves require approval
+Admin-configurable rules:
+Which leave types require approval
+Parent notification timing (on request / on approval)
+Approve / reject with remarks
+Parents
+
+Notifications only
+View leave status (no action rights)
+
+### K. Renewal Module (6-Month Cycle)
+
+Renewal reminders
+Re-upload updated certificates / marksheets
+Fee top-up
+Simplified approval workflow
+Renewal consent prompt
+Renewal status tracking
+
+### L. Exit & Alumni Module
+
+Exit request
+Clearance checklist:
+Room inventory
+Key return
+ID card return
+Exit approval
+Exit certificate (print-ready)
+Automatic migration to Alumni database
+
+### M. Audit, Logs & Compliance
+
+Screens Required
+
+Communication logs:
+WhatsApp / SMS / Email history
+Approval history:
+Authority
+Date & time
+Remarks
+Consent & undertaking logs
+DPDP Act compliance banners
+Data retention information
+Consent renewal prompts during 6-month renewal
+
+### N. Future-Proofing (Design Placeholders)
+
+Include visual placeholders for future modules:
+
+Biometric attendance
+Visitor management
+Mess management
+(No functional logic needed yet, design only)
+
+## 5. UX & Accessibility Guidelines
+
+Step-by-step guidance
+Tooltips and inline help
+Visual progress indicators
+Confirmation modals for irreversible actions
+Consistent error handling
+Accessibility-friendly (WCAG-aligned) 
+
+
+## 6. Technical Design Expectations
+
+Component-based UI (React / Vue friendly)
+Reusable components:
+Forms
+Tables
+Status badges
+Modals
+Role-based navigation
+Scalable admin dashboards
+Payment gateway placeholders 
+
+## 7. Figma Deliverables Expected
+
+High-fidelity UI designs
+Desktop + Mobile screens
+Clickable prototype
+Complete design system:
+Color palette (from logo)
+Typography
+Buttons
+Form components
+Status indicators
+Print-optimized views for:
+Forms
+Letters
+Undertakings
+Receipts 
+
+## 8. Tone & Personality
+
+Trustworthy
+Disciplined
+Institution-compliant
+Student-friendly
+Audit-ready
+
+
+

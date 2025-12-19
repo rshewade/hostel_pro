@@ -1,0 +1,253 @@
+{
+	"meta": {
+		"generatedAt": "2025-12-19T18:06:14.982Z",
+		"tasksAnalyzed": 30,
+		"totalTasks": 30,
+		"analysisCount": 30,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Define design system foundation (colors, typography, spacing)",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break Task 1 into subtasks covering: (1) Brand discovery and logo import; (2) Color system and tokens with WCAG contrast validation; (3) Typography scale, text styles, and type tokens; (4) Spacing, radii, elevation, and other foundational tokens; (5) Dev-ready token naming, documentation, and sample implementation frames. For each subtask, specify deliverables, review criteria, and how to test accessibility and token reuse in Figma.",
+			"reasoning": "Medium complexity: foundational but well-bounded; requires branding alignment, accessibility, and robust token strategy that will impact all downstream work and must be carefully validated and named for dev consumption."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Define reusable base UI components library",
+			"complexityScore": 9,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Break Task 2 into subtasks: (1) Component architecture, naming conventions, and variables strategy; (2) Core form controls (inputs, textareas, dropdowns, pickers, radio, checkbox, toggles) with states; (3) Buttons and chips/tags with size and state variants; (4) Data display components (tables, lists, cards, badges, steppers, tabs, accordions); (5) Overlays and feedback (modals, toasts, banners, empty/error states); (6) Responsive behavior and Auto Layout/constraints for desktop vs mobile; (7) Component documentation page with usage guidance and mapping to common UI libraries; (8) Quality checks: instance usage, accessibility states, and performance of the library. For each, define acceptance criteria and test frames.",
+			"reasoning": "High complexity: large surface area of components, heavy use of variants and Auto Layout, strong dependency on tokens, and long-term maintainability concerns; errors here propagate across the entire product."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Define role-based navigation structure and information architecture",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break Task 3 into: (1) Requirements and content inventory per role based on PRD; (2) Global sitemap and role-based IA, including future modules; (3) Navigation patterns selection (top/side nav, breadcrumbs, role scoping) and variants; (4) Role-based routing and login/redirect rules, captured in flow diagrams; (5) Vertical (Boys/Girls/Dharamshala) context propagation rules; (6) Validation activities (stakeholder review, internal card sorting/tree tests, lifecycle walkthroughs). For each subtask, define outputs (diagrams, notes, example screens) and review criteria.",
+			"reasoning": "High conceptual complexity: multi-role, multi-vertical IA with routing rules that affect every module; needs careful stakeholder alignment and future scalability while staying implementable in routing frameworks."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Design application tracking page and flow",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Decompose Task 6 into: (1) Entry flows and identity verification pattern (tracking ID + OTP) aligned with Task 5; (2) Core tracking page layout (summary, status timeline, interview details, actions); (3) Document re-upload and action handling patterns reusing existing components; (4) State variations for all major statuses (awaiting review, interview scheduled, awaiting documents, approved, rejected); (5) Privacy and copy review (no internal remarks, DPDP messaging) plus responsive behavior. Define for each subtask the specific frames, states, and review checklist.",
+			"reasoning": "Moderately high complexity: multiple states and conditional actions, needs reuse of OTP patterns and print components, plus strong privacy constraints and clear communication across several possible application lifecycles."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Design parent/guardian OTP-based view-only login",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Split Task 8 into: (1) Parent/Guardian entry and OTP verification flow, reusing existing OTP patterns; (2) Parent dashboard IA and layout (student overview, fee status, leave summary, notifications); (3) Permissions and view-only behavior specification (no edits, only acknowledgements where applicable); (4) Compliance and copy: DPDP info, tooltips, clarity of scope. For each, define how to test that interactions are non-mutating and mobile-friendly.",
+			"reasoning": "Medium complexity: leverages existing OTP and dashboard patterns but requires careful permission scoping, clear copy, and multiple data summaries in a constrained, mobile-first layout."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Design Student Dashboard (approved residents)",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break Task 9 into: (1) Dashboard content model and IA (hero status, tracker, quick actions, notifications); (2) Visual design of journey tracker and conditional quick actions; (3) Responsive layouts and variants for key states (new resident, nearing renewal, post-renewal, exit-initiated); (4) Integration mapping to other modules (fees, room, leave, documents, renewal, exit); (5) Governance and DPDP elements (consent alerts, vertical context, academic period). For each subtask, specify the scenarios to mock and validate via usability review.",
+			"reasoning": "Moderately high complexity: central hub connecting many modules with multiple lifecycle states; needs clear prioritization, conditional visibility rules, and strong responsiveness while remaining simple for students."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Design documents, undertakings, and sign-offs experience",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Decompose Task 11 into: (1) Application-time document upload cards and instructions; (2) Upload, preview, and status lifecycle (Pending/Uploaded/Verified) patterns; (3) Post-admission digital undertakings and acknowledgement flows; (4) Print-optimized layouts for undertakings and related artifacts; (5) Audit and consent metadata specification (timestamps, actors, statuses); (6) Cross-role visibility rules and legal/compliance review loop. For each, define detailed states, flows, and integration assumptions.",
+			"reasoning": "High complexity: mix of file handling UX, legal/compliance needs, multi-stage statuses, print templates, and audit metadata; impacts several modules and must be robust and unambiguous."
+		},
+		{
+			"taskId": 19,
+			"taskTitle": "Design 6-month renewal module",
+			"complexityScore": 9,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Split Task 19 into: (1) Renewal entry points and notification surfaces across dashboards; (2) Student renewal wizard steps and UI, including document re-upload; (3) Payment top-up integration using Task 15 patterns; (4) Consent renewal UX and DPDP text; (5) Renewal status tracking for students; (6) Admin (Superintendent/Trustee) renewal review and decisions (simplified vs full admission); (7) Edge-case flows (early, last-minute, and missed renewals) and associated messaging. For each subtask, define required frames, states, and dependencies on other modules.",
+			"reasoning": "Very high complexity: combines multi-step flows, payments, document management, consent, and admin review while reusing but adapting admission logic; involves many dependencies and edge cases across time windows."
+		},
+		{
+			"taskId": 20,
+			"taskTitle": "Design exit and alumni module",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break Task 20 into: (1) Student exit request flow and explanatory messaging about implications; (2) Clearance checklist UI and status tracking across roles; (3) Superintendent/Accounts clearance dashboards and workflows; (4) Exit approval and audit-safe finalization patterns; (5) Exit certificate print-ready template and download flow; (6) Alumni state and minimal alumni profile views, including links to history. For each, outline how to handle irreversible states and audit requirements in the design.",
+			"reasoning": "High complexity: multi-party workflow with dependencies on room, accounts, documents, and audit; involves irreversible status changes and print artifacts, requiring careful UX and governance alignment."
+		},
+		{
+			"taskId": 24,
+			"taskTitle": "Define responsive layout grids and breakpoints for all screen types",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Split Task 24 into: (1) Breakpoint strategy definition and documentation; (2) Grid systems (columns, gutters, margins) per breakpoint and mapping to typography/spacing tokens; (3) Application of grids to key templates (dashboards, forms, tables, modals, print views) and Figma constraints setup; (4) Developer alignment: notes on mapping Figma grids to CSS Grid/Flexbox or chosen UI libraries, plus validation via resizing tests. For each, define explicit guidelines and example frames.",
+			"reasoning": "Moderate complexity: conceptually straightforward but cross-cutting; requires careful standardization and testing across many screen types to ensure responsive consistency and dev feasibility."
+		},
+		{
+			"taskId": 25,
+			"taskTitle": "Create clickable end-to-end prototype for primary user journeys",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Decompose Task 25 into: (1) Prototype architecture and entry points definition per persona; (2) Wiring and interactions for applicant-related flows (Landing → OTP → Application → Tracking); (3) Wiring and interactions for student flows (Login → Dashboard → Fees → Leave → Room → Renewal → Exit); (4) Wiring for admin/parent/accounts roles with key tasks; (5) Prototype performance, annotation overlays, and validation pass to fix dead ends or incorrect transitions. For each, define how states and component variants will be demonstrated.",
+			"reasoning": "Moderately high complexity: large number of screens and roles to connect coherently; technically simple but coordination-heavy and error-prone, with strong dependency on nearly all prior tasks."
+		},
+		{
+			"taskId": 26,
+			"taskTitle": "Prepare developer handoff specifications and annotations",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Split Task 26 into: (1) Component-level specs (tokens, measurements, states) using Figma Dev Mode conventions; (2) Screen- and flow-level interaction specs (behaviors, edge cases, routing and role logic); (3) Accessibility and keyboard interaction requirements per component/flow; (4) API shape and pseudo-code hints for critical flows (OTP, payments, approvals) while staying stack-agnostic; (5) Organization of a dedicated \"Dev Specs\" section with navigation guidance; (6) Handoff validation sessions and iteration based on dev feedback. For each, define concrete documentation artifacts needed.",
+			"reasoning": "High complexity: requires consolidating and explaining many design decisions, covering interactions and edge cases for multiple modules, and aligning with dev tooling and accessibility expectations."
+		},
+		{
+			"taskId": 27,
+			"taskTitle": "Set up Figma library organization and versioning strategy",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Decompose Task 27 into: (1) File and library structure design (system vs product files) and naming conventions; (2) Library publishing setup, component/style categorization, and permissions; (3) Versioning and branching strategy (milestone tags, experimentation approach); (4) Contribution guidelines for designers and process for deprecations/changes; (5) Developer consumption guidelines, including how to track updates and avoid breaking changes. For each, define the concrete Figma operations and documentation to create.",
+			"reasoning": "Medium complexity: mostly organizational, but critical for long-term scalability and collaboration; involves some change management and cross-team alignment rather than difficult UI design."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Design responsive landing page with vertical selection",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design responsive landing page with vertical selection.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Design applicant registration & OTP verification flow",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design applicant registration & otp verification flow.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Design student login, first-time setup, and role-based redirection",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design student login, first-time setup, and role-based redirection.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Design multi-step admission application form wizard",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design multi-step admission application form wizard.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Design Superintendent application review and configuration panels",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design superintendent application review and configuration panels.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Design Trustee panel for provisional approvals and interviews",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design trustee panel for provisional approvals and interviews.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Design embedded communication patterns (WhatsApp, SMS, Email)",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design embedded communication patterns (whatsapp, sms, email).",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Design fee payment and student-side payment experience",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design fee payment and student-side payment experience.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Design Accounts / Accounting Team dashboards",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design accounts / accounting team dashboards.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Design room allocation and check-in interfaces",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design room allocation and check-in interfaces.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Design leave management module (student, superintendent, parent views)",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design leave management module (student, superintendent, parent views).",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 21,
+			"taskTitle": "Design audit, logs, and compliance screens",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design audit, logs, and compliance screens.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 22,
+			"taskTitle": "Design future-proofing placeholders for biometric, visitor, and mess management",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design future-proofing placeholders for biometric, visitor, and mess management.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 23,
+			"taskTitle": "Design accessibility, help, and error handling patterns",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design accessibility, help, and error handling patterns.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 28,
+			"taskTitle": "Design notifications and in-app alerts system",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design notifications and in-app alerts system.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 29,
+			"taskTitle": "Design print-optimized templates for forms, letters, undertakings, and receipts",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on design print-optimized templates for forms, letters, undertakings, and receipts.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 30,
+			"taskTitle": "Conduct usability review and iterate on critical flows",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on conduct usability review and iterate on critical flows.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		}
+	]
+}

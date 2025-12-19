@@ -1,0 +1,1 @@
+# Full-Stack Architecture: Hostel Management Application (V2)
