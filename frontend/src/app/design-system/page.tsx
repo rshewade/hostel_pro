@@ -7,7 +7,42 @@
  * Design Reference: trust-seva-setu.lovable.app
  */
 
+'use client';
+
+import { useState } from 'react';
+import {
+  Button,
+  Badge,
+  Chip,
+  Tag,
+  Input,
+  Textarea,
+  Select,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  DatePicker,
+  Card,
+  Table,
+  List,
+  Stepper,
+  Tabs,
+  Accordion,
+  Modal,
+  Toast,
+  Banner,
+  Alert,
+  Spinner,
+  EmptyState,
+  Container,
+  Grid,
+  Flex,
+  Spacer,
+} from '../../components';
+
 export default function DesignSystemPage() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('overview');
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
       {/* Header */}
@@ -479,6 +514,348 @@ export default function DesignSystemPage() {
               </div>
             </div>
           </section>
+
+          {/* UI Components */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">UI Components</h2>
+
+            {/* Buttons */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Buttons</h3>
+              <div className="card p-8">
+                <div className="flex flex-wrap gap-4 items-center">
+                  <Button>Default Button</Button>
+                  <Button variant="secondary">Secondary</Button>
+                  <Button variant="ghost">Ghost</Button>
+                  <Button variant="destructive">Destructive</Button>
+                  <Button size="sm">Small</Button>
+                  <Button size="lg">Large</Button>
+                  <Button loading>Loading</Button>
+                  <Button leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>}>
+                    With Icon
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Badges, Chips, Tags */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Badges, Chips & Tags</h3>
+              <div className="card p-8">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-subheading mb-3">Badges</h4>
+                    <div className="flex flex-wrap gap-3">
+                      <Badge>Default</Badge>
+                      <Badge variant="success">Success</Badge>
+                      <Badge variant="warning">Warning</Badge>
+                      <Badge variant="error">Error</Badge>
+                      <Badge variant="info">Info</Badge>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-subheading mb-3">Chips</h4>
+                    <div className="flex flex-wrap gap-3">
+                      <Chip>Default Chip</Chip>
+                      <Chip variant="success">Success Chip</Chip>
+                      <Chip variant="warning" onClose={() => {}}>Closable</Chip>
+                      <Chip leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}>
+                        With Icon
+                      </Chip>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-subheading mb-3">Tags</h4>
+                    <div className="flex flex-wrap gap-3">
+                      <Tag>Default Tag</Tag>
+                      <Tag variant="success">Success Tag</Tag>
+                      <Tag variant="warning">Warning Tag</Tag>
+                      <Tag variant="error">Error Tag</Tag>
+                      <Tag variant="info">Info Tag</Tag>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Form Components */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">Form Components</h2>
+
+            <div className="card p-8">
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Input */}
+                <div className="space-y-4">
+                  <h3 className="text-heading-4">Input Fields</h3>
+                  <Input label="Full Name" placeholder="Enter your full name" />
+                  <Input label="Email" type="email" placeholder="Enter your email" />
+                  <Input label="Error State" error="This field is required" />
+                  <Input label="Success State" variant="success" />
+                  <Input label="With Icon" leftIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>} />
+                </div>
+
+                {/* Other Form Elements */}
+                <div className="space-y-4">
+                  <h3 className="text-heading-4">Other Form Elements</h3>
+                  <Textarea label="Message" placeholder="Enter your message" rows={3} />
+                  <Select
+                    label="Hostel Type"
+                    options={[
+                      { value: 'boys', label: 'Boys Hostel' },
+                      { value: 'girls', label: 'Girls Ashram' },
+                      { value: 'dharamshala', label: 'Dharamshala' },
+                    ]}
+                    placeholder="Select hostel type"
+                  />
+                  <DatePicker label="Birth Date" />
+                  <div className="space-y-2">
+                    <Checkbox label="I agree to the terms and conditions" />
+                    <Checkbox label="Subscribe to newsletter" defaultChecked />
+                  </div>
+                  <RadioGroup
+                    label="Gender"
+                    options={[
+                      { value: 'male', label: 'Male' },
+                      { value: 'female', label: 'Female' },
+                    ]}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Data Display Components */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">Data Display Components</h2>
+
+            {/* Cards */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Cards</h3>
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card
+                  title="Application Status"
+                  subtitle="Track your admission progress"
+                  actions={<Button size="sm">View Details</Button>}
+                >
+                  <p className="text-body-sm text-gray-600">
+                    Your application is currently under review. We'll notify you once there's an update.
+                  </p>
+                </Card>
+
+                <Card title="Quick Actions" shadow="lg">
+                  <div className="space-y-3">
+                    <Button variant="secondary" className="w-full justify-start">
+                      Update Profile
+                    </Button>
+                    <Button variant="secondary" className="w-full justify-start">
+                      View Documents
+                    </Button>
+                    <Button variant="secondary" className="w-full justify-start">
+                      Contact Support
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Table</h3>
+              <Table
+                data={[
+                  { id: 1, name: 'John Doe', status: 'Approved', amount: 5000 },
+                  { id: 2, name: 'Jane Smith', status: 'Pending', amount: 4500 },
+                  { id: 3, name: 'Bob Johnson', status: 'Rejected', amount: 0 },
+                ]}
+                columns={[
+                  { key: 'name', header: 'Name', sortable: true },
+                  { key: 'status', header: 'Status', sortable: true },
+                  {
+                    key: 'amount',
+                    header: 'Amount',
+                    render: (value) => `₹${value.toLocaleString()}`
+                  },
+                ]}
+              />
+            </div>
+
+            {/* List */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">List</h3>
+              <List
+                items={[
+                  {
+                    id: 1,
+                    content: <div><strong>John Doe</strong><br /><span className="text-sm text-gray-600">Approved - Room 101</span></div>,
+                    actions: <Button size="sm">View</Button>
+                  },
+                  {
+                    id: 2,
+                    content: <div><strong>Jane Smith</strong><br /><span className="text-sm text-gray-600">Pending Review</span></div>,
+                    actions: <Button size="sm" variant="secondary">Edit</Button>
+                  },
+                ]}
+              />
+            </div>
+
+            {/* Stepper */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Stepper</h3>
+              <Stepper
+                steps={[
+                  { title: 'Application', description: 'Submit your details', completed: true },
+                  { title: 'Review', description: 'Under review', active: true },
+                  { title: 'Approval', description: 'Final decision' },
+                  { title: 'Check-in', description: 'Move to hostel' },
+                ]}
+                currentStep={1}
+              />
+            </div>
+
+            {/* Tabs */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Tabs</h3>
+              <Tabs
+                tabs={[
+                  { id: 'overview', label: 'Overview', content: <p>Application overview content...</p> },
+                  { id: 'documents', label: 'Documents', content: <p>Document management...</p> },
+                  { id: 'payments', label: 'Payments', content: <p>Payment history...</p> },
+                ]}
+                defaultActiveTab="overview"
+              />
+            </div>
+
+            {/* Accordion */}
+            <div className="space-y-4">
+              <h3 className="text-heading-3">Accordion</h3>
+              <Accordion
+                items={[
+                  {
+                    id: 'eligibility',
+                    title: 'Eligibility Criteria',
+                    content: 'Details about who can apply for hostel admission...'
+                  },
+                  {
+                    id: 'documents',
+                    title: 'Required Documents',
+                    content: 'List of documents needed for application...'
+                  },
+                  {
+                    id: 'fees',
+                    title: 'Fee Structure',
+                    content: 'Information about hostel fees and payment...'
+                  },
+                ]}
+              />
+            </div>
+          </section>
+
+          {/* Feedback Components */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">Feedback Components</h2>
+
+            <div className="card p-8">
+              <div className="space-y-6">
+                {/* Modal Trigger */}
+                <div>
+                  <h3 className="text-heading-3 mb-4">Modal</h3>
+                  <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
+                </div>
+
+                {/* Alerts and Banners */}
+                <div className="space-y-4">
+                  <h3 className="text-heading-3">Alerts & Banners</h3>
+                  <Alert title="Success!" message="Your application has been submitted successfully." variant="success" />
+                  <Alert title="Warning" message="Please review your information before submitting." variant="warning" closable />
+                  <Alert message="There was an error processing your request." variant="error" />
+                  <Banner title="Important Notice" message="Hostel admission deadline is approaching." variant="info" closable />
+                </div>
+
+                {/* Loading and Empty States */}
+                <div className="space-y-4">
+                  <h3 className="text-heading-3">Loading & Empty States</h3>
+                  <div className="flex items-center space-x-4">
+                    <Spinner size="sm" />
+                    <Spinner size="md" />
+                    <Spinner size="lg" />
+                    <Spinner showText text="Loading data..." />
+                  </div>
+
+                  <div className="border rounded-lg p-8">
+                    <EmptyState
+                      title="No Applications Found"
+                      description="You haven't submitted any applications yet."
+                      action={{ label: 'Create Application', onClick: () => {} }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Layout Components */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">Layout Components</h2>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-heading-3 mb-4">Container</h3>
+                <Container className="bg-gray-100 p-4">
+                  <p>This content is constrained to a max-width container.</p>
+                </Container>
+              </div>
+
+              <div>
+                <h3 className="text-heading-3 mb-4">Grid</h3>
+                <Grid cols={{ default: 1, md: 3 }} gap="md" className="bg-gray-100 p-4">
+                  <div className="bg-white p-4 rounded">Grid Item 1</div>
+                  <div className="bg-white p-4 rounded">Grid Item 2</div>
+                  <div className="bg-white p-4 rounded">Grid Item 3</div>
+                </Grid>
+              </div>
+
+              <div>
+                <h3 className="text-heading-3 mb-4">Flex</h3>
+                <Flex gap="md" className="bg-gray-100 p-4">
+                  <div className="bg-white p-4 rounded flex-1">Flex Item 1</div>
+                  <div className="bg-white p-4 rounded flex-1">Flex Item 2</div>
+                  <div className="bg-white p-4 rounded flex-1">Flex Item 3</div>
+                </Flex>
+              </div>
+
+              <div>
+                <h3 className="text-heading-3 mb-4">Spacer</h3>
+                <div className="bg-gray-100 p-4">
+                  <div className="bg-white p-4 rounded">Content Above</div>
+                  <Spacer size="lg" />
+                  <div className="bg-white p-4 rounded">Content Below</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Modal Implementation */}
+          <Modal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title="Design System Modal"
+          >
+            <p className="text-body">
+              This is a demonstration of the Modal component. It includes proper focus management,
+              keyboard navigation (ESC to close), and backdrop click handling.
+            </p>
+            <div className="mt-6 flex justify-end space-x-3">
+              <Button variant="secondary" onClick={() => setModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => setModalOpen(false)}>
+                Confirm
+              </Button>
+            </div>
+          </Modal>
 
           {/* Footer */}
           <footer
