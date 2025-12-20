@@ -226,7 +226,7 @@
           "1",
           "2"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -309,7 +309,8 @@
         ],
         "complexity": 8,
         "recommendedSubtasks": 6,
-        "expansionPrompt": "Break Task 3 into: (1) Requirements and content inventory per role based on PRD; (2) Global sitemap and role-based IA, including future modules; (3) Navigation patterns selection (top/side nav, breadcrumbs, role scoping) and variants; (4) Role-based routing and login/redirect rules, captured in flow diagrams; (5) Vertical (Boys/Girls/Dharamshala) context propagation rules; (6) Validation activities (stakeholder review, internal card sorting/tree tests, lifecycle walkthroughs). For each subtask, define outputs (diagrams, notes, example screens) and review criteria."
+        "expansionPrompt": "Break Task 3 into: (1) Requirements and content inventory per role based on PRD; (2) Global sitemap and role-based IA, including future modules; (3) Navigation patterns selection (top/side nav, breadcrumbs, role scoping) and variants; (4) Role-based routing and login/redirect rules, captured in flow diagrams; (5) Vertical (Boys/Girls/Dharamshala) context propagation rules; (6) Validation activities (stakeholder review, internal card sorting/tree tests, lifecycle walkthroughs). For each subtask, define outputs (diagrams, notes, example screens) and review criteria.",
+        "updatedAt": "2025-12-20T06:33:03.591Z"
       },
       {
         "id": "4",
@@ -2209,9 +2210,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-20T06:04:48.292Z",
+      "lastModified": "2025-12-20T06:33:03.593Z",
       "taskCount": 38,
-      "completedCount": 1,
+      "completedCount": 2,
       "tags": [
         "master"
       ]
