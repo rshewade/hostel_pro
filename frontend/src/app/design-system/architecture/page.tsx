@@ -85,13 +85,14 @@ export default function ArchitectureSandboxPage() {
           <section>
             <h2 className="text-heading-2 mb-4">Component Architecture</h2>
             <div className="card p-6">
-              <div className="grid md:grid-cols-5 gap-4">
+              <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {[
-                  { name: 'forms/', desc: 'Form controls', count: 6 },
+                  { name: 'forms/', desc: 'Form controls', count: 9 },
                   { name: 'ui/', desc: 'Basic elements', count: 4 },
                   { name: 'data/', desc: 'Data display', count: 6 },
-                  { name: 'feedback/', desc: 'User feedback', count: 6 },
+                  { name: 'feedback/', desc: 'User feedback', count: 8 },
                   { name: 'layout/', desc: 'Layout utils', count: 4 },
+                  { name: 'print/', desc: 'Print layouts', count: 5 },
                 ].map((cat) => (
                   <div
                     key={cat.name}
@@ -371,6 +372,193 @@ export default function ArchitectureSandboxPage() {
                 </div>
               </div>
             </Card>
+          </section>
+
+          {/* Component Mapping to UI Libraries */}
+          <section>
+            <h2 className="text-heading-2 mb-4">Component Mapping to UI Libraries</h2>
+            <p className="text-body-sm mb-6">
+              Reference table mapping our components to equivalent components in popular UI libraries for easier implementation.
+            </p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border border-gray-200 px-4 py-3 text-left font-semibold">Our Component</th>
+                    <th className="border border-gray-200 px-4 py-3 text-left font-semibold">MUI Equivalent</th>
+                    <th className="border border-gray-200 px-4 py-3 text-left font-semibold">Ant Design Equivalent</th>
+                    <th className="border border-gray-200 px-4 py-3 text-left font-semibold">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { ours: 'Button', mui: 'Button', antd: 'Button', notes: 'Supports primary, secondary, ghost, destructive variants' },
+                    { ours: 'Input', mui: 'TextField', antd: 'Input', notes: 'Includes label, error, helperText props' },
+                    { ours: 'Textarea', mui: 'TextField (multiline)', antd: 'Input.TextArea', notes: 'Multi-line text input' },
+                    { ours: 'Select', mui: 'Select', antd: 'Select', notes: 'Dropdown selection' },
+                    { ours: 'Checkbox', mui: 'Checkbox', antd: 'Checkbox', notes: 'With optional label' },
+                    { ours: 'Radio/RadioGroup', mui: 'Radio/RadioGroup', antd: 'Radio.Group', notes: 'Group radio buttons' },
+                    { ours: 'Toggle', mui: 'Switch', antd: 'Switch', notes: 'Boolean toggle switch' },
+                    { ours: 'DatePicker', mui: 'DatePicker', antd: 'DatePicker', notes: 'Date selection' },
+                    { ours: 'Badge', mui: 'Chip', antd: 'Tag', notes: 'Status indicators' },
+                    { ours: 'Chip', mui: 'Chip', antd: 'Tag', notes: 'Closable, selectable chips' },
+                    { ours: 'Tag', mui: 'Chip (variant)', antd: 'Tag', notes: 'Simple labels' },
+                    { ours: 'Card', mui: 'Card', antd: 'Card', notes: 'Content container with title/actions' },
+                    { ours: 'Table', mui: 'DataGrid', antd: 'Table', notes: 'Sortable, paginated tables' },
+                    { ours: 'List', mui: 'List', antd: 'List', notes: 'Vertical item lists' },
+                    { ours: 'Tabs', mui: 'Tabs', antd: 'Tabs', notes: 'Tab navigation' },
+                    { ours: 'Accordion', mui: 'Accordion', antd: 'Collapse', notes: 'Expandable panels' },
+                    { ours: 'Stepper', mui: 'Stepper', antd: 'Steps', notes: 'Multi-step progress' },
+                    { ours: 'Modal', mui: 'Dialog', antd: 'Modal', notes: 'Supports sm/md/lg/xl/full sizes' },
+                    { ours: 'SidePanel', mui: 'Drawer', antd: 'Drawer', notes: 'Slide-in panels' },
+                    { ours: 'Toast/ToastProvider', mui: 'Snackbar', antd: 'message/notification', notes: 'Use useToast() hook' },
+                    { ours: 'Alert', mui: 'Alert', antd: 'Alert', notes: 'Inline alerts' },
+                    { ours: 'Banner', mui: 'Alert (banner)', antd: 'Alert (banner)', notes: 'Full-width banners' },
+                    { ours: 'Spinner', mui: 'CircularProgress', antd: 'Spin', notes: 'Loading indicator' },
+                    { ours: 'EmptyState', mui: '-', antd: 'Empty', notes: 'Empty data placeholder' },
+                    { ours: 'Grid', mui: 'Grid', antd: 'Row/Col', notes: 'Responsive grid layout' },
+                    { ours: 'Flex', mui: 'Stack', antd: 'Flex', notes: 'Flexbox container' },
+                  ].map((row, i) => (
+                    <tr key={i} className={i % 2 === 1 ? 'bg-gray-50' : 'bg-white'}>
+                      <td className="border border-gray-200 px-4 py-2 font-mono text-navy-700">{row.ours}</td>
+                      <td className="border border-gray-200 px-4 py-2 font-mono text-gray-600">{row.mui}</td>
+                      <td className="border border-gray-200 px-4 py-2 font-mono text-gray-600">{row.antd}</td>
+                      <td className="border border-gray-200 px-4 py-2 text-gray-500">{row.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Do's and Don'ts */}
+          <section>
+            <h2 className="text-heading-2 mb-4">Usage Guidelines: Do's and Don'ts</h2>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Do's */}
+              <Card title="Do's" className="card border-l-4 border-l-green-500">
+                <ul className="space-y-3 text-sm">
+                  {[
+                    'Use semantic color tokens (--text-primary) instead of raw colors',
+                    'Always include aria-label for icon-only buttons',
+                    'Use the label prop on form fields for accessibility',
+                    'Prefer size="md" as the default button size',
+                    'Use ToastProvider at app root and useToast() hook for toasts',
+                    'Apply variant props for consistent styling',
+                    'Use Grid/Flex components for responsive layouts',
+                    'Include loading states for async operations',
+                    'Use Modal size="full" for complex forms on mobile',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+
+              {/* Don'ts */}
+              <Card title="Don'ts" className="card border-l-4 border-l-red-500">
+                <ul className="space-y-3 text-sm">
+                  {[
+                    'Don\'t use hardcoded colors - use design tokens',
+                    'Don\'t create custom buttons - use Button variants',
+                    'Don\'t skip error states on form fields',
+                    'Don\'t nest interactive elements (button inside button)',
+                    'Don\'t use Toast component directly - use ToastProvider',
+                    'Don\'t mix Tailwind with inline styles for same property',
+                    'Don\'t create new components for existing patterns',
+                    'Don\'t forget focus states for keyboard accessibility',
+                    'Don\'t use raw div for semantic layout - use Grid/Flex',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </div>
+          </section>
+
+          {/* Edge Cases & Best Practices */}
+          <section>
+            <h2 className="text-heading-2 mb-4">Edge Cases & Best Practices</h2>
+
+            <div className="space-y-4">
+              <Card title="Long Text Handling" className="card">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-3">Buttons with long text use truncate prop:</p>
+                    <Button truncate className="max-w-[200px]">
+                      This is a very long button label that should truncate
+                    </Button>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-3">Badges handle overflow gracefully:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge>Short</Badge>
+                      <Badge variant="info" className="max-w-[120px] truncate">
+                        Very long badge text that truncates
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card title="Loading States" className="card">
+                <div className="flex flex-wrap gap-4 items-center">
+                  <Button loading>Saving...</Button>
+                  <Button loading variant="secondary">Processing</Button>
+                  <Button loading variant="destructive">Deleting</Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-3">
+                  Loading prop disables interaction and shows spinner. Combine with descriptive text.
+                </p>
+              </Card>
+
+              <Card title="Empty States" className="card">
+                <p className="text-sm text-gray-600 mb-3">
+                  Always provide helpful empty states with clear actions:
+                </p>
+                <div className="border rounded-lg p-6 bg-gray-50 text-center">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <p className="font-medium text-gray-900">No documents yet</p>
+                  <p className="text-sm text-gray-500 mt-1">Upload your first document to get started.</p>
+                  <Button size="sm" className="mt-4">Upload Document</Button>
+                </div>
+              </Card>
+
+              <Card title="Print Components" className="card">
+                <p className="text-sm text-gray-600 mb-3">
+                  Print-optimized components available for formal documents:
+                </p>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="border rounded p-3 text-center">
+                    <code className="text-xs text-navy-700">A4Page</code>
+                    <p className="text-xs text-gray-500 mt-1">A4 document layout</p>
+                  </div>
+                  <div className="border rounded p-3 text-center">
+                    <code className="text-xs text-navy-700">Letter</code>
+                    <p className="text-xs text-gray-500 mt-1">Formal letters</p>
+                  </div>
+                  <div className="border rounded p-3 text-center">
+                    <code className="text-xs text-navy-700">Receipt</code>
+                    <p className="text-xs text-gray-500 mt-1">Payment receipts</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </section>
 
           {/* Responsive Test */}

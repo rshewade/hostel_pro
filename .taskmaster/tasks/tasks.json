@@ -94,7 +94,7 @@
         "dependencies": [
           "1"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -117,9 +117,10 @@
               1
             ],
             "details": "• List all required form controls: text input (single-line), textarea, dropdown/select, date picker, time picker, radio group, checkbox, toggle/switch, search field.\n• For each control, create base component with props and conditional styles for size (sm, md, lg where needed) and state (default, hover, focus, filled, disabled, error, success, read-only).\n• Use Flexbox/Grid and responsive CSS so labels, helper text, and icons adjust to different label lengths and container widths.\n• Connect all colors, typography, spacing, and radii to design system tokens from Task 1.\n• Include optional adornments (leading/trailing icons, clear button) as React props or props and conditional styles.\nAcceptance criteria:\n• Each control exists as a master component with documented variant properties in Figma.\n• All interactive states have distinct visual treatment including clear focus outlines and error messaging placement.\n• Controls resize correctly in horizontal and vertical directions without breaking alignment.\nTest pages/components:\n• Create a \"Form Controls – Desktop\" and \"Form Controls – Mobile\" component placing all props and conditional styles in sample form layouts to test spacing, wrapping, and state transitions visually.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Inspect controls in working application mode to verify focus order and state changes; manually resize parent pages/components to confirm responsiveness of each control.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.258Z"
           },
           {
             "id": 3,
@@ -129,9 +130,10 @@
               1
             ],
             "details": "• Define button types: primary, secondary, ghost, destructive, and any icon-only props and conditional styles.\n• For buttons, create props and conditional styles for size (xs, sm, md, lg if needed) and state (default, hover, focus, active/pressed, disabled, loading) with consistent padding and icon spacing.\n• Implement chips and tags for filters, status, and input chips, with props and conditional styles for selected vs unselected, with/without close icon, and different emphasis levels if required.\n• Ensure text truncation and long labels behave correctly using Flexbox/Grid and min/max width responsive CSS.\n• Map colors and typography strictly to Task 1 tokens, and align naming with common UI libraries (e.g., `Button/Primary`, `Chip/Filter`).\nAcceptance criteria:\n• All button, chip, and tag types exist as components with clearly labeled variant properties.\n• Visual hierarchy between primary, secondary, ghost, and destructive is obvious in test pages/components.\n• Icon placement options (left/right, icon-only) are available without creating redundant components.\nTest pages/components:\n• Create \"Buttons & Chips – States\" pages/components for desktop and mobile with all props and conditional styles placed on both light and error/success backgrounds to verify contrast and legibility.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use accessibility and contrast-check plugins on button and chip text; run a quick audit to confirm only library instances are used in sample flows.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.265Z"
           },
           {
             "id": 4,
@@ -143,9 +145,10 @@
               3
             ],
             "details": "• Implement table components with header, row, and cell subcomponents, including sortable header icons, pagination controls, and filter chips; ensure row density props and conditional styles (compact, regular).\n• Create card patterns for key use cases (summary cards, list cards) with optional sections (title, meta, status, actions) using React props.\n• Define list patterns (simple lists, media lists) and align spacing with grids.\n• Create steppers for multi-step forms with props and conditional styles for current, completed, upcoming, and error steps (horizontal and vertical where needed).\n• Implement tabs and accordions with clear selected/hover/focus/disabled states and support for long labels.\n• Build status badges (Paid, Pending, Failed, Overdue, Approved, Rejected, Under Review, New, Verified, etc.) as a single base component with props and conditional styles by status and emphasis.\nAcceptance criteria:\n• Each data component is a single source-of-truth component with props and conditional styles/properties for states and densities instead of duplicated pages/components.\n• Tables, tabs, and accordions behave correctly when their width changes and when label text wraps.\n• Status badges are driven by a `status` variant or property and use semantic tokens for color.\nTest pages/components:\n• Assemble \"Data Components – Desktop\" and \"Data Components – Mobile\" pages/components that mimic realistic screens (e.g., table with filters, card grid, stepper in a form) to validate composition and responsiveness.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Resize test pages/components and sample screens to check table column behavior, card wrapping, and badge legibility; confirm all instances link back to the shared components library.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.275Z"
           },
           {
             "id": 5,
@@ -157,9 +160,10 @@
               4
             ],
             "details": "• Define base modal component with header, body, and footer slots that can host form controls and buttons; include props and conditional styles for confirmation, destructive, and full-screen modes.\n• Create side panel component patterns for contextual details or editing, with responsive widths.\n• Implement toast notifications and inline banners (including DPDP consent banners) with props and conditional styles for types (info, success, warning, error) and optional actions.\n• Create templated empty states and error states using illustration or icon placeholders, title, description, and primary/secondary actions.\n• Ensure focus management considerations are documented (what should receive focus on open/close) for dev handoff.\nAcceptance criteria:\n• At least one reusable base component exists for each overlay/feedback pattern with documented variant properties.\n• Overlays accommodate different content lengths and button configurations without layout breaking.\n• Empty and error states are consistent across modules in typography, iconography, and spacing.\nTest pages/components:\n• Build \"Overlays & Feedback – Desktop\" and \"Overlays & Feedback – Mobile\" pages/components simulating key flows (e.g., destructive confirmation, DPDP consent, form error) to visually validate hierarchy and spacing.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test sample flows triggering modals/toasts/banners to check visual stacking, alignment, and that all overlays reuse the same base components.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.282Z"
           },
           {
             "id": 6,
@@ -172,9 +176,10 @@
               5
             ],
             "details": "• Define component-level layout rules aligned with Task 24 breakpoints and grids (e.g., desktop 12-col, mobile 4-col).\n• For each component family (forms, buttons, tables, cards, overlays), configure Flexbox/Grid and responsive CSS to handle width changes, content growth, and multi-line text.\n• Create size props and conditional styles (desktop vs mobile where meaningfully different) only when responsive rules are insufficient.\n• Ensure components can be dropped into common container widths without manual overrides.\nAcceptance criteria:\n• All major components support at least two tested sizes (desktop and mobile pages/components) without visual defects.\n• No critical component relies on manual resizing of inner layers; resizing is governed by Flexbox/Grid and responsive CSS.\n• Components align cleanly to layout grids defined in Task 24 when placed in example screens.\nTest pages/components:\n• Create a \"Responsive Stress Test\" page with desktop, tablet, and mobile pages/components, placing key components and aggressively resizing containers to validate wrapping and alignment.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use Figma’s resize handles and layout grid overlays to confirm consistent behavior; spot-check a subset of application flows using only shared React components to verify real-world responsiveness.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.289Z"
           },
           {
             "id": 7,
@@ -189,9 +194,10 @@
               6
             ],
             "details": "• Set up a structured documentation page (or pages) grouping components into logical sections (Forms, Buttons, Data Display, Overlays, Feedback, Layout/Print).\n• For each component, include a short description, intended usage, do/don’t examples, and notes on accessibility states (focus, error, required fields).\n• Add mapping notes to common UI libraries (e.g., MUI `TextField`, Ant Implement `Table`) using consistent naming to ease implementation.\n• Include notes on expected behavior for edge cases (long text, missing data, loading states) and how props and conditional styles/properties should be used.\n• Document print-optimized containers for A4 letters, receipts, and undertakings, including margins, color reduction, and typography scale.\nAcceptance criteria:\n• All core component families appear on the documentation page with clear labels and usage notes.\n• Each documented component lists at least one analogue in MUI or Ant Implement where applicable.\n• Developers can navigate the page and understand which component to use for a given need without additional explanation.\nTest pages/components:\n• Embed example usage pages/components on the documentation page (e.g., mini screen mockups) demonstrating correct application of each component in context.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Conduct a quick review session with at least one designer and one developer walking through the doc page and verifying they can each identify correct components for 5–7 sample UI requirements.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.296Z"
           },
           {
             "id": 8,
@@ -206,15 +212,16 @@
               7
             ],
             "details": "• Use accessibility plugins and manual review to confirm all interactive components have clear focus, hover, active, disabled, and error/success states and adequate contrast.\n• Run an instance usage audit across key product files to ensure screens use shared components, not detached or local copies.\n• Check component descriptions and naming for clarity and completeness, updating where needed.\n• Review library performance: identify overly complex components (deep nesting, many hidden layers) and refactor for efficiency while preserving behavior.\n• Establish a lightweight maintenance checklist and cadence for future audits.\nAcceptance criteria:\n• No critical accessibility gaps remain in core components (focus states and contrast meet agreed standards).\n• All target screens consume published library instances; detached instances are either justified or eliminated.\n• Library performance is acceptable (no major lag when opening, editing, or publishing components).\nTest pages/components:\n• Create a \"QC & Regression\" page with representative flows (forms, tables, overlays) exclusively using shared React components to serve as a baseline for future regression checks.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Perform a final pass using Figma’s library and performance tools plus contrast-check plugins; log and resolve issues in a short checklist before marking Task 2 as complete.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T10:31:39.303Z"
           }
         ],
         "complexity": 9,
         "recommendedSubtasks": 8,
         "expansionPrompt": "Break Task 2 into subtasks: (1) Component architecture, naming conventions, and variables strategy; (2) Core form controls (inputs, textareas, dropdowns, pickers, radio, checkbox, toggles) with states; (3) Buttons and chips/tags with size and state variants; (4) Data display components (tables, lists, cards, badges, steppers, tabs, accordions); (5) Overlays and feedback (modals, toasts, banners, empty/error states); (6) Responsive behavior and Auto Layout/constraints for desktop vs mobile; (7) Component documentation page with usage guidance and mapping to common UI libraries; (8) Quality checks: instance usage, accessibility states, and performance of the library. For each, define acceptance criteria and test frames.",
-        "updatedAt": "2025-12-21T05:45:48.255Z"
+        "updatedAt": "2025-12-21T10:31:39.303Z"
       },
       {
         "id": "3",
@@ -2211,9 +2218,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-21T05:45:48.261Z",
+      "lastModified": "2025-12-21T10:31:39.305Z",
       "taskCount": 38,
-      "completedCount": 2,
+      "completedCount": 3,
       "tags": [
         "master"
       ]

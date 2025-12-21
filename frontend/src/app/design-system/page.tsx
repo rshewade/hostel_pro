@@ -38,10 +38,15 @@ import {
   Grid,
   Flex,
   Spacer,
+  SidePanel,
+  Receipt,
+  ReceiptRow,
+  ReceiptDivider,
 } from '../../components';
 
 export default function DesignSystemPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [sidePanelOpen, setSidePanelOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState('overview');
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
@@ -761,8 +766,11 @@ export default function DesignSystemPage() {
               <div className="space-y-6">
                 {/* Modal Trigger */}
                 <div>
-                  <h3 className="text-heading-3 mb-4">Modal</h3>
-                  <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
+                  <h3 className="text-heading-3 mb-4">Modal & Side Panel</h3>
+                  <div className="flex gap-4">
+                    <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
+                    <Button variant="secondary" onClick={() => setSidePanelOpen(true)}>Open Side Panel</Button>
+                  </div>
                 </div>
 
                 {/* Alerts and Banners */}
@@ -837,6 +845,42 @@ export default function DesignSystemPage() {
             </div>
           </section>
 
+          {/* Print Components */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">Print Components</h2>
+            <p className="text-body-sm mb-4">
+              Print-optimized components for formal documents, receipts, and letters.
+              These components are styled for both screen display and print output.
+            </p>
+
+            <div className="card p-8">
+              <h3 className="text-heading-3 mb-4">Receipt Example</h3>
+              <div className="max-w-sm mx-auto">
+                <Receipt
+                  title="Payment Receipt"
+                  receiptNumber="RCP-2024-001234"
+                  date="21 Dec 2024"
+                  organizationName="Seth Hirachand Gumanji Jain Trust"
+                  organizationAddress="Jain Hostel, Mumbai - 400001"
+                  size="half-a4"
+                >
+                  <ReceiptRow label="Student Name" value="John Doe" />
+                  <ReceiptRow label="Room Number" value="101-A" />
+                  <ReceiptDivider />
+                  <ReceiptRow label="Hostel Fee" value="₹15,000" />
+                  <ReceiptRow label="Mess Fee" value="₹5,000" />
+                  <ReceiptRow label="Maintenance" value="₹1,000" />
+                  <ReceiptDivider />
+                  <ReceiptRow label="Total Amount" value="₹21,000" bold />
+                  <ReceiptRow label="Payment Mode" value="UPI" />
+                </Receipt>
+              </div>
+              <p className="text-xs text-gray-500 text-center mt-4">
+                Use Ctrl+P to test print styling
+              </p>
+            </div>
+          </section>
+
           {/* Modal Implementation */}
           <Modal
             isOpen={modalOpen}
@@ -856,6 +900,41 @@ export default function DesignSystemPage() {
               </Button>
             </div>
           </Modal>
+
+          {/* SidePanel Implementation */}
+          <SidePanel
+            isOpen={sidePanelOpen}
+            onClose={() => setSidePanelOpen(false)}
+            title="Side Panel Demo"
+            size="md"
+            footer={
+              <>
+                <Button variant="secondary" onClick={() => setSidePanelOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => setSidePanelOpen(false)}>
+                  Save Changes
+                </Button>
+              </>
+            }
+          >
+            <div className="space-y-4">
+              <p className="text-body">
+                This is a demonstration of the SidePanel component. It slides in from
+                the right and is perfect for forms, details views, and editing contexts.
+              </p>
+              <Input label="Name" placeholder="Enter name..." />
+              <Textarea label="Description" placeholder="Enter description..." rows={3} />
+              <Select
+                label="Category"
+                options={[
+                  { value: 'general', label: 'General' },
+                  { value: 'urgent', label: 'Urgent' },
+                  { value: 'low', label: 'Low Priority' },
+                ]}
+              />
+            </div>
+          </SidePanel>
 
           {/* Footer */}
           <footer

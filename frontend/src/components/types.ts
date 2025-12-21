@@ -91,12 +91,15 @@ export interface TableProps<T = any> extends BaseComponentProps {
 // Modal variants
 export type ModalVariant = 'default' | 'confirmation' | 'destructive';
 
+// Modal size variants
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
 // Modal props
 export interface ModalProps extends BaseComponentProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: ModalSize;
   closable?: boolean;
   // Footer support
   footer?: ReactNode;

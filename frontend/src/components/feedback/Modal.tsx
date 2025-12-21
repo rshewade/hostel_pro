@@ -69,17 +69,23 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(({
 
   const dialogClasses = cn(
     // Dialog styles
-    'relative bg-white rounded-lg shadow-xl',
+    'relative bg-white shadow-xl',
     'animate-in zoom-in-95 duration-200',
-    'max-h-[90vh] overflow-auto',
 
     // Size variants
-    {
-      'max-w-sm w-full mx-4': size === 'sm',
-      'max-w-md w-full mx-4': size === 'md',
-      'max-w-lg w-full mx-4': size === 'lg',
-      'max-w-xl w-full mx-4': size === 'xl',
-    }
+    size === 'full' ? [
+      'w-screen h-screen max-w-none max-h-none',
+      'rounded-none',
+    ] : [
+      'rounded-lg',
+      'max-h-[90vh] overflow-auto',
+      {
+        'max-w-sm w-full mx-4': size === 'sm',
+        'max-w-md w-full mx-4': size === 'md',
+        'max-w-lg w-full mx-4': size === 'lg',
+        'max-w-xl w-full mx-4': size === 'xl',
+      }
+    ]
   );
 
   const contentClasses = cn(
