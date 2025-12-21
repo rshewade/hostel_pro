@@ -1,0 +1,37 @@
+{
+  "mcp": {
+    "task-master-ai": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "task-master-ai"
+      ],
+      "environment": {
+        "TASK_MASTER_TOOLS": "core",
+        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_KEY_HERE",
+        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_KEY_HERE",
+        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
+        "GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
+        "XAI_API_KEY": "YOUR_XAI_KEY_HERE",
+        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
+        "MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
+        "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
+        "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
+      },
+      "enabled": true
+    },
+    "supabase": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres.YOUR_PROJECT_REF:YOUR_PASSWORD@aws-0-YOUR_REGION.pooler.supabase.com:6543/postgres"
+      ],
+      "environment": {},
+      "enabled": true
+    }
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

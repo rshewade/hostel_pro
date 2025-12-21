@@ -22,6 +22,9 @@ export * from './ui/Badge';
 export * from './ui/Chip';
 export * from './ui/Tag';
 
+// Navigation Components
+export * from './navigation';
+
 // Data Display Components
 export * from './data/Table';
 export * from './data/Card';

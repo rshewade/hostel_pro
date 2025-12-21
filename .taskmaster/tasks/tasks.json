@@ -242,9 +242,10 @@
             "description": "Compile detailed requirements and content inventory for each role (Applicant, Resident, Superintendent, Trustee, Accounts, Parent/Guardian) from the PRD, listing all sections and key tasks.",
             "dependencies": [],
             "details": "Review PRD to map every requirement to specific screens/sections per role; create tabular inventory with columns for Role, Section, Key Features, PRD Reference; outputs include inventory spreadsheet or page with role cards detailing content needs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Cross-check inventory against PRD for 100% coverage; review with PM/stakeholders to confirm no missing requirements or extraneous items.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T14:10:22.334Z"
           },
           {
             "id": 2,
@@ -254,9 +255,10 @@
               1
             ],
             "details": "Build hierarchical sitemap in or Miro showing all roles' sections (e.g., Applicant: Application/Status; Resident: Dashboard/Fees/etc.); include visually disabled placeholders for scalability; define shared vs role-specific content; outputs: interactive sitemap diagram and IA documentation.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate hierarchy depth ≤3 levels; ensure future modules slotted without disrupting current flows; stakeholder sign-off on completeness.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T14:45:23.664Z"
           },
           {
             "id": 3,
@@ -267,9 +269,10 @@
               2
             ],
             "details": "Evaluate patterns like vertical nav for dashboards, breadcrumbs for sub-sections, progressive disclosure; create examples showing role-based nav (e.g., side nav for Superintendent); document guidelines for top vs side nav usage; outputs: pattern library page and variant mockups.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test 2-3 role navs and test resize responsiveness; confirm patterns align with Material Design/Userpilot best practices for task-oriented nav.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T14:53:59.887Z"
           },
           {
             "id": 4,
@@ -280,9 +283,10 @@
               3
             ],
             "details": "Map flows: Landing → Apply/Check Status/Login → Role redirect (e.g., Applicant to Status); include guard hooks for access restrictions; use prototypes for paths; provide dev notes for React/Next.js Router implementation; outputs: flow diagrams and routing spec document.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Walkthrough diagrams for edge cases (wrong role login, role switch); dev review for routing feasibility.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T15:07:39.242Z"
           },
           {
             "id": 5,
@@ -294,9 +298,10 @@
               4
             ],
             "details": "Define context persistence (URL params, session state); show in how dashboards filter (e.g., Rooms list by vertical); update nav labels dynamically; outputs: propagation flow diagram, example screens with vertical props and conditional styles, dev guidelines for state management.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test flows switching verticals mid-session; verify filters apply consistently across role sections.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T15:15:59.516Z"
           },
           {
             "id": 6,
@@ -310,15 +315,16 @@
               5
             ],
             "details": "Schedule reviews with stakeholders; run card-sorting/tree-testing with 2-3 internal users per role; walkthrough full lifecycles (applicant→resident); gather feedback and iterate; outputs: validation report with findings, revised artifacts, approval sign-offs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Measure task success rate >90% in tree tests; confirm stakeholder alignment on all PRD mappings; document changes from feedback.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T15:19:43.034Z"
           }
         ],
         "complexity": 8,
         "recommendedSubtasks": 6,
         "expansionPrompt": "Break Task 3 into: (1) Requirements and content inventory per role based on PRD; (2) Global sitemap and role-based IA, including future modules; (3) Navigation patterns selection (top/side nav, breadcrumbs, role scoping) and variants; (4) Role-based routing and login/redirect rules, captured in flow diagrams; (5) Vertical (Boys/Girls/Dharamshala) context propagation rules; (6) Validation activities (stakeholder review, internal card sorting/tree tests, lifecycle walkthroughs). For each subtask, define outputs (diagrams, notes, example screens) and review criteria.",
-        "updatedAt": "2025-12-20T06:33:03.591Z"
+        "updatedAt": "2025-12-21T15:19:43.034Z"
       },
       {
         "id": "4",
@@ -330,7 +336,8 @@
         "dependencies": [
           "1",
           "2",
-          "3"
+          "3",
+          "39"
         ],
         "status": "pending",
         "subtasks": [
@@ -383,7 +390,8 @@
         "priority": "high",
         "dependencies": [
           "3",
-          "4"
+          "4",
+          "39"
         ],
         "status": "pending",
         "subtasks": [
@@ -435,7 +443,8 @@
         "testStrategy": "• Ensure all PRD-listed data elements (timeline, interview schedule, prompts, download links) appear in the design.\n• Simulate multiple status scenarios by duplicating component: awaiting review, interview scheduled, awaiting documents, approved, rejected.\n• Link from emails/SMS mock to this screen in working application to check flow coherence.\n• Validate mobile-first layout for readability and tap targets.",
         "priority": "high",
         "dependencies": [
-          "5"
+          "5",
+          "39"
         ],
         "status": "pending",
         "subtasks": [
@@ -515,7 +524,8 @@
         "priority": "high",
         "dependencies": [
           "3",
-          "5"
+          "5",
+          "39"
         ],
         "status": "pending",
         "subtasks": [
@@ -2106,7 +2116,9 @@
         "details": "Tech & setup:\n- Use NestJS v11+ with TypeScript 5+, Node 20 LTS.\n- Use official supabase-js v2 (@supabase/supabase-js) as the primary client in the backend.\n- Store Supabase project URL, anon/service keys, JWT secret, and Twilio/MSG91 credentials in environment variables, injected via NestJS ConfigModule.\n- Use NestJS modules: @nestjs/jwt for custom JWT where required, @nestjs/throttler for rate limiting, @nestjs/passport + passport-jwt for guard integration.\n\nSupabase Auth configuration:\n- Configure Supabase Auth for phone OTP and email/password in the Supabase dashboard.\n- Enable phone auth; configure external SMS provider (Twilio/MSG91) via Edge Functions or Supabase hooks.\n- Define JWT custom claims for role and vertical using Supabase Auth hooks or by writing to the auth.users / public.users mapping and using a JWT enrichment function.\n\nNestJS Auth module design:\n- Create AuthModule with:\n  - AuthController for /api/auth/* endpoints.\n  - AuthService wrapping supabase-js auth methods.\n  - JwtStrategy & JwtAuthGuard reading Supabase-issued JWTs from Authorization: Bearer header.\n  - ThrottlerGuard for OTP endpoints.\n\nEndpoints (core pseudocode):\n- POST /api/auth/otp/send\n  - Validate phone format.\n  - Apply rate limit (max 3 per 5 minutes per phone+IP) using Throttler and custom in-memory/Redis key.\n  - Call supabase.auth.signInWithOtp({ phone }) with appropriate options.\n  - Log event to audit_logs via a service.\n\n- POST /api/auth/otp/verify\n  - Receive phone + OTP.\n  - Call supabase.auth.verifyOtp({ phone, token: otp, type: 'sms' }).\n  - On success, map user to public.users row; ensure role and vertical set.\n  - Return access_token and refresh_token from Supabase; set secure, HTTP-only cookies if using cookie-based auth.\n\n- POST /api/auth/login\n  - For student password login: supabase.auth.signInWithPassword({ email/phone, password }).\n  - On first login, if password not set (metadata.first_login === true), return flag to frontend for password creation.\n\n- POST /api/auth/refresh\n  - Use refresh_token from cookie/body: supabase.auth.refreshSession({ refresh_token }).\n  - Return new access_token/refresh_token.\n\n- POST /api/auth/logout\n  - Invalidate refresh token in client (delete cookie); optionally call supabase.auth.signOut().\n\nStudent & parent flows:\n- Students: maintain mapping between auth.users.id and public.users.id (student role); enforce role: STUDENT and vertical claims in JWT by reading public.users and embedding via a JWT hook function.\n- Parents: phone-based OTP login; store linked student_user_ids in users.metadata or a separate parent_child_links table; ensure JWT contains role: PARENT and parent metadata for lookup.\n\nSecurity enhancements:\n- Device fingerprinting: accept device_id and user-agent from client; store in a device_sessions table keyed by user_id; mark suspicious if new device or geo-IP; add additional verification path.\n- IP allowlisting for admin roles: maintain allowed_ips table; in a global guard, if role in (TRUSTEE, ACCOUNTS) and request.ip not in allowed_ips, deny.\n- MFA for Trustee/Accounts: integrate TOTP (e.g., speakeasy) or SMS-based second factor; store MFA secret in encrypted form; add /api/auth/mfa/verify before issuing full-privilege JWT.\n\nAudit logging:\n- On each auth-related action (OTP send/verify, login, refresh, logout, MFA, failed attempts), insert audit_logs row with entity_type='AUTH', action, actor_id if known, ip and user_agent.\n\nSample guard pseudocode:\n```ts\n@Injectable()\nexport class SupabaseJwtAuthGuard extends AuthGuard('jwt') {\n  canActivate(ctx: ExecutionContext) {\n    const req = ctx.switchToHttp().getRequest();\n    const token = extractBearerToken(req.headers.authorization);\n    // Verify with NestJS JWT using Supabase JWT secret\n    const payload = this.jwtService.verify(token);\n    req.user = payload; // { sub, role, vertical, phone, ... }\n    return true;\n  }\n}\n```\n",
         "testStrategy": "- Unit-test AuthService methods with mocked supabase-js client for:\n  - OTP send / verify, login, refresh, logout success and failure paths.\n- Integration tests using Supertest against NestJS:\n  - OTP send respects rate limiting (4th request within 5 min receives 429).\n  - OTP verify issues JWT with correct role and vertical claims for students and parents.\n  - Student login, first-time password setup, and password reset flows.\n  - Parent login with multiple children correctly populates accessible students.\n- Security tests:\n  - Attempt login for Trustee/Accounts from disallowed IP, expect 403.\n  - Simulate suspicious device fingerprint and verify additional checks.\n  - Verify MFA is required and enforced for privileged roles.\n- Session tests:\n  - Token refresh before and after expiry; ensure expired tokens rejected.\n  - Cross-device login behavior: ability to revoke sessions if required.\n- Verify audit_logs entries created for each auth event and contain correct metadata.",
         "priority": "high",
-        "dependencies": [],
+        "dependencies": [
+          "30"
+        ],
         "status": "pending",
         "subtasks": []
       },
@@ -2214,13 +2226,25 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": "39",
+        "title": "Set up db.json prototyping environment with json-server and concurrently",
+        "description": "Install json-server and concurrently packages, create a realistic db.json with mock data for all Phase 1 domains, configure concurrent dev scripts, and verify API endpoints for frontend prototyping.",
+        "details": "1. Install development dependencies: `npm install --save-dev json-server concurrently` (local installation preferred over global for project reproducibility)[1][2][5].\n2. Create `db.json` in project root with nested structure matching Phase 1 domains: applications (with status, vertical, payments), students (profile, room, leaves), documents, payments, rooms (occupancy, allocations), leaves (status, approver notes), users (for auth prototyping), notifications. Populate with 20-50 realistic sample records per resource, including edge cases (overdue payments, pending leaves, multi-status applications)[1][3]. Use realistic Indian student names, hostel verticals (Boys/Girls/Dharamshala), fee structures (hostel+security deposit), and dates.\n3. Configure `package.json` scripts for concurrent execution: `\"dev\": \"concurrently \\\"npm run json-server\\\" \\\"npm run frontend\\\"`, `\"json-server\": \"json-server --watch db.json --port 4000 --delay 500 --host 0.0.0.0 --cors\", `\"frontend\": \"vite\"` (adjust for actual frontend runner). The `--delay 500` simulates realistic network latency; `--cors` enables frontend requests; port 4000 avoids conflicts[5][7].\n4. Optional: Add `public` folder for static assets if needed (`--static ./public`), and middleware script for basic auth simulation (e.g., lowdb filters for user roles) if prototyping requires it[1].\n5. Document API base URL (`http://localhost:4000`) and key endpoints in README.md with curl examples for GET/POST/PUT/DELETE on each resource.\n6. Ensure db.json is gitignored or use .gitignore patterns for sensitive mock data, but commit a minimal example.db.json.",
+        "testStrategy": "1. Run `npm run dev` and verify both json-server (port 4000) and frontend start without port conflicts, checking console logs for 'Resources http://localhost:4000' message[1][2].\n2. Test core endpoints with curl or browser/Postman: `curl http://localhost:4000/applications` (expect array), `curl -X POST -H \"Content-Type: application/json\" -d '{\"name\":\"Test\",\"status\":\"new\"}' http://localhost:4000/applications` (creates record, auto ID), verify GET returns new item, `curl -X PUT -d '{\"status\":\"approved\"}' http://localhost:4000/applications/1` (updates), `curl -X DELETE http://localhost:4000/applications/1` (deletes)[1][7].\n3. Test all resources have data: GET /students, /rooms, /leaves, /payments, /documents, /notifications return non-empty arrays with realistic mock data.\n4. Verify frontend can fetch data: open app, check Network tab for successful 200 responses to localhost:4000 endpoints, no CORS errors.\n5. Test file watching: edit db.json (add record), refresh endpoint to confirm live reload without restart[1].\n6. Simulate latency: time a GET request, expect ~500ms delay. Test concurrent mode stability over 5 mins.",
+        "status": "done",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [],
+        "updatedAt": "2025-12-21T15:24:27.995Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-21T10:31:39.305Z",
-      "taskCount": 38,
-      "completedCount": 3,
+      "lastModified": "2025-12-21T15:24:27.997Z",
+      "taskCount": 39,
+      "completedCount": 4,
       "tags": [
         "master"
       ]

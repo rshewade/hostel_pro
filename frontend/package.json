@@ -6,23 +6,28 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "json-server": "json-server --watch ../db.json --port 4000 --host 0.0.0.0",
+    "dev:all": "concurrently \"npm run json-server\" \"npm run dev\""
   },
   "dependencies": {
+    "autoprefixer": "^10.4.23",
     "next": "16.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/node": "20.19.27",
+    "@types/react": "19.2.7",
     "@types/react-dom": "^19",
     "clsx": "^2.1.1",
+    "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
+    "json-server": "^0.17.4",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.1.18",
     "typescript": "5.9.3"
   }
 }
