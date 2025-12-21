@@ -339,7 +339,7 @@
           "3",
           "39"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -347,9 +347,10 @@
             "description": "Create responsive hero section with hostel overview and values, discipline/safety highlights, and amenities showcase using Flexbox/Grid for desktop and mobile.",
             "dependencies": [],
             "details": "Incorporate high-quality images, concise text blocks, clear headings for SEO/accessibility; use color tokens; ensure stacking on mobile breakpoints (1440px, 768px, 375px).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Resize pages/components to test responsiveness; validate tab order and heading hierarchy.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T16:54:53.428Z"
           },
           {
             "id": 2,
@@ -359,9 +360,10 @@
               1
             ],
             "details": "Cards lead to applicant flow/login; timeline shows Apply → Verification → Interview → Approval → Payment → Room Allocation → Check-in; reflow to vertical on mobile.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test interactions; check card hover states and timeline adaptability across devices.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T16:55:48.931Z"
           },
           {
             "id": 3,
@@ -372,14 +374,16 @@
               2
             ],
             "details": "Use announcement cards consistently; apply responsive responsive CSS; test full page at 1024px, 768px, 375px; add dev notes for SEO/accessibility.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Full page resize test; keyboard navigation; confirm CTA prominence and no layout breaks.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T16:56:16.347Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design responsive landing page with vertical selection."
+        "expansionPrompt": "Break down this task with a focus on design responsive landing page with vertical selection.",
+        "updatedAt": "2025-12-21T16:56:16.347Z"
       },
       {
         "id": "5",
@@ -2242,9 +2246,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-21T15:24:27.997Z",
+      "lastModified": "2025-12-21T16:56:16.353Z",
       "taskCount": 39,
-      "completedCount": 4,
+      "completedCount": 5,
       "tags": [
         "master"
       ]
