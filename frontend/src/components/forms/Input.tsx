@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from '../utils';
 import { INPUT_VARIANT_CLASSES, ANIMATIONS } from '../constants';
 import type { FormFieldProps } from '../types';
@@ -53,7 +53,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   'data-testid': testId,
   ...props
 }, ref) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const inputId = id || `input-${generatedId}`;
   const errorId = error ? `${inputId}-error` : undefined;
   const helperId = helperText ? `${inputId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;

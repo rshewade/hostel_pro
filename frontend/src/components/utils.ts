@@ -7,7 +7,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Generate unique IDs for components
+/**
+ * Generate unique IDs for non-SSR contexts.
+ *
+ * WARNING: Do NOT use this for form elements that need SSR hydration!
+ * For React components, use React's `useId()` hook instead to avoid
+ * hydration mismatches between server and client.
+ *
+ * This function is only safe for:
+ * - Client-only components (marked with 'use client')
+ * - Dynamic content generated after initial render
+ * - Non-critical IDs that don't affect accessibility
+ *
+ * @deprecated For form elements, use React's useId() hook instead
+ */
 export function generateId(prefix = 'component') {
   return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }

@@ -15,11 +15,11 @@ export const BUTTON_VARIANT_CLASSES = {
   destructive: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500',
 } as const;
 
-// Input variant mappings
+// Input variant mappings (includes hover states with disabled override)
 export const INPUT_VARIANT_CLASSES = {
-  default: 'border-gray-300 focus:border-gold-500 focus:ring-gold-500',
-  error: 'border-red-500 focus:border-red-500 focus:ring-red-500',
-  success: 'border-green-500 focus:border-green-500 focus:ring-green-500',
+  default: 'border-gray-300 hover:border-gray-400 disabled:hover:border-gray-300 focus:border-gold-500 focus:ring-gold-500',
+  error: 'border-red-500 hover:border-red-600 disabled:hover:border-red-500 focus:border-red-500 focus:ring-red-500',
+  success: 'border-green-500 hover:border-green-600 disabled:hover:border-green-500 focus:border-green-500 focus:ring-green-500',
 } as const;
 
 // Status badge mappings

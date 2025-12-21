@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from '../utils';
 import { INPUT_VARIANT_CLASSES, ANIMATIONS } from '../constants';
 import type { FormFieldProps } from '../types';
@@ -47,7 +47,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   'data-testid': testId,
   ...props
 }, ref) => {
-  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const textareaId = id || `textarea-${generatedId}`;
   const errorId = error ? `${textareaId}-error` : undefined;
   const helperId = helperText ? `${textareaId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;

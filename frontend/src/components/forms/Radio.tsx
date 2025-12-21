@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from '../utils';
 import type { FormFieldProps } from '../types';
 
@@ -52,7 +52,8 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(({
   'data-testid': testId,
   ...props
 }, ref) => {
-  const radioId = id || `radio-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const radioId = id || `radio-${generatedId}`;
   const errorId = error ? `${radioId}-error` : undefined;
   const helperId = helperText ? `${radioId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
@@ -184,12 +185,14 @@ function RadioGroup({
   'data-testid': testId,
   className,
 }: RadioGroupProps) {
-  const groupId = id || `radio-group-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const groupId = id || `radio-group-${generatedId}`;
   const errorId = error ? `${groupId}-error` : undefined;
   const helperId = helperText ? `${groupId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
 
-  const groupName = name || `radio-group-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedName = useId();
+  const groupName = name || `radio-group-${generatedName}`;
 
   return (
     <fieldset className={cn('space-y-1', className)}>

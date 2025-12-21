@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useId } from 'react';
 import { cn } from '../utils';
 import { INPUT_VARIANT_CLASSES } from '../constants';
 import type { FormFieldProps } from '../types';
@@ -51,7 +51,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   'data-testid': testId,
   ...props
 }, ref) => {
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const selectId = id || `select-${generatedId}`;
   const errorId = error ? `${selectId}-error` : undefined;
   const helperId = helperText ? `${selectId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;

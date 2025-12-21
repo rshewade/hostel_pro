@@ -5,21 +5,24 @@ export * from './types';
 export * from './utils';
 export * from './constants';
 
-// Form Components (implemented)
+// Form Components
 export * from './forms/Input';
 export * from './forms/Textarea';
 export * from './forms/Select';
 export * from './forms/Checkbox';
 export * from './forms/Radio';
 export * from './forms/DatePicker';
+export * from './forms/TimePicker';
+export * from './forms/Toggle';
+export * from './forms/SearchField';
 
-// UI Components (implemented in subtask 2.3)
+// UI Components
 export * from './ui/Button';
 export * from './ui/Badge';
 export * from './ui/Chip';
 export * from './ui/Tag';
 
-// Data Display Components (implemented in subtask 2.4)
+// Data Display Components
 export * from './data/Table';
 export * from './data/Card';
 export * from './data/List';
@@ -27,19 +30,17 @@ export * from './data/Stepper';
 export * from './data/Tabs';
 export * from './data/Accordion';
 
-// Feedback Components (implemented in subtask 2.5)
+// Feedback Components
 export * from './feedback/Modal';
 export * from './feedback/Toast';
 export * from './feedback/Banner';
 export * from './feedback/Alert';
 export * from './feedback/Spinner';
 export * from './feedback/EmptyState';
+export * from './feedback/SidePanel';
 
-// Layout Components (implemented in subtask 2.6)
+// Layout Components
 export * from './layout/Container';
 export * from './layout/Grid';
 export * from './layout/Flex';
 export * from './layout/Spacer';
-
-// Icons (placeholder - implement as needed)
-// export * from './icons/index';

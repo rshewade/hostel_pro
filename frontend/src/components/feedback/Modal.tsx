@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, forwardRef } from 'react';
+import { useEffect, forwardRef, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../utils';
 import { Button } from '../ui/Button';
@@ -15,8 +15,17 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(({
   children,
   size = 'md',
   closable = true,
+  footer,
+  variant = 'default',
+  onConfirm,
+  confirmText,
+  cancelText,
+  confirmLoading = false,
+  confirmDisabled = false,
   ...props
 }, ref) => {
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const isConfirmationMode = variant === 'confirmation' || variant === 'destructive';
   // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -127,6 +136,34 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(({
         <div className={contentClasses}>
           {children}
         </div>
+
+        {/* Footer - either custom footer or confirmation mode buttons */}
+        {(footer || isConfirmationMode) && (
+          <div className="flex items-center justify-end gap-3 p-6 pt-0 border-t-0">
+            {footer ? (
+              footer
+            ) : isConfirmationMode ? (
+              <>
+                <Button
+                  variant="secondary"
+                  onClick={onClose}
+                  disabled={confirmLoading}
+                >
+                  {cancelText || 'Cancel'}
+                </Button>
+                <Button
+                  ref={confirmButtonRef}
+                  variant={variant === 'destructive' ? 'destructive' : 'primary'}
+                  onClick={onConfirm}
+                  loading={confirmLoading}
+                  disabled={confirmDisabled}
+                >
+                  {confirmText || (variant === 'destructive' ? 'Delete' : 'Confirm')}
+                </Button>
+              </>
+            ) : null}
+          </div>
+        )}
       </div>
     </div>,
     document.body

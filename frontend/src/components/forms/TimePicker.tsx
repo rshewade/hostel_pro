@@ -3,7 +3,7 @@ import { cn } from '../utils';
 import { INPUT_VARIANT_CLASSES } from '../constants';
 import type { FormFieldProps } from '../types';
 
-export interface DatePickerProps extends Omit<FormFieldProps, 'children'> {
+export interface TimePickerProps extends Omit<FormFieldProps, 'children'> {
   value?: string;
   defaultValue?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -13,12 +13,13 @@ export interface DatePickerProps extends Omit<FormFieldProps, 'children'> {
   size?: 'sm' | 'md' | 'lg';
   min?: string;
   max?: string;
+  step?: number;
   readOnly?: boolean;
   autoComplete?: string;
   autoFocus?: boolean;
 }
 
-const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
+const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(({
   className,
   value,
   defaultValue,
@@ -34,6 +35,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   disabled = false,
   min,
   max,
+  step,
   readOnly = false,
   autoComplete,
   autoFocus = false,
@@ -42,7 +44,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   ...props
 }, ref) => {
   const generatedId = useId();
-  const inputId = id || `datepicker-${generatedId}`;
+  const inputId = id || `timepicker-${generatedId}`;
   const errorId = error ? `${inputId}-error` : undefined;
   const helperId = helperText ? `${inputId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
@@ -51,7 +53,8 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
     // Base input styles
     'w-full bg-white border rounded-md font-sans transition-colors',
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
-    'pr-10', // Space for calendar icon
+    'hover:border-gray-400',
+    'pr-10', // Space for clock icon
 
     // Size variants
     {
@@ -64,7 +67,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
     INPUT_VARIANT_CLASSES[variant],
 
     // State styles
-    disabled && 'opacity-50 cursor-not-allowed bg-gray-50',
+    disabled && 'opacity-50 cursor-not-allowed bg-gray-50 hover:border-gray-300',
     readOnly && 'bg-gray-50 cursor-default',
     error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
 
@@ -88,7 +91,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
         <input
           ref={ref}
           id={inputId}
-          type="date"
+          type="time"
           value={value}
           defaultValue={defaultValue}
           onChange={onChange}
@@ -99,6 +102,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
           required={required}
           min={min}
           max={max}
+          step={step}
           autoComplete={autoComplete}
           autoFocus={autoFocus}
           className={inputClasses}
@@ -108,7 +112,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
           {...props}
         />
 
-        {/* Calendar icon */}
+        {/* Clock icon */}
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
           <svg
             className="w-5 h-5 text-gray-400"
@@ -120,7 +124,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
         </div>
@@ -141,6 +145,6 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(({
   );
 });
 
-DatePicker.displayName = 'DatePicker';
+TimePicker.displayName = 'TimePicker';
 
-export { DatePicker };
+export { TimePicker };

@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from '../utils';
 import type { FormFieldProps } from '../types';
 
@@ -34,7 +34,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
   'data-testid': testId,
   ...props
 }, ref) => {
-  const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const checkboxId = id || `checkbox-${generatedId}`;
   const errorId = error ? `${checkboxId}-error` : undefined;
   const helperId = helperText ? `${checkboxId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;

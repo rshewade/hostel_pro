@@ -57,6 +57,20 @@ export interface TableColumn<T = any> {
   render?: (value: any, row: T) => ReactNode;
 }
 
+// Row density options
+export type TableRowDensity = 'compact' | 'normal' | 'comfortable';
+
+// Pagination props
+export interface TablePaginationProps {
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  pageSizeOptions?: number[];
+}
+
 // Table props
 export interface TableProps<T = any> extends BaseComponentProps {
   data: T[];
@@ -64,7 +78,18 @@ export interface TableProps<T = any> extends BaseComponentProps {
   loading?: boolean;
   emptyMessage?: string;
   onRowClick?: (row: T) => void;
+  // Row density
+  density?: TableRowDensity;
+  // Pagination
+  pagination?: TablePaginationProps;
+  // Striped rows
+  striped?: boolean;
+  // Sticky header
+  stickyHeader?: boolean;
 }
+
+// Modal variants
+export type ModalVariant = 'default' | 'confirmation' | 'destructive';
 
 // Modal props
 export interface ModalProps extends BaseComponentProps {
@@ -73,6 +98,15 @@ export interface ModalProps extends BaseComponentProps {
   title?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   closable?: boolean;
+  // Footer support
+  footer?: ReactNode;
+  // Confirmation/destructive mode props
+  variant?: ModalVariant;
+  onConfirm?: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  confirmLoading?: boolean;
+  confirmDisabled?: boolean;
 }
 
 // Toast props
