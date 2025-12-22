@@ -66,14 +66,19 @@ export default function ContactOTPPage() {
       });
       
       if (response.ok) {
-        // Success - navigate to OTP verification
-        window.location.href = '/apply/boys-hostel/verify';
+        const data = await response.json();
+        // Success - navigate to OTP verification with token
+        window.location.href = `/apply/boys-hostel/verify?token=${encodeURIComponent(data.token)}`;
       } else {
         const error = await response.json();
         setErrors([error.message || 'Failed to send OTP']);
+        setOtpSent(false);
+        setResendTimer(0);
       }
     } catch (err) {
       setErrors(['Network error. Please try again.']);
+      setOtpSent(false);
+      setResendTimer(0);
     }
   };
 

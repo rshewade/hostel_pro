@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle, RefreshCw, EyeOff } from 'lucide-react';
 
 export default function VerifyOTPPage() {
-  const [otp, setOtp] = useState(['', '', '', '', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(600);
@@ -319,7 +319,7 @@ export default function VerifyOTPPage() {
                     value={digit}
                     onChange={(e) => handleInputChange(index, e.target.value)}
                     onPaste={handlePaste}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
                     disabled={isVerifying || timeLeft === 0}
                     autoComplete="one-time-code"
                     aria-label={`OTP digit ${index + 1}`}
