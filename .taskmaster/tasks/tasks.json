@@ -397,7 +397,7 @@
           "4",
           "39"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -405,9 +405,10 @@
             "description": "Create wirepages/components and high-fidelity designs for the applicant journey from landing page to application wizard, including vertical selection, contact input, OTP input, and success states.",
             "dependencies": [],
             "details": "Map the flow: Landing → Select Vertical → Enter Mobile/Email → OTP Input → Verified → Application Wizard. Include minimal progress header, no persistent dashboard, institutional messaging banner with DPDP consent link, and guidance text about account creation post-approval.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test the full flow and validate progression, ensuring no dashboard elements and clear messaging via stakeholder review.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T17:15:49.667Z"
           },
           {
             "id": 2,
@@ -417,9 +418,10 @@
               1
             ],
             "details": "Specify behaviors: masked input for security, resend timer (e.g., 60s), errors for invalid/expired codes, option for alternate contact. For mobile, document auto-advance on digit entry and paste support for devs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test success/error/timeout paths in prototype, confirm usability on mobile/desktop, and validate error messages prevent abuse while maintaining flow.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T17:26:36.635Z"
           },
           {
             "id": 3,
@@ -430,14 +432,16 @@
               2
             ],
             "details": "Embed pseudo-code: POST /otp/send {phone/email, vertical}, POST /otp/verify {code, token}. On success, issue short-lived session token for application submission. Define error states (invalid/expired), retry limits (e.g., 3 attempts), and abuse prevention.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review dev notes for completeness, simulate API calls in prototype, ensure retry limits balance security and usability.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-21T17:27:33.128Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design applicant registration & otp verification flow."
+        "expansionPrompt": "Break down this task with a focus on design applicant registration & otp verification flow.",
+        "updatedAt": "2025-12-21T17:27:33.128Z"
       },
       {
         "id": "6",
@@ -2246,9 +2250,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-21T16:56:16.353Z",
+      "lastModified": "2025-12-21T17:27:33.130Z",
       "taskCount": 39,
-      "completedCount": 5,
+      "completedCount": 6,
       "tags": [
         "master"
       ]
