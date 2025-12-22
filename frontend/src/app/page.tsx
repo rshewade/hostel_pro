@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -88,9 +87,15 @@ export default function Home() {
             Providing quality accommodation and education support for the Jain community since 1940
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
-            <button className="btn-secondary text-lg px-8 py-4">Check Status</button>
-            <button className="btn-outline text-lg px-8 py-4">Login</button>
+            <Link href="/apply">
+              <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
+            </Link>
+            <Link href="/track">
+              <button className="btn-secondary text-lg px-8 py-4">Check Status</button>
+            </Link>
+            <Link href="/login">
+              <button className="btn-outline text-lg px-8 py-4">Login</button>
+            </Link>
           </div>
         </div>
       </section>
@@ -303,7 +308,9 @@ Discipline &amp; Safety
                     <span className="text-green-500">✓</span> Sports and recreation
                   </li>
                 </ul>
-                <button className="btn-primary w-full">Apply to Boys Hostel</button>
+                <Link href="/apply/boys-hostel/contact">
+                  <button className="btn-primary w-full">Apply to Boys Hostel</button>
+                </Link>
               </div>
             </div>
 
@@ -333,7 +340,9 @@ Discipline &amp; Safety
                     <span className="text-green-500">✓</span> Cultural and spiritual activities
                   </li>
                 </ul>
-                <button className="btn-primary w-full">Apply to Girls Ashram</button>
+                <Link href="/apply/girls-ashram/contact">
+                  <button className="btn-primary w-full">Apply to Girls Ashram</button>
+                </Link>
               </div>
             </div>
 
@@ -363,7 +372,9 @@ Discipline &amp; Safety
                     <span className="text-green-500">✓</span> Community kitchen facilities
                   </li>
                 </ul>
-                <button className="btn-primary w-full">Book Dharamshala</button>
+                <Link href="/apply">
+                  <button className="btn-primary w-full">Book Dharamshala</button>
+                </Link>
               </div>
             </div>
           </div>
@@ -637,11 +648,15 @@ Announcements &amp; Notices
               Join our community of learners and experience quality accommodation with spiritual growth
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/apply">
               <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
+            </Link>
               <Link href="/track">
                 <button className="btn-secondary text-lg px-8 py-4">Check Application Status</button>
               </Link>
+              <Link href="/login">
               <button className="btn-outline text-lg px-8 py-4" style={{ borderColor: "var(--color-navy-300)", color: "var(--color-navy-200)" }}>Login</button>
+            </Link>
             </div>
             <p
               className="mt-6 text-sm"
