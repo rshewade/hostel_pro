@@ -1,0 +1,542 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+
+interface Application {
+  id: string;
+  tracking_number: string;
+  type: string;
+  applicant_mobile: string;
+  current_status: string;
+  vertical: string;
+  data: any;
+  submitted_at: string;
+  created_at: string;
+}
+
+interface Document {
+  id: string;
+  document_type: string;
+  verification_status: string;
+  uploaded_at: string;
+}
+
+interface Interview {
+  id: string;
+  schedule_time: string;
+  mode: string;
+  status: string;
+  internal_remarks?: string;
+}
+
+const statusConfig = {
+  DRAFT: {
+    label: 'Draft',
+    color: 'gray',
+    description: 'Application is being prepared'
+  },
+  SUBMITTED: {
+    label: 'Submitted',
+    color: 'blue',
+    description: 'Application submitted and under initial review'
+  },
+  REVIEW: {
+    label: 'Under Review',
+    color: 'yellow',
+    description: 'Application is being reviewed by superintendent'
+  },
+  APPROVED: {
+    label: 'Approved',
+    color: 'green',
+    description: 'Application approved, awaiting final processing'
+  },
+  REJECTED: {
+    label: 'Rejected',
+    color: 'red',
+    description: 'Application has been rejected'
+  }
+};
+
+const statusSteps = [
+  { status: 'DRAFT', label: 'Draft', order: 1 },
+  { status: 'SUBMITTED', label: 'Submitted', order: 2 },
+  { status: 'REVIEW', label: 'Under Review', order: 3 },
+  { status: 'APPROVED', label: 'Approved', order: 4 },
+  { status: 'REJECTED', label: 'Rejected', order: 5 }
+];
+
+export default function TrackingDetailPage() {
+  const params = useParams();
+  const trackingId = params.id as string;
+
+  const [application, setApplication] = useState<Application | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [interview, setInterview] = useState<Interview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showReuploadModal, setShowReuploadModal] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    const fetchApplicationData = async () => {
+      try {
+        // Fetch application
+        const appResponse = await fetch(`http://localhost:4000/applications?tracking_number=${trackingId}`);
+        const applications = await appResponse.json();
+
+        if (applications.length === 0) {
+          setError('Application not found');
+          setLoading(false);
+          return;
+        }
+
+        const app = applications[0];
+        setApplication(app);
+
+        // Fetch documents
+        const docResponse = await fetch(`http://localhost:4000/documents?application_id=${app.id}`);
+        const docs = await docResponse.json();
+        setDocuments(docs);
+
+        // Fetch interview if exists
+        const interviewResponse = await fetch(`http://localhost:4000/interviews?application_id=${app.id}`);
+        const interviews = await interviewResponse.json();
+        if (interviews.length > 0) {
+          setInterview(interviews[0]);
+        }
+
+      } catch (err) {
+        setError('Failed to load application data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (trackingId) {
+      fetchApplicationData();
+    }
+  }, [trackingId]);
+
+  const getCurrentStepOrder = (status: string) => {
+    const step = statusSteps.find(s => s.status === status);
+    return step?.order || 1;
+  };
+
+  const getStatusColor = (color: string) => {
+    switch (color) {
+      case 'gray': return 'bg-gray-100 text-gray-800';
+      case 'blue': return 'bg-blue-100 text-blue-800';
+      case 'yellow': return 'bg-yellow-100 text-yellow-800';
+      case 'green': return 'bg-green-100 text-green-800';
+      case 'red': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !application) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <header className="px-6 py-4 border-b bg-white">
+          <div className="mx-auto max-w-6xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Image src="/logo.png" alt="Hirachand Gumanji Family Charitable Trust" width={48} height={48} className="h-12 w-auto" />
+              <div>
+                <h1 className="text-lg font-semibold">Hirachand Gumanji Family</h1>
+                <p className="text-caption">Charitable Trust</p>
+              </div>
+            </div>
+            <Link href="/" className="text-sm text-blue-600 hover:underline">← Back to Home</Link>
+          </div>
+        </header>
+        <main className="px-6 py-12">
+          <div className="mx-auto max-w-md">
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+              <p className="text-gray-600 mb-6">{error || 'Application not found'}</p>
+              <Link href="/track" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                Try Another Tracking ID
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const currentStatus = statusConfig[application.current_status as keyof typeof statusConfig];
+  const currentStepOrder = getCurrentStepOrder(application.current_status);
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="px-6 py-4 border-b bg-white">
+        <div className="mx-auto max-w-6xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Image src="/logo.png" alt="Hirachand Gumanji Family Charitable Trust" width={48} height={48} className="h-12 w-auto" />
+            <div>
+              <h1 className="text-lg font-semibold">Hirachand Gumanji Family</h1>
+              <p className="text-caption">Charitable Trust</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/track" className="text-sm text-blue-600 hover:underline">← Back to Tracking</Link>
+            <Link href="/" className="text-sm text-gray-600 hover:underline">Home</Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="px-6 py-8">
+        <div className="mx-auto max-w-4xl">
+          {/* Application Summary */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold">Application #{application.tracking_number}</h2>
+                <p className="text-gray-600">{application.vertical.replace('_', ' ')} • {application.type}</p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentStatus.color)}`}>
+                {currentStatus.label}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <p className="text-sm text-gray-500">Applicant</p>
+                <p className="font-medium">{application.data?.personal_info?.full_name || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Submitted</p>
+                <p className="font-medium">{new Date(application.submitted_at || application.created_at).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Mobile</p>
+                <p className="font-medium">{application.applicant_mobile}</p>
+              </div>
+            </div>
+
+            <div className="text-sm text-gray-600">
+              <p className="mb-2"><strong>Status Description:</strong> {currentStatus.description}</p>
+            </div>
+          </div>
+
+          {/* Status Timeline */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 className="text-xl font-semibold mb-6">Application Timeline</h3>
+            <div className="relative">
+              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+              {statusSteps.map((step, index) => {
+                const isCompleted = step.order <= currentStepOrder;
+                const isCurrent = step.order === currentStepOrder;
+                const isRejected = application.current_status === 'REJECTED' && step.status === 'REJECTED';
+
+                return (
+                  <div key={step.status} className="relative flex items-center mb-6">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      isCompleted ? 'bg-blue-600 text-white' :
+                      isCurrent ? 'bg-blue-100 text-blue-600 border-2 border-blue-600' :
+                      'bg-gray-100 text-gray-400'
+                    }`}>
+                      {isCompleted ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <span className="text-sm font-medium">{step.order}</span>
+                      )}
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-medium">{step.label}</h4>
+                      {isCurrent && (
+                        <p className="text-sm text-gray-600 mt-1">{statusConfig[step.status as keyof typeof statusConfig].description}</p>
+                      )}
+                      {isRejected && (
+                        <p className="text-sm text-red-600 mt-1">Application has been rejected</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Interview Details */}
+          {interview && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h3 className="text-xl font-semibold mb-4">Interview Details</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Date & Time</p>
+                    <p className="font-medium">{new Date(interview.schedule_time).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Mode</p>
+                    <p className="font-medium">{interview.mode === 'IN_PERSON' ? 'In Person' : 'Online'}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">Status</p>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    interview.status === 'SCHEDULED' ? 'bg-yellow-100 text-yellow-800' :
+                    interview.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {interview.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Documents */}
+          {documents.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h3 className="text-xl font-semibold mb-4">Documents</h3>
+              <div className="space-y-3">
+                {documents.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium">{doc.document_type.replace('_', ' ')}</p>
+                        <p className="text-sm text-gray-500">Uploaded {new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      doc.verification_status === 'VERIFIED' ? 'bg-green-100 text-green-800' :
+                      doc.verification_status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {doc.verification_status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-xl font-semibold mb-4">Actions</h3>
+            <div className="space-y-3">
+              {application.current_status === 'REVIEW' && documents.some(d => d.verification_status === 'PENDING') && (
+                <button
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                  onClick={() => setShowReuploadModal(true)}
+                >
+                  Re-upload Documents
+                </button>
+              )}
+              {interview && interview.status === 'SCHEDULED' && (
+                <button className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                  Confirm Interview Attendance
+                </button>
+              )}
+              {application.current_status === 'APPROVED' && (
+                <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700">
+                  Download Provisional Letter
+                </button>
+              )}
+              <button className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700">
+                Download Application PDF
+              </button>
+              {application.current_status !== 'APPROVED' && application.current_status !== 'REJECTED' && (
+                <button className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">
+                  Withdraw Application
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Privacy Notice */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex items-start gap-3">
+          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h4 className="text-sm font-medium text-blue-900 mb-1">Privacy & Data Protection</h4>
+            <p className="text-sm text-blue-700">
+              Your application data is processed in compliance with the Digital Personal Data Protection Act, 2023.
+              We use your information solely for hostel admission processing and maintain strict confidentiality.
+              For more details, please refer to our{' '}
+              <a href="#" className="text-blue-600 underline hover:text-blue-800">Privacy Policy</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Re-upload Modal */}
+      {showReuploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Re-upload Documents</h3>
+                <button
+                  onClick={() => setShowReuploadModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Document Type
+                  </label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Choose document type...</option>
+                    <option value="AADHAR_CARD">Aadhar Card</option>
+                    <option value="PHOTO">Passport Size Photo</option>
+                    <option value="BIRTH_CERTIFICATE">Birth Certificate</option>
+                    <option value="CASTE_CERTIFICATE">Caste Certificate</option>
+                    <option value="COLLEGE_LETTER">College Admission Letter</option>
+                    <option value="ACADEMIC_RECORDS">Academic Records</option>
+                    <option value="RECOMMENDATION">Jain Sangh Recommendation</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload File
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <div className="text-center">
+                      <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <div className="mt-4">
+                        <label htmlFor="file-upload" className="cursor-pointer">
+                          <span className="mt-2 block text-sm font-medium text-gray-900">
+                            Click to upload or drag and drop
+                          </span>
+                          <span className="mt-1 block text-xs text-gray-500">
+                            PDF, JPG, JPEG up to 10MB
+                          </span>
+                        </label>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          className="sr-only"
+                          accept=".pdf,.jpg,.jpeg"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setSelectedFiles([file]);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedFiles.length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-sm text-gray-700">{selectedFiles[0].name}</span>
+                      </div>
+                      <button
+                        onClick={() => setSelectedFiles([])}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowReuploadModal(false)}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (selectedFiles.length === 0) {
+                      alert('Please select a file to upload');
+                      return;
+                    }
+
+                    setUploading(true);
+                    // Simulate upload
+                    setUploadProgress({ [selectedFiles[0].name]: 0 });
+                    const interval = setInterval(() => {
+                      setUploadProgress(prev => {
+                        const current = prev[selectedFiles[0].name] || 0;
+                        if (current >= 100) {
+                          clearInterval(interval);
+                          setTimeout(() => {
+                            setShowReuploadModal(false);
+                            setSelectedFiles([]);
+                            setUploadProgress({});
+                            alert('Document uploaded successfully!');
+                          }, 500);
+                          return { [selectedFiles[0].name]: 100 };
+                        }
+                        return { [selectedFiles[0].name]: current + 10 };
+                      });
+                    }, 200);
+                    setUploading(false);
+                  }}
+                  disabled={uploading || selectedFiles.length === 0}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {uploading ? 'Uploading...' : 'Upload Document'}
+                </button>
+              </div>
+
+              {Object.keys(uploadProgress).length > 0 && (
+                <div className="mt-4">
+                  <div className="bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress[Object.keys(uploadProgress)[0]]}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1 text-center">
+                    {uploadProgress[Object.keys(uploadProgress)[0]]}% uploaded
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

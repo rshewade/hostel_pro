@@ -637,7 +637,9 @@ Announcements &amp; Notices
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
-              <button className="btn-secondary text-lg px-8 py-4">Check Application Status</button>
+              <Link href="/track">
+                <button className="btn-secondary text-lg px-8 py-4">Check Application Status</button>
+              </Link>
               <button className="btn-outline text-lg px-8 py-4" style={{ borderColor: "var(--color-navy-300)", color: "var(--color-navy-200)" }}>Login</button>
             </div>
             <p
