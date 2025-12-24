@@ -686,10 +686,10 @@
             "description": "Implement visual journey tracker and conditional quick action cards with stages and visibility rules.",
             "dependencies": [],
             "details": "Create timeline or segmented progress bar for Checked-in → Renewal Due → Renewed → Exited; implement cards for Pay Fees, Download Letters, Apply for Leave, View Room Details, View Documents, Renewal (conditional on window); add dev hints for visibility.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Mock states: Checked-in (basic actions), Renewal Due (renewal highlighted), Renewed (post-renewal actions), Exited (minimal actions); review usability for intuitive progress indication and action prioritization.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-24T17:46:30.978Z"
+            "updatedAt": "2025-12-24T17:53:48.228Z"
           },
           {
             "id": 3,
@@ -699,9 +699,10 @@
               1
             ],
             "details": "Implement hero area, cards, notifications for new resident, nearing renewal, post-renewal, exit-initiated states; ensure responsiveness using grid systems, consistent spacing, and accessibility features like keyboard navigation.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Mock props and conditional styles: new resident (full access), nearing renewal (alerts prominent), post-renewal (summary focus), exit-initiated (clearance actions); validate layout resilience on mobile/desktop via usability review.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T17:57:55.666Z"
           },
           {
             "id": 4,
@@ -732,7 +733,7 @@
         "complexity": 7,
         "recommendedSubtasks": 5,
         "expansionPrompt": "Break Task 9 into: (1) Dashboard content model and IA (hero status, tracker, quick actions, notifications); (2) Visual design of journey tracker and conditional quick actions; (3) Responsive layouts and variants for key states (new resident, nearing renewal, post-renewal, exit-initiated); (4) Integration mapping to other modules (fees, room, leave, documents, renewal, exit); (5) Governance and DPDP elements (consent alerts, vertical context, academic period). For each subtask, specify the scenarios to mock and validate via usability review.",
-        "updatedAt": "2025-12-24T17:46:30.978Z"
+        "updatedAt": "2025-12-24T17:57:55.666Z"
       },
       {
         "id": "10",
@@ -746,43 +747,7 @@
           "2"
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Define wizard information architecture, steps, and field-level requirements",
-            "description": "Clarify and document the full multi-step admission wizard structure, per-step goals, and detailed field lists, validations, and edge cases.",
-            "dependencies": [],
-            "details": "Map the end-to-end wizard flow: confirm the 6 steps, their order, and any conditional or vertical-based variations in content. For each step (Personal Details, Academic & Course Info, Hostel Preferences, References, Document Upload, Review & Submit), list all fields, required/optional status, helper texts, and validation rules (format, length, allowed values). Capture special needs like ex-student references, file type and size responsive CSS, and routing note for Superintendent queues. Produce a structured spec (e.g., flow diagram plus per-step form schema) to be used by implement and dev.",
-            "status": "pending",
-            "testStrategy": "Review the flow and field inventory with stakeholders and devs to ensure all business rules, verticals, and edge cases are covered and there are no missing fields or contradictory rules.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 2,
-            "title": "Implement interaction patterns, navigation, drafts, and validation behavior for the wizard",
-            "description": "Define how users move through steps, see progress, save drafts, handle errors, and deal with connectivity issues in the admission wizard.",
-            "dependencies": [
-              1
-            ],
-            "details": "Implement the top or side stepper showing current step, completed steps, and remaining steps; specify labels, states, and click behavior (including backward navigation without data loss). Define primary/secondary CTAs per step (Next, Back, Save as Draft, Cancel), and specify how and when auto-save or manual draft save occurs and how saved state is visually indicated. Document inline validation behavior (on blur vs on submit), error message placement and copy guidelines, and handling of cross-step errors surfaced on Review step. Outline UX for connectivity issues and draft storage (e.g., local vs remote messaging, retry states) and how progress is preserved when users leave and return.",
-            "status": "pending",
-            "testStrategy": "Build and test a low- or mid-fidelity flow and run through common paths (linear completion, step back-and-forth, draft save and resume, offline/online transitions) to verify that navigation is intuitive, data is preserved, and error states are clear.",
-            "parentId": "undefined"
-          },
-          {
-            "id": 3,
-            "title": "Create detailed UI designs for all wizard steps including review and upload experiences",
-            "description": "Produce high-fidelity UI screens and components for each wizard step, covering layouts, inputs, uploads, previews, and the final review & submit screen.",
-            "dependencies": [
-              1,
-              2
-            ],
-            "details": "Implement responsive layouts for each step using a consistent visual language: typography, spacing, input styles, and stepper placement. For Personal and Academic steps, lay out form sections with clear grouping and helper text. For Hostel Preferences and References, implement patterns for repeated or optional sections (e.g., multiple references). For Document Upload, implement drag-and-drop and file picker UI, PDF/JPG acceptance messaging, file size hints, preview tiles/cards, and replace/delete actions. For Review & Submit, implement a read-only summary grouped by step, with edit links that return users to specific steps. Include annotations for devs on vertical-based Superintendent routing triggers and any conditional UI. Package into a implement file with component specs and states (default, focused, error, disabled, loading).",
-            "status": "pending",
-            "testStrategy": "Walk through the full set of high-fidelity screens in an interactive prototype, validating visual consistency, accessibility basics (labels, focus states, contrast), correct representation of all states (empty, filled, error, draft saved), and alignment with the defined interaction patterns.",
-            "parentId": "undefined"
-          }
-        ],
+        "subtasks": [],
         "complexity": 5,
         "recommendedSubtasks": 3,
         "expansionPrompt": "Break down this task with a focus on design multi-step admission application form wizard."
@@ -2268,7 +2233,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-24T17:46:30.980Z",
+      "lastModified": "2025-12-24T17:57:55.667Z",
       "taskCount": 39,
       "completedCount": 9,
       "tags": [
