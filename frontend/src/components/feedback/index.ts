@@ -7,6 +7,7 @@ export { Alert } from './Alert';
 export { Spinner } from './Spinner';
 export { EmptyState } from './EmptyState';
 export { SidePanel } from './SidePanel';
+export { Tooltip, InfoIcon, InfoTooltip } from './Tooltip';
 
 // Re-export types
 export type { SidePanelProps } from './SidePanel';

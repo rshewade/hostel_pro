@@ -61,14 +61,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
 
   const inputClasses = cn(
     // Base input styles
-    'w-full bg-white border rounded-md font-sans transition-colors',
+    'w-full font-sans transition-colors',
     'focus:outline-none focus:ring-2 focus:ring-offset-2',
 
     // Size variants
     {
       'px-3 py-2 text-sm': size === 'sm',
-      'px-4 py-2 text-base': size === 'md',
-      'px-4 py-3 text-lg': size === 'lg',
+      'px-4 py-3 text-base': size === 'md',
+      'px-4 py-4 text-lg': size === 'lg',
     },
 
     // Variant styles
@@ -94,7 +94,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-navy-900"
+          className="text-label block mb-1"
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -128,6 +128,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
           pattern={pattern}
           inputMode={inputMode}
           className={inputClasses}
+          style={{
+            backgroundColor: 'var(--surface-primary)',
+            borderColor: 'var(--border-primary)',
+            color: 'var(--text-primary)',
+            borderRadius: 'var(--radius-md)'
+          }}
           aria-invalid={error ? 'true' : 'false'}
           aria-describedby={describedBy}
           data-testid={testId}
@@ -142,13 +148,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
       </div>
 
       {error && (
-        <p id={errorId} className="text-sm text-red-600" role="alert">
+        <p id={errorId} className="text-sm" style={{ color: 'var(--color-red-600)' }} role="alert">
           {error}
         </p>
       )}
 
       {helperText && !error && (
-        <p id={helperId} className="text-sm text-gray-500">
+        <p id={helperId} className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           {helperText}
         </p>
       )}

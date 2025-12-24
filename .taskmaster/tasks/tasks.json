@@ -549,9 +549,10 @@
             "description": "Build the main login UI for students and other roles, aligned with institutional branding and clear separation from applicant entry.",
             "dependencies": [],
             "details": "Implement a responsive login page using institution logo, colors, and typography, with fields for username/mobile/email and password, a primary login CTA, and a clear but subtle note about institutional usage rules. Include visible links for forgot password and any alternate role entry (e.g., Superintendent, Trustee, Accounts) while keeping the screen visually distinct from the applicant registration/OTP flow. Ensure accessibility (labels, error messages, keyboard navigation), support for vertical-agnostic login (no vertical selection here), and provide error states for invalid credentials, locked or expired accounts, and generic technical failures. Document UI states in wirepages/components or mockups for success and failure paths.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test the login screen and validate branding, accessibility basics, and clarity of role separation with at least a few sample users or stakeholders.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T15:50:20.849Z"
           },
           {
             "id": 2,
@@ -561,9 +562,10 @@
               1
             ],
             "details": "After detecting a first-time student login, route to a dedicated password change screen that blocks access to the dashboard until completion. Include new password and confirm password fields, an inline password strength indicator, and copy explaining minimum requirements and security expectations. Add a required DPDP consent checkbox with concise text and a link or reference to the full policy, and plan for logging consent acceptance (timestamp and user ID) in dev notes. Include clear validation messages for weak or mismatched passwords, and a confirmation step or brief security confirmation message before redirecting to the Student Dashboard. Provide detailed UI specs and flow diagrams covering normal completion, validation errors, and back/exit behavior.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run through a working application of the first-time login flow with sample credentials, testing weak/strong passwords, mismatches, and unchecked consent, and review with stakeholders for legal/DPDP wording and friction level.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T15:50:20.864Z"
           },
           {
             "id": 3,
@@ -574,15 +576,16 @@
               2
             ],
             "details": "Specify how the front-end should interpret the authenticated user payload (e.g., role, vertical, account status) and route users to the correct dashboard: Student Dashboard for valid students, other role dashboards for Superintendent/Trustee/Accounts, and error pages for incorrect role, suspended, or expired accounts. Provide UI guidance for displaying the current role and vertical (Boys/Girls/Dharamshala) after login, such as a label or pill in the top bar. Describe expected session behavior at a implement level (e.g., stay signed in until explicit logout or reasonable inactivity timeout), including how to visually handle session expiry and forced re-login without re-running first-time setup. Document do/don’t notes for developers: backend issues JWT/session, front-end uses role-based routes and must not store passwords or sensitive secrets. Capture these behaviors in a concise flow diagram and state table for key scenarios.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create a functional working application or flow diagram to walk through student vs non-student logins, expired/incorrect role cases, and session expiry, then review with devs to ensure routing and UI states are unambiguous.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T15:50:20.871Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
         "expansionPrompt": "Break down this task with a focus on design student login, first-time setup, and role-based redirection.",
-        "updatedAt": "2025-12-24T15:15:34.766Z"
+        "updatedAt": "2025-12-24T15:50:20.871Z"
       },
       {
         "id": "8",
@@ -595,7 +598,7 @@
           "5",
           "6"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -616,9 +619,10 @@
               1
             ],
             "details": "Use mobile-first layout with cards/sections from design system (reuse status badges). Ensure constrained layout handles multiple summaries. Limit to view-only display of data for associated student IDs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate layout on mobile/desktop: no overflow, clear hierarchy. Confirm data loads correctly (e.g., fee/leave statuses). Test non-mutating interactions (taps don't edit data). Review with prototype walkthrough.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T16:28:12.672Z"
           },
           {
             "id": 3,
@@ -629,9 +633,10 @@
               2
             ],
             "details": "Backend: API guards for parent role (query params filter by student ID). Frontend: Disable forms/buttons, show disabled states with tooltips. No mutating endpoints exposed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Inspect every element: no editable fields, no submit buttons for changes. Simulate API calls—verify only GET/read ops, no POST/PUT. Test acknowledgements (e.g., download) don't mutate. Mobile gesture tests (swipe/long-press safe).",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T16:37:23.166Z"
           },
           {
             "id": 4,
@@ -641,15 +646,16 @@
               2
             ],
             "details": "Add banners/links for DPDP (reuse from Task 5). Tooltips: 'View-only: cannot edit'. Labels: 'Parent Dashboard - View your ward's info'. Ensure copy is concise, accessible.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify tooltips/labels visible on hover/tap (mobile-friendly). Check non-mutating: info displays don't trigger changes. Accessibility scan (screen reader reads permissions). Stakeholder review for clarity/compliance.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T16:32:28.820Z"
           }
         ],
         "complexity": 6,
         "recommendedSubtasks": 4,
         "expansionPrompt": "Split Task 8 into: (1) Parent/Guardian entry and OTP verification flow, reusing existing OTP patterns; (2) Parent dashboard IA and layout (student overview, fee status, leave summary, notifications); (3) Permissions and view-only behavior specification (no edits, only acknowledgements where applicable); (4) Compliance and copy: DPDP info, tooltips, clarity of scope. For each, define how to test that interactions are non-mutating and mobile-friendly.",
-        "updatedAt": "2025-12-24T15:28:35.880Z"
+        "updatedAt": "2025-12-24T16:37:23.166Z"
       },
       {
         "id": "9",
@@ -2259,9 +2265,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-24T15:28:35.882Z",
+      "lastModified": "2025-12-24T16:37:23.168Z",
       "taskCount": 39,
-      "completedCount": 8,
+      "completedCount": 9,
       "tags": [
         "master"
       ]

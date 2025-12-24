@@ -5,6 +5,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Input, Button, cn } from '@/components';
 
+// Parent Login Flow
+// 1. Enter registered mobile number
+// 2. OTP verification (POST /api/otp/send, POST /api/otp/verify)
+// 3. Session creation with parent role scope
+// 4. Redirect to /dashboard/parent with read-only permissions
+// Note: Backend must verify mobile number is linked to a student application
+
 export default function ParentLoginPage() {
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'input' | 'otp' | 'loading'>('input');

@@ -36,11 +36,9 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
       const timer = setTimeout(() => {
         setTimeLeft(prev => prev - 1);
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     }
-    
-    return () => clearTimeout(timer);
   }, [timeLeft]);
 
   const handleInputChange = (index: number, value: string) => {
@@ -151,7 +149,7 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
             {[0, 1, 2, 3, 4, 5].map((digit, index) => (
               <input
                 key={index}
-                ref={el => inputRefs.current[index] = el}
+                ref={el => { inputRefs.current[index] = el; }}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -190,16 +188,17 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
 
           <div className="flex justify-between items-center mb-6">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={handleResend}
               disabled={!canResend || isResending}
               className="flex-1"
             >
-              {isResending ? 'Sending...' : `Resend Code ${canResend ? '(60s)' : `(${timeLeft}s)`}
+              {isResending ? 'Sending...' : `Resend Code ${canResend ? '' : `(${timeLeft}s)`}`}
             </Button>
-            
+
             <Button
               type="submit"
+              variant="primary"
               onClick={handleSubmit}
               disabled={isSubmitting || otp.join('').length !== 6}
               className="flex-1"

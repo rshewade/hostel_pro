@@ -476,7 +476,7 @@ export default function DesignSystemPage() {
           <section className="space-y-6">
             <h2 className="text-heading-2">Form Elements</h2>
             <div className="card p-8 max-w-md">
-              <div className="space-y-4">
+               <div className="space-y-4">
                 <div>
                   <label className="text-label block mb-1">Full Name</label>
                   <input
@@ -514,8 +514,8 @@ export default function DesignSystemPage() {
                     <option>Girls Ashram</option>
                     <option>Dharamshala</option>
                   </select>
-                </div>
-                <button className="btn-primary w-full mt-4">Submit Application</button>
+                 </div>
+                <Button variant="primary" size="lg" className="w-full mt-4">Submit Application</Button>
               </div>
             </div>
           </section>

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
@@ -47,14 +46,12 @@ interface TrackingPageProps {
   trackingId: string;
 }
 
-export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
-  // Mock data - in real implementation, this would come from API
+export const TrackingPage = ({ trackingId }: TrackingPageProps) => {
   const [trackingData, setTrackingData] = React.useState<TrackingData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // Simulate API call to fetch tracking data
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       const mockData: TrackingData = {
         trackingNumber: trackingId.toUpperCase(),
         applicantName: 'Rahul Kumar Sharma',
@@ -81,52 +78,21 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
           canDownloadLetter: false
         }
       };
-      
+
       setTrackingData(mockData);
       setIsLoading(false);
     }, 1000);
 
-  const getStatusColor = (status: ApplicationStatus): string => {
+    return () => clearTimeout(timer);
+  }, [trackingId]);
+
+  const getInterviewStatusBadge = (status: string): string => {
     switch (status) {
-      case 'SUBMITTED': return 'bg-blue-100 text-blue-800';
-      case 'UNDER_REVIEW': return 'bg-yellow-100 text-yellow-800';
-      case 'INTERVIEW_SCHEDULED': return 'bg-orange-100 text-orange-800';
-      case 'INTERVIEW_COMPLETED': return 'bg-green-100 text-green-800';
-      case 'PROVISIONALLY_APPROVED': return 'bg-purple-100 text-purple-800';
-      case 'FINAL_APPROVED': return 'bg-green-100 text-green-800';
-      case 'REJECTED': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'UPCOMING': return 'Upcoming';
+      case 'IN_PROGRESS': return 'In Progress';
+      case 'COMPLETED': return 'Completed';
+      default: return status;
     }
-  };
-
-  const getStatusBadge = (status: ApplicationStatus): { text: string; color: string } => {
-    switch (status) {
-      case 'SUBMITTED': return { text: 'Submitted', color: 'bg-blue-500' };
-      case 'UNDER_REVIEW': return { text: 'Under Review', color: 'bg-yellow-500' };
-      case 'INTERVIEW_SCHEDULED': return { text: 'Interview Scheduled', color: 'bg-orange-500' };
-      case 'INTERVIEW_COMPLETED': return { text: 'Interview Completed', color: 'bg-green-500' };
-      case 'PROVISIONALLY_APPROVED': return { text: 'Provisionally Approved', color: 'bg-purple-500' };
-      case 'FINAL_APPROVED': return { text: 'Final Approved', color: 'bg-green-500' };
-      case 'REJECTED': return { text: 'Rejected', color: 'bg-red-500' };
-      default: return { text: 'Unknown', color: 'bg-gray-500' };
-    }
-  };
-
-  const timelineSteps: TimelineStep[] = [
-    { step: 1, title: 'Submitted', description: 'Application submitted successfully' },
-    { step: 2, title: 'Under Review', description: 'Application is being reviewed by committee' },
-    { step: 3, title: 'Interview', description: 'Interview scheduled with superintendent' },
-    { step: 4, title: 'Decision', description: 'Final decision by trustee' },
-    { step: 5, title: 'Result', description: `Application ${trackingData?.currentStatus === 'FINAL_APPROVED' ? 'approved' : 'rejected'}` }
-  ];
-
-  const getStepStatus = (step: number): 'completed' | 'current' | 'upcoming' => {
-    const currentStatusStep = timelineSteps.findIndex(s => s.title.toLowerCase().includes(trackingData?.currentStatus?.toLowerCase() || ''));
-    return {
-      completed: step < currentStatusStep,
-      current: step === currentStatusStep,
-      upcoming: step > currentStatusStep
-    };
   };
 
   if (isLoading) {
@@ -140,13 +106,13 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
   if (!trackingData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="max-w-md w-full">
+        <div className="card max-w-md w-full">
           <div className="text-center p-8">
             <div className="text-red-600 text-lg mb-4">⚠️ Tracking ID not found</div>
             <p className="text-gray-600">Please check your tracking ID and try again.</p>
             <Button onClick={() => window.history.back()} className="mt-4">Go Back</Button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -169,7 +135,7 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-8">
           {/* Applicant Summary */}
-          <Card className="lg:col-span-2">
+          <div className="card lg:col-span-2">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Summary</h2>
               <div className="space-y-4">
@@ -195,65 +161,16 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
                 </div>
               </div>
 
-              {/* Status Timeline */}
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Status</h3>
-                <div className="relative">
-                  {/* Desktop: Horizontal Timeline */}
-                  <div className="hidden lg:block">
-                    <div className="absolute top-8 left-0 right-0 h-1 bg-blue-200"></div>
-                    <div className="flex justify-between items-center relative">
-                      {timelineSteps.map((step, index) => {
-                        const status = getStepStatus(step.step);
-                        return (
-                          <div key={step.step} className="flex flex-col items-center">
-                            <div 
-                              className={cn(
-                                'w-10 h-10 rounded-full flex items-center justify-center text-white font-bold',
-                                status.completed ? 'bg-green-500' : status.current ? 'bg-blue-500' : status.upcoming ? 'bg-gray-400' : 'bg-gray-200'
-                              )}
-                            >
-                              {status.completed ? '✓' : step.step}
-                            </div>
-                            <div className="ml-4 text-center">
-                              <div className="text-sm font-medium text-gray-900">{step.title}</div>
-                              {step.description && (
-                                <div className="text-xs text-gray-600 mt-1">{step.description}</div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Mobile: Vertical Timeline */}
-                  <div className="lg:hidden space-y-4">
-                    {timelineSteps.map((step, index) => {
-                      const status = getStepStatus(step.step);
-                      return (
-                        <div key={step.step} className={cn('flex items-start p-4', status.completed ? 'bg-green-50' : status.current ? 'bg-blue-50' : status.upcoming ? 'bg-gray-50' : 'bg-gray-100')}>
-                          <div className={cn('w-8 h-8 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0', status.completed ? 'bg-green-500' : status.current ? 'bg-blue-500' : status.upcoming ? 'bg-gray-400' : 'bg-gray-300')}>
-                            {status.completed ? '✓' : step.step}
-                          </div>
-                          <div className="ml-4 flex-grow">
-                            <div className="text-sm font-medium text-gray-900">{step.title}</div>
-                            {step.description && (
-                              <div className="text-xs text-gray-600 mt-1">{step.description}</div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+              {/* Status Badge */}
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm font-medium text-blue-900">Current Status: {trackingData.currentStatus}</p>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* Interview Details */}
           {trackingData.interviewDetails && (
-            <Card className="lg:col-span-1">
+            <div className="card lg:col-span-1">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Interview Details</h3>
                 <div className="space-y-4">
@@ -279,12 +196,12 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
                     </div>
                   )}
 
-                  {trackingData.interviewDetails.meetingLink && (
+                  {trackingData.interviewDetails?.meetingLink && (
                     <div>
                       <p className="text-sm text-gray-600">Meeting Link</p>
-                      <a 
-                        href={trackingData.interviewDetails.meetingLink} 
-                        target="_blank" 
+                      <a
+                        href={trackingData.interviewDetails.meetingLink}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-blue-600 hover:text-blue-800 underline"
                       >
@@ -295,7 +212,7 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
 
                   <div>
                     <p className="text-sm text-gray-600">Status</p>
-                    <Badge {...getStatusBadge(trackingData.interviewDetails.status)} />
+                    <Badge variant="info">{getInterviewStatusBadge(trackingData.interviewDetails.status)}</Badge>
                   </div>
 
                   {trackingData.interviewDetails.countdown && (
@@ -319,7 +236,7 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
 
                 {trackingData.interviewDetails.status === 'COMPLETED' && (
                   <div className="mt-6">
-                    <Badge text="Completed" color="bg-green-500" />
+                    <Badge variant="success">{getInterviewStatusBadge(trackingData.interviewDetails.status)}</Badge>
                   </div>
                 )}
               </div>
@@ -327,10 +244,10 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
           )}
 
           {/* Action Prompts */}
-          <Card className="lg:col-span-1">
+          <div className="card lg:col-span-1">
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
-              
+
               {/* Alert for Document Re-upload */}
               {trackingData.documentsRequired && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
@@ -355,17 +272,17 @@ export const TrackingPage: React.FC<TrackingPageProps> = ({ trackingId }) => {
 
               {/* Withdraw Application */}
               {trackingData.actions?.canWithdraw && (
-                <Button variant="outline" className="w-full">
+                <Button variant="destructive" className="w-full">
                   Withdraw Application
                 </Button>
               )}
 
               {/* Contact Support */}
-              <Button variant="outline" className="w-full">
+              <Button variant="secondary" className="w-full">
                 Contact Support
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* Footer */}
