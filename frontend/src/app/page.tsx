@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -87,14 +87,17 @@ export default function Home() {
             Providing quality accommodation and education support for the Jain community since 1940
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/apply">
-              <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
+            <Link href="/apply" className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center">
+              Apply Now
             </Link>
-            <Link href="/track">
-              <button className="btn-secondary text-lg px-8 py-4">Check Status</button>
+            <Link href="/track" className="btn-secondary text-lg px-8 py-4 inline-flex items-center justify-center">
+              Check Status
             </Link>
-            <Link href="/login">
-              <button className="btn-outline text-lg px-8 py-4">Login</button>
+            <Link href="/login" className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center">
+              Login
+            </Link>
+            <Link href="/login/parent" className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 text-lg inline-flex items-center justify-center">
+              Parent/Guardian
             </Link>
           </div>
         </div>
@@ -308,9 +311,7 @@ Discipline &amp; Safety
                     <span className="text-green-500">✓</span> Sports and recreation
                   </li>
                 </ul>
-                <Link href="/apply/boys-hostel/contact">
-                  <button className="btn-primary w-full">Apply to Boys Hostel</button>
-                </Link>
+                <button className="btn-primary w-full">Apply to Boys Hostel</button>
               </div>
             </div>
 
@@ -340,9 +341,7 @@ Discipline &amp; Safety
                     <span className="text-green-500">✓</span> Cultural and spiritual activities
                   </li>
                 </ul>
-                <Link href="/apply/girls-ashram/contact">
-                  <button className="btn-primary w-full">Apply to Girls Ashram</button>
-                </Link>
+                <button className="btn-primary w-full">Apply to Girls Ashram</button>
               </div>
             </div>
 
@@ -372,9 +371,7 @@ Discipline &amp; Safety
                     <span className="text-green-500">✓</span> Community kitchen facilities
                   </li>
                 </ul>
-                <Link href="/apply">
-                  <button className="btn-primary w-full">Book Dharamshala</button>
-                </Link>
+                <button className="btn-primary w-full">Book Dharamshala</button>
               </div>
             </div>
           </div>
@@ -648,15 +645,11 @@ Announcements &amp; Notices
               Join our community of learners and experience quality accommodation with spiritual growth
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/apply">
               <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
-            </Link>
               <Link href="/track">
                 <button className="btn-secondary text-lg px-8 py-4">Check Application Status</button>
               </Link>
-              <Link href="/login">
-              <button className="btn-outline text-lg px-8 py-4" style={{ borderColor: "var(--color-navy-300)", color: "var(--color-navy-200)" }}>Login</button>
-            </Link>
+              <Link href="/login" className="btn-outline text-lg px-8 py-4" style={{ borderColor: "var(--color-navy-300)", color: "var(--color-navy-200)" }}>Login</Link>
             </div>
             <p
               className="mt-6 text-sm"

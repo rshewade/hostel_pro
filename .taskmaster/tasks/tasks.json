@@ -461,11 +461,11 @@
             "title": "Implement Entry Flows and Identity Verification",
             "description": "Create pages/components for access from Landing CTA/SMS/Email to tracking page with tracking ID + OTP input, aligned with Task 5 OTP patterns.",
             "dependencies": [],
-            "details": "Implement 4 pages/components: Landing CTA link, tracking ID input, OTP input with resend timer/masked entry/error states, success transition to tracking page. Reuse Task 5 OTP components for consistency.\n<info added on 2025-12-22T06:55:50.633Z>\nI appreciate the detailed context, but I need to clarify my role and capabilities based on the instructions I've been given.\n\nI'm designed to generate subtask update text based on user requests and provided context. However, the query you've submitted asks me to perform codebase analysis using tools (Glob, Grep, Read) that I don't have access to. The search results provided are about React tracking libraries and page view tracking implementations—not your specific project codebase.\n\nTo properly fulfill your request, I would need:\n\n1. **Actual access to your codebase** at `/workspace/repo` to analyze file structure, existing patterns, and current implementations\n2. **Visibility into Task 5's OTP components** to understand the exact patterns and component structure you want to reuse\n3. **Project-specific architectural details** (component naming conventions, folder structure, state management approach, etc.)\n\n**What I can do instead:**\n\nBased solely on the context you've provided (the user request and existing subtask details), here's the updated subtask text:\n\n---\n\nImplement entry flows and identity verification with pages/components for access from Landing CTA, SMS, and Email channels leading to the tracking page. Create four sequential pages: Landing CTA link, tracking ID input form, OTP input with resend timer/masked entry/error states, and success transition to tracking page. Align OTP implementation with Task 5 OTP component patterns for consistency across the application. Ensure smooth flow between identity verification steps and proper error handling for invalid or expired codes.\n\n---\n\nIf you'd like more specific implementation details tied to your actual codebase structure, please provide the relevant file excerpts or project architecture documentation, and I can generate more targeted guidance.\n</info added on 2025-12-22T06:55:50.633Z>\n<info added on 2025-12-22T07:12:20.057Z>\nTracking ID input form component with validation for alphanumeric entries of 10-15 characters. Include real-time validation feedback, error states for invalid format/length, and accessibility features (ARIA labels, keyboard navigation). Submit button triggers OTP verification flow. Component should follow design patterns and component structure established in Task 5 OTP implementation, including consistent error messaging, loading states, and visual feedback. Integrate with the broader identity verification flow to pass validated tracking ID to subsequent OTP verification step.\n</info added on 2025-12-22T07:12:20.057Z>",
-            "status": "in-progress",
+            "details": "Implement 4 pages/components: Landing CTA link, tracking ID input, OTP input with resend timer/masked entry/error states, success transition to tracking page. Reuse Task 5 OTP components for consistency.\n<info added on 2025-12-22T06:55:50.633Z>\nI appreciate the detailed context, but I need to clarify my role and capabilities based on the instructions I've been given.\n\nI'm designed to generate subtask update text based on user requests and provided context. However, the query you've submitted asks me to perform codebase analysis using tools (Glob, Grep, Read) that I don't have access to. The search results provided are about React tracking libraries and page view tracking implementations—not your specific project codebase.\n\nTo properly fulfill your request, I would need:\n\n1. **Actual access to your codebase** at `/workspace/repo` to analyze file structure, existing patterns, and current implementations\n2. **Visibility into Task 5's OTP components** to understand the exact patterns and component structure you want to reuse\n3. **Project-specific architectural details** (component naming conventions, folder structure, state management approach, etc.)\n\n**What I can do instead:**\n\nBased solely on the context you've provided (the user request and existing subtask details), here's the updated subtask text:\n\n---\n\nImplement entry flows and identity verification with pages/components for access from Landing CTA, SMS, and Email channels leading to the tracking page. Create four sequential pages: Landing CTA link, tracking ID input form, OTP input with resend timer/masked entry/error states, and success transition to tracking page. Align OTP implementation with Task 5 OTP component patterns for consistency across the application. Ensure smooth flow between identity verification steps and proper error handling for invalid or expired codes.\n\n---\n\nIf you'd like more specific implementation details tied to your actual codebase structure, please provide the relevant file excerpts or project architecture documentation, and I can generate more targeted guidance.\n</info added on 2025-12-22T06:55:50.633Z>\n<info added on 2025-12-24T14:15:15.403Z>\nRefactored /app/track/page.tsx to replace raw HTML form elements with design system Input and Button components, matching the implementation patterns used in Tasks 1–2. Tracking ID form now uses the shared Input component with autoFocus enabled, helperText for guidance, and onChange normalization to uppercase. OTP form uses the same Input component configured for numeric entry with maxLength=6 and helperText for error and hint messaging. This removes ad-hoc inline form markup and centralizes form UI on the design system primitives for easier maintenance and consistent styling across flows.\n</info added on 2025-12-24T14:15:15.403Z>",
+            "status": "done",
             "testStrategy": "Build and test full flow: success, invalid ID/OTP, timeout, resend. Verify visual alignment with Task 5 and smooth handoff to main tracking screen.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-22T07:11:48.351Z"
+            "updatedAt": "2025-12-24T14:15:29.961Z"
           },
           {
             "id": 2,
@@ -474,10 +474,11 @@
             "dependencies": [
               1
             ],
-            "details": "Create base component with sections: summary (name/vertical/applied date), horizontal timeline (Submitted to Approved/Rejected with colors/checkmarks per [1]), interview card (mode/date/countdown/link), action buttons. Use status badges and contextual alerts.\n<info added on 2025-12-22T06:57:26.155Z>\nRoute: Implement at /track/[id] using dynamic route pattern consistent with existing role-based navigation from Task 3. Fetch applicant data by ID on load, integrating with applicant status flows from Task 5. Layout structure: top section applicant **summary** (name, vertical, applied date), centered **horizontal timeline** visualizing Submitted → Approved/Rejected states with color-coded segments and checkmarks, dedicated **interview card** displaying mode/date/countdown to next step/link to schedule, bottom **action prompts/buttons** (e.g., re-upload, contact, withdraw) with status badges and contextual alerts based on current state. Ensure responsive design matching dashboard patterns from Task 9, with mobile-optimized timeline and card stacking.\n</info added on 2025-12-22T06:57:26.155Z>\n<info added on 2025-12-22T06:57:44.558Z>\nCore tracking page layout completed at /track/[id] route. Implemented sections include: applicant summary displaying name, vertical, and applied date; horizontal visual status timeline showing progression from Submitted through Approved/Rejected states with color-coded segments and checkmarks; interview card presenting mode, date, countdown timer to next step, and scheduling link; documents display section; and action prompts/buttons (re-upload, contact, withdraw) with status badges and contextual alerts. Responsive design implemented matching dashboard patterns from Task 9, with mobile-optimized timeline and card stacking. Applicant data fetched by ID on load, integrated with applicant status flows from Task 5. Dynamic route pattern consistent with role-based navigation from Task 3.\n</info added on 2025-12-22T06:57:44.558Z>\n<info added on 2025-12-22T07:13:57.736Z>\nCreate OTP verification component extending Task 5 OTP implementation for identity verification within tracking page flow at /track/[id]. Include 6-digit segmented input fields with auto-advance on digit entry, 60-second resend countdown timer with disabled state during active period, error states for invalid/expired codes with shake animation and clear messaging, success state with loading spinner transitioning to verified confirmation, and full accessibility support via ARIA labels (aria-label=\"OTP digit 1 of 6\", aria-invalid for errors), role=\"textbox\", keyboard navigation (Tab/Arrow keys between inputs, Enter to submit). Integrate seamlessly as modal or inline step in applicant summary section triggered by unverified identity status, using existing Task 5 API endpoints for send/verify OTP, maintaining consistent masked input and resend patterns. Ensure responsive design with touch-friendly inputs matching dashboard mobile patterns from Task 9, and track verification events using existing react-tracking setup from tracking page implementation.\n</info added on 2025-12-22T07:13:57.736Z>",
-            "status": "pending",
+            "details": "Create base component with sections: summary (name/vertical/applied date), horizontal timeline (Submitted to Approved/Rejected with colors/checkmarks per [1]), interview card (mode/date/countdown/link), action buttons. Use status badges and contextual alerts.\n<info added on 2025-12-22T06:57:26.155Z>\nRoute: Implement at /track/[id] using dynamic route pattern consistent with existing role-based navigation from Task 3. Fetch applicant data by ID on load, integrating with applicant status flows from Task 5. Layout structure: top section applicant **summary** (name, vertical, applied date), centered **horizontal timeline** visualizing Submitted → Approved/Rejected states with color-coded segments and checkmarks, dedicated **interview card** displaying mode/date/countdown to next step/link to schedule, bottom **action prompts/buttons** (e.g., re-upload, contact, withdraw) with status badges and contextual alerts based on current state. Ensure responsive design matching dashboard patterns from Task 9, with mobile-optimized timeline and card stacking.\n</info added on 2025-12-22T06:57:26.155Z>\n<info added on 2025-12-22T06:57:44.558Z>\nCore tracking page layout completed at /track/[id] route. Implemented sections include: applicant summary displaying name, vertical, and applied date; horizontal visual status timeline showing progression from Submitted through Approved/Rejected states with color-coded segments and checkmarks; interview card presenting mode, date, countdown timer to next step, and scheduling link; documents display section; and action prompts/buttons (re-upload, contact, withdraw) with status badges and contextual alerts. Responsive design implemented matching dashboard patterns from Task 9, with mobile-optimized timeline and card stacking. Applicant data fetched by ID on load, integrated with applicant status flows from Task 5. Dynamic route pattern consistent with role-based navigation from Task 3.\n</info added on 2025-12-22T06:57:44.558Z>",
+            "status": "done",
             "testStrategy": "Checklist: All PRD sections present, timeline logical progression per [1], clear visual cues, descriptive labels. Review F/Z reading pattern per [3].",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T14:19:46.559Z"
           },
           {
             "id": 3,
@@ -487,9 +488,10 @@
               2
             ],
             "details": "Frame re-upload modal (reuse Task 19 patterns), confirm slot button, download buttons with print-optimized PDF preview. Include primary actions with status-based visibility.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test interactions: upload success/error, print legibility on A4, ensure actions gated by status. Validate component reuse from Tasks 5/19.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T14:24:45.134Z"
           },
           {
             "id": 4,
@@ -500,9 +502,10 @@
               3
             ],
             "details": "Create 5 pages/components varying timeline progress, interview details (upcoming/in-progress/completed), alerts/actions (e.g., re-upload prominent in awaiting docs). Use microinteractions for state changes per [1].\n<info added on 2025-12-22T06:58:20.025Z>\nI appreciate the detailed context, but I need to clarify my role and capabilities based on the instructions provided to me.\n\nI'm designed to generate subtask update text based on user requests and provided context. However, the query you've submitted asks me to perform codebase analysis using tools (Glob, Grep, Read) that I do not have access to. The search results provided are about React tracking libraries and page view tracking implementations, which don't contain information about your specific project structure at `/workspace/repo`.\n\nBased solely on the **user request** (\"Implement State Variations for Major Statuses - Create variations of the tracking page for awaiting review, interview scheduled, awaiting documents, provisionally approved, and final approved/rejected states\") and the **task context** provided, here is the new text to append to the subtask details:\n\n---\n\nCreate component variations for each major application status: awaiting review, interview scheduled, awaiting documents, provisionally approved, and final approved/rejected. Each variation should adjust timeline progress indicators, interview details sections (showing upcoming/in-progress/completed states), and contextual alerts/actions. For awaiting documents state, prominently display re-upload actions. For interview scheduled state, show interview details and preparation guidance. Implement smooth microinteractions when transitioning between states to provide visual feedback. Ensure all five state variations share the core layout structure while adapting content, color coding, and action prominence based on the current status.\n</info added on 2025-12-22T06:58:20.025Z>\n<info added on 2025-12-22T06:58:39.376Z>\nImplement completed state variations where the tracking page dynamically adapts based on application status (DRAFT, SUBMITTED, REVIEW, APPROVED, REJECTED). Update timeline progress to reflect each status (e.g., partial for DRAFT/SUBMITTED, full for APPROVED, halted for REJECTED), adjust interview details visibility (hidden post-REVIEW), and modify actions/alerts (e.g., edit/submit for DRAFT, re-upload for REVIEW, download letters/feedback for APPROVED/REJECTED). Align status flow with applicant role navigation from Task 3 and reuse action patterns from previous subtasks like re-upload prominence.\n</info added on 2025-12-22T06:58:39.376Z>",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate all scenarios: verify conditional visibility, no internal remarks visible, responsive on mobile/desktop with vertical timeline if needed per [1].",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T14:43:57.875Z"
           },
           {
             "id": 5,
@@ -515,15 +518,16 @@
               4
             ],
             "details": "Insert explanatory banners/tooltips on data usage/privacy. Optimize for mobile (vertical layouts per [1]), desktop. Checklist: no internal remarks, clear instructions, all actions testable.\n<info added on 2025-12-22T06:59:00.738Z>\nAdded DPDP-compliant privacy messaging to both tracking entry and detail pages, ensured responsive design across all components.\n</info added on 2025-12-22T06:59:00.738Z>",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Stakeholder review: copy clarity, privacy assurance, DPDP alignment. Test responsive breakpoints, print views, full flow from entry to actions in all states.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T14:45:04.795Z"
           }
         ],
         "complexity": 7,
         "recommendedSubtasks": 5,
         "expansionPrompt": "Decompose Task 6 into: (1) Entry flows and identity verification pattern (tracking ID + OTP) aligned with Task 5; (2) Core tracking page layout (summary, status timeline, interview details, actions); (3) Document re-upload and action handling patterns reusing existing components; (4) State variations for all major statuses (awaiting review, interview scheduled, awaiting documents, approved, rejected); (5) Privacy and copy review (no internal remarks, DPDP messaging) plus responsive behavior. Define for each subtask the specific frames, states, and review checklist.",
-        "updatedAt": "2025-12-22T07:17:42.100Z"
+        "updatedAt": "2025-12-24T14:45:04.795Z"
       },
       {
         "id": "7",
@@ -537,7 +541,7 @@
           "5",
           "39"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -577,7 +581,8 @@
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design student login, first-time setup, and role-based redirection."
+        "expansionPrompt": "Break down this task with a focus on design student login, first-time setup, and role-based redirection.",
+        "updatedAt": "2025-12-24T15:15:34.766Z"
       },
       {
         "id": "8",
@@ -590,59 +595,61 @@
           "5",
           "6"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
             "title": "Implement Parent/Guardian Entry and OTP Verification Flow",
-            "description": "Build the login flow: Select Parent/Guardian Login → Enter registered mobile → OTP verification → Redirect to Parent Dashboard, reusing existing OTP patterns from Task 5.",
+            "description": "Develop the login flow: Select Parent/Guardian Login → Enter registered mobile → OTP verification → Redirect to Parent Dashboard, reusing existing OTP component patterns from Task 5.",
             "dependencies": [],
-            "details": "Reuse masked OTP input, resend timer, error handling from Task 5. Ensure mobile-first implement with clear labels. Add dev guidance for parent role scoping on API endpoints.",
-            "status": "pending",
-            "testStrategy": "Build and test full flow: success, invalid/expired OTP, resend. Verify no mutating actions; test on mobile devices for touch targets and readability. Confirm redirect only to view-only dashboard.",
+            "details": "Reuse masked OTP input, resend timer, error handling from Task 5. Ensure mobile number is pre-registered via admin. Integrate with role-based navigation from Task 3. Use secure OTP generation and validation APIs.",
+            "status": "done",
+            "testStrategy": "Test full flow: success, invalid/expired OTP, resend, timeout. Verify non-mutating (no data changes on login). Check mobile responsiveness (touch targets, viewport scaling) on iOS/Android devices.",
+            "updatedAt": "2025-12-24T15:28:35.880Z",
             "parentId": "undefined"
           },
           {
             "id": 2,
-            "title": "Implement Parent Dashboard IA and Layout",
-            "description": "Implement information architecture and mobile-first layout for sections: Student overview, Fee status, Leave summary, Notifications center.",
+            "title": "Design Parent Dashboard IA and Layout",
+            "description": "Build dashboard with sections: Student overview (name, vertical, room, joining date, optional photo), Fee status (paid/pending/overdue, upcoming dues, receipt downloads), Leave summary (upcoming/approved/rejected/past), Notifications center.",
             "dependencies": [
               1
             ],
-            "details": "Student overview: photo (optional), name, vertical, room, joining date. Fee: statuses, upcoming dues, receipt downloads. Leave: upcoming/approved/rejected/past. Notifications: recent ward-related comms. Use status badges from design system.",
+            "details": "Use mobile-first layout with cards/sections from design system (reuse status badges). Ensure constrained layout handles multiple summaries. Limit to view-only display of data for associated student IDs.",
             "status": "pending",
-            "testStrategy": "Build and test dashboard; verify all sections load read-only data without edit fields. Test mobile scrolling, card stacking, and data clarity at 320px width. Ensure download links non-mutating.",
+            "testStrategy": "Validate layout on mobile/desktop: no overflow, clear hierarchy. Confirm data loads correctly (e.g., fee/leave statuses). Test non-mutating interactions (taps don't edit data). Review with prototype walkthrough.",
             "parentId": "undefined"
           },
           {
             "id": 3,
-            "title": "Specify Permissions and View-Only Behaviors",
-            "description": "Define and implement view-only access: no edits, no approvals; allow only acknowledgements where required. Enforce role-based data scoping.",
+            "title": "Specify Permissions and View-Only Behavior",
+            "description": "Enforce role scopes: no edit/approval actions; only view and acknowledgements (e.g., read receipts). Implement read-only API endpoints scoped to parent's associated student IDs.",
             "dependencies": [
               1,
               2
             ],
-            "details": "Parents see only associated student data via API role scopes (read-only endpoints). Disable all input fields/buttons except acknowledgements (e.g., 'Seen' on notifications). Provide dev notes on backend enforcement.",
+            "details": "Backend: API guards for parent role (query params filter by student ID). Frontend: Disable forms/buttons, show disabled states with tooltips. No mutating endpoints exposed.",
             "status": "pending",
-            "testStrategy": "Inspect working application elements: confirm no forms, edit icons, or approval buttons. Simulate API calls to verify scoped data only. Test acknowledgement flows don't mutate core data; mobile gesture checks.",
+            "testStrategy": "Inspect every element: no editable fields, no submit buttons for changes. Simulate API calls—verify only GET/read ops, no POST/PUT. Test acknowledgements (e.g., download) don't mutate. Mobile gesture tests (swipe/long-press safe).",
             "parentId": "undefined"
           },
           {
             "id": 4,
-            "title": "Add Compliance, DPDP Info, and Scope Clarity",
-            "description": "Incorporate DPDP informational content, tooltips explaining permissions/responsibilities, and clear labels for view-only scope.",
+            "title": "Add Compliance, DPDP Info, Tooltips, and Scope Clarity",
+            "description": "Include DPDP informational content, tooltips explaining view-only permissions/responsibilities, clear labels for all sections.",
             "dependencies": [
               2
             ],
-            "details": "Add banner/link to DPDP policy on data visibility/protection. Tooltips: 'View-only: cannot edit student info'. Labels: 'Parent Dashboard - View Your Ward's Status'. Ensure consistent tone across UI.",
+            "details": "Add banners/links for DPDP (reuse from Task 5). Tooltips: 'View-only: cannot edit'. Labels: 'Parent Dashboard - View your ward's info'. Ensure copy is concise, accessible.",
             "status": "pending",
-            "testStrategy": "Review all copy/tooltips for clarity and compliance. Test hover/tap on mobile for tooltip visibility. Verify no permission confusion leads to mutating attempts; stakeholder review for legal accuracy.",
+            "testStrategy": "Verify tooltips/labels visible on hover/tap (mobile-friendly). Check non-mutating: info displays don't trigger changes. Accessibility scan (screen reader reads permissions). Stakeholder review for clarity/compliance.",
             "parentId": "undefined"
           }
         ],
         "complexity": 6,
         "recommendedSubtasks": 4,
-        "expansionPrompt": "Split Task 8 into: (1) Parent/Guardian entry and OTP verification flow, reusing existing OTP patterns; (2) Parent dashboard IA and layout (student overview, fee status, leave summary, notifications); (3) Permissions and view-only behavior specification (no edits, only acknowledgements where applicable); (4) Compliance and copy: DPDP info, tooltips, clarity of scope. For each, define how to test that interactions are non-mutating and mobile-friendly."
+        "expansionPrompt": "Split Task 8 into: (1) Parent/Guardian entry and OTP verification flow, reusing existing OTP patterns; (2) Parent dashboard IA and layout (student overview, fee status, leave summary, notifications); (3) Permissions and view-only behavior specification (no edits, only acknowledgements where applicable); (4) Compliance and copy: DPDP info, tooltips, clarity of scope. For each, define how to test that interactions are non-mutating and mobile-friendly.",
+        "updatedAt": "2025-12-24T15:28:35.880Z"
       },
       {
         "id": "9",
@@ -2252,9 +2259,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-22T07:17:42.102Z",
+      "lastModified": "2025-12-24T15:28:35.882Z",
       "taskCount": 39,
-      "completedCount": 7,
+      "completedCount": 8,
       "tags": [
         "master"
       ]
