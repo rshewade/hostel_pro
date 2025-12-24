@@ -87,9 +87,18 @@ export default function Home() {
             Providing quality accommodation and education support for the Jain community since 1940
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary text-lg px-8 py-4">Apply Now</button>
-            <button className="btn-secondary text-lg px-8 py-4">Check Status</button>
-            <button className="btn-outline text-lg px-8 py-4">Login</button>
+            <Link href="/apply" className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center">
+              Apply Now
+            </Link>
+            <Link href="/track" className="btn-secondary text-lg px-8 py-4 inline-flex items-center justify-center">
+              Check Status
+            </Link>
+            <Link href="/login" className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center">
+              Login
+            </Link>
+            <Link href="/login/parent" className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 text-lg inline-flex items-center justify-center">
+              Parent/Guardian
+            </Link>
           </div>
         </div>
       </section>
@@ -640,7 +649,7 @@ Announcements &amp; Notices
               <Link href="/track">
                 <button className="btn-secondary text-lg px-8 py-4">Check Application Status</button>
               </Link>
-              <button className="btn-outline text-lg px-8 py-4" style={{ borderColor: "var(--color-navy-300)", color: "var(--color-navy-200)" }}>Login</button>
+              <Link href="/login" className="btn-outline text-lg px-8 py-4" style={{ borderColor: "var(--color-navy-300)", color: "var(--color-navy-200)" }}>Login</Link>
             </div>
             <p
               className="mt-6 text-sm"

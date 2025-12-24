@@ -81,12 +81,12 @@ export default function TrackingDetailPage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [uploading, setUploading] = useState(false);
+  const [timeUntilInterview, setTimeUntilInterview] = useState<{ days: number; hours: number; minutes: number } | null>(null);
 
   useEffect(() => {
     const fetchApplicationData = async () => {
       try {
-        // Fetch application
-        const appResponse = await fetch(`http://localhost:4000/applications?tracking_number=${trackingId}`);
+        const appResponse = await fetch(`http://localhost:4001/applications?tracking_number=${trackingId}`);
         const applications = await appResponse.json();
 
         if (applications.length === 0) {
@@ -98,13 +98,11 @@ export default function TrackingDetailPage() {
         const app = applications[0];
         setApplication(app);
 
-        // Fetch documents
-        const docResponse = await fetch(`http://localhost:4000/documents?application_id=${app.id}`);
+        const docResponse = await fetch(`http://localhost:4001/documents?application_id=${app.id}`);
         const docs = await docResponse.json();
         setDocuments(docs);
 
-        // Fetch interview if exists
-        const interviewResponse = await fetch(`http://localhost:4000/interviews?application_id=${app.id}`);
+        const interviewResponse = await fetch(`http://localhost:4001/interviews?application_id=${app.id}`);
         const interviews = await interviewResponse.json();
         if (interviews.length > 0) {
           setInterview(interviews[0]);
@@ -121,6 +119,34 @@ export default function TrackingDetailPage() {
       fetchApplicationData();
     }
   }, [trackingId]);
+
+  useEffect(() => {
+    if (!interview || interview.status !== 'SCHEDULED') {
+      setTimeUntilInterview(null);
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const interviewTime = new Date(interview.schedule_time);
+      const diff = interviewTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setTimeUntilInterview({ days: 0, hours: 0, minutes: 0 });
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeUntilInterview({ days, hours, minutes });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000);
+
+    return () => clearInterval(interval);
+  }, [interview]);
 
   const getCurrentStepOrder = (status: string) => {
     const step = statusSteps.find(s => s.status === status);
@@ -179,6 +205,107 @@ export default function TrackingDetailPage() {
   const currentStatus = statusConfig[application.current_status as keyof typeof statusConfig];
   const currentStepOrder = getCurrentStepOrder(application.current_status);
 
+  const hasPendingDocuments = documents.some(d => d.verification_status === 'PENDING');
+  const isAwaitingDocuments = application.current_status === 'REVIEW' && hasPendingDocuments;
+
+  const getStatusAlert = () => {
+    switch (application.current_status) {
+      case 'SUBMITTED':
+        return (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-semibold text-blue-900 mb-1">Application Submitted</h4>
+                <p className="text-sm text-blue-700">
+                  Your application has been received and is under initial review. We will notify you when it moves to the next stage.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'REVIEW':
+        if (hasPendingDocuments) {
+          return (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                  <h4 className="text-sm font-semibold text-yellow-900 mb-1">Action Required: Documents Pending</h4>
+                  <p className="text-sm text-yellow-700 mb-2">
+                    Some of your documents need attention. Please re-upload the documents marked as pending below to continue with your application.
+                  </p>
+                  <button
+                    className="text-sm font-medium text-yellow-800 hover:underline"
+                    onClick={() => setShowReuploadModal(true)}
+                  >
+                    Re-upload Documents →
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-semibold text-yellow-900 mb-1">Under Review</h4>
+                <p className="text-sm text-yellow-700">
+                  Your application is currently under review by the superintendent. We will update you on any further steps.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'APPROVED':
+        return (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-semibold text-green-900 mb-1">Congratulations! Application Approved</h4>
+                <p className="text-sm text-green-700">
+                  Your application has been approved. Please download your provisional letter and complete the admission formalities.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'REJECTED':
+        return (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-semibold text-red-900 mb-1">Application Rejected</h4>
+                <p className="text-sm text-red-700">
+                  Your application could not be approved. For more information, please contact our admissions team.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -201,6 +328,9 @@ export default function TrackingDetailPage() {
       {/* Main Content */}
       <main className="px-6 py-8">
         <div className="mx-auto max-w-4xl">
+          {/* Status-specific Alert Banner */}
+          {getStatusAlert()}
+
           {/* Application Summary */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
@@ -274,7 +404,7 @@ export default function TrackingDetailPage() {
           </div>
 
           {/* Interview Details */}
-          {interview && (
+          {interview && interview.status === 'SCHEDULED' && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <h3 className="text-xl font-semibold mb-4">Interview Details</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -288,14 +418,59 @@ export default function TrackingDetailPage() {
                     <p className="font-medium">{interview.mode === 'IN_PERSON' ? 'In Person' : 'Online'}</p>
                   </div>
                 </div>
+                {timeUntilInterview && (
+                  <div className="mt-4 pt-4 border-t border-blue-300">
+                    <p className="text-sm text-gray-500 mb-2">Time until interview</p>
+                    <div className="flex gap-4">
+                      <div className="text-center">
+                        <div className="bg-blue-600 text-white rounded-lg p-2 min-w-[60px]">
+                          <span className="text-2xl font-bold">{timeUntilInterview.days}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-1">Days</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="bg-blue-600 text-white rounded-lg p-2 min-w-[60px]">
+                          <span className="text-2xl font-bold">{timeUntilInterview.hours}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-1">Hours</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="bg-blue-600 text-white rounded-lg p-2 min-w-[60px]">
+                          <span className="text-2xl font-bold">{timeUntilInterview.minutes}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-1">Minutes</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="mt-4">
                   <p className="text-sm text-gray-500">Status</p>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    interview.status === 'SCHEDULED' ? 'bg-yellow-100 text-yellow-800' :
-                    interview.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {interview.status}
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    Scheduled
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {interview && interview.status === 'COMPLETED' && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h3 className="text-xl font-semibold mb-4">Interview Details</h3>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Date & Time</p>
+                    <p className="font-medium">{new Date(interview.schedule_time).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Mode</p>
+                    <p className="font-medium">{interview.mode === 'IN_PERSON' ? 'In Person' : 'Online'}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">Status</p>
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Completed
                   </span>
                 </div>
               </div>
@@ -337,12 +512,12 @@ export default function TrackingDetailPage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-xl font-semibold mb-4">Actions</h3>
             <div className="space-y-3">
-              {application.current_status === 'REVIEW' && documents.some(d => d.verification_status === 'PENDING') && (
+              {isAwaitingDocuments && (
                 <button
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                  className="w-full bg-yellow-500 text-white py-3 px-4 rounded-md hover:bg-yellow-600 font-medium border-2 border-yellow-600"
                   onClick={() => setShowReuploadModal(true)}
                 >
-                  Re-upload Documents
+                  📎 Re-upload Pending Documents
                 </button>
               )}
               {interview && interview.status === 'SCHEDULED' && (
@@ -351,7 +526,7 @@ export default function TrackingDetailPage() {
                 </button>
               )}
               {application.current_status === 'APPROVED' && (
-                <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700">
+                <button className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-medium">
                   Download Provisional Letter
                 </button>
               )}
@@ -359,7 +534,7 @@ export default function TrackingDetailPage() {
                 Download Application PDF
               </button>
               {application.current_status !== 'APPROVED' && application.current_status !== 'REJECTED' && (
-                <button className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">
+                <button className="w-full border-2 border-red-500 text-red-600 py-2 px-4 rounded-md hover:bg-red-50">
                   Withdraw Application
                 </button>
               )}
