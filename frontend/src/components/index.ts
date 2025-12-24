@@ -33,6 +33,9 @@ export * from './data/Stepper';
 export * from './data/Tabs';
 export * from './data/Accordion';
 
+// Dashboard Components
+export * from './dashboard';
+
 // Feedback Components
 export * from './feedback/Modal';
 export * from './feedback/Toast';

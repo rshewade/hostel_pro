@@ -667,17 +667,18 @@
         "dependencies": [
           "7"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
             "title": "Dashboard Content Model and IA Design",
             "description": "Define the information architecture and content model for hero status, journey tracker, quick actions, and notifications panel.",
             "dependencies": [],
-            "details": "Structure layout with hero status area, quick action cards, notifications list, and key summaries; include vertical context (Boys/Girls/Dharamshala) and academic period; use reusable card and badge components with student-friendly helper text.",
-            "status": "pending",
+            "details": "Structure layout with hero status area, quick action cards, notifications list, and key summaries; include vertical context (Boys/Girls/Dharamshala) and academic period; use reusable card and badge components with student-friendly helper text.\n<info added on 2025-12-24T17:44:56.162Z>\nCreated comprehensive content model and IA design document for student dashboard. Defined data structures for user context, journey tracker, quick actions, notifications, and key summaries. Specified page layout, navigation structure, and responsive layouts for desktop/tablet/mobile. Documented state-based visibility rules and component requirements with student-friendly but disciplined tone guidelines.\n</info added on 2025-12-24T17:44:56.162Z>",
+            "status": "done",
             "testStrategy": "Mock scenarios: new resident (all actions visible), nearing renewal (renewal card prominent); validate via usability review for 'what do I do next' clarity and logical flow.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T17:45:07.953Z"
           },
           {
             "id": 2,
@@ -685,9 +686,10 @@
             "description": "Implement visual journey tracker and conditional quick action cards with stages and visibility rules.",
             "dependencies": [],
             "details": "Create timeline or segmented progress bar for Checked-in → Renewal Due → Renewed → Exited; implement cards for Pay Fees, Download Letters, Apply for Leave, View Room Details, View Documents, Renewal (conditional on window); add dev hints for visibility.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Mock states: Checked-in (basic actions), Renewal Due (renewal highlighted), Renewed (post-renewal actions), Exited (minimal actions); review usability for intuitive progress indication and action prioritization.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-24T17:46:30.978Z"
           },
           {
             "id": 3,
@@ -729,7 +731,8 @@
         ],
         "complexity": 7,
         "recommendedSubtasks": 5,
-        "expansionPrompt": "Break Task 9 into: (1) Dashboard content model and IA (hero status, tracker, quick actions, notifications); (2) Visual design of journey tracker and conditional quick actions; (3) Responsive layouts and variants for key states (new resident, nearing renewal, post-renewal, exit-initiated); (4) Integration mapping to other modules (fees, room, leave, documents, renewal, exit); (5) Governance and DPDP elements (consent alerts, vertical context, academic period). For each subtask, specify the scenarios to mock and validate via usability review."
+        "expansionPrompt": "Break Task 9 into: (1) Dashboard content model and IA (hero status, tracker, quick actions, notifications); (2) Visual design of journey tracker and conditional quick actions; (3) Responsive layouts and variants for key states (new resident, nearing renewal, post-renewal, exit-initiated); (4) Integration mapping to other modules (fees, room, leave, documents, renewal, exit); (5) Governance and DPDP elements (consent alerts, vertical context, academic period). For each subtask, specify the scenarios to mock and validate via usability review.",
+        "updatedAt": "2025-12-24T17:46:30.978Z"
       },
       {
         "id": "10",
@@ -2265,7 +2268,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-24T16:37:23.168Z",
+      "lastModified": "2025-12-24T17:46:30.980Z",
       "taskCount": 39,
       "completedCount": 9,
       "tags": [

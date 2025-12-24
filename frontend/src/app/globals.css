@@ -208,13 +208,30 @@
   --radius-sm: 0.25rem;    /* 4px */
   --radius-md: 0.5rem;     /* 8px */
   --radius-lg: 0.75rem;    /* 12px */
-  --radius-xl: 1rem;       /* 16px */
-  --radius-2xl: 1.5rem;    /* 24px */
-  --radius-full: 9999px;
+   --radius-xl: 1rem;       /* 16px */
+   --radius-2xl: 1.5rem;    /* 24px */
+   --radius-full: 9999px;
 
-  /* --------------------------------------------------------------------------
-     SHADOW/ELEVATION TOKENS (Subtle institutional shadows)
-     -------------------------------------------------------------------------- */
+   /* --------------------------------------------------------------------------
+      ADDITIONAL STATE/ALERT COLORS
+      -------------------------------------------------------------------------- */
+   --color-green-100: #f0fdf4;
+   --color-green-800: #15803d;
+   --color-yellow-100: #fefce8;
+   --color-yellow-600: #ca8a04;
+   --color-yellow-800: #854d0e;
+   --color-red-100: #fef2f2;
+   --color-red-600: #dc2626;
+   --color-red-800: #b91c1c;
+   --color-sky-100: #f0f9ff;
+   --color-sky-600: #0284c7;
+   --color-sky-800: #0c4a6e;
+   --color-gold-50: #fffbeb;
+   --color-gold-600: #d4a84b;
+
+   /* --------------------------------------------------------------------------
+      SHADOW/ELEVATION TOKENS (Subtle institutional shadows)
+      -------------------------------------------------------------------------- */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
