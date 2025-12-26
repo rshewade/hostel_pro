@@ -748,7 +748,7 @@
           "5",
           "2"
         ],
-        "status": "done",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -837,7 +837,7 @@
         "complexity": 5,
         "recommendedSubtasks": 3,
         "expansionPrompt": "Break down this task with a focus on design multi-step admission application form wizard.",
-        "updatedAt": "2025-12-26T11:59:10.493Z"
+        "updatedAt": "2025-12-26T14:44:07.403Z"
       },
       {
         "id": "11",
@@ -2320,9 +2320,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-26T11:59:10.495Z",
+      "lastModified": "2025-12-26T14:44:07.404Z",
       "taskCount": 39,
-      "completedCount": 11,
+      "completedCount": 10,
       "tags": [
         "master"
       ]

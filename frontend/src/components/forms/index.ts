@@ -4,5 +4,6 @@ export { DatePicker } from './DatePicker';
 export { Textarea } from './Textarea';
 export { Checkbox } from './Checkbox';
 export { Radio } from './Radio';
+export { FileUpload } from './FileUpload';
 export { Stepper } from './Stepper';
 export { FormWizard } from './FormWizard';
