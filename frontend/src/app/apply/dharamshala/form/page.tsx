@@ -930,9 +930,9 @@ export default function ApplicationFormPage() {
     }
   };
 
-   const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: any) => {
     try {
-      const response = await fetch('/api/applications', {
+      const response = await fetch('/api/applications/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -952,7 +952,7 @@ export default function ApplicationFormPage() {
       const result = await response.json();
       localStorage.removeItem('application_draft_dharamshala');
       window.location.href = `/apply/dharamshala/success?trackingNumber=${result.trackingNumber}`;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to submit application:', error);
       alert(`Failed to submit application: ${error.message || 'Please try again.'}`);
       throw error;
