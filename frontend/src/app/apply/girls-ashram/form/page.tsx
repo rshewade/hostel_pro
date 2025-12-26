@@ -944,12 +944,14 @@ export default function ApplicationFormPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json().catch(() => ({} as any));
+        const errorMessage = errorData.message || errorData.error || 'Failed to submit application';
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
       localStorage.removeItem('application_draft_girls-ashram');
-      window.location.href = `/apply/boys-hostel/success?trackingNumber=${result.trackingNumber}`;
+      window.location.href = `/apply/girls-ashram/success?trackingNumber=${result.trackingNumber}`;
     } catch (error) {
       console.error('Failed to submit application:', error);
       alert('Failed to submit application. Please try again.');
