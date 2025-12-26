@@ -944,15 +944,17 @@ export default function ApplicationFormPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json().catch(() => ({} as any));
+        const errorMessage = errorData.message || errorData.error || 'Failed to submit application';
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
       localStorage.removeItem('application_draft_boys-hostel');
       window.location.href = `/apply/boys-hostel/success?trackingNumber=${result.trackingNumber}`;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to submit application:', error);
-      alert('Failed to submit application. Please try again.');
+      alert(`Failed to submit application: ${error.message || 'Please try again.'}`);
       throw error;
     }
   };

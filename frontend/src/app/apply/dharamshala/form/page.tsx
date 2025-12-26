@@ -930,29 +930,31 @@ export default function ApplicationFormPage() {
     }
   };
 
-  const handleSubmit = async (data: any) => {
+   const handleSubmit = async (data: any) => {
     try {
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          vertical: 'boys-hostel',
+          vertical: 'dharamshala',
           status: 'SUBMITTED',
           submittedAt: new Date().toISOString(),
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json().catch(() => ({} as any));
+        const errorMessage = errorData.message || errorData.error || 'Failed to submit application';
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
-      localStorage.removeItem('application_draft_boys-hostel');
-      window.location.href = `/apply/boys-hostel/success?trackingNumber=${result.trackingNumber}`;
+      localStorage.removeItem('application_draft_dharamshala');
+      window.location.href = `/apply/dharamshala/success?trackingNumber=${result.trackingNumber}`;
     } catch (error) {
       console.error('Failed to submit application:', error);
-      alert('Failed to submit application. Please try again.');
+      alert(`Failed to submit application: ${error.message || 'Please try again.'}`);
       throw error;
     }
   };
