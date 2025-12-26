@@ -13,15 +13,15 @@ export default function ApplicationFormPage() {
   useEffect(() => {
     const loadDraft = async () => {
       try {
-        const savedDraft = localStorage.getItem('application_draft_boys-hostel');
+        const savedDraft = localStorage.getItem('application_draft_girls-ashram');
         if (savedDraft) {
           setInitialData(JSON.parse(savedDraft));
         } else {
-          setInitialData({ vertical: 'boys-hostel' });
+          setInitialData({ vertical: 'girls-ashram' });
         }
       } catch (error) {
         console.error('Failed to load draft:', error);
-        setInitialData({ vertical: 'boys-hostel' });
+        setInitialData({ vertical: 'girls-ashram' });
       }
       setIsLoading(false);
     };
@@ -489,12 +489,12 @@ export default function ApplicationFormPage() {
           <div className="space-y-4">
             <Select
               label="Vertical"
-              value={data.vertical || 'boys-hostel'}
+              value={data.vertical || 'girls-ashram'}
               onChange={(e) => onChange('vertical', e.target.value)}
               disabled
               helperText="This is pre-selected based on your application choice"
               options={[
-                { value: 'boys-hostel', label: 'Boys Hostel' },
+                { value: 'girls-ashram', label: 'Girls Ashram' },
                 { value: 'girls-ashram', label: 'Girls Ashram' },
                 { value: 'dharamshala', label: 'Dharamshala' },
               ]}
@@ -842,7 +842,7 @@ export default function ApplicationFormPage() {
                 Hostel Preferences
               </h3>
               <div className="space-y-2 text-sm">
-                <p><strong>Vertical:</strong> {data.vertical === 'boys-hostel' ? 'Boys Hostel' : data.vertical === 'girls-ashram' ? 'Girls Ashram' : 'Dharamshala'}</p>
+                <p><strong>Vertical:</strong> {data.vertical === 'girls-ashram' ? 'Girls Ashram' : data.vertical === 'girls-ashram' ? 'Girls Ashram' : 'Dharamshala'}</p>
                 <p><strong>Room Type:</strong> {data.roomType}</p>
                 <p><strong>Duration:</strong> {data.duration}</p>
                 <p><strong>Joining Date:</strong> {data.joiningDate}</p>
@@ -922,7 +922,7 @@ export default function ApplicationFormPage() {
 
   const handleSaveDraft = async (data: any, step: number) => {
     try {
-      localStorage.setItem('application_draft_boys-hostel', JSON.stringify(data));
+      localStorage.setItem('application_draft_girls-ashram', JSON.stringify(data));
       return Promise.resolve();
     } catch (error) {
       console.error('Failed to save draft:', error);
@@ -937,7 +937,7 @@ export default function ApplicationFormPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          vertical: 'boys-hostel',
+          vertical: 'girls-ashram',
           status: 'SUBMITTED',
           submittedAt: new Date().toISOString(),
         }),
@@ -948,7 +948,7 @@ export default function ApplicationFormPage() {
       }
 
       const result = await response.json();
-      localStorage.removeItem('application_draft_boys-hostel');
+      localStorage.removeItem('application_draft_girls-ashram');
       window.location.href = `/apply/boys-hostel/success?trackingNumber=${result.trackingNumber}`;
     } catch (error) {
       console.error('Failed to submit application:', error);
@@ -982,7 +982,7 @@ export default function ApplicationFormPage() {
             <ArrowLeft className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
             <div>
               <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                Boys Hostel Application
+                Girls Ashram Application
               </h1>
               <p className="text-caption">Application Form</p>
             </div>

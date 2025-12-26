@@ -495,7 +495,7 @@ export default function ApplicationFormPage() {
               helperText="This is pre-selected based on your application choice"
               options={[
                 { value: 'boys-hostel', label: 'Boys Hostel' },
-                { value: 'girls-ashram', label: 'Girls Ashram' },
+                { value: 'dharamshala', label: 'Dharamshala' },
                 { value: 'dharamshala', label: 'Dharamshala' },
               ]}
             />
@@ -842,7 +842,7 @@ export default function ApplicationFormPage() {
                 Hostel Preferences
               </h3>
               <div className="space-y-2 text-sm">
-                <p><strong>Vertical:</strong> {data.vertical === 'boys-hostel' ? 'Boys Hostel' : data.vertical === 'girls-ashram' ? 'Girls Ashram' : 'Dharamshala'}</p>
+                <p><strong>Vertical:</strong> {data.vertical === 'boys-hostel' ? 'Boys Hostel' : data.vertical === 'dharamshala' ? 'Dharamshala' : 'Dharamshala'}</p>
                 <p><strong>Room Type:</strong> {data.roomType}</p>
                 <p><strong>Duration:</strong> {data.duration}</p>
                 <p><strong>Joining Date:</strong> {data.joiningDate}</p>
