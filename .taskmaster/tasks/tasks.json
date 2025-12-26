@@ -748,11 +748,96 @@
           "5",
           "2"
         ],
-        "status": "pending",
-        "subtasks": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Overall Wizard Layout and Stepper",
+            "description": "Create wireframes and high-fidelity designs for the multi-step form wizard including top/side stepper, progress indicators, navigation buttons, and consistent header/footer across all steps.",
+            "dependencies": [],
+            "details": "Include responsive design for desktop/mobile; ensure stepper shows current/completed steps with back/next CTAs; incorporate branding colors and typography from project context.",
+            "status": "done",
+            "testStrategy": "Validate stepper usability on different screen sizes; check accessibility (keyboard nav, ARIA labels); stakeholder review for alignment with applicant journey.",
+            "updatedAt": "2025-12-26T11:51:09.556Z",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Design Personal Details Form Step",
+            "description": "Design the first step covering name, DOB, contact info, permanent address, parent/guardian details, local guardian, and emergency contacts with required field indicators.",
+            "dependencies": [
+              1
+            ],
+            "details": "Use grouped sections with helper text; include inline validation placeholders; ensure culturally appropriate fields (e.g., full name formats); mobile-optimized inputs.",
+            "status": "done",
+            "testStrategy": "Prototype field interactions; test form readability on small screens; confirm required fields are visually distinct.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-26T11:53:39.277Z"
+          },
+          {
+            "id": 3,
+            "title": "Design Academic & Hostel Preferences Steps",
+            "description": "Design step 2 for academic info (institution, course, marks, certificates) and step 3 for hostel preferences (vertical, room type, duration, special needs).",
+            "dependencies": [
+              1
+            ],
+            "details": "Pre-select vertical from Task 5; use dropdowns/radios for preferences; include conditional fields based on selections; visual hierarchy for marks/certificates.",
+            "status": "done",
+            "testStrategy": "Test conditional logic visibility; validate dropdown usability; ensure pre-selected vertical displays correctly.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-26T11:58:53.711Z"
+          },
+          {
+            "id": 4,
+            "title": "Design References and Document Upload Steps",
+            "description": "Design step 4 for ex-student references with contact fields and step 5 for drag-and-drop document upload (PDF/JPG) with previews, size limits, replace/delete options.",
+            "dependencies": [
+              1
+            ],
+            "details": "References: repeatable fields with add/remove; Upload: file thumbnails, progress bars, error states for invalid formats/sizes; clear guidelines visible.",
+            "status": "done",
+            "testStrategy": "Simulate file uploads/drags; test preview rendering; validate error messaging for oversized/invalid files.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-26T11:59:01.273Z"
+          },
+          {
+            "id": 5,
+            "title": "Design Review & Submit Step with Draft Features",
+            "description": "Design final review step summarizing all data, edit links per section, submit CTA, plus 'Save as Draft' button on every step with visual saved state indicator.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "Review: collapsible sections, data preview matching input formats; Draft: loading spinner, 'Saved' badge, local/remote sync messaging; error handling for connectivity.",
+            "status": "done",
+            "testStrategy": "Test full data flow to review; verify draft save/resume; check offline/online states and messaging.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-26T11:59:10.484Z"
+          },
+          {
+            "id": 6,
+            "title": "Design Validation, Error States, and Routing Flows",
+            "description": "Design inline validation messages, helper texts, error banners, connectivity issues, and vertical-based routing confirmation for submission to Superintendent queue.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "details": "Color-coded validation (green success, red error); step-blocking on critical errors; routing summary in review; robust offline draft persistence indicators.",
+            "status": "done",
+            "testStrategy": "Prototype all error scenarios; test navigation with validation blocks; validate routing info clarity before submit.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-26T11:59:10.493Z"
+          }
+        ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design multi-step admission application form wizard."
+        "expansionPrompt": "Break down this task with a focus on design multi-step admission application form wizard.",
+        "updatedAt": "2025-12-26T11:59:10.493Z"
       },
       {
         "id": "11",
@@ -2235,9 +2320,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-24T18:34:45.235Z",
+      "lastModified": "2025-12-26T11:59:10.495Z",
       "taskCount": 39,
-      "completedCount": 10,
+      "completedCount": 11,
       "tags": [
         "master"
       ]
