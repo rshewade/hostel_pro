@@ -509,27 +509,4 @@ export interface ErrorMetadata {
 // EXPORT ALL TYPES
 // ============================================================================
 
-export type {
-  Actor,
-  DeviceContext,
-  SessionInfo,
-  DPDPConsent,
-  ConsentHistory,
-  DigitalSignature,
-  AuditLogEntry,
-  AuditTrail,
-  VersionInfo,
-  VersionHistory,
-  DocumentAuditMetadata,
-  DocumentWithMetadata,
-  UndertakingAuditMetadata,
-  UndertakingWithMetadata,
-  RetentionPolicy,
-  DataRetentionInfo,
-  TimestampInfo,
-  APIRequestContext,
-  APIResponse,
-  WebSocketEvent,
-  WebSocketSubscription,
-  ErrorMetadata
-};
+// All types are already exported individually above

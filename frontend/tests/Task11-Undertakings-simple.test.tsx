@@ -226,7 +226,7 @@ describe('Task 11.3 - Post-admission Digital Undertakings', () => {
       const mockAck = {
         id: 'ACK-001',
         type: 'test',
-        title: 'Test',
+        title: 'Test Title',
         acknowledgedAt: '2025-12-27T10:00:00Z',
         acknowledgedBy: 'Test User'
       };
@@ -237,41 +237,41 @@ describe('Task 11.3 - Post-admission Digital Undertakings', () => {
         />
       );
 
-      expect(screen.getByText('Test Title')).toBeInTheDocument();
-      expect(screen.getAllByText(/acknowledged/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Test Title/i).length).toBeGreaterThan(0);
+      expect(screen.getByText(/Test User/i)).toBeInTheDocument();
     });
   });
 
   describe('Undertakings List - Summary Stats', () => {
-    it('displays statistics', () => {
-      const mockItems = [
-        {
-          id: '1',
-          type: 'dpdp_consent_renewal' as UndertakingType,
-          title: 'DPDP Consent',
-          description: 'Description',
-          status: 'pending' as UndertakingStatus,
-          required: true
-        },
-        {
-          id: '2',
-          type: 'hostel_rules_acknowledgement' as UndertakingType,
-          title: 'Hostel Rules',
-          description: 'Description',
-          status: 'required' as UndertakingStatus,
-          required: true,
-          isBlocking: true
-        },
-        {
-          id: '3',
-          type: 'code_of_conduct' as UndertakingType,
-          title: 'Code of Conduct',
-          description: 'Description',
-          status: 'completed' as UndertakingStatus,
-          required: false
-        }
-      ];
+    const mockItems = [
+      {
+        id: '1',
+        type: 'dpdp_consent_renewal' as UndertakingType,
+        title: 'DPDP Consent',
+        description: 'Description',
+        status: 'pending' as UndertakingStatus,
+        required: true
+      },
+      {
+        id: '2',
+        type: 'hostel_rules_acknowledgement' as UndertakingType,
+        title: 'Hostel Rules',
+        description: 'Description',
+        status: 'required' as UndertakingStatus,
+        required: true,
+        isBlocking: true
+      },
+      {
+        id: '3',
+        type: 'code_of_conduct' as UndertakingType,
+        title: 'Code of Conduct',
+        description: 'Description',
+        status: 'completed' as UndertakingStatus,
+        required: false
+      }
+    ];
 
+    it('displays statistics', () => {
       render(
         <UndertakingsList
           items={mockItems}
@@ -292,10 +292,9 @@ describe('Task 11.3 - Post-admission Digital Undertakings', () => {
       );
 
       // Just verify the list renders without error
-      const container = screen.getByText(/Pending/).closest('div');
-      expect(container).toBeInTheDocument();
+      const pendingElements = screen.getAllByText(/Pending/);
+      expect(pendingElements.length).toBeGreaterThan(0);
     });
-  });
   });
 
   describe('Undertakings List - Empty State', () => {

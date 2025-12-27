@@ -164,7 +164,7 @@ const UndertakingForm = forwardRef<HTMLDivElement, UndertakingFormProps>(({
                 <Checkbox
                   id={item.id}
                   checked={item.checked}
-                  onToggle={() => item.onToggle(item.id)}
+                  onChange={() => item.onToggle(item.id)}
                   disabled={disabled}
                   label={item.text}
                   required={item.required}
@@ -205,11 +205,11 @@ const UndertakingForm = forwardRef<HTMLDivElement, UndertakingFormProps>(({
                 label={field.label}
                 placeholder={field.placeholder}
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(e) => field.onChange(e.target.value)}
                 required={field.required}
                 disabled={disabled || field.disabled}
                 helperText={
-                  field.required 
+                  field.required
                     ? 'Please type your full name as it appears on official documents'
                     : 'Type your name to acknowledge (optional)'
                 }

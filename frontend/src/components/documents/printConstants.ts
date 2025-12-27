@@ -13,26 +13,26 @@ export const PRINT_MARGINS = {
 } as const;
 
 export const PRINT_TYPOGRAPHY = {
-  heading: {
+  heading: [
     'text-2xl font-bold',
     'print:text-[22pt]'
-  },
-  body: {
+  ],
+  body: [
     'text-base leading-relaxed',
     'print:text-[11pt]'
-  },
-  caption: {
+  ],
+  caption: [
     'text-sm font-medium',
     'print:text-[10pt]'
-  },
-  label: {
+  ],
+  label: [
     'text-sm font-medium',
     'print:text-[10pt]'
-  },
-  small: {
+  ],
+  small: [
     'text-xs',
     'print:text-[9pt]'
-  }
+  ]
 } as const;
 
 export const PRINT_COLORS = {
@@ -59,10 +59,10 @@ export const PRINT_SIGNATURE_BLOCK = {
   right: 'flex-1 text-right space-y-2'
 } as const;
 
-export const PRINT_PAGE_BREAK = {
+export const PRINT_PAGE_BREAK = [
   'break-after-page',
   'break-before-page'
-} as const;
+] as const;
 
 export const DOCUMENT_PRINT_CLASSES = {
   header: 'text-center mb-6 pb-4 border-b-2 border-gray-200 print:border-black',

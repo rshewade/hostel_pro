@@ -64,7 +64,6 @@ const UndertakingPrintView = forwardRef<HTMLDivElement, UndertakingPrintViewProp
   const statusColor = () => {
     switch (status) {
       case 'completed':
-      case 'verified':
         return 'var(--color-green-600)';
       case 'overdue':
         return 'var(--color-red-600)';
@@ -163,7 +162,7 @@ const UndertakingPrintView = forwardRef<HTMLDivElement, UndertakingPrintViewProp
       )}
 
       {/* Signature Section */}
-      {(signature || consentItems?.length > 0) && (
+      {(signature || (consentItems && consentItems.length > 0)) && (
         <div className="mb-8 p-6 border-2" style={{ borderColor: 'var(--color-gray-200)' }}>
           <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
             Digital Signature
@@ -193,19 +192,19 @@ const UndertakingPrintView = forwardRef<HTMLDivElement, UndertakingPrintViewProp
                   serves as a legally binding confirmation equivalent to my handwritten signature.
                 </p>
               </div>
-              <div className="mt-8 flex items-start gap-3">
-                <div className="w-16 h-16 border-b-2" style={{ borderColor: 'var(--color-gray-200)' }} />
-                <div>
-                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    Signed on: <span className="font-medium">{formatDate(acknowledgedAt)}</span>
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    By: <span className="font-medium">{acknowledgedBy}</span> (Digitally Signed)
-                  </p>
+              <div className="mt-8 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-16 h-16 border-b-2" style={{ borderColor: 'var(--color-gray-200)' }} />
+                  <div>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      Signed on: <span className="font-medium">{formatDate(acknowledgedAt)}</span>
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      By: <span className="font-medium">{acknowledgedBy}</span> (Digitally Signed)
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="w-16 h-16 border-b-2" style={{ borderColor: 'var(--color-gray-200)' }} />
-              <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                   IP Address: <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
                     {/* Would be logged from backend */}
                     192.168.1.X

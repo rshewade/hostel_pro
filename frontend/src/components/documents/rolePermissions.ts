@@ -17,10 +17,10 @@ export type UserRole =
   | 'superintendent'        // Manages assigned to vertical (Boys/Girls/Dharamshala)
   | 'trustee'               // Approves final admission and conducts interviews
   | 'verifier'              // Verifies documents and undertakings
-  | 'accounts'               // Manages finances and receipts
-  | 'legal_compliance'       // Legal/compliance officer reviews documents
-  | 'admin'                 // System administrator
-  | 'system'                // Automated processes and background jobs;
+   | 'accounts'               // Manages finances and receipts
+   | 'legal_compliance'       // Legal/compliance officer reviews documents
+   | 'admin'                 // System administrator
+   | 'system';               // Automated processes and background jobs
 
 // ============================================================================
 // DOCUMENT PERMISSIONS BY ROLE
@@ -70,7 +70,7 @@ export type UndertakingPermission =
  * Defines all permissions for each role and entity type
  * Roles: applicant, student, parent, local_guardian, superintendent, trustee, verifier, accounts, legal_compliance, admin, system
  */
-export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | UndertakingPermission> = {
+export const ROLE_PERMISSIONS: Record<UserRole, { documents: DocumentPermission[]; undertakings: UndertakingPermission[] }> = {
   applicant: {
     // Document permissions
     documents: [
@@ -78,7 +78,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'view_details',
       'view_audit_trail',
       'view_file_content',
-      'request_reupload'
+      'download'
     ],
     undertakings: [
       'view_basic',
@@ -134,7 +134,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'view_audit_trail',
       'view_file_content',
       'download'
-    ]
+    ],
     undertakings: [
       'view_basic',
       'view_details',
@@ -155,9 +155,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'upload',
       'verify',
       'reject',
-      'unverify',
-      'comment'
-    ]
+       'unverify',
+       'comment'
+     ],
     undertakings: [
       'view_basic',
       'view_details',
@@ -175,7 +175,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'view_audit_trail',
       'view_file_content',
       'download'
-    ]
+    ],
     undertakings: [
       'view_basic',
       'view_details',
@@ -196,6 +196,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'verify',
       'reject',
       'comment'
+    ],
+    undertakings: [
+      'view_basic',
+      'view_details',
+      'view_acknowledgement',
+      'view_audit_trail',
+      'view_dpdp_logs'
     ]
   },
 
@@ -207,6 +214,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'view_audit_trail',
       'download',
       'export'
+    ],
+    undertakings: [
+      'view_basic',
+      'view_details',
+      'view_acknowledgement',
+      'view_audit_trail',
+      'view_dpdp_logs'
     ]
   },
 
@@ -219,19 +233,62 @@ export const ROLE_PERMISSIONS: Record<UserRole, DocumentPermission | Undertaking
       'view_file_content',
       'download',
       'export'
+    ],
+    undertakings: [
+      'view_basic',
+      'view_details',
+      'view_acknowledgement',
+      'view_audit_trail',
+      'view_dpdp_logs'
     ]
   },
 
   admin: {
     // All permissions
-    documents: ['*'],
-    undertakings: ['*']
+    documents: [
+      'view_basic',
+      'view_details',
+      'view_audit_trail',
+      'view_file_content',
+      'view_dpdp_logs',
+      'upload',
+      'delete',
+      'verify',
+      'reject',
+      'unverify',
+      'download',
+      'export',
+      'request_reupload',
+      'comment'
+    ],
+    undertakings: [
+      'view_basic',
+      'view_details',
+      'view_acknowledgement',
+      'view_audit_trail',
+      'view_dpdp_logs',
+      'acknowledge',
+      'withdraw'
+    ]
   },
 
   system: {
     // Background processes (read-only)
-    documents: ['*'],
-    undertakings: ['*']
+    documents: [
+      'view_basic',
+      'view_details',
+      'view_audit_trail',
+      'view_file_content',
+      'view_dpdp_logs',
+      'download'
+    ],
+    undertakings: [
+      'view_basic',
+      'view_details',
+      'view_acknowledgement',
+      'view_audit_trail',
+      'view_dpdp_logs'
+    ]
   }
 };
 
@@ -281,112 +338,26 @@ export type ElementPermission =
 /**
  * Which roles can see which consent logs and related data
  */
-export type DPDPConsentVisibility = 
+export type DPDPConsentVisibility =
+  | 'none'                // No visibility at all
   | 'full'                // Full details: consent text, timestamp, user, device, policy version
-   | 'basic'               // Basic info: consent type, status, granted date, expiry
-   | 'timestamp_only'          // Just timestamp (no user info)
-   | 'user_only'           // Just user info (no device/context)
-   | 'admin_full'            // All fields including device context and IP
+  | 'basic'               // Basic info: consent type, status, granted date, expiry
+  | 'timestamp_only'          // Just timestamp (no user info)
+  | 'user_only'           // Just user info (no device/context)
+  | 'admin_full'            // All fields including device context and IP
 
 export const DPDP_CONSENT_VISIBILITY: Record<UserRole, DPDPConsentVisibility> = {
-  applicant: {
-    // Applicant cannot see consent logs (no account until approved)
-    full: false,
-    basic: false,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  student: {
-    // Student sees their own consents
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  parent: {
-    // Parent sees their ward's consents (read-only)
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  local_guardian: {
-    // Local guardian sees associated consents (read-only)
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  superintendent: {
-    // Superintendent can see consents for vertical
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  trustee: {
-    // Trustee can see consents (for review purposes)
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  verifier: {
-    // Verifier cannot see consent logs (not relevant to their role)
-    full: false,
-    basic: false,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  accounts: {
-    // Accounts can see consents (for financial audit)
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: false
-  },
-
-  legal_compliance: {
-    // Legal/compliance sees all consent logs
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: true,  // Only user, not device/context
-    admin_full: true
-  },
-
-  admin: {
-    // Admin can see everything
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: false,
-    admin_full: true
-  },
-
-  system: {
-    // System processes (read-only)
-    full: true,
-    basic: true,
-    timestamp_only: false,
-    user_only: true,  // Only "system" identity
-    admin_full: true
-  }
+  applicant: 'none',  // Applicant cannot see consent logs (no account until approved)
+  student: 'full',  // Student sees their own consents
+  parent: 'full',  // Parent sees their ward's consents (read-only)
+  local_guardian: 'full',  // Local guardian sees associated consents (read-only)
+  superintendent: 'admin_full',  // Superintendent can see all consents in their vertical
+  trustee: 'admin_full',  // Trustee can see all consents
+  verifier: 'basic',  // Verifier sees consent status (not content)
+  accounts: 'basic',  // Accounts can see consent status for fee verification
+  legal_compliance: 'admin_full',  // Legal compliance sees all consent data
+  admin: 'admin_full',  // Admin sees all consent data
+  system: 'none'  // System has read-only access for background jobs
 };
 
 // ============================================================================
@@ -396,7 +367,7 @@ export const DPDP_CONSENT_VISIBILITY: Record<UserRole, DPDPConsentVisibility> = 
 /**
  * Which audit trail elements are visible to which roles
  */
-export type AuditVisibility = 
+export type AuditVisibility =
   | 'none'                // No audit visibility
    | 'basic'               // Can see basic audit (timestamp, actor, action)
    | 'detailed'            // Full audit trail with all details
@@ -407,115 +378,17 @@ export type AuditVisibility =
    | 'error_details'        // Can see error stack traces
 
 export const AUDIT_TRAIL_VISIBILITY: Record<UserRole, AuditVisibility> = {
-  applicant: {
-    none: true,
-    basic: false,
-    detailed: false,
-    ip_address: false,
-    device_info: false,
-    user_agent: false,
-    session_id: false,
-    error_details: false
-  },
-
-  student: {
-    none: false,
-    basic: true,
-    detailed: false,
-    ip_address: false,
-    device_info: false,
-    user_agent: false,
-    session_id: false,
-    error_details: false
-  },
-
-  parent: {
-    none: true,
-    basic: true,
-    detailed: false,
-    ip_address: false,
-    device_info: false,
-    user_agent: false,
-    session_id: false,
-    error_details: false
-  },
-
-  superintendent: {
-    none: false,
-    basic: true,
-    detailed: true,
-    ip_address: true, // Superintendents need IP for investigations
-    device_info: true,
-    user_agent: true,  // Need user agent attribution
-    session_id: true,  // Need session tracking
-    error_details: true   // Need error logging
-  },
-
-  trustee: {
-    none: false,
-    basic: true,
-    detailed: true,
-    ip_address: true,
-    device_info: true,
-    user_agent: true,
-    session_id: true,
-    error_details: true
-  },
-
-  verifier: {
-    none: true,
-    basic: true,
-    detailed: true,
-    ip_address: true,
-    device_info: true,
-    user_agent: true,
-    session_id: true,
-    error_details: true
-  },
-
-  accounts: {
-    none: false,
-    basic: true,
-    detailed: true,
-    ip_address: true,
-    device_info: true,
-    user_agent: true,
-    session_id: true,
-    error_details: true
-  },
-
-  legal_compliance: {
-    none: false,
-    basic: true,
-    detailed: true,
-    ip_address: true,
-    device_info: true,
-    user_agent: true,
-    session_id: true,
-    error_details: true
-  },
-
-  admin: {
-    none: false,
-    basic: true,
-    detailed: true,
-    ip_address: true,
-    device_info: true,
-    user_agent: true,
-    session_id: true,
-    error_details: true
-  },
-
-  system: {
-    none: false,
-    basic: true,
-    detailed: true,
-    ip_address: false,
-    device_info: false,
-    user_agent: false,
-    session_id: false,
-    error_details: false
-  }
+  applicant: 'none',  // No audit visibility for applicants
+  student: 'basic',  // Can see basic audit (timestamp, actor, action)
+  parent: 'basic',  // Parent can see basic audit
+  local_guardian: 'basic',  // Local guardian can see basic audit
+  superintendent: 'detailed',  // Superintendent needs full details for investigations
+  trustee: 'detailed',  // Trustee can see all details
+  verifier: 'detailed',  // Verifier can see all details
+  accounts: 'detailed',  // Accounts can see detailed logs
+  legal_compliance: 'detailed',  // Legal compliance can see all details
+  admin: 'detailed',  // Admin can see all details
+  system: 'basic'  // System can see basic audit (automated processing)
 };
 
 // ============================================================================
@@ -523,17 +396,19 @@ export const AUDIT_TRAIL_VISIBILITY: Record<UserRole, AuditVisibility> = {
 // ============================================================================
 
 /**
- * Check if a role has a specific permission on an entity
+ * Check if a role has a specific document permission
  */
 export function hasDocumentPermission(
   role: UserRole,
-  permission: DocumentPermission,
-  entityType: 'document' | 'undertaking'
+  permission: DocumentPermission
 ): boolean {
-  const permissions = ROLE_PERMISSIONS[role][entityType];
+  const permissions = ROLE_PERMISSIONS[role]?.documents || [];
   return permissions?.includes(permission) || false;
 }
 
+/**
+ * Check if a role has a specific undertaking permission
+ */
 export function hasUndertakingPermission(
   role: UserRole,
   permission: UndertakingPermission
@@ -549,8 +424,8 @@ export function canViewAuditElement(
   role: UserRole,
   element: AuditVisibility
 ): boolean {
-  const visibility = AUDIT_TRAIL_VISIBILITY[role]?.[element] || AUDIT_TRAIL_VISIBILITY[role].none || false;
-  return visibility;
+  const visibility = AUDIT_TRAIL_VISIBILITY[role];
+  return visibility === element;
 }
 
 /**
@@ -560,12 +435,8 @@ export function getDPDPConsentVisibility(
   role: UserRole,
   visibilityLevel: DPDPConsentVisibility
 ): DPDPConsentVisibility {
-    const roleVisibility = DPDP_CONSENT_VISIBILITY[role] || { full: false, basic: false, timestamp_only: false, user_only: false, admin_full: false };
-    
-    return {
-      canSee: roleVisibility[visibilityLevel] || false,
-      visibilityLevel: roleVisibility[visibilityLevel] || 'none'
-    };
+    const roleVisibility = DPDP_CONSENT_VISIBILITY[role] || 'none';
+    return roleVisibility;
   }
 
 /**
@@ -629,25 +500,40 @@ export function isActionBlockedForRole(
  */
 export type FeatureFlag =
   | 'undertaking_blocking_enabled'    // Blocking undertakings prevents other actions
-   | 'document_upload_required'     // Documents required for proceeding
-   | 'payment_overdue_blocking' // Overdue payment blocks features
-   | 'maintenance_mode'           // System maintenance mode active
-   | 'legal_compliance_mode'   // Legal/compliance review mode
+  | 'document_upload_required'     // Documents required for proceeding
+  | 'payment_overdue_blocking' // Overdue payment blocks features
+  | 'maintenance_mode'           // System maintenance mode active
+  | 'legal_compliance_mode'   // Legal/compliance review mode
+  | 'legal_review_mode'         // Legal compliance review mode active
+  | 'parent_child_view_only'     // Parent can only see their child's data, not other students
+  | 'parent_student_search_only'  // Parent can only search their ward, not other students
+  | 'local_guardian_child_view_only' // Local guardian can only see their child's data
+  | 'vertical_management'         // Can manage vertical-specific settings
+  | 'can_access_any_document'   // Can access any document (trustee/admin)
+  | 'can_request_any_revision'   // Can request document revisions
+  | 'can_access_any_audit_log'  // Can access any audit log
+  | 'can_access_any_consent_log' // Can access any consent log
+  | 'can_modify_feature_flags'   // Can enable/disable features
+  | 'can_modify_role_configs'   // Can manage role configurations
+  | 'can_access_all_dpdp_consents' // Can access all DPDP consents
+  | 'can_access_all_audit_trail' // Full audit trail access
+  | 'background_processing_jobs'  // Async background processing jobs
 
-export interface RoleConfig {
-  roleId: string;
-  roleName: string;
-  description: string;
-  canManage: {
-    documents?: boolean;
-    undertakings?: boolean;
-    auditLogs?: boolean;
-    dpdpConsents?: boolean;
-    roleManagement?: boolean;
-    systemConfig?: boolean;
-  };
-  featureFlags?: FeatureFlag[];
-}
+ export interface RoleConfig {
+   roleId: string;
+   roleName: string;
+   description: string;
+   canManage: {
+     documents?: boolean;
+     undertakings?: boolean;
+     auditLogs?: boolean;
+     dpdpConsents?: boolean;
+     roleManagement?: boolean;
+     systemConfig?: boolean;
+   };
+   canDisable?: string[];
+   featureFlags?: FeatureFlag[];
+ }
 
 export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
   applicant: {
@@ -782,7 +668,7 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
       roleManagement: false
     },
     featureFlags: [
-      'can_approve_any_document',  // Can approve any document regardless
+      'can_access_any_document',  // Can access any document (trustee/admin)
       'can_request_any_revision',  // Can request revision to any document
       'legal_review_mode'  // Legal compliance review mode active
     ]
@@ -793,8 +679,8 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
     roleName: 'Administrator',
     description: 'System administrator',
     canManage: {
-      documents: ['*'],
-      undertakings: ['*'],
+      documents: true,
+      undertakings: true,
       auditLogs: true,
       dpdpConsents: true,
       roleManagement: true
@@ -815,8 +701,8 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
     roleName: 'System Processes',
     description: 'Automated background processes',
     canManage: {
-      documents: ['*'],
-      undertakings: ['*'],
+      documents: true,
+      undertakings: true,
       auditLogs: true,
       dpdpConsents: false,  // System doesn't have access to user data
       roleManagement: false
@@ -848,16 +734,20 @@ export function getAllFeatureFlags(): FeatureFlag[] {
   const flags: FeatureFlag[] = [];
   
   Object.values(ROLE_CONFIGS).forEach(roleConfig => {
-    roleConfig.featureFlags?.forEach(flag => {
-      if (!flags.includes(flag)) {
-        flags.push(flag);
-      }
-    });
+    if (roleConfig.featureFlags) {
+      roleConfig.featureFlags.forEach(flag => {
+        if (!flags.includes(flag)) {
+          flags.push(flag);
+        }
+      });
+    }
   });
   
   return flags;
 }
 
+// ============================================================================
+// LEGAL/COMPLIANCE WORKFLOWS
 // ============================================================================
 // LEGAL/COMPLIANCE WORKFLOWS
 // ============================================================================
@@ -896,6 +786,7 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     ],
     allowedRoles: ['trustee', 'legal_compliance'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['trustee', 'legal_compliance'],
     actionTimeoutHours: 48
   },
 
@@ -911,6 +802,7 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     ],
     allowedRoles: ['trustee', 'legal_compliance'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['trustee', 'legal_compliance'],
     actionTimeoutHours: 72
   },
 
@@ -924,6 +816,7 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     ],
     allowedRoles: ['legal_compliance'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['legal_compliance'],
     actionTimeoutHours: 24
   },
 
@@ -937,6 +830,7 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     ],
     allowedRoles: ['trustee', 'legal_compliance'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['trustee', 'legal_compliance'],
     actionTimeoutHours: 24
   },
 
@@ -945,12 +839,13 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     description: 'Request update to document/undertaking language',
     steps: [
       'Identify sections needing revision',
-      'Proposed changes with justification',
+      'Propose changes with justification',
       'Upload revision document',
       'Request trustee approval'
     ],
     allowedRoles: ['trustee', 'legal_compliance', 'superintendent'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['trustee', 'legal_compliance'],
     actionTimeoutHours: 48
   },
 
@@ -965,6 +860,7 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     ],
     allowedRoles: ['trustee', 'legal_compliance'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['trustee', 'legal_compliance'],
     actionTimeoutHours: 48
   },
 
@@ -979,6 +875,7 @@ export const LEGAL_REVIEW_WORKFLOWS: Record<LegalReviewWorkflow, LegalReviewWork
     ],
     allowedRoles: ['trustee', 'legal_compliance', 'admin'],
     autoApproveAfter: 'legal_compliance',
+    requiresApprovalFrom: ['trustee', 'legal_compliance'],
     actionTimeoutHours: 72
   }
 };
@@ -999,7 +896,13 @@ export function getLegalReviewWorkflow(
 /**
  * UI messages for different blocked action scenarios
  */
-export const BLOCKED_ACTION_MESSAGES: Record<BlockedAction, string> = {
+export interface BlockedActionMessage {
+  message: string;
+  action: string;
+  unblockText: string;
+}
+
+export const BLOCKED_ACTION_MESSAGES: Record<BlockedActionReason, BlockedActionMessage> = {
   blocking_undertaking: {
     message: 'This undertaking is blocking access to other features. Please complete this undertaking to proceed.',
     action: 'Complete Undertaking',
@@ -1037,7 +940,7 @@ export const BLOCKED_ACTION_MESSAGES: Record<BlockedAction, string> = {
   },
   feature_flag_disabled: {
     message: 'This feature is currently disabled. Contact administrator.',
-    action: 'Enable Feature'
+    action: 'Enable Feature',
     unblockText: 'Enable Feature'
   },
   maintenance_mode: {
@@ -1053,14 +956,14 @@ export const BLOCKED_ACTION_MESSAGES: Record<BlockedAction, string> = {
 export function getBlockedMessage(
   role: UserRole,
   action: string
-): string {
+): string | null {
   const actionKey = `${action}` as keyof typeof BLOCKED_ACTION_MESSAGES;
   const blockedAction = BLOCKED_ACTION_MESSAGES[actionKey];
   
-  const hasPermission = hasDocumentPermission(role, 'document', action) ||
-                      hasDocumentPermission(role, 'undertaking', action);
+  // Check if role has basic document/undertaking access
+  const hasDocumentAccess = hasDocumentPermission(role, 'view_basic') || hasUndertakingPermission(role, 'view_basic');
   
-  if (!hasPermission) {
+  if (!hasDocumentAccess) {
     return blockedAction.message;
   }
   
@@ -1096,7 +999,7 @@ export function canManageFeatureFlag(
     if (roleConfig.canDisable?.includes(flagId)) {
       return false; // Cannot disable if role in canDisable
     }
-    }
+  }
   
   return true; // Can enable or disable
 }
@@ -1105,8 +1008,8 @@ export function canManageFeatureFlag(
  * Get all enabled features for a role
  */
 export function getEnabledFeatureFlagsForRole(role: UserRole): FeatureFlag[] {
-  const roleConfig = ROLE_CONFIGS[role];
-  return roleConfig.featureFlags?.filter(f => f => f.enabled === true) || false;
+   const roleConfig = ROLE_CONFIGS[role];
+   return roleConfig.featureFlags || [];
 }
 
 /**
@@ -1118,27 +1021,39 @@ export function toggleFeatureFlag(
   reason?: string,
   enabledBy?: string
 ): FeatureFlagState {
-  const existingFlag = getAllFeatureFlags().find(f => f.flagId === flagId);
-  
-  if (!existingFlag) {
-    return {
-      flagId,
-      enabled,
-      enabledAt: new Date().toISOString(),
-      reason,
-      enabledBy: enabledBy || 'admin'
-    };
-  }
-  
-  // Update existing flag state
-  return { ...existingFlag, ... };
+  return {
+    flagId,
+    enabled,
+    enabledAt: new Date().toISOString(),
+    reason,
+    enabledBy: enabledBy || 'admin'
+  };
 }
 
 /**
  * Enable all features
  */
 export function enableAllFeatureFlags(enabledBy: string): void {
-  getAllFeatureFlags().forEach(flag => {
+  ([
+    'undertaking_blocking_enabled',
+    'document_upload_required',
+    'payment_overdue_blocking',
+    'maintenance_mode',
+    'legal_compliance_mode',
+    'legal_review_mode',
+    'parent_child_view_only',
+    'parent_student_search_only',
+    'local_guardian_child_view_only',
+    'vertical_management',
+    'can_access_any_document',
+    'can_request_any_revision',
+    'can_access_any_audit_log',
+    'can_access_any_consent_log',
+    'can_modify_feature_flags',
+    'can_access_all_dpdp_consents',
+    'can_access_all_audit_trail',
+    'background_processing_jobs'
+  ] as FeatureFlag[]).forEach(flag => {
     toggleFeatureFlag(flag, true, 'Enabled globally by admin', enabledBy);
   });
 }
@@ -1147,7 +1062,26 @@ export function enableAllFeatureFlags(enabledBy: string): void {
  * Disable all features
  */
 export function disableAllFeatureFlags(enabledBy: string): void {
-  getAllFeatureFlags().forEach(flag => {
+  ([
+    'undertaking_blocking_enabled',
+    'document_upload_required',
+    'payment_overdue_blocking',
+    'maintenance_mode',
+    'legal_compliance_mode',
+    'legal_review_mode',
+    'parent_child_view_only',
+    'parent_student_search_only',
+    'local_guardian_child_view_only',
+    'vertical_management',
+    'can_access_any_document',
+    'can_request_any_revision',
+    'can_access_any_audit_log',
+    'can_access_any_consent_log',
+    'can_modify_feature_flags',
+    'can_access_all_dpdp_consents',
+    'can_access_all_audit_trail',
+    'background_processing_jobs'
+  ] as FeatureFlag[]).forEach(flag => {
     toggleFeatureFlag(flag, false, 'Disabled globally by admin', enabledBy);
   });
 }
@@ -1159,7 +1093,7 @@ export function disableAllFeatureFlags(enabledBy: string): void {
 /**
  * Default feature flag states
  */
-export const DEFAULT_FEATURE_FLAGS: Record<FeatureFlag, boolean> = {
+export const DEFAULT_FEATURE_FLAGS: Partial<Record<FeatureFlag, FeatureFlagState>> = {
   undertaking_blocking_enabled: {
     flagId: 'undertaking_blocking_enabled',
     enabled: false,
@@ -1193,36 +1127,6 @@ export const DEFAULT_FEATURE_FLAGS: Record<FeatureFlag, boolean> = {
 };
 
 // ============================================================================
+// ============================================================================
 // EXPORTS
 // ============================================================================
-
-export * All exports organized by category
- */
-export const ROLE_PERMISSIONS_EXPORT = {
-  // Document permissions
-  documents: ROLE_PERMISSIONS,
-  // Undertaking permissions
-  undertakings: ROLE_PERMISSIONS
-};
-
-export const DPDP_CONSENT_VISIBILITY_EXPORT = DPDP_CONSENT_VISIBILITY;
-
-export const AUDIT_TRAIL_VISIBILITY_EXPORT = AUDIT_TRAIL_VISIBILITY;
-
-export const BLOCKED_ACTION_MESSAGES_EXPORT = BLOCKED_ACTION_MESSAGES;
-
-export const ROLE_CONFIGS_EXPORT = ROLE_CONFIGS;
-
-export const LEGAL_REVIEW_WORKFLOWS_EXPORT = LEGAL_REVIEW_WORKFLOWS;
-
-export const FEATURE_FLAGS_EXPORT = getAllFeatureFlags();
-
-export {
-  ROLE_PERMISSIONS_EXPORT,
-  DPDP_CONSENT_VISIBILITY_EXPORT,
-  AUDIT_TRAIL_VISIBILITY_EXPORT,
-  BLOCKED_ACTION_MESSAGES_EXPORT,
-  ROLE_CONFIGS_EXPORT,
-  LEGAL_REVIEW_WORKFLOWS_EXPORT,
-  FEATURE_FLAGS_EXPORT
-};

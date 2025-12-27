@@ -51,7 +51,11 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         {otp.map((digit, index) => (
           <input
             key={index}
-            ref={(el) => (inputRefs.current[index] = el)}
+            ref={(el) => {
+              if (el) {
+                inputRefs.current[index] = el;
+              }
+            }}
             type="password"
             inputMode="numeric"
             maxLength={1}
@@ -79,5 +83,3 @@ export const OtpInput: React.FC<OtpInputProps> = ({
 };
 
 OtpInput.displayName = 'OtpInput';
-
-export { OtpInput };

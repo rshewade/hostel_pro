@@ -15,14 +15,17 @@ export { UndertakingsList } from './UndertakingsList';
 export { DocumentPrintView } from './DocumentPrintView';
 export { UndertakingPrintView } from './UndertakingPrintView';
 
-export type { 
-  DocumentStatus, 
-  DocumentType, 
+export type {
+  DocumentStatus,
+  DocumentType,
   DocumentMetadata,
-  DocumentUploadCardProps,
-  DocumentConfig,
-  DocumentUploadsListProps 
+  DocumentUploadCardProps
 } from './DocumentUploadCard';
+
+export type {
+  DocumentConfig,
+  DocumentUploadsListProps
+} from './DocumentUploadsList';
 
 export type {
   DocumentPreviewModalProps

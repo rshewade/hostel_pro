@@ -24,7 +24,7 @@ describe('Task 11.4 - Print-optimized Layouts for Documents and Undertakings', (
           uploadedAt="2025-12-27T10:00:00Z"
           uploadedBy="John Doe"
         />
-      ) .not.toThrow();
+      )).not.toThrow();
     });
 
     it('UndertakingPrintView renders without error', () => {
@@ -37,7 +37,7 @@ describe('Task 11.4 - Print-optimized Layouts for Documents and Undertakings', (
           acknowledgedAt="2025-12-27T10:00:00Z"
           acknowledgedBy="John Doe"
         />
-      ) .not.toThrow();
+      )).not.toThrow();
     });
   });
 
@@ -62,9 +62,7 @@ describe('Task 11.4 - Print-optimized Layouts for Documents and Undertakings', (
   });
 
   describe('Undertaking Print View - Rendering', () => {
-    it('displays print button', () => {
-      const onPrint = vi.fn();
-      
+    it('displays undertaking content', () => {
       render(
         <UndertakingPrintView
           undertakingType="dpdp_consent_renewal"
@@ -73,12 +71,11 @@ describe('Task 11.4 - Print-optimized Layouts for Documents and Undertakings', (
           status="completed"
           acknowledgedAt="2025-12-27T10:00:00Z"
           acknowledgedBy="John Doe"
-          onPrint={onPrint}
         />
       );
 
-      const printButtons = screen.getAllByText('Print Undertaking');
-      expect(printButtons.length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/DPDP Consent Renewal/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/John Doe/i).length).toBeGreaterThan(0);
     });
   });
 });

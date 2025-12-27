@@ -1,0 +1,35 @@
+frontend/src/components/documents/rolePermissions.ts:
+- Line 23: Semicolon is commented out.
+  Current: | 'system'                // Automated processes and background jobs;
+  Expected: | 'system';                // Automated processes and background jobs
+
+- Line 378-379: Duplicate 'error_details' in AuditVisibility type.
+  Both lines define '| 'error_details''. One should be removed.
+
+- Line 523-536: Interface RoleConfig missing 'canDisable' property.
+  Used in canManageFeatureFlag (Line 989).
+
+- Line 989: Property 'canDisable' does not exist on type 'RoleConfig'.
+  RoleConfig is defined at Line 523.
+
+- Line 992: Indentation mismatch.
+  The closing brace for the if statement at Line 988 is indented too far (matches inner block).
+
+- Line 1002: Multiple errors.
+  1. Syntax: Double arrow function 'f => f =>' is likely a typo.
+  2. Type: 'f' is a string (FeatureFlag), so 'f.enabled' property access is invalid.
+  3. Type: Return type mismatch. '|| false' returns boolean, but function expects FeatureFlag[].
+
+- Line 1027: Syntax error.
+  Current: return { ...existingFlag, ... };
+  Expected: Complete the spread object or remove the trailing '...'.
+  Likely intended to update fields like enabled, reason, etc.
+
+- Line 1055-1086: Type mismatch in DEFAULT_FEATURE_FLAGS.
+  Type definition: Record<FeatureFlag, boolean>
+  Actual values: Objects (FeatureFlagState).
+  Fix: Change type to Record<FeatureFlag, FeatureFlagState> OR change values to booleans.
+
+- Line 1092: Syntax error.
+  Current: export * All exports organized by category
+  Expected: /** All exports organized by category */ (Comment)

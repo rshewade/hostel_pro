@@ -579,16 +579,16 @@ export function getRetentionInfo(
   
   const isArchived = archiveDate ? new Date(archiveDate) < new Date(now) : false;
   const isDeleted = new Date(expiryDate) < new Date(now);
-  
+
   const daysUntilExpiry = daysBetween(now, expiryDate);
   const daysUntilArchive = archiveDate ? daysBetween(now, archiveDate) : -1;
-  
+
   return {
     category,
     createdAt,
     expiresAt: expiryDate,
     isArchived,
-    archivedAt: isArchived ? archiveDate : undefined,
+    archivedAt: (isArchived && archiveDate) ? archiveDate : undefined,
     isDeleted,
     deletedAt: isDeleted ? expiryDate : undefined,
     retentionPolicy: policy,
@@ -603,13 +603,5 @@ export function getRetentionInfo(
 // EXPORT ALL CONSTANTS AND FUNCTIONS
 // ============================================================================
 
+// All types are already exported individually above
 
-
-export type {
-  RetentionPolicy,
-  DataLifecycle,
-  DataRetentionInfo,
-  DataDeletionRequest,
-  TimestampInfo,
-  DeletionRequestStatus,
-};
