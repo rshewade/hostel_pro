@@ -850,7 +850,7 @@
           "10",
           "2"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -858,9 +858,10 @@
             "description": "Implement the set of application-time declaration cards and map the end-to-end UX from seeing a required document through successful upload.",
             "dependencies": [],
             "details": "List all required declaration types (student declaration, parent consent, local guardian undertaking, hostel rules, admission T&Cs) and specify which are mandatory or conditional. Define card layout, labels, helper text, and error states. Map user flow: first visit, partially completed, and completed applications. Specify where scan/upload controls appear, supported file types and size limits, and how instructions for physical signatures are displayed. Capture integration assumptions such as backend endpoints for listing required docs and saving per-card status.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test the multi-card section and run through scenarios: all documents pending, some uploaded, all uploaded. Validate clarity of labels and instructions with at least one stakeholder review.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T15:11:23.052Z"
           },
           {
             "id": 2,
@@ -870,9 +871,10 @@
               1
             ],
             "details": "Define upload component behavior (drag-and-drop vs button, progress bars, cancel/retry, handling duplicates). Implement preview modal or side panel including zoom, scroll, rotation, pagination for PDFs, and fallback when preview is unavailable. Enumerate all status values (Pending, Uploaded, Verified, plus any error/rejected states if needed) and their visual treatments (badges, icons, colors, tooltips). Describe transitions between states, who can trigger them (applicant vs admin), and how the UI refreshes after admin verification. Document integration assumptions for status updates via APIs or websockets and how failures are surfaced to users.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create an interactive working application of upload → preview → status change flows and test with sample files (PDF/JPG, large size, corrupted files). Verify that each state and transition is visually distinct and that errors are recoverable.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T15:29:33.323Z"
           },
           {
             "id": 3,
@@ -883,9 +885,10 @@
               2
             ],
             "details": "List all post-admission undertakings and map when and where each is presented in the product (on login, within a tasks panel, or dedicated page). Define acknowledgement patterns: checkbox groups, explicit consent statements, typed name or digital signature field, and confirmation screens. Capture edge cases: partially completed undertakings, forced completion before accessing other features, revocation or updates to terms. Detail the data elements captured per acknowledgement, error handling for incomplete submissions, and assumptions on backend APIs for saving and locking responses.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test at least one end-to-end undertaking flow (prompt → review text → provide acknowledgements → confirmation) and verify behavior for first-time users, returning users with pending undertakings, and users who have already completed them.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T15:54:03.396Z"
           },
           {
             "id": 4,
@@ -897,9 +900,10 @@
               3
             ],
             "details": "Create layout specifications for print views including margins, header/footer, institute letterhead, logo placement, typography, page breaks, and signature blocks for all relevant roles (student, parent, local guardian, admin). Document how the same template adapts from on-screen view to print/PDF output using the existing print component styles. Define props and conditional styles for submitted vs approved vs generated letters. Capture assumptions about template engine, localization, and how dynamic data (names, dates, statuses) are injected at print time.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Generate sample print/PDF outputs for key document types and visually inspect for alignment, readability, and branding consistency. Validate page breaks and signature block positioning on common paper sizes (e.g., A4, Letter).",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T16:27:40.278Z"
           },
           {
             "id": 5,
@@ -932,7 +936,8 @@
         ],
         "complexity": 8,
         "recommendedSubtasks": 6,
-        "expansionPrompt": "Decompose Task 11 into: (1) Application-time document upload cards and instructions; (2) Upload, preview, and status lifecycle (Pending/Uploaded/Verified) patterns; (3) Post-admission digital undertakings and acknowledgement flows; (4) Print-optimized layouts for undertakings and related artifacts; (5) Audit and consent metadata specification (timestamps, actors, statuses); (6) Cross-role visibility rules and legal/compliance review loop. For each, define detailed states, flows, and integration assumptions."
+        "expansionPrompt": "Decompose Task 11 into: (1) Application-time document upload cards and instructions; (2) Upload, preview, and status lifecycle (Pending/Uploaded/Verified) patterns; (3) Post-admission digital undertakings and acknowledgement flows; (4) Print-optimized layouts for undertakings and related artifacts; (5) Audit and consent metadata specification (timestamps, actors, statuses); (6) Cross-role visibility rules and legal/compliance review loop. For each, define detailed states, flows, and integration assumptions.",
+        "updatedAt": "2025-12-27T16:27:40.278Z"
       },
       {
         "id": "12",
@@ -2320,7 +2325,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-26T15:12:36.644Z",
+      "lastModified": "2025-12-27T16:27:40.280Z",
       "taskCount": 39,
       "completedCount": 11,
       "tags": [

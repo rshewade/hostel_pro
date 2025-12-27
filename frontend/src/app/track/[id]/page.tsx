@@ -82,6 +82,18 @@ function getCurrentStepOrder(status: string): number {
   return statusOrder[status] || 0;
 }
 
+// Helper function to map color names to Tailwind classes
+function getStatusColor(color: string | undefined): string {
+  const colorMap: { [key: string]: string } = {
+    'gray': 'bg-gray-100 text-gray-700',
+    'blue': 'bg-blue-100 text-blue-700',
+    'yellow': 'bg-yellow-100 text-yellow-700',
+    'green': 'bg-green-100 text-green-700',
+    'red': 'bg-red-100 text-red-700'
+  };
+  return colorMap[color || 'gray'] || colorMap.gray;
+}
+
 export default function TrackingDetailPage() {
   const params = useParams();
   const trackingId = params.id as string;
