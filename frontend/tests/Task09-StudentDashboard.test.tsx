@@ -168,7 +168,7 @@ describe('Task 9 - Student Dashboard (Approved Residents)', () => {
       expect(downloadButton).toBeInTheDocument();
     });
 
-    it('Apply for Leave button navigates to leave form', () => {
+    it('Apply for Leave button navigates to leave form', async () => {
       render(<BrowserRouter><StudentDashboard /></BrowserRouter>);
 
       const applyLeaveButton = screen.getByText('Apply for Leave');

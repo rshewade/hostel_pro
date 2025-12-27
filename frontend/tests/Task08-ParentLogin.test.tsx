@@ -149,9 +149,9 @@ describe('Task 8 - Parent/Guardian View-only Login', () => {
       }, { timeout: 5000 });
     });
 
-    it('handles unregistered mobile number', () => {
+    it('handles unregistered mobile number', async () => {
       render(<BrowserRouter><ParentLoginPage /></BrowserRouter>);
-      
+
       const phoneInput = screen.getByLabelText(/Mobile/i);
       fireEvent.change(phoneInput, { target: { value: '9876543210' } });
       const verifyButton = screen.getByRole('button', { name: 'Verify' });

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { Stepper } from '../Stepper';
+import { Stepper } from '@/components/forms/Stepper';
 
 describe('Stepper Component', () => {
   const defaultProps = {

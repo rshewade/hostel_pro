@@ -114,7 +114,7 @@ describe('Task 7 - Student Login, First-time Setup, and Role-based Redirection',
   });
 
   describe('First-time Password Change', () => {
-    it('detects first-time login and shows password change screen', () => {
+    it('detects first-time login and shows password change screen', async () => {
       mockAuthContext.isAuthenticated.mockReturnValue(true);
       mockAuthContext.user.mockReturnValue(mockStudentUser);
       mockAuthContext.login.mockRejectedValue(new Error('First-time login required'));

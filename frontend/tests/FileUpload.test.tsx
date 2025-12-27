@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { FileUpload } from '../FileUpload';
+import { FileUpload } from '@/components/forms/FileUpload';
 
 describe('FileUpload Component', () => {
   const defaultProps = {

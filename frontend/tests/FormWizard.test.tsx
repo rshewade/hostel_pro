@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { FormWizard } from '../FormWizard';
+import { FormWizard } from '@/components/forms/FormWizard';
 
 const mockSteps = [
   {
@@ -90,7 +90,7 @@ describe('FormWizard Component', () => {
     expect(screen.getByTestId('step1-error')).toBeInTheDocument();
   });
 
-  it('allows navigation to next step after validation passes', () => {
+  it('allows navigation to next step after validation passes', async () => {
     const props = {
       ...defaultProps,
       initialData: { step1Value: 'Valid value' },
@@ -231,11 +231,11 @@ describe('FormWizard Component', () => {
     expect(screen.getByText('Submitting...')).toBeInTheDocument();
   });
 
-  it('disables navigation while submitting', () => {
+  it('disables navigation while submitting', async () => {
     const handleSubmit = vi.fn().mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 100))
     );
-    
+
     render(<FormWizard {...defaultProps} currentStep={1} onSubmit={handleSubmit} />);
 
     const submitButton = screen.getByText('Submit Application');

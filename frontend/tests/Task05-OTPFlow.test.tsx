@@ -98,7 +98,7 @@ describe('Task 5 - Applicant Registration & OTP Verification Flow', () => {
       });
     });
 
-    it('displays error for expired OTP', () => {
+    it('displays error for expired OTP', async () => {
       // Mock expired token response
       global.fetch = vi.fn(() =>
         Promise.resolve({

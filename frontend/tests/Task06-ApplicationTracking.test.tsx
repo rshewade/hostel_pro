@@ -73,12 +73,12 @@ describe('Task 6 - Application Tracking Page', () => {
       expect(emailInput).toBeInTheDocument();
     });
 
-    it('validates tracking ID format (HG-2024-NNNNN)', () => {
+    it('validates tracking ID format (HG-2024-NNNNN)', async () => {
       render(<AppPage />);
-      
+
       const trackingInput = screen.getByLabelText(/Tracking/i);
       fireEvent.change(trackingInput, { target: { value: 'HG-2024-00123' } });
-      
+
       const submitButton = screen.getByRole('button', { name: 'Submit' });
       fireEvent.click(submitButton);
 
