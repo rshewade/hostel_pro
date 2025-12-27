@@ -1,4 +1,4 @@
-import { forwardRef, useId } from 'react';
+import { forwardRef, useId, useState } from 'react';
 import { cn } from '../utils';
 import type { FormFieldProps } from '../types';
 
@@ -17,7 +17,7 @@ export interface CheckboxProps extends Omit<FormFieldProps, 'children'> {
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
   className,
   checked,
-  defaultChecked,
+  defaultChecked = false,
   onChange,
   onBlur,
   onFocus,
@@ -40,13 +40,24 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
   const helperId = helperText ? `${checkboxId}-helper` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined;
 
+  const isControlled = checked !== undefined;
+  const [internalChecked, setInternalChecked] = useState(defaultChecked);
+  const actualChecked = isControlled ? checked : internalChecked;
+
   const checkboxClasses = cn(
     // Base checkbox styles (hidden input, custom styling)
-    'sr-only', // Screen reader only, we'll style the custom checkbox
+    'sr-only', // Screen reader only, we'll style custom checkbox
 
     // Custom classes
     className
   );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isControlled) {
+      setInternalChecked(e.target.checked);
+    }
+    onChange?.(e);
+  };
 
   const customCheckboxClasses = cn(
     // Custom checkbox appearance
@@ -63,7 +74,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
     // State styles
     disabled
       ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
-      : checked || indeterminate
+      : actualChecked || indeterminate
         ? 'bg-gold-500 border-gold-500 text-navy-950'
         : 'border-gray-300 bg-white hover:border-gray-400',
 
@@ -79,9 +90,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
             ref={ref}
             id={checkboxId}
             type="checkbox"
-            checked={checked}
-            defaultChecked={defaultChecked}
-            onChange={onChange}
+            checked={actualChecked}
+            onChange={handleChange}
             onBlur={onBlur}
             onFocus={onFocus}
             value={value}

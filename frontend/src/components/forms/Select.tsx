@@ -29,7 +29,7 @@ export interface SelectProps extends Omit<FormFieldProps, 'children'> {
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(({
   className,
-  options,
+  options = [],
   value,
   defaultValue,
   placeholder,

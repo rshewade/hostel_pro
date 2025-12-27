@@ -68,6 +68,20 @@ const statusSteps = [
   { status: 'REJECTED', label: 'Rejected', order: 5 }
 ];
 
+// Helper function to get the order of current status in the application flow
+function getCurrentStepOrder(status: string): number {
+  const statusOrder: { [key: string]: number } = {
+    'DRAFT': 1,
+    'SUBMITTED': 2,
+    'REVIEW': 3,
+    'INTERVIEW': 4,
+    'APPROVED': 5,
+    'REJECTED': 5,
+    'ARCHIVED': 6
+  };
+  return statusOrder[status] || 0;
+}
+
 export default function TrackingDetailPage() {
   const params = useParams();
   const trackingId = params.id as string;
@@ -83,132 +97,15 @@ export default function TrackingDetailPage() {
   const [uploading, setUploading] = useState(false);
   const [timeUntilInterview, setTimeUntilInterview] = useState<{ days: number; hours: number; minutes: number } | null>(null);
 
-  useEffect(() => {
-    const fetchApplicationData = async () => {
-      try {
-        const appResponse = await fetch(`http://localhost:4001/applications?tracking_number=${trackingId}`);
-        const applications = await appResponse.json();
-
-        if (applications.length === 0) {
-          setError('Application not found');
-          setLoading(false);
-          return;
-        }
-
-        const app = applications[0];
-        setApplication(app);
-
-        const docResponse = await fetch(`http://localhost:4001/documents?application_id=${app.id}`);
-        const docs = await docResponse.json();
-        setDocuments(docs);
-
-        const interviewResponse = await fetch(`http://localhost:4001/interviews?application_id=${app.id}`);
-        const interviews = await interviewResponse.json();
-        if (interviews.length > 0) {
-          setInterview(interviews[0]);
-        }
-
-      } catch (err) {
-        setError('Failed to load application data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (trackingId) {
-      fetchApplicationData();
-    }
-  }, [trackingId]);
-
-  useEffect(() => {
-    if (!interview || interview.status !== 'SCHEDULED') {
-      setTimeUntilInterview(null);
-      return;
-    }
-
-    const updateCountdown = () => {
-      const now = new Date();
-      const interviewTime = new Date(interview.schedule_time);
-      const diff = interviewTime.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        setTimeUntilInterview({ days: 0, hours: 0, minutes: 0 });
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      setTimeUntilInterview({ days, hours, minutes });
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 60000);
-
-    return () => clearInterval(interval);
-  }, [interview]);
-
-  const getCurrentStepOrder = (status: string) => {
-    const step = statusSteps.find(s => s.status === status);
-    return step?.order || 1;
-  };
-
-  const getStatusColor = (color: string) => {
-    switch (color) {
-      case 'gray': return 'bg-gray-100 text-gray-800';
-      case 'blue': return 'bg-blue-100 text-blue-800';
-      case 'yellow': return 'bg-yellow-100 text-yellow-800';
-      case 'green': return 'bg-green-100 text-green-800';
-      case 'red': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error || !application) {
-    return (
-      <div className="min-h-screen bg-gray-100">
-        <header className="px-6 py-4 border-b bg-white">
-          <div className="mx-auto max-w-6xl flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Image src="/logo.png" alt="Hirachand Gumanji Family Charitable Trust" width={48} height={48} className="h-12 w-auto" />
-              <div>
-                <h1 className="text-lg font-semibold">Hirachand Gumanji Family</h1>
-                <p className="text-caption">Charitable Trust</p>
-              </div>
-            </div>
-            <Link href="/" className="text-sm text-blue-600 hover:underline">← Back to Home</Link>
-          </div>
-        </header>
-        <main className="px-6 py-12">
-          <div className="mx-auto max-w-md">
-            <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-              <p className="text-gray-600 mb-6">{error || 'Application not found'}</p>
-              <Link href="/track" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                Try Another Tracking ID
-              </Link>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  const currentStatus = statusConfig[application.current_status as keyof typeof statusConfig];
-  const currentStepOrder = getCurrentStepOrder(application.current_status);
+  // Get current status safely (returns default status if application is null)
+  const currentStepOrder = getCurrentStepOrder(application?.current_status || '');
 
   const hasPendingDocuments = documents.some(d => d.verification_status === 'PENDING');
-  const isAwaitingDocuments = application.current_status === 'REVIEW' && hasPendingDocuments;
+  const isAwaitingDocuments = application?.current_status === 'REVIEW' && hasPendingDocuments;
 
   const getStatusAlert = () => {
+    if (!application) return null;
+
     switch (application.current_status) {
       case 'SUBMITTED':
         return (
@@ -306,6 +203,20 @@ export default function TrackingDetailPage() {
     }
   };
 
+  // Show loading state while application data is being fetched
+  if (loading || !application) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading application details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentStatus = statusConfig[application.current_status as keyof typeof statusConfig] || statusConfig.DRAFT;
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -338,7 +249,7 @@ export default function TrackingDetailPage() {
                 <h2 className="text-2xl font-bold">Application #{application.tracking_number}</h2>
                 <p className="text-gray-600">{application.vertical.replace('_', ' ')} • {application.type}</p>
               </div>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentStatus.color)}`}>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentStatus?.color)}`}>
                 {currentStatus.label}
               </span>
             </div>
