@@ -850,7 +850,7 @@
           "10",
           "2"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -914,9 +914,10 @@
               3
             ],
             "details": "Detail the full metadata set for each uploaded document and undertaking: uploadedBy, uploadTime, verifiedBy, verifyTime, status history, device/context info if required, and DPDP consent logging elements (timestamp, consent text reference, version of policy). Define how metadata is created, updated, and read by different services and which fields are immutable. Describe how this metadata appears in UI (tooltips, detail panels, audit trail views) without overwhelming end users. Capture data retention, time zone conventions, and integration contracts with backend systems.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review the proposed metadata schema with engineering and legal/compliance stakeholders. Validate that example records cover all required scenarios (initial upload, re-upload, verification, rejection, consent renewal) and can be represented cleanly in mock API responses.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T18:46:01.424Z"
           },
           {
             "id": 6,
@@ -929,15 +930,16 @@
               5
             ],
             "details": "Enumerate all relevant roles (applicant, student, parent-facing proxy if any, hostel admin, verifier, accounts, legal/compliance) and map their permissions for view, download, verify, comment, and update for each document type and status. Define visibility of DPDP consent logs and audit metadata per role. Describe workflows for legal/compliance review of templates and consent language, including versioning and approval steps before changes go live. Capture assumptions about role management, feature flags, and how blocked actions (e.g., unauthorized downloads) are signaled in the UI.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Create a role-permission matrix and run walkthroughs for at least three personas (e.g., applicant, verifier, compliance officer) to ensure no inconsistent or unintended access. Review flows and permission rules with legal/compliance stakeholders for sign-off.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T18:46:02.793Z"
           }
         ],
         "complexity": 8,
         "recommendedSubtasks": 6,
         "expansionPrompt": "Decompose Task 11 into: (1) Application-time document upload cards and instructions; (2) Upload, preview, and status lifecycle (Pending/Uploaded/Verified) patterns; (3) Post-admission digital undertakings and acknowledgement flows; (4) Print-optimized layouts for undertakings and related artifacts; (5) Audit and consent metadata specification (timestamps, actors, statuses); (6) Cross-role visibility rules and legal/compliance review loop. For each, define detailed states, flows, and integration assumptions.",
-        "updatedAt": "2025-12-27T16:27:40.278Z"
+        "updatedAt": "2025-12-27T18:46:02.793Z"
       },
       {
         "id": "12",
@@ -951,7 +953,7 @@
           "10",
           "11"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -959,9 +961,10 @@
             "description": "Create wirepages/components and high-fidelity designs for the superintendent application table view with filters, columns, detailed view including documents preview, payments, notes, and action buttons.",
             "dependencies": [],
             "details": "Include filters for New/Under Review/Approved/Rejected statuses, vertical filter (Boys/Girls/Dharamshala), search; columns: name, date, vertical, status, payment, interview, flags; actions: Approve/Reject/Forward with modals; embed Send Message button. Ensure server-side paging hints.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test filter states, action flows, and vertical context indicators; validate data density on 13\" screens.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T07:04:44.058Z"
           },
           {
             "id": 2,
@@ -969,9 +972,10 @@
             "description": "Implement configuration screens for leave rules (types, thresholds, blackout dates) and parent notification rules (timing, channels like SMS/WhatsApp/Email).",
             "dependencies": [],
             "details": "Use form-based interfaces with clear inputs for rule definitions; ensure vertical-specific contexts to prevent cross-mix; integrate into tabbed layout or subpages for Applications, Leaves, Communication, Settings.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate rule creation/editing; confirm coverage of all PRD rule types and UI readability for configuration tasks.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T07:16:58.430Z"
           },
           {
             "id": 3,
@@ -982,14 +986,16 @@
               2
             ],
             "details": "Implement filter chips, confirmation modals with remarks capture; ensure scalability with server-side paging; add visual safeguards against cross-vertical errors (e.g., color-coding, prominent badges).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Conduct heuristic evaluation for navigation flow, error prevention, and responsive design; test on multiple screen sizes.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T07:21:44.274Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design superintendent application review and configuration panels."
+        "expansionPrompt": "Break down this task with a focus on design superintendent application review and configuration panels.",
+        "updatedAt": "2025-12-28T07:21:44.274Z"
       },
       {
         "id": "13",
@@ -2325,9 +2331,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-27T16:27:40.280Z",
+      "lastModified": "2025-12-28T07:21:44.275Z",
       "taskCount": 39,
-      "completedCount": 11,
+      "completedCount": 13,
       "tags": [
         "master"
       ]
