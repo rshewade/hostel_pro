@@ -1,0 +1,2316 @@
+
+> frontend@0.1.0 test:run
+> vitest run tests/Task15-PaymentExperience.test.tsx
+
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/workspace/repo/frontend[39m
+
+[90mstderr[2m | tests/Task15-PaymentExperience.test.tsx[2m > [22m[2mTask 15: Fee Payment and Student Payment Experience[2m > [22m[2m15.3 - Receipt Generation[2m > [22m[2mshould render receipt header
+[22m[39mWarning: Received `true` for a non-boolean attribute `jsx`.
+
+If you want to write it to the DOM, pass a string instead: jsx="true" or jsx={value.toString()}.
+    at style
+    at div
+    at PaymentReceipt (/workspace/repo/frontend/src/components/fees/PaymentReceipt.tsx:15:27)
+Warning: Received `true` for a non-boolean attribute `global`.
+
+If you want to write it to the DOM, pass a string instead: global="true" or global={value.toString()}.
+    at style
+    at div
+    at PaymentReceipt (/workspace/repo/frontend/src/components/fees/PaymentReceipt.tsx:15:27)
+
+ [31m❯[39m tests/Task15-PaymentExperience.test.tsx [2m([22m[2m50 tests[22m[2m | [22m[31m11 failed[39m[2m)[22m[33m 1152[2mms[22m[39m
+       [32m✓[39m should render fees page with correct title[32m 90[2mms[22m[39m
+       [32m✓[39m should display vertical badge[32m 30[2mms[22m[39m
+       [32m✓[39m should show fee overview section[32m 24[2mms[22m[39m
+[31m       [31m×[31m should display total amount card[39m[32m 46[2mms[22m[39m
+       [32m✓[39m should display amount paid card[32m 22[2mms[22m[39m
+[31m       [31m×[31m should display outstanding card[39m[32m 31[2mms[22m[39m
+       [32m✓[39m should display next due date card[32m 17[2mms[22m[39m
+       [32m✓[39m should show correct total amount[32m 16[2mms[22m[39m
+       [32m✓[39m should show correct paid amount[32m 19[2mms[22m[39m
+       [32m✓[39m should show correct outstanding amount[32m 14[2mms[22m[39m
+       [32m✓[39m should display fee details section[32m 19[2mms[22m[39m
+[31m       [31m×[31m should show Processing Fee[39m[32m 19[2mms[22m[39m
+       [32m✓[39m should show Hostel Fees[32m 16[2mms[22m[39m
+       [32m✓[39m should show Security Deposit[32m 12[2mms[22m[39m
+       [32m✓[39m should show Key Deposit[32m 12[2mms[22m[39m
+       [32m✓[39m should display DPDP and Financial Privacy Notice[32m 14[2mms[22m[39m
+       [32m✓[39m should show contact information[32m 14[2mms[22m[39m
+       [32m✓[39m should show Pay Now buttons[32m 12[2mms[22m[39m
+       [32m✓[39m should display payment history section[32m 14[2mms[22m[39m
+       [32m✓[39m should show table header[32m 23[2mms[22m[39m
+       [32m✓[39m should display transaction IDs[32m 11[2mms[22m[39m
+       [32m✓[39m should show Processing Fee payment[32m 11[2mms[22m[39m
+       [32m✓[39m should show Hostel Fees partial payments[32m 14[2mms[22m[39m
+       [32m✓[39m should show payment methods[32m 12[2mms[22m[39m
+[31m       [31m×[31m should show payment statuses[39m[32m 21[2mms[22m[39m
+       [32m✓[39m should have Download buttons[32m 11[2mms[22m[39m
+[31m       [31m×[31m should show payment amounts[39m[32m 20[2mms[22m[39m
+[31m       [31m×[31m should show payment dates[39m[32m 17[2mms[22m[39m
+[31m       [31m×[31m should render receipt header[39m[32m 40[2mms[22m[39m
+       [32m✓[39m should display transaction ID[32m 12[2mms[22m[39m
+       [32m✓[39m should display payment status badge[32m 10[2mms[22m[39m
+       [32m✓[39m should show payment date[32m 10[2mms[22m[39m
+       [32m✓[39m should show payment method[32m 13[2mms[22m[39m
+       [32m✓[39m should display fee name and ID[32m 10[2mms[22m[39m
+[31m       [31m×[31m should show payment breakdown[39m[32m 13[2mms[22m[39m
+       [32m✓[39m should show total amount paid prominently[32m 12[2mms[22m[39m
+       [32m✓[39m should display payer information[32m 13[2mms[22m[39m
+       [32m✓[39m should display reference number[32m 10[2mms[22m[39m
+       [32m✓[39m should show terms and conditions[32m 16[2mms[22m[39m
+[31m       [31m×[31m should display DPDP compliance notice[39m[32m 13[2mms[22m[39m
+       [32m✓[39m should show footer with institution details[32m 8[2mms[22m[39m
+       [32m✓[39m should have Print Receipt button[32m 9[2mms[22m[39m
+[31m       [31m×[31m should have Download PDF button[39m[32m 18[2mms[22m[39m
+       [32m✓[39m should have proper heading hierarchy[32m 161[2mms[22m[39m
+       [32m✓[39m should have accessible buttons[32m 111[2mms[22m[39m
+       [32m✓[39m should be responsive with grid layout[32m 13[2mms[22m[39m
+       [32m✓[39m should have proper table structure[32m 29[2mms[22m[39m
+       [32m✓[39m should display DPDP notice on fees page[32m 18[2mms[22m[39m
+[31m       [31m×[31m should display DPDP notice in receipt[39m[32m 11[2mms[22m[39m
+       [32m✓[39m should show contact information for support[32m 17[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 11 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.1 - Fee Overview Page[2m > [22mshould display total amount card
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: Total Amount
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"text-sm font-medium"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mTotal Amount[0m
+[36m</span>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mTotal Amount[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mTotal Amount[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mTotal Amount[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mTotal Amount[0m
+[36m</p>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen"[39m
+      [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"px-4 py-4 border-b"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl flex items-center justify-between"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Logo"[39m
+              [33mdata-nimg[39m=[32m"1"[39m
+              [33mdecoding[39m=[32m"async"[39m
+              [33mheight[39m=[32m"40"[39m
+              [33mloading[39m=[32m"lazy"[39m
+              [33msrc[39m=[32m"/_next/image?url=%2Flogo.png&w=96&q=75"[39m
+              [33msrcset[39m=[32m"/_next/image?url=%2Flogo.png&w=48&q=75 1x, /_next/image?url=%2Flogo.png&w=96&q=75 2x"[39m
+              [33mstyle[39m=[32m"color: transparent;"[39m
+              [33mwidth[39m=[32m"40"[39m
+            [36m/>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-lg font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mFee Payments[0m
+              [36m</h1>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"px-3 py-1 rounded-full text-xs font-medium"[39m
+                [33mstyle[39m=[32m"background: var(--bg-accent); color: var(--text-on-accent);"[39m
+              [36m>[39m
+                [0mBoys Hostel[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33mclass[39m=[32m"flex items-center gap-6"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm font-semibold"[39m
+              [33mhref[39m=[32m"/dashboard/student/fees"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mFees[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/leave"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mLeave[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/documents"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</a>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none transition-colors duration-200 text-sm px-3 py-1.5 text-navy-700 hover:bg-gray-100 focus:ring-navy-500"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex items-center"[39m
+              [36m>[39m
+                [0mLogout[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</nav>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"px-6 py-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+            [33mstyle[39m=[32m"background: var(--surface-primary);"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold mb-4"[39m
+              [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+            [36m>[39m
+              [0mFee Overview[0m
+            [36m</h2>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-4 gap-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-sm font-medium"[39m
+                    [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                  [36m>[39m
+                    [0mTotal Amount[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-2xl font-bold"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0m₹[0m
+                  [0m77,000[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+             ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m40:21[22m[39m
+    [90m 38| [39m
+    [90m 39| [39m    [34mit[39m([32m'should display total amount card'[39m[33m,[39m () [33m=>[39m {
+    [90m 40| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Total Amount'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m 41| [39m    })[33m;[39m
+    [90m 42| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.1 - Fee Overview Page[2m > [22mshould display outstanding card
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: Outstanding
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"text-sm font-medium"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mOutstanding[0m
+[36m</span>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mOutstanding[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mOutstanding[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mOutstanding[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0mOutstanding[0m
+[36m</p>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen"[39m
+      [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"px-4 py-4 border-b"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl flex items-center justify-between"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Logo"[39m
+              [33mdata-nimg[39m=[32m"1"[39m
+              [33mdecoding[39m=[32m"async"[39m
+              [33mheight[39m=[32m"40"[39m
+              [33mloading[39m=[32m"lazy"[39m
+              [33msrc[39m=[32m"/_next/image?url=%2Flogo.png&w=96&q=75"[39m
+              [33msrcset[39m=[32m"/_next/image?url=%2Flogo.png&w=48&q=75 1x, /_next/image?url=%2Flogo.png&w=96&q=75 2x"[39m
+              [33mstyle[39m=[32m"color: transparent;"[39m
+              [33mwidth[39m=[32m"40"[39m
+            [36m/>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-lg font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mFee Payments[0m
+              [36m</h1>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"px-3 py-1 rounded-full text-xs font-medium"[39m
+                [33mstyle[39m=[32m"background: var(--bg-accent); color: var(--text-on-accent);"[39m
+              [36m>[39m
+                [0mBoys Hostel[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33mclass[39m=[32m"flex items-center gap-6"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm font-semibold"[39m
+              [33mhref[39m=[32m"/dashboard/student/fees"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mFees[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/leave"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mLeave[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/documents"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</a>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none transition-colors duration-200 text-sm px-3 py-1.5 text-navy-700 hover:bg-gray-100 focus:ring-navy-500"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex items-center"[39m
+              [36m>[39m
+                [0mLogout[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</nav>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"px-6 py-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+            [33mstyle[39m=[32m"background: var(--surface-primary);"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold mb-4"[39m
+              [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+            [36m>[39m
+              [0mFee Overview[0m
+            [36m</h2>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-4 gap-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-sm font-medium"[39m
+                    [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                  [36m>[39m
+                    [0mTotal Amount[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-2xl font-bold"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0m₹[0m
+                  [0m77,000[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+             ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m48:21[22m[39m
+    [90m 46| [39m
+    [90m 47| [39m    [34mit[39m([32m'should display outstanding card'[39m[33m,[39m () [33m=>[39m {
+    [90m 48| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Outstanding'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m 49| [39m    })[33m;[39m
+    [90m 50| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.1 - Fee Overview Page[2m > [22mshould show Processing Fee
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: Processing Fee
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h4[39m
+  [33mclass[39m=[32m"text-lg font-semibold"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0mProcessing Fee[0m
+[36m</h4>[39m
+
+Ignored nodes: comments, script, style
+[36m<td[39m
+  [33mclass[39m=[32m"py-3 px-4 font-medium"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0mProcessing Fee[0m
+[36m</td>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen"[39m
+      [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"px-4 py-4 border-b"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl flex items-center justify-between"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Logo"[39m
+              [33mdata-nimg[39m=[32m"1"[39m
+              [33mdecoding[39m=[32m"async"[39m
+              [33mheight[39m=[32m"40"[39m
+              [33mloading[39m=[32m"lazy"[39m
+              [33msrc[39m=[32m"/_next/image?url=%2Flogo.png&w=96&q=75"[39m
+              [33msrcset[39m=[32m"/_next/image?url=%2Flogo.png&w=48&q=75 1x, /_next/image?url=%2Flogo.png&w=96&q=75 2x"[39m
+              [33mstyle[39m=[32m"color: transparent;"[39m
+              [33mwidth[39m=[32m"40"[39m
+            [36m/>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-lg font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mFee Payments[0m
+              [36m</h1>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"px-3 py-1 rounded-full text-xs font-medium"[39m
+                [33mstyle[39m=[32m"background: var(--bg-accent); color: var(--text-on-accent);"[39m
+              [36m>[39m
+                [0mBoys Hostel[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33mclass[39m=[32m"flex items-center gap-6"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm font-semibold"[39m
+              [33mhref[39m=[32m"/dashboard/student/fees"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mFees[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/leave"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mLeave[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/documents"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</a>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none transition-colors duration-200 text-sm px-3 py-1.5 text-navy-700 hover:bg-gray-100 focus:ring-navy-500"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex items-center"[39m
+              [36m>[39m
+                [0mLogout[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</nav>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"px-6 py-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+            [33mstyle[39m=[32m"background: var(--surface-primary);"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold mb-4"[39m
+              [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+            [36m>[39m
+              [0mFee Overview[0m
+            [36m</h2>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-4 gap-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-sm font-medium"[39m
+                    [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                  [36m>[39m
+                    [0mTotal Amount[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-2xl font-bold"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0m₹[0m
+                  [0m77,000[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+             ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m72:21[22m[39m
+    [90m 70| [39m
+    [90m 71| [39m    [34mit[39m([32m'should show Processing Fee'[39m[33m,[39m () [33m=>[39m {
+    [90m 72| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Processing Fee'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m 73| [39m    })[33m;[39m
+    [90m 74| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Payment History[2m > [22mshould show payment statuses
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: Pending
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"inline-flex items-center font-medium border border-transparent [object object] rounded-md bg-yellow-100 text-yellow-800"[39m
+[36m>[39m
+  [0mPending[0m
+[36m</span>[39m
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"inline-flex items-center font-medium border border-transparent [object object] rounded-md bg-yellow-100 text-yellow-800"[39m
+[36m>[39m
+  [0mPending[0m
+[36m</span>[39m
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"inline-flex items-center font-medium border border-transparent [object object] rounded-md bg-yellow-100 text-yellow-800"[39m
+[36m>[39m
+  [0mPending[0m
+[36m</span>[39m
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"inline-flex items-center font-medium border border-transparent [object object] rounded-md bg-yellow-100 text-yellow-800"[39m
+[36m>[39m
+  [0mPending[0m
+[36m</span>[39m
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"inline-flex items-center"[39m
+[36m>[39m
+  [0mPending[0m
+[36m</span>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen"[39m
+      [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"px-4 py-4 border-b"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl flex items-center justify-between"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Logo"[39m
+              [33mdata-nimg[39m=[32m"1"[39m
+              [33mdecoding[39m=[32m"async"[39m
+              [33mheight[39m=[32m"40"[39m
+              [33mloading[39m=[32m"lazy"[39m
+              [33msrc[39m=[32m"/_next/image?url=%2Flogo.png&w=96&q=75"[39m
+              [33msrcset[39m=[32m"/_next/image?url=%2Flogo.png&w=48&q=75 1x, /_next/image?url=%2Flogo.png&w=96&q=75 2x"[39m
+              [33mstyle[39m=[32m"color: transparent;"[39m
+              [33mwidth[39m=[32m"40"[39m
+            [36m/>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-lg font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mFee Payments[0m
+              [36m</h1>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"px-3 py-1 rounded-full text-xs font-medium"[39m
+                [33mstyle[39m=[32m"background: var(--bg-accent); color: var(--text-on-accent);"[39m
+              [36m>[39m
+                [0mBoys Hostel[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33mclass[39m=[32m"flex items-center gap-6"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm font-semibold"[39m
+              [33mhref[39m=[32m"/dashboard/student/fees"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mFees[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/leave"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mLeave[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/documents"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</a>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none transition-colors duration-200 text-sm px-3 py-1.5 text-navy-700 hover:bg-gray-100 focus:ring-navy-500"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex items-center"[39m
+              [36m>[39m
+                [0mLogout[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</nav>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"px-6 py-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+            [33mstyle[39m=[32m"background: var(--surface-primary);"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold mb-4"[39m
+              [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+            [36m>[39m
+              [0mFee Overview[0m
+            [36m</h2>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-4 gap-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-sm font-medium"[39m
+                    [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                  [36m>[39m
+                    [0mTotal Amount[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-2xl font-bold"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0m₹[0m
+                  [0m77,000[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+             ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m148:35[22m[39m
+    [90m146| [39m    [34mit[39m([32m'should show payment statuses'[39m[33m,[39m () [33m=>[39m {
+    [90m147| [39m      [35mconst[39m paidBadges [33m=[39m screen[33m.[39m[34mgetAllByText[39m([32m'Paid'[39m)[33m;[39m
+    [90m148| [39m      [35mconst[39m pendingBadge [33m=[39m screen[33m.[39m[34mgetByText[39m([32m'Pending'[39m)[33m;[39m
+    [90m   | [39m                                  [31m^[39m
+    [90m149| [39m      [34mexpect[39m(paidBadges[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m150| [39m      [34mexpect[39m(pendingBadge)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Payment History[2m > [22mshould show payment amounts
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: ₹5,000
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-base font-semibold"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0m₹[0m
+  [0m5,000[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-base font-semibold"[39m
+  [33mstyle[39m=[32m"color: var(--color-green-600);"[39m
+[36m>[39m
+  [0m₹[0m
+  [0m5,000[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<td[39m
+  [33mclass[39m=[32m"py-3 px-4 font-semibold"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0m₹5,000[0m
+[36m</td>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen"[39m
+      [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"px-4 py-4 border-b"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl flex items-center justify-between"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Logo"[39m
+              [33mdata-nimg[39m=[32m"1"[39m
+              [33mdecoding[39m=[32m"async"[39m
+              [33mheight[39m=[32m"40"[39m
+              [33mloading[39m=[32m"lazy"[39m
+              [33msrc[39m=[32m"/_next/image?url=%2Flogo.png&w=96&q=75"[39m
+              [33msrcset[39m=[32m"/_next/image?url=%2Flogo.png&w=48&q=75 1x, /_next/image?url=%2Flogo.png&w=96&q=75 2x"[39m
+              [33mstyle[39m=[32m"color: transparent;"[39m
+              [33mwidth[39m=[32m"40"[39m
+            [36m/>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-lg font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mFee Payments[0m
+              [36m</h1>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"px-3 py-1 rounded-full text-xs font-medium"[39m
+                [33mstyle[39m=[32m"background: var(--bg-accent); color: var(--text-on-accent);"[39m
+              [36m>[39m
+                [0mBoys Hostel[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33mclass[39m=[32m"flex items-center gap-6"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm font-semibold"[39m
+              [33mhref[39m=[32m"/dashboard/student/fees"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mFees[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/leave"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mLeave[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/documents"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</a>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none transition-colors duration-200 text-sm px-3 py-1.5 text-navy-700 hover:bg-gray-100 focus:ring-navy-500"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex items-center"[39m
+              [36m>[39m
+                [0mLogout[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</nav>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"px-6 py-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+            [33mstyle[39m=[32m"background: var(--surface-primary);"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold mb-4"[39m
+              [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+            [36m>[39m
+              [0mFee Overview[0m
+            [36m</h2>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-4 gap-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-sm font-medium"[39m
+                    [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                  [36m>[39m
+                    [0mTotal Amount[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-2xl font-bold"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0m₹[0m
+                  [0m77,000[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+             ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m159:21[22m[39m
+    [90m157| [39m
+    [90m158| [39m    [34mit[39m([32m'should show payment amounts'[39m[33m,[39m () [33m=>[39m {
+    [90m159| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'₹5,000'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m160| [39m      [34mexpect[39m(screen[33m.[39m[34mgetAllByText[39m([32m'₹30,000'[39m)[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m1[39m)[33m;[39m
+    [90m161| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Payment History[2m > [22mshould show payment dates
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: /15 Jan 2024/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-base font-medium"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0m15 Jan 2024[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<td[39m
+  [33mclass[39m=[32m"py-3 px-4"[39m
+  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+[36m>[39m
+  [0m15 Jan 2024, 10:30 AM[0m
+[36m</td>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen"[39m
+      [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"px-4 py-4 border-b"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl flex items-center justify-between"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-4"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Logo"[39m
+              [33mdata-nimg[39m=[32m"1"[39m
+              [33mdecoding[39m=[32m"async"[39m
+              [33mheight[39m=[32m"40"[39m
+              [33mloading[39m=[32m"lazy"[39m
+              [33msrc[39m=[32m"/_next/image?url=%2Flogo.png&w=96&q=75"[39m
+              [33msrcset[39m=[32m"/_next/image?url=%2Flogo.png&w=48&q=75 1x, /_next/image?url=%2Flogo.png&w=96&q=75 2x"[39m
+              [33mstyle[39m=[32m"color: transparent;"[39m
+              [33mwidth[39m=[32m"40"[39m
+            [36m/>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-lg font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mFee Payments[0m
+              [36m</h1>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"px-3 py-1 rounded-full text-xs font-medium"[39m
+                [33mstyle[39m=[32m"background: var(--bg-accent); color: var(--text-on-accent);"[39m
+              [36m>[39m
+                [0mBoys Hostel[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33mclass[39m=[32m"flex items-center gap-6"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm font-semibold"[39m
+              [33mhref[39m=[32m"/dashboard/student/fees"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mFees[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/leave"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mLeave[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"text-sm"[39m
+              [33mhref[39m=[32m"/dashboard/student/documents"[39m
+              [33mstyle[39m=[32m"color: var(--text-link);"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</a>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center font-medium rounded-md border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none transition-colors duration-200 text-sm px-3 py-1.5 text-navy-700 hover:bg-gray-100 focus:ring-navy-500"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex items-center"[39m
+              [36m>[39m
+                [0mLogout[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</nav>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"px-6 py-8"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mx-auto max-w-6xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+            [33mstyle[39m=[32m"background: var(--surface-primary);"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold mb-4"[39m
+              [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+            [36m>[39m
+              [0mFee Overview[0m
+            [36m</h2>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-4 gap-4"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-sm font-medium"[39m
+                    [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                  [36m>[39m
+                    [0mTotal Amount[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-2xl font-bold"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0m₹[0m
+                  [0m77,000[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-4 rounded-lg"[39m
+                [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2 mb-2"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33mclass[39m=[32m"w-5 h-5"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [36m>[39m
+             ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m164:21[22m[39m
+    [90m162| [39m
+    [90m163| [39m    [34mit[39m([32m'should show payment dates'[39m[33m,[39m () [33m=>[39m {
+    [90m164| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/15 Jan 2024/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m165| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/20 Jan 2024/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m166| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/25 Jan 2024/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Receipt Generation[2m > [22mshould render receipt header
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: /Sheth Hirachand Gumanji Jain/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h1[39m
+  [33mclass[39m=[32m"text-2xl font-bold"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0mSheth Hirachand Gumanji Jain[0m
+[36m</h1>[39m
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-sm font-semibold"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0mSheth Hirachand Gumanji Jain[0m
+[36m</p>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"w-full max-w-2xl mx-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white p-8 rounded-lg shadow-lg border"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-center mb-8 pb-6 border-b"[39m
+          [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-center gap-4 mb-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-12 h-12 rounded-full flex items-center justify-center"[39m
+              [33mstyle[39m=[32m"background: var(--bg-accent);"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-2xl"[39m
+              [36m>[39m
+                [0m🏛️[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-left"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-2xl font-bold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mSheth Hirachand Gumanji Jain[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-sm font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mBoarding & Hostel Management[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-block px-4 py-2 rounded-full text-sm font-semibold"[39m
+            [33mstyle[39m=[32m"background: var(--color-green-100); color: var(--color-green-700);"[39m
+          [36m>[39m
+            [0mPAYMENT RECEIPT[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between mb-4"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mTransaction ID[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-mono font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mTXN-1234567890[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-right"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mStatus[0m
+              [36m</p>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"[39m
+              [36m>[39m
+                [0mPAID[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid grid-cols-2 gap-4 text-sm"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Date & Time[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0m20 Jan 2024, 10:30 am[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Method[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mUPI[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+          [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-lg font-semibold mb-4 flex items-center gap-2"[39m
+            [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-5 h-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mPayment Details[0m
+          [36m</h3>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-between items-center pb-2 border-b"[39m
+              [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"font-medium"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0mHostel Fees[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs"[39m
+                  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                [36m>[39m
+                  [0mFee ID: [0m
+                  [0m2[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-base font-s...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m205:21[22m[39m
+    [90m203| [39m
+    [90m204| [39m    [34mit[39m([32m'should render receipt header'[39m[33m,[39m () [33m=>[39m {
+    [90m205| [39m      expect(screen.getByText(/Sheth Hirachand Gumanji Jain/i)).toBeIn…
+    [90m   | [39m                    [31m^[39m
+    [90m206| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'PAYMENT RECEIPT'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m207| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Receipt Generation[2m > [22mshould show payment breakdown
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: ₹30,000
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<p[39m
+  [33mclass[39m=[32m"text-base font-semibold"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0m₹[0m
+  [0m30,000[0m
+[36m</p>[39m
+
+Ignored nodes: comments, script, style
+[36m<span[39m
+  [33mclass[39m=[32m"text-2xl font-bold"[39m
+  [33mstyle[39m=[32m"color: var(--color-blue-600);"[39m
+[36m>[39m
+  [0m₹[0m
+  [0m30,000[0m
+[36m</span>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"w-full max-w-2xl mx-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white p-8 rounded-lg shadow-lg border"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-center mb-8 pb-6 border-b"[39m
+          [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-center gap-4 mb-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-12 h-12 rounded-full flex items-center justify-center"[39m
+              [33mstyle[39m=[32m"background: var(--bg-accent);"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-2xl"[39m
+              [36m>[39m
+                [0m🏛️[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-left"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-2xl font-bold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mSheth Hirachand Gumanji Jain[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-sm font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mBoarding & Hostel Management[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-block px-4 py-2 rounded-full text-sm font-semibold"[39m
+            [33mstyle[39m=[32m"background: var(--color-green-100); color: var(--color-green-700);"[39m
+          [36m>[39m
+            [0mPAYMENT RECEIPT[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between mb-4"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mTransaction ID[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-mono font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mTXN-1234567890[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-right"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mStatus[0m
+              [36m</p>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"[39m
+              [36m>[39m
+                [0mPAID[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid grid-cols-2 gap-4 text-sm"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Date & Time[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0m20 Jan 2024, 10:30 am[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Method[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mUPI[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+          [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-lg font-semibold mb-4 flex items-center gap-2"[39m
+            [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-5 h-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mPayment Details[0m
+          [36m</h3>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-between items-center pb-2 border-b"[39m
+              [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"font-medium"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0mHostel Fees[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs"[39m
+                  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                [36m>[39m
+                  [0mFee ID: [0m
+                  [0m2[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-base font-s...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m232:21[22m[39m
+    [90m230| [39m    [34mit[39m([32m'should show payment breakdown'[39m[33m,[39m () [33m=>[39m {
+    [90m231| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/Total Amount/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m232| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'₹30,000'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m233| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/Tax \(GST 18%\)/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m234| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'₹5,400'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Receipt Generation[2m > [22mshould display DPDP compliance notice
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: /DPDP/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h4[39m
+  [33mclass[39m=[32m"font-semibold mb-2"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0mData Protection & Privacy (DPDP) Compliance Notice[0m
+[36m</h4>[39m
+
+Ignored nodes: comments, script, style
+[36m<li>[39m
+  [0m• You can request data deletion per DPDP regulations[0m
+[36m</li>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"w-full max-w-2xl mx-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white p-8 rounded-lg shadow-lg border"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-center mb-8 pb-6 border-b"[39m
+          [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-center gap-4 mb-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-12 h-12 rounded-full flex items-center justify-center"[39m
+              [33mstyle[39m=[32m"background: var(--bg-accent);"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-2xl"[39m
+              [36m>[39m
+                [0m🏛️[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-left"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-2xl font-bold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mSheth Hirachand Gumanji Jain[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-sm font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mBoarding & Hostel Management[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-block px-4 py-2 rounded-full text-sm font-semibold"[39m
+            [33mstyle[39m=[32m"background: var(--color-green-100); color: var(--color-green-700);"[39m
+          [36m>[39m
+            [0mPAYMENT RECEIPT[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between mb-4"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mTransaction ID[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-mono font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mTXN-1234567890[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-right"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mStatus[0m
+              [36m</p>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"[39m
+              [36m>[39m
+                [0mPAID[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid grid-cols-2 gap-4 text-sm"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Date & Time[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0m20 Jan 2024, 10:30 am[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Method[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mUPI[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+          [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-lg font-semibold mb-4 flex items-center gap-2"[39m
+            [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-5 h-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mPayment Details[0m
+          [36m</h3>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-between items-center pb-2 border-b"[39m
+              [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"font-medium"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0mHostel Fees[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs"[39m
+                  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                [36m>[39m
+                  [0mFee ID: [0m
+                  [0m2[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-base font-s...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m262:21[22m[39m
+    [90m260| [39m    [34mit[39m([32m'should display DPDP compliance notice'[39m[33m,[39m () [33m=>[39m {
+    [90m261| [39m      expect(screen.getByText(/Data Protection & Privacy/i)).toBeInThe…
+    [90m262| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/DPDP/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m263| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/encryption/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m264| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22m15.3 - Receipt Generation[2m > [22mshould have Download PDF button
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Download PDF. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"w-full max-w-2xl mx-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white p-8 rounded-lg shadow-lg border"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-center mb-8 pb-6 border-b"[39m
+          [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-center gap-4 mb-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-12 h-12 rounded-full flex items-center justify-center"[39m
+              [33mstyle[39m=[32m"background: var(--bg-accent);"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-2xl"[39m
+              [36m>[39m
+                [0m🏛️[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-left"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-2xl font-bold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mSheth Hirachand Gumanji Jain[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-sm font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mBoarding & Hostel Management[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-block px-4 py-2 rounded-full text-sm font-semibold"[39m
+            [33mstyle[39m=[32m"background: var(--color-green-100); color: var(--color-green-700);"[39m
+          [36m>[39m
+            [0mPAYMENT RECEIPT[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between mb-4"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mTransaction ID[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-mono font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mTXN-1234567890[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-right"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mStatus[0m
+              [36m</p>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"[39m
+              [36m>[39m
+                [0mPAID[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid grid-cols-2 gap-4 text-sm"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Date & Time[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0m20 Jan 2024, 10:30 am[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Method[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mUPI[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+          [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-lg font-semibold mb-4 flex items-center gap-2"[39m
+            [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-5 h-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mPayment Details[0m
+          [36m</h3>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-between items-center pb-2 border-b"[39m
+              [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"font-medium"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0mHostel Fees[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs"[39m
+                  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                [36m>[39m
+                  [0mFee ID: [0m
+                  [0m2[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-base font-s...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m276:21[22m[39m
+    [90m274| [39m
+    [90m275| [39m    [34mit[39m([32m'should have Download PDF button'[39m[33m,[39m () [33m=>[39m {
+    [90m276| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Download PDF'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m277| [39m    })[33m;[39m
+    [90m278| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/Task15-PaymentExperience.test.tsx[2m > [22mTask 15: Fee Payment and Student Payment Experience[2m > [22mDPDP Compliance[2m > [22mshould display DPDP notice in receipt
+[31m[1mTestingLibraryElementError[22m[39m: Found multiple elements with the text: /DPDP/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h4[39m
+  [33mclass[39m=[32m"font-semibold mb-2"[39m
+  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+[36m>[39m
+  [0mData Protection & Privacy (DPDP) Compliance Notice[0m
+[36m</h4>[39m
+
+Ignored nodes: comments, script, style
+[36m<li>[39m
+  [0m• You can request data deletion per DPDP regulations[0m
+[36m</li>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"w-full max-w-2xl mx-auto"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"bg-white p-8 rounded-lg shadow-lg border"[39m
+        [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-center mb-8 pb-6 border-b"[39m
+          [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-center gap-4 mb-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"w-12 h-12 rounded-full flex items-center justify-center"[39m
+              [33mstyle[39m=[32m"background: var(--bg-accent);"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-2xl"[39m
+              [36m>[39m
+                [0m🏛️[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-left"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"text-2xl font-bold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mSheth Hirachand Gumanji Jain[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-sm font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mBoarding & Hostel Management[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"inline-block px-4 py-2 rounded-full text-sm font-semibold"[39m
+            [33mstyle[39m=[32m"background: var(--color-green-100); color: var(--color-green-700);"[39m
+          [36m>[39m
+            [0mPAYMENT RECEIPT[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between mb-4"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mTransaction ID[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-lg font-mono font-semibold"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mTXN-123[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-right"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mStatus[0m
+              [36m</p>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"[39m
+              [36m>[39m
+                [0mPAID[0m
+              [36m</span>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid grid-cols-2 gap-4 text-sm"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Date & Time[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0m28 Dec 2025, 02:39 pm[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-xs font-medium mb-1"[39m
+                [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+              [36m>[39m
+                [0mPayment Method[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"font-medium"[39m
+                [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+              [36m>[39m
+                [0mUPI[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-8 p-6 rounded-lg"[39m
+          [33mstyle[39m=[32m"background: var(--bg-page);"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-lg font-semibold mb-4 flex items-center gap-2"[39m
+            [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-5 h-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mPayment Details[0m
+          [36m</h3>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-between items-center pb-2 border-b"[39m
+              [33mstyle[39m=[32m"border-color: var(--border-primary);"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"font-medium"[39m
+                  [33mstyle[39m=[32m"color: var(--text-primary);"[39m
+                [36m>[39m
+                  [0mTest Fee[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"text-xs"[39m
+                  [33mstyle[39m=[32m"color: var(--text-secondary);"[39m
+                [36m>[39m
+                  [0mFee ID: [0m
+                  [0m2[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"text-base font-semibold"[...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m tests/Task15-PaymentExperience.test.tsx:[2m359:21[22m[39m
+    [90m357| [39m
+    [90m358| [39m      expect(screen.getByText(/Data Protection & Privacy/i)).toBeInThe…
+    [90m359| [39m      [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/DPDP/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m360| [39m    })[33m;[39m
+    [90m361| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m11 failed[39m[22m[2m | [22m[1m[32m39 passed[39m[22m[90m (50)[39m
+[2m   Start at [22m 14:38:59
+[2m   Duration [22m 2.12s[2m (transform 177ms, setup 148ms, import 230ms, tests 1.15s, environment 449ms)[22m
+

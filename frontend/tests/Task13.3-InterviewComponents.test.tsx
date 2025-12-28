@@ -548,13 +548,16 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
         expect(screen.getByText('Summary')).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText('Interview'));
+      const interviewTabs = screen.getAllByText('Interview');
+      fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      const scheduleButton = screen.getByText('Schedule Interview');
-      expect(scheduleButton).toBeInTheDocument();
+      await waitFor(() => {
+        const scheduleButton = screen.getByText('Schedule Interview');
+        expect(scheduleButton).toBeInTheDocument();
 
-      // Note: Test will need actual scheduling implementation
-      expect(true).toBeTruthy(); // Placeholder
+        // Note: Test will need actual scheduling implementation
+        expect(true).toBeTruthy(); // Placeholder
+      }, { timeout: 2000 });
     });
 
     it('should show COMPLETED status after evaluation is submitted', async () => {

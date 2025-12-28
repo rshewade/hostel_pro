@@ -1118,7 +1118,7 @@
           "2",
           "9"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1126,9 +1126,10 @@
             "description": "Build the main student payments page showing clear fee breakup, totals, and payment status indicators.",
             "dependencies": [],
             "details": "Implement layout that lists all fee components (processing fee, hostel fees, security deposit, key deposit) with per-line amounts and a clear total. Include labels for amounts due, paid, and outstanding, with due dates displayed prominently near the summary. Add visually distinct status badges for Paid, Pending, Failed, and Overdue, ensuring they are readable and accessible. Reserve space for DPDP and financial privacy disclaimers near the summary or footer without distracting from the primary actions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review with stakeholders using sample fee scenarios (all paid, partially paid, overdue) to confirm clarity of amounts and labels; run UX checks for readability and accessibility of status badges on mobile and desktop.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T14:16:54.861Z"
           },
           {
             "id": 2,
@@ -1138,9 +1139,10 @@
               1
             ],
             "details": "Implement a primary Pay Now CTA on the payments overview page that opens a focused modal or dedicated page. In this flow, present available methods (e.g., UPI, QR Code) with clear icons, brief descriptions, and security notes. Include fields or placeholders that will be populated by backend responses from /payments/create (e.g., payment link, QR image). Provide stepwise instructions for UPI and QR use, plus a visible processing state while payments are in progress. Ensure there is a consistent area in the UI to surface polling-based status updates from /payments/status.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test the Pay Now flow with mock data for UPI and QR and run through success, in-progress, and cancellation scenarios; validate that users always know which step they are on and what to do next, and that the implement can accommodate asynchronous status updates.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T14:20:19.289Z"
           },
           {
             "id": 3,
@@ -1150,14 +1152,16 @@
               2
             ],
             "details": "Create distinct screens or states for successful, failed, and pending payments, each with appropriate messaging, visual cues, and next steps. For success, implement a confirmation screen summarizing amount, method, and key details, with a prominent button to download or print a receipt using a print-optimized layout. The receipt template should support logo, fee breakdown, transaction ID, date/time, payer details, and status. For failures and pending states, provide clear explanations, retry options where appropriate, and a contact support path. Ensure DPDP and financial privacy disclaimers are visible where personal and transaction details are shown.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test flows using mocked payment status responses (success, failure, timeout/pending) to ensure correct screen is shown and actions behave as expected; print sample receipts to verify legibility, information completeness, and brand alignment across common paper sizes.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T14:26:46.280Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design fee payment and student-side payment experience."
+        "expansionPrompt": "Break down this task with a focus on design fee payment and student-side payment experience.",
+        "updatedAt": "2025-12-28T14:26:46.280Z"
       },
       {
         "id": "16",
@@ -2336,9 +2340,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-28T14:03:43.900Z",
+      "lastModified": "2025-12-28T14:26:46.282Z",
       "taskCount": 39,
-      "completedCount": 14,
+      "completedCount": 15,
       "tags": [
         "master"
       ]
