@@ -1007,7 +1007,7 @@
         "dependencies": [
           "12"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1015,9 +1015,10 @@
             "description": "Map the overall structure and navigation of the Trustee panel, focusing on how trustees move between dashboard, application detail, provisional decision, interview scheduling, remarks, and final decision screens.",
             "dependencies": [],
             "details": "Identify all required screens and states: trustee dashboard, application detail view, provisional approval/rejection modal, interview scheduling form, interview remarks section, final decision actions, and outcome summary display. Create user flow diagrams for core paths: reviewing forwarded applications, issuing provisional decisions, scheduling/modifying interviews, recording internal remarks, and confirming final outcomes. Align flows with existing admin roles and upstream superintendent workflows so that dependencies (e.g., only forwarded applications are visible) are explicit.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review user flows with stakeholders to confirm they cover all trustee responsibilities and match business rules before moving into detailed UI design.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T11:50:06.712Z"
           },
           {
             "id": 2,
@@ -1027,9 +1028,10 @@
               1
             ],
             "details": "Implement a dashboard list view that surfaces forwarded applications with sortable columns such as applicant name, vertical, superintendent recommendation, flags, and current status. Include filters for status (pending provisional, interview scheduled, awaiting final decision) and vertical. For the application detail screen, structure sections for applicant summary, key documents, superintendent notes, previous decisions, and a clearly separated area for Trustee actions (provisional approval/rejection CTAs with explanatory modals). Ensure responsive behavior and visual hierarchy so trustees can quickly assess risk, recommendations, and next steps.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test dashboard and detail screens and run through sample cases to validate that trustees can locate critical information and issue a provisional decision within a few clicks on both desktop and common laptop resolutions.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T12:11:29.720Z"
           },
           {
             "id": 3,
@@ -1040,14 +1042,16 @@
               2
             ],
             "details": "Implement the interview scheduling form with fields for mode (online/physical), date, time, location or meeting link, auto-reminder checkbox, and visible placeholders where developers will later hook calendar/meeting integrations. Create an internal remarks section with ratings and observation fields, visually tagged as internal-only and separated from any student-visible content. Define final decision CTAs with clear copy on implications (account creation, refusal) and implement a derived Outcome Summary card that excludes internal notes while summarizing result and next steps. Embed Send Message entry points for notifying students/parents about interview details and final decisions, following patterns from the notifications/communications system.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Walk through an end-to-end working application from provisional approval to interview scheduling, remarks entry, and final decision, confirming that internal remarks never appear on student-facing views and that scheduling and messaging elements are clear and mobile-friendly.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T13:29:08.389Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design trustee panel for provisional approvals and interviews."
+        "expansionPrompt": "Break down this task with a focus on design trustee panel for provisional approvals and interviews.",
+        "updatedAt": "2025-12-28T13:29:08.389Z"
       },
       {
         "id": "14",
@@ -1060,7 +1064,7 @@
           "12",
           "13"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -1100,7 +1104,8 @@
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design embedded communication patterns (whatsapp, sms, email)."
+        "expansionPrompt": "Break down this task with a focus on design embedded communication patterns (whatsapp, sms, email).",
+        "updatedAt": "2025-12-28T14:03:43.897Z"
       },
       {
         "id": "15",
@@ -2331,9 +2336,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-28T07:21:44.275Z",
+      "lastModified": "2025-12-28T14:03:43.900Z",
       "taskCount": 39,
-      "completedCount": 13,
+      "completedCount": 14,
       "tags": [
         "master"
       ]

@@ -1,0 +1,247 @@
+
+> frontend@0.1.0 test
+> vitest --run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/workspace/repo/frontend[39m
+
+ [31m❯[39m tests/Task09-StudentDashboard.test.tsx [2m([22m[2m10 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 306[2mms[22m[39m
+       [32m✓[39m renders dashboard[32m 84[2mms[22m[39m
+       [32m✓[39m renders vertical badge[32m 35[2mms[22m[39m
+[31m       [31m×[31m shows status badge[39m[32m 35[2mms[22m[39m
+       [32m✓[39m has navigation links[32m 30[2mms[22m[39m
+       [32m✓[39m has logout button[32m 15[2mms[22m[39m
+[31m       [31m×[31m shows welcome message[39m[32m 28[2mms[22m[39m
+[31m       [31m×[31m displays academic information[39m[32m 19[2mms[22m[39m
+[31m       [31m×[31m shows DPDP consent alert when applicable[39m[32m 23[2mms[22m[39m
+[31m       [31m×[31m shows renewal content when applicable[39m[32m 19[2mms[22m[39m
+       [32m✓[39m has action buttons/cards[32m 17[2mms[22m[39m
+ [31m❯[39m tests/Stepper.test.tsx [2m([22m[2m11 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 730[2mms[22m[39m
+     [32m✓[39m renders all steps[32m 39[2mms[22m[39m
+     [32m✓[39m shows correct status indicators for each step[32m 226[2mms[22m[39m
+     [32m✓[39m calls onStepClick when clicking a completed step[32m 54[2mms[22m[39m
+     [32m✓[39m calls onStepClick when clicking an earlier step[32m 49[2mms[22m[39m
+     [32m✓[39m renders horizontal orientation by default[32m 54[2mms[22m[39m
+[31m     [31m×[31m renders vertical orientation when specified[39m[32m 285[2mms[22m[39m
+[31m     [31m×[31m calls onStepClick when clicking a completed step[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m calls onStepClick when clicking an earlier step[39m[32m 4[2mms[22m[39m
+     [32m✓[39m does not call onStepClick when clicking a future step[32m 6[2mms[22m[39m
+     [32m✓[39m shows error status when step has error status[32m 5[2mms[22m[39m
+     [32m✓[39m renders step description when provided[32m 2[2mms[22m[39m
+ [31m❯[39m tests/FormWizard.test.tsx [2m([22m[2m20 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[33m 1593[2mms[22m[39m
+     [32m✓[39m renders stepper component[32m 45[2mms[22m[39m
+     [32m✓[39m renders current step component[32m 8[2mms[22m[39m
+     [32m✓[39m renders Back button on steps after first step[32m 16[2mms[22m[39m
+[31m     [31m×[31m does not render Back button on first step[39m[32m 13[2mms[22m[39m
+     [32m✓[39m calls step validation before navigating to next[32m 17[2mms[22m[39m
+     [32m✓[39m allows navigation to next step after validation passes[32m 13[2mms[22m[39m
+     [32m✓[39m renders Save as Draft button when onSaveDraft is provided[32m 32[2mms[22m[39m
+[31m     [31m×[31m does not render Save as Draft when onSaveDraft is not provided[39m[32m 7[2mms[22m[39m
+     [32m✓[39m shows last saved time when draft is saved[32m 35[2mms[22m[39m
+[31m     [31m×[31m renders Submit button on last step[39m[32m 10[2mms[22m[39m
+[31m     [31m×[31m calls onSubmit when Submit button is clicked[39m[32m 10[2mms[22m[39m
+[31m     [31m×[31m disables Next button when step is invalid[39m[32m 8[2mms[22m[39m
+     [32m✓[39m enables Next button when step is valid[32m 9[2mms[22m[39m
+     [32m✓[39m loads initial data correctly[32m 13[2mms[22m[39m
+     [32m✓[39m handles step click from stepper[32m 299[2mms[22m[39m
+[31m     [31m×[31m shows loading state in Save as Draft button when saving[39m[33m 1018[2mms[22m[39m
+[31m     [31m×[31m shows loading state in Submit button when submitting[39m[32m 11[2mms[22m[39m
+[31m     [31m×[31m disables navigation while submitting[39m[32m 6[2mms[22m[39m
+     [32m✓[39m handles save draft errors gracefully[32m 11[2mms[22m[39m
+[31m     [31m×[31m handles submit errors gracefully[39m[32m 11[2mms[22m[39m
+ [31m❯[39m tests/Task04-LandingPage.test.tsx [2m([22m[2m17 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 1885[2mms[22m[39m
+       [32m✓[39m renders hostel overview in hero section[32m 163[2mms[22m[39m
+       [32m✓[39m displays vertical selection cards[32m 88[2mms[22m[39m
+[31m       [31m×[31m displays values section[39m[32m 109[2mms[22m[39m
+       [32m✓[39m displays announcements section[32m 85[2mms[22m[39m
+       [32m✓[39m all three vertical cards are clickable[32m 78[2mms[22m[39m
+       [33m[2m✓[22m[39m vertical cards link to correct paths [33m 402[2mms[22m[39m
+       [32m✓[39m Apply Now CTA is prominent[32m 35[2mms[22m[39m
+       [32m✓[39m Check Status CTA is visible[32m 37[2mms[22m[39m
+[31m       [31m×[31m Login and Parent buttons are visible[39m[32m 53[2mms[22m[39m
+       [32m✓[39m nav links are functional[32m 41[2mms[22m[39m
+       [32m✓[39m cards stack vertically on mobile[32m 168[2mms[22m[39m
+       [32m✓[39m cards display in grid on desktop[32m 31[2mms[22m[39m
+[31m       [31m×[31m values section is present on mobile[39m[32m 44[2mms[22m[39m
+       [32m✓[39m all buttons have proper aria labels[32m 69[2mms[22m[39m
+       [32m✓[39m links are accessible via keyboard navigation[32m 151[2mms[22m[39m
+       [32m✓[39m images have alt text[32m 49[2mms[22m[39m
+       [32m✓[39m text contrast meets WCAG AA standards[32m 280[2mms[22m[39m
+ [32m✓[39m tests/Task08-ParentLogin.test.tsx [2m([22m[2m26 tests[22m[2m | [22m[33m14 skipped[39m[2m)[22m[33m 643[2mms[22m[39m
+ [32m✓[39m tests/Task12-SuperintendentDashboard.test.tsx [2m([22m[2m36 tests[22m[2m)[22m[33m 1767[2mms[22m[39m
+ [32m✓[39m tests/Task12-LayoutAndContext.test.tsx [2m([22m[2m37 tests[22m[2m)[22m[33m 1926[2mms[22m[39m
+ [32m✓[39m tests/Task12-LeaveNotificationConfig.test.tsx [2m([22m[2m51 tests[22m[2m)[22m[33m 3127[2mms[22m[39m
+ [32m✓[39m tests/Task11-UploadPreviewLifecycle.test.tsx [2m([22m[2m59 tests[22m[2m)[22m[33m 455[2mms[22m[39m
+ [32m✓[39m tests/Task02-UIComponents.test.tsx [2m([22m[2m34 tests[22m[2m)[22m[33m 457[2mms[22m[39m
+ [32m✓[39m tests/Task07-StudentLogin.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 576[2mms[22m[39m
+ [32m✓[39m tests/Task11-DocumentUploadCards.test.tsx [2m([22m[2m40 tests[22m[2m)[22m[33m 414[2mms[22m[39m
+ [32m✓[39m tests/Task05-OTPFlow.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 419[2mms[22m[39m
+ [32m✓[39m tests/Task01-DesignSystem.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 213[2mms[22m[39m
+ [32m✓[39m tests/Task11-Undertakings-simple.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[32m 239[2mms[22m[39m
+ [32m✓[39m tests/FileUpload.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m tests/Task11-PrintLayouts-simple.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m tests/Task03-NavigationStructure.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m tests/Task11-RetentionPolicies.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m tests/Task11-AuditMetadataModel.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [31m❯[39m tests/Task06-ApplicationTracking.test.tsx [2m([22m[2m17 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 8179[2mms[22m[39m
+       [32m✓[39m renders landing CTA link and nav items[32m 56[2mms[22m[39m
+       [32m✓[39m renders tracking ID and mobile number input forms[32m 23[2mms[22m[39m
+       [32m✓[39m validates tracking ID format[32m 18[2mms[22m[39m
+       [32m✓[39m validates phone number (10 digits, starts with 6-9)[32m 9[2mms[22m[39m
+       [32m✓[39m validates email format[32m 12[2mms[22m[39m
+[31m       [31m×[31m renders applicant summary section[39m[33m 1012[2mms[22m[39m
+[31m       [31m×[31m renders visual status timeline[39m[33m 1004[2mms[22m[39m
+[31m       [31m×[31m renders interview details card[39m[33m 1008[2mms[22m[39m
+[31m       [31m×[31m renders action buttons based on status[39m[33m 1005[2mms[22m[39m
+[31m       [31m×[31m shows awaiting documents state[39m[33m 1005[2mms[22m[39m
+[31m       [31m×[31m shows interview in-progress state[39m[33m 1003[2mms[22m[39m
+[31m       [31m×[31m shows provisional approval state[39m[33m 1003[2mms[22m[39m
+       [32m✓[39m renders re-upload modal for document missing[32m 6[2mms[22m[39m
+       [32m✓[39m handles interview slot confirmation[32m 3[2mms[22m[39m
+       [32m✓[39m handles provisional letter download[32m 3[2mms[22m[39m
+       [32m✓[39m hides internal remarks from students[32m 3[2mms[22m[39m
+[31m       [31m×[31m shows only high-level outcomes and instructions[39m[33m 1003[2mms[22m[39m
+ [32m✓[39m tests/Task11-APIIntegration.test.ts [2m([22m[2m52 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/Task13-3-InterviewComponents.test.tsx [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m
+ [31m❯[39m tests/Task13.3-InterviewComponents.test.tsx [2m([22m[2m28 tests[22m[2m | [22m[31m23 failed[39m[2m)[22m[33m 10991[2mms[22m[39m
+[31m       [31m×[31m should render Schedule Interview heading[39m[32m 131[2mms[22m[39m
+[31m       [31m×[31m should display Mode selector with Online and Physical options[39m[32m 84[2mms[22m[39m
+[31m       [31m×[31m should have radio buttons for mode selection[39m[32m 51[2mms[22m[39m
+[31m       [31m×[31m should display Date and Time inputs[39m[32m 106[2mms[22m[39m
+[31m       [31m×[31m should have Send invitation checkbox[39m[32m 65[2mms[22m[39m
+[31m       [31m×[31m should have auto-reminder checkbox[39m[32m 92[2mms[22m[39m
+[31m       [31m×[31m should have Schedule Interview button[39m[32m 105[2mms[22m[39m
+[31m       [31m×[31m should have Cancel button[39m[32m 55[2mms[22m[39m
+[31m       [31m×[31m should display Interview Details heading[39m[33m 1021[2mms[22m[39m
+[31m       [31m×[31m should display Scheduled For date and time[39m[33m 1020[2mms[22m[39m
+[31m       [31m×[31m should display Mode badge (Online)[39m[33m 1022[2mms[22m[39m
+[31m       [31m×[31m should display meeting link for online interviews[39m[33m 1025[2mms[22m[39m
+[31m       [31m×[31m should have Join Interview button for scheduled interviews[39m[33m 1013[2mms[22m[39m
+[31m       [31m×[31m should have Reschedule button[39m[33m 1021[2mms[22m[39m
+[31m       [31m×[31m should have Cancel button for scheduled interviews[39m[33m 1042[2mms[22m[39m
+[31m       [31m×[31m should display Interview Evaluation heading for completed interviews[39m[33m 1017[2mms[22m[39m
+[31m       [31m×[31m should display criteria for evaluation (placeholder)[39m[33m 1016[2mms[22m[39m
+[31m       [31m×[31m should have score inputs or sliders for criteria[39m[33m 1011[2mms[22m[39m
+[31m       [31m×[31m should display Decision Remarks textarea labeled as Internal[39m[32m 11[2mms[22m[39m
+[31m       [31m×[31m should have notification checkboxes in modal[39m[32m 10[2mms[22m[39m
+[31m       [31m×[31m should display implications for final approval[39m[32m 9[2mms[22m[39m
+       [32m✓[39m should display warning for final rejection[32m 7[2mms[22m[39m
+[31m       [31m×[31m should label remarks as INTERNAL - NOT VISIBLE TO APPLICANT[39m[32m 9[2mms[22m[39m
+       [32m✓[39m should not include internal remarks in student-facing content[32m 0[2mms[22m[39m
+[31m       [31m×[31m should allow transition from NOT_SCHEDULED to SCHEDULED when interview is scheduled[39m[32m 24[2mms[22m[39m
+       [32m✓[39m should show COMPLETED status after evaluation is submitted[32m 6[2mms[22m[39m
+       [32m✓[39m should use internal-only data attributes for trustee actions[32m 0[2mms[22m[39m
+       [32m✓[39m should exclude internal data from student communications[32m 0[2mms[22m[39m
+[90mstdout[2m | tests/Task13-TrusteeDashboard.test.tsx[2m > [22m[2mTask 13.2 - Trustee Dashboard and Application Detail UIs[2m > [22m[2mModal State Management[2m > [22m[2mshould close modal when decision is confirmed
+[22m[39mPROVISIONAL_APPROVE_INTERVIEW application: 1 remarks: 
+
+ [31m❯[39m tests/Task13-TrusteeDashboard.test.tsx [2m([22m[2m103 tests[22m[2m | [22m[31m38 failed[39m[2m)[22m[33m 27884[2mms[22m[39m
+       [32m✓[39m should render Trustee Dashboard header[32m 94[2mms[22m[39m
+       [32m✓[39m should display all main tabs[32m 41[2mms[22m[39m
+       [32m✓[39m should have Applications tab selected by default[32m 17[2mms[22m[39m
+       [32m✓[39m should switch tabs when clicked[32m 282[2mms[22m[39m
+       [32m✓[39m should display vertical selector in header[32m 16[2mms[22m[39m
+       [32m✓[39m should display Logout button[32m 24[2mms[22m[39m
+       [32m✓[39m should render application table with all columns[32m 32[2mms[22m[39m
+[31m       [31m×[31m should display filtered applications based on status[39m[32m 33[2mms[22m[39m
+       [32m✓[39m should render search input[32m 20[2mms[22m[39m
+       [32m✓[39m should filter applications by search query[32m 82[2mms[22m[39m
+       [32m✓[39m should display Clear Filters button[32m 20[2mms[22m[39m
+       [32m✓[39m should clear filters when Clear Filters is clicked[32m 138[2mms[22m[39m
+       [32m✓[39m should display application status badges[32m 14[2mms[22m[39m
+[31m       [31m×[31m should display vertical badges[39m[32m 17[2mms[22m[39m
+       [32m✓[39m should display interview status badges[32m 13[2mms[22m[39m
+       [32m✓[39m should display flag chips[32m 13[2mms[22m[39m
+       [32m✓[39m should have Review buttons for all applications[32m 23[2mms[22m[39m
+       [32m✓[39m should have Provisional buttons for FORWARDED applications[32m 10[2mms[22m[39m
+[31m       [31m×[31m should have Final Decision buttons for provisionally approved applications[39m[33m 1029[2mms[22m[39m
+       [32m✓[39m should open modal when Review button is clicked[32m 70[2mms[22m[39m
+       [32m✓[39m should display Summary tab by default[32m 56[2mms[22m[39m
+[31m       [31m×[31m should have four detail tabs: Summary, Interview, Decision, Audit[39m[33m 1055[2mms[22m[39m
+[31m       [31m×[31m should switch detail tabs when clicked[39m[32m 72[2mms[22m[39m
+       [32m✓[39m should close modal when clicking outside[32m 71[2mms[22m[39m
+[31m       [31m×[31m should display Applicant Information section[39m[32m 63[2mms[22m[39m
+       [32m✓[39m should display application date[32m 46[2mms[22m[39m
+       [32m✓[39m should display vertical badge[32m 50[2mms[22m[39m
+       [32m✓[39m should display Application Status badge[32m 46[2mms[22m[39m
+       [32m✓[39m should display Payment Status badge[32m 47[2mms[22m[39m
+       [32m✓[39m should display Superintendent Review section[32m 65[2mms[22m[39m
+       [32m✓[39m should display superintendent recommendation badge[32m 47[2mms[22m[39m
+       [32m✓[39m should display superintendent remarks[32m 42[2mms[22m[39m
+[31m       [31m×[31m should display Flags section[39m[32m 46[2mms[22m[39m
+       [32m✓[39m should display Uploaded Documents section[32m 48[2mms[22m[39m
+       [32m✓[39m should display Trustee Actions section[32m 49[2mms[22m[39m
+       [32m✓[39m should open decision modal when Issue Provisional Approval is clicked[32m 88[2mms[22m[39m
+       [32m✓[39m should open rejection modal when Reject Provisionally is clicked[32m 104[2mms[22m[39m
+[31m       [31m×[31m should display Schedule Interview heading[39m[33m 1047[2mms[22m[39m
+[31m       [31m×[31m should display Mode selector with Online and Physical options[39m[33m 1058[2mms[22m[39m
+[31m       [31m×[31m should have radio buttons for mode selection[39m[33m 1063[2mms[22m[39m
+[31m       [31m×[31m should display Date and Time inputs[39m[33m 1061[2mms[22m[39m
+[31m       [31m×[31m should have Date input field[39m[33m 1051[2mms[22m[39m
+[31m       [31m×[31m should have Time input field[39m[33m 1034[2mms[22m[39m
+[31m       [31m×[31m should display Send invitation checkbox[39m[33m 1032[2mms[22m[39m
+[31m       [31m×[31m should display auto-reminder checkbox[39m[33m 1035[2mms[22m[39m
+[31m       [31m×[31m should have Schedule Interview button[39m[33m 1036[2mms[22m[39m
+[31m       [31m×[31m should have Cancel button[39m[33m 1035[2mms[22m[39m
+[31m       [31m×[31m should display Interview Details for scheduled interviews[39m[33m 1035[2mms[22m[39m
+[31m       [31m×[31m should display meeting link for online interviews[39m[33m 1033[2mms[22m[39m
+[31m       [31m×[31m should display location for physical interviews[39m[33m 1035[2mms[22m[39m
+[31m       [31m×[31m should display Join Interview button for scheduled interviews[39m[33m 1034[2mms[22m[39m
+[31m       [31m×[31m should display Reschedule button for scheduled interviews[39m[33m 1034[2mms[22m[39m
+[31m       [31m×[31m should display Cancel button for scheduled interviews[39m[33m 1033[2mms[22m[39m
+       [32m✓[39m should display Final Decision heading for FORWARDED applications[32m 58[2mms[22m[39m
+       [32m✓[39m should display provisional decision message[32m 60[2mms[22m[39m
+       [32m✓[39m should have Provisionally Approve (Interview Required) button[32m 60[2mms[22m[39m
+       [32m✓[39m should have Provisionally Approve (No Interview) button[32m 55[2mms[22m[39m
+[31m       [31m×[31m should display Application Summary[39m[32m 61[2mms[22m[39m
+[31m       [31m×[31m should display note about student account creation[39m[32m 61[2mms[22m[39m
+[31m       [31m×[31m should display Final Approve and Final Reject buttons for provisionally approved applications[39m[33m 1107[2mms[22m[39m
+[31m       [31m×[31m should display interview score for completed interviews[39m[32m 91[2mms[22m[39m
+       [32m✓[39m should open Provisional Approval modal[32m 64[2mms[22m[39m
+[31m       [31m×[31m should display Application Summary in decision modal[39m[33m 1062[2mms[22m[39m
+       [32m✓[39m should display decision implications[32m 64[2mms[22m[39m
+[31m       [31m×[31m should have Decision Remarks textarea[39m[32m 76[2mms[22m[39m
+       [32m✓[39m should display notification checkboxes[32m 71[2mms[22m[39m
+       [32m✓[39m should have Issue Provisional Decision button[32m 67[2mms[22m[39m
+[31m       [31m×[31m should have warning for Final Reject modal[39m[33m 1016[2mms[22m[39m
+[31m       [31m×[31m should have final approval success message modal[39m[33m 1018[2mms[22m[39m
+       [32m✓[39m should display Audit Trail heading[32m 68[2mms[22m[39m
+       [32m✓[39m should display Application ID and Current Status[32m 66[2mms[22m[39m
+       [32m✓[39m should display audit entries chronologically[32m 71[2mms[22m[39m
+       [32m✓[39m should display event types[32m 68[2mms[22m[39m
+[31m       [31m×[31m should display user who performed actions[39m[32m 63[2mms[22m[39m
+       [32m✓[39m should display audit IDs[32m 61[2mms[22m[39m
+       [32m✓[39m should display event details[32m 62[2mms[22m[39m
+       [32m✓[39m should display Export to PDF button[32m 55[2mms[22m[39m
+       [32m✓[39m should display Export to CSV button[32m 61[2mms[22m[39m
+       [32m✓[39m should display interview table columns[32m 28[2mms[22m[39m
+       [32m✓[39m should display scheduled interviews[32m 29[2mms[22m[39m
+       [32m✓[39m should display interview modes[32m 27[2mms[22m[39m
+       [32m✓[39m should display interview status badges[32m 26[2mms[22m[39m
+       [32m✓[39m should have Join button for scheduled interviews[32m 26[2mms[22m[39m
+       [32m✓[39m should have Evaluate button for completed interviews[32m 25[2mms[22m[39m
+       [32m✓[39m should filter interviews by search[32m 57[2mms[22m[39m
+       [32m✓[39m should display All Verticals by default[32m 7[2mms[22m[39m
+[31m       [31m×[31m should filter applications when vertical is changed[39m[32m 9[2mms[22m[39m
+       [32m✓[39m should display applications from Boys Hostel[32m 6[2mms[22m[39m
+[31m       [31m×[31m should display applications from Girls Ashram[39m[32m 11[2mms[22m[39m
+[31m       [31m×[31m should display applications from Dharamshala[39m[32m 8[2mms[22m[39m
+       [32m✓[39m should filter applications by tracking number[32m 59[2mms[22m[39m
+[31m       [31m×[31m should filter applications by applicant name[39m[33m 1031[2mms[22m[39m
+       [32m✓[39m should handle partial search matches[32m 31[2mms[22m[39m
+       [32m✓[39m should clear search when Clear Filters is clicked[32m 50[2mms[22m[39m
+       [32m✓[39m should track selected application correctly[32m 31[2mms[22m[39m
+       [32m✓[39m should close modal when decision is confirmed[32m 87[2mms[22m[39m
+[31m       [31m×[31m should maintain detail tab state when modal opens[39m[32m 36[2mms[22m[39m
+       [32m✓[39m should be responsive on mobile viewport[32m 8[2mms[22m[39m
+       [32m✓[39m should be responsive on tablet viewport[32m 9[2mms[22m[39m
+       [32m✓[39m should have keyboard navigation support[32m 9[2mms[22m[39m
+       [32m✓[39m should have accessible form inputs[32m 6[2mms[22m[39m
+[31m       [31m×[31m should have accessible button labels[39m[32m 8[2mms[22m[39m
+       [32m✓[39m should handle empty search results[32m 47[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m17 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (26)[39m
+[2m      Tests [22m [1m[31m89 failed[39m[22m[2m | [22m[1m[32m593 passed[39m[22m[2m | [22m[33m15 skipped[39m[90m (697)[39m
+[2m   Start at [22m 13:53:46
+[2m   Duration [22m 29.20s[2m (transform 2.29s, setup 4.17s, import 5.26s, tests 62.08s, environment 12.97s)[22m
+
