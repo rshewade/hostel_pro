@@ -1064,7 +1064,7 @@
           "12",
           "13"
         ],
-        "status": "in-progress",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
@@ -1105,7 +1105,7 @@
         "complexity": 5,
         "recommendedSubtasks": 3,
         "expansionPrompt": "Break down this task with a focus on design embedded communication patterns (whatsapp, sms, email).",
-        "updatedAt": "2025-12-28T14:03:43.897Z"
+        "updatedAt": "2025-12-28T18:32:29.689Z"
       },
       {
         "id": "15",
@@ -2340,7 +2340,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-28T14:26:46.282Z",
+      "lastModified": "2025-12-28T18:32:29.691Z",
       "taskCount": 39,
       "completedCount": 15,
       "tags": [
