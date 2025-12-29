@@ -6,6 +6,8 @@ import { Chip } from '@/components/ui/Chip';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/feedback/Modal';
 import { Table } from '@/components/data/Table';
+import { SendMessagePanel, type SendMessageData, DEFAULT_TEMPLATES } from '@/components/communication/SendMessagePanel';
+import { MessageLog, type MessageLogEntry } from '@/components/communication/MessageLog';
 import type { TableColumn, TableRowDensity } from '@/components/types';
 import { cn } from '@/components/utils';
 import { Input } from '@/components/forms/Input';
@@ -85,12 +87,30 @@ interface InterviewEvaluation {
 }
 
 export default function TrusteeDashboard() {
-  const [selectedTab, setSelectedTab] = useState<'applications' | 'interviews' | 'approvals' | 'audit'>('applications');
+  const [selectedTab, setSelectedTab] = useState<'applications' | 'interviews' | 'approvals' | 'communication' | 'audit'>('applications');
   const [selectedSubTab, setSelectedSubTab] = useState<'forwarded' | 'interview-queue' | 'pending-final'>('forwarded');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [selectedDetailTab, setSelectedDetailTab] = useState<'summary' | 'interview' | 'decision' | 'audit'>('summary');
+
+  // Communication state
+  const [showMessagePanel, setShowMessagePanel] = useState(false);
+  const [selectedMessageRecipient, setSelectedMessageRecipient] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [messageEntries, setMessageEntries] = useState<MessageLogEntry[]>([
+    {
+      id: 'msg-1',
+      recipient: { id: '1', name: 'Rahul Sharma', role: 'applicant' },
+      channels: ['email'],
+      template: 'provisional_approval',
+      message: 'Your application APP-2024-001 has been provisionally approved. Interview required.',
+      status: 'SENT',
+      sentAt: '2024-12-23T10:00:00Z',
+      sentBy: { id: 'trust-001', name: 'Jane Doe', role: 'Trustee' },
+      auditLogId: 'AUD-005'
+    }
+  ]);
 
   // Decision modal state
   const [decisionModal, setDecisionModal] = useState<{
@@ -326,6 +346,35 @@ export default function TrusteeDashboard() {
         return 'error';
       default:
         return 'default';
+    }
+  };
+
+  const handleSendMessage = async (data: SendMessageData) => {
+    setIsSending(true);
+    try {
+      const newEntry: MessageLogEntry = {
+        id: `msg-${Date.now()}`,
+        recipient: mockApplications.find(app => app.id === data.recipientId) ? {
+          id: data.recipientId,
+          name: mockApplications.find(app => app.id === data.recipientId)!.applicantName,
+          role: 'applicant' as const
+        } : { id: data.recipientId, name: 'Unknown', role: 'applicant' as const },
+        channels: data.channels,
+        template: DEFAULT_TEMPLATES.find(t => t.id === data.templateId)?.name,
+        message: data.message,
+        status: data.schedule ? 'SCHEDULED' : 'SENT',
+        sentAt: data.schedule ? undefined : new Date().toISOString(),
+        scheduledFor: data.schedule?.date ? `${data.schedule.date}T${data.schedule.time || '00:00'}:00Z` : undefined,
+        escalatedTo: data.escalate ? { id: 'trustee-board', name: 'Trustee Board', role: 'Trustee' } : undefined,
+        escalatedAt: data.escalate ? new Date().toISOString() : undefined,
+        sentBy: { id: 'trust-001', name: 'Jane Doe', role: 'Trustee' },
+        auditLogId: `AUD-${Date.now()}`
+      };
+      setMessageEntries([newEntry, ...messageEntries]);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -612,6 +661,21 @@ export default function TrusteeDashboard() {
           <button
             className={cn(
               'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+              selectedTab === 'communication'
+                ? 'border-navy-900 text-navy-900'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+            )}
+            style={{
+              borderColor: selectedTab === 'communication' ? 'var(--border-primary)' : 'transparent',
+              color: selectedTab === 'communication' ? 'var(--text-primary)' : 'var(--text-secondary)'
+            }}
+            onClick={() => setSelectedTab('communication')}
+          >
+            Communication
+          </button>
+          <button
+            className={cn(
+              'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
               selectedTab === 'audit'
                 ? 'border-navy-900 text-navy-900'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -771,6 +835,62 @@ export default function TrusteeDashboard() {
         {selectedTab === 'approvals' && (
           <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
             <p className="text-gray-600">Approvals history coming soon...</p>
+          </div>
+        )}
+
+        {selectedTab === 'communication' && (
+          <div className="space-y-8">
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button
+                onClick={() => setShowMessagePanel(true)}
+                className="p-6 rounded-lg border-2 border-dashed hover:border-navy-900 transition-colors text-left"
+                style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-gray-200)' }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">💬</span>
+                  <h3 className="font-semibold text-navy-900">Send Message</h3>
+                </div>
+                <p className="text-sm text-gray-600">Send SMS, WhatsApp, or Email to applicants</p>
+              </button>
+              <button
+                onClick={() => {}}
+                className="p-6 rounded-lg border-2 border-dashed hover:border-navy-900 transition-colors text-left"
+                style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-gray-200)' }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📊</span>
+                  <h3 className="font-semibold text-navy-900">View Statistics</h3>
+                </div>
+                <p className="text-sm text-gray-600">View communication analytics and reports</p>
+              </button>
+              <button
+                onClick={() => {}}
+                className="p-6 rounded-lg border-2 border-dashed hover:border-navy-900 transition-colors text-left"
+                style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-gray-200)' }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📋</span>
+                  <h3 className="font-semibold text-navy-900">Manage Templates</h3>
+                </div>
+                <p className="text-sm text-gray-600">Create and edit message templates</p>
+              </button>
+            </div>
+
+            {/* Message History */}
+            <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
+              <MessageLog
+                entries={messageEntries}
+                loading={false}
+                onRetry={(entryId) => {
+                  console.log('Retry message:', entryId);
+                }}
+                onViewDetails={(entryId) => {
+                  console.log('View details:', entryId);
+                }}
+                maxEntries={10}
+              />
+            </div>
           </div>
         )}
 
@@ -1054,6 +1174,10 @@ export default function TrusteeDashboard() {
                   </div>
                   <Button
                     variant="secondary"
+                    onClick={() => {
+                      setSelectedMessageRecipient(selectedApplication.id);
+                      setShowMessagePanel(true);
+                    }}
                   >
                     Send Message
                   </Button>
@@ -1510,6 +1634,32 @@ export default function TrusteeDashboard() {
           </div>
         )}
       </Modal>
+
+      {/* Send Message Panel */}
+      <SendMessagePanel
+        isOpen={showMessagePanel}
+        onClose={() => {
+          setShowMessagePanel(false);
+          setSelectedMessageRecipient(null);
+        }}
+        onSend={handleSendMessage}
+        recipients={mockApplications.map(app => ({
+          id: app.id,
+          name: app.applicantName,
+          role: 'applicant' as const,
+          phone: '+91 9876543210',
+          email: `${app.applicantName.toLowerCase().replace(' ', '.')}@example.com`
+        }))}
+        templates={DEFAULT_TEMPLATES}
+        defaultRecipientId={selectedMessageRecipient || undefined}
+        context={selectedApplication ? {
+          trackingNumber: selectedApplication.trackingNumber,
+          status: selectedApplication.status,
+          vertical: selectedApplication.vertical
+        } : undefined}
+        isLoading={isSending}
+        showContextWarning={!!selectedApplication}
+      />
     </div>
   );
 }

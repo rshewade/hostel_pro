@@ -598,7 +598,7 @@
           "5",
           "6"
         ],
-        "status": "done",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
@@ -606,9 +606,9 @@
             "description": "Develop the login flow: Select Parent/Guardian Login → Enter registered mobile → OTP verification → Redirect to Parent Dashboard, reusing existing OTP component patterns from Task 5.",
             "dependencies": [],
             "details": "Reuse masked OTP input, resend timer, error handling from Task 5. Ensure mobile number is pre-registered via admin. Integrate with role-based navigation from Task 3. Use secure OTP generation and validation APIs.",
-            "status": "done",
+            "status": "pending",
             "testStrategy": "Test full flow: success, invalid/expired OTP, resend, timeout. Verify non-mutating (no data changes on login). Check mobile responsiveness (touch targets, viewport scaling) on iOS/Android devices.",
-            "updatedAt": "2025-12-24T15:28:35.880Z",
+            "updatedAt": "2025-12-28T19:20:10.750Z",
             "parentId": "undefined"
           },
           {
@@ -619,10 +619,10 @@
               1
             ],
             "details": "Use mobile-first layout with cards/sections from design system (reuse status badges). Ensure constrained layout handles multiple summaries. Limit to view-only display of data for associated student IDs.",
-            "status": "done",
+            "status": "pending",
             "testStrategy": "Validate layout on mobile/desktop: no overflow, clear hierarchy. Confirm data loads correctly (e.g., fee/leave statuses). Test non-mutating interactions (taps don't edit data). Review with prototype walkthrough.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-24T16:28:12.672Z"
+            "updatedAt": "2025-12-28T19:20:10.761Z"
           },
           {
             "id": 3,
@@ -633,10 +633,10 @@
               2
             ],
             "details": "Backend: API guards for parent role (query params filter by student ID). Frontend: Disable forms/buttons, show disabled states with tooltips. No mutating endpoints exposed.",
-            "status": "done",
+            "status": "pending",
             "testStrategy": "Inspect every element: no editable fields, no submit buttons for changes. Simulate API calls—verify only GET/read ops, no POST/PUT. Test acknowledgements (e.g., download) don't mutate. Mobile gesture tests (swipe/long-press safe).",
             "parentId": "undefined",
-            "updatedAt": "2025-12-24T16:37:23.166Z"
+            "updatedAt": "2025-12-28T19:20:10.776Z"
           },
           {
             "id": 4,
@@ -646,16 +646,16 @@
               2
             ],
             "details": "Add banners/links for DPDP (reuse from Task 5). Tooltips: 'View-only: cannot edit'. Labels: 'Parent Dashboard - View your ward's info'. Ensure copy is concise, accessible.",
-            "status": "done",
+            "status": "pending",
             "testStrategy": "Verify tooltips/labels visible on hover/tap (mobile-friendly). Check non-mutating: info displays don't trigger changes. Accessibility scan (screen reader reads permissions). Stakeholder review for clarity/compliance.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-24T16:32:28.820Z"
+            "updatedAt": "2025-12-28T19:20:10.792Z"
           }
         ],
         "complexity": 6,
         "recommendedSubtasks": 4,
         "expansionPrompt": "Split Task 8 into: (1) Parent/Guardian entry and OTP verification flow, reusing existing OTP patterns; (2) Parent dashboard IA and layout (student overview, fee status, leave summary, notifications); (3) Permissions and view-only behavior specification (no edits, only acknowledgements where applicable); (4) Compliance and copy: DPDP info, tooltips, clarity of scope. For each, define how to test that interactions are non-mutating and mobile-friendly.",
-        "updatedAt": "2025-12-24T16:37:23.166Z"
+        "updatedAt": "2025-12-28T19:20:10.792Z"
       },
       {
         "id": "9",
@@ -1064,7 +1064,7 @@
           "12",
           "13"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -1072,9 +1072,10 @@
             "description": "Analyze and document all specified touchpoints for embedding communication UI, including interview scheduling, selection/rejection, fee reminders, leave approval/rejection, renewal, and exit notifications.",
             "dependencies": [],
             "details": "Create a visual map or flowchart showing where the 'Send Message' button integrates into each workflow. Prioritize touchpoints based on frequency and urgency (e.g., fee reminders first). Include context summary requirements to avoid wrong recipient errors.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review map with stakeholders to confirm all PRD touchpoints covered and no critical workflows missed.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T18:46:26.330Z"
           },
           {
             "id": 2,
@@ -1084,9 +1085,10 @@
               1
             ],
             "details": "Specify UI elements: toggles with icons, searchable dropdowns for templates, checkboxes for recipients (student, parent, guardian, superintendent CC), rich text editor for body, and live preview pane showing {{name}}, {{date}}, {{amount}} populated examples. Ensure service-agnostic with dev notes on APIs.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Build and test panel in Figma; test edit/preview flow, placeholder rendering, and responsive modal behavior on desktop/mobile.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T18:53:48.297Z"
           },
           {
             "id": 3,
@@ -1097,15 +1099,16 @@
               2
             ],
             "details": "For scheduling: date/time picker with presets (e.g., T-24h interview, fee cadence T-15/7/3/due). Escalation: prominent 'Escalate' button auto-selecting parents + superintendent with consolidated report template. Add 'Log will be stored' info tooltip everywhere. Ensure non-blocking of parent context.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Build and test 3 scenarios (interview reminder, fee escalation, leave rejection); validate scheduling presets, escalation auto-select, and logging visibility without UX friction.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T20:30:19.271Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
         "expansionPrompt": "Break down this task with a focus on design embedded communication patterns (whatsapp, sms, email).",
-        "updatedAt": "2025-12-28T18:32:29.689Z"
+        "updatedAt": "2025-12-28T20:30:19.271Z"
       },
       {
         "id": "15",
@@ -1228,7 +1231,7 @@
           "9",
           "11"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1236,9 +1239,10 @@
             "description": "Build the grid view for rooms organized by floor/wing, including cards or cells displaying capacity, occupied count, gender/vertical labels, and status badges (Available, Partially Occupied, Full, Blocked). Implement filters for vertical, occupancy status, and room type.",
             "dependencies": [],
             "details": "Use responsive grid layout with hover effects for room cards; integrate side panel for room details on selection; ensure scalability for dozens of rooms with scrolling; provide dev guidance on rooms table and occupancy records linking to student profiles.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test matrix filtering and sorting; validate usability with 50+ rooms; test status badge accuracy against mock data.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-29T09:32:04.801Z"
           },
           {
             "id": 2,
@@ -1248,9 +1252,10 @@
               1
             ],
             "details": "Include occupant profiles with names and beds; add buttons for allocate/change room; modal should summarize selection, show conflicts, and log notes; link to student profiles for quick selection.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test full allocation flow including multi-student selection and confirmation; test edge cases like over-capacity or blocked rooms.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-29T09:32:04.809Z"
           },
           {
             "id": 3,
@@ -1260,14 +1265,16 @@
               1
             ],
             "details": "Keep student view minimal and non-sensitive; use checklists or signatures for check-in; include printable confirmation; ensure integration with occupancy records update post-check-in.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test student view and check-in flow; validate privacy (no other rooms visible); test confirmation modal on mobile and desktop.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-29T09:32:04.817Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design room allocation and check-in interfaces."
+        "expansionPrompt": "Break down this task with a focus on design room allocation and check-in interfaces.",
+        "updatedAt": "2025-12-29T09:32:04.817Z"
       },
       {
         "id": "18",
@@ -2336,13 +2343,95 @@
         "priority": "medium",
         "subtasks": [],
         "updatedAt": "2025-12-21T15:24:27.995Z"
+      },
+      {
+        "id": "40",
+        "title": "Complete API Route Implementation for Hostel Management System",
+        "description": "Implement all missing API routes required for the hostel management application to support authentication, application management, payments, room allocation, leave management, renewals, and dashboard functionality. This includes creating Next.js API routes that integrate with db.json for the prototyping phase.",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "7"
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scan codebase and document existing Next.js API routes and db.json schema",
+            "description": "Use repository tools to inventory all existing API route handlers and understand the current db.json structure used for prototyping data.",
+            "dependencies": [],
+            "details": "1) Use Glob over /workspace/repo to list API route files (e.g., app/api/**/*, pages/api/**/*). 2) Open each discovered route with Read to understand routing patterns (file-based structure, HTTP method handlers, middleware usage). 3) Locate db.json (or equivalent mock DB file) via Glob and inspect its structure (collections, key names, primary identifiers) with Read. 4) Note conventions for error handling, response shapes, status codes, and any helper utilities already used for reading/writing db.json. 5) Produce a brief internal summary (in comments or a doc) of existing endpoints and data model entities relevant to authentication, applications, payments, rooms, leaves, renewals, and dashboard metrics.",
+            "status": "done",
+            "testStrategy": "Confirm inventory by cross-checking Glob results against Next.js routing conventions and running the dev server to ensure no missing or misnamed API route files.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T19:23:56.580Z"
+          },
+          {
+            "id": 2,
+            "title": "Design and align API contract for all required hostel management modules",
+            "description": "Define or reconcile the request/response contracts for authentication, applications, payments, room allocation, leaves, renewals, and dashboard based on existing frontend usage and db.json structures.",
+            "dependencies": [
+              1
+            ],
+            "details": "1) Use Grep to search in the codebase (components, hooks, services) for fetch/axios calls referencing /api or similar to identify expected endpoints and payload shapes. 2) Map each functional area (auth, admission application, payments, room allocation, leave, renewal, dashboard) to specific HTTP endpoints (paths, methods) and identify which are already implemented vs missing. 3) Ensure the proposed contracts match the db.json entity structure discovered in subtask 1, adjusting naming or nesting only where non-breaking. 4) Capture the API contract in a single source of truth (e.g., TypeScript types or a dedicated constants file) that can be imported by route handlers and potentially the frontend. 5) Validate that pagination, filtering, and status fields required by the UI are covered, especially for dashboard and list views.",
+            "status": "done",
+            "testStrategy": "Run TypeScript type-checking or linting on the API contract definitions and verify at least one existing frontend call type-checks correctly against the new shared types.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T19:27:15.105Z"
+          },
+          {
+            "id": 3,
+            "title": "Implement or complete authentication-related Next.js API routes using db.json",
+            "description": "Create or finish API routes supporting applicant and resident authentication (login, OTP verification, session/account lookup) wired to db.json for prototyping.",
+            "dependencies": [
+              2
+            ],
+            "details": "1) From the contract in subtask 2, implement missing auth-related routes (e.g., /api/auth/request-otp, /api/auth/verify-otp, /api/auth/session or similar) following existing handler patterns found in subtask 1. 2) Add helper functions or reuse existing utilities to read/write user and OTP records in db.json, ensuring atomic updates where possible. 3) Respect any DPDP/consent flags if modeled in db.json by setting or checking consent fields during the first contact flow. 4) Implement consistent error responses (status codes and JSON shape) compatible with the existing OTP and registration UI (Task 5). 5) Ensure all auth routes are compatible with the current multi-step application wizard entry point (Task 10), returning the identifiers the wizard expects (e.g., applicantId, vertical, or token).",
+            "status": "done",
+            "testStrategy": "Use existing OTP and login UI screens to manually exercise the full flow against the new routes, verifying both success and failure scenarios without modifying the frontend code.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T19:31:07.533Z"
+          },
+          {
+            "id": 4,
+            "title": "Implement core CRUD API routes for applications, payments, room allocation, leaves, and renewals",
+            "description": "Create or complete all remaining API endpoints required for managing admission applications, payment records, room allocation, leave requests, and renewal cycles using db.json persistence.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "1) For each module (applications, payments, rooms, leaves, renewals), implement REST-style routes under /api/* following the naming and file-structure patterns identified earlier (e.g., collection route for list/create and dynamic route for get/update). 2) Ensure handlers correctly read and mutate the appropriate collections in db.json, including relational links (e.g., applicationId on payments, studentId on room allocations). 3) Implement basic server-side validation corresponding to the multi-step admission wizard fields and other UI requirements, returning validation errors in a consistent JSON structure. 4) Support status transitions (e.g., application submitted/approved/rejected, payment pending/confirmed, leave requested/approved/rejected, renewal requested/active/expired) and write any approval history entries if the schema supports it. 5) Keep business logic minimal and prototyping-focused while still reflecting realistic flows expected by the UI, avoiding breaking existing screens that may already assume partial responses or field names.",
+            "status": "done",
+            "testStrategy": "Call each new endpoint with representative payloads using a tool like curl or an HTTP client and verify data is persisted and retrievable from db.json; then run the frontend flows (application, payment, leave, renewal) to confirm end-to-end behavior without console errors.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T20:02:13.501Z"
+          },
+          {
+            "id": 5,
+            "title": "Implement dashboard and audit-support API routes and perform integration testing",
+            "description": "Add any missing dashboard aggregation and audit/log-support endpoints, then run full integration testing across all modules using the new API routes.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "details": "1) Implement dashboard-related routes that aggregate data from db.json (e.g., counts of applications by status, occupancy by vertical, payment summaries) following existing response patterns for cards and charts. 2) Where Task 21 requires audit logs (communication, approvals, consents), add lightweight endpoints and db.json collections to record and fetch these logs, reusing shared utilities and status enums used in other modules. 3) Verify that all existing dashboard and admin views compile and render correctly with the new endpoints, adjusting only API route implementations (not frontend) to match expected contracts. 4) Execute a full end-to-end walkthrough: landing, vertical selection, registration/OTP, application wizard, room allocation simulation, payment mock, leave and renewal flows, and relevant dashboard screens. 5) Fix any contract mismatches or missing fields discovered during integration, keeping changes localized to API handlers and db.json structure while preserving established conventions.",
+            "status": "done",
+            "testStrategy": "Perform manual end-to-end testing of the full hostel management prototype in a dev environment, logging all API calls (e.g., via browser devtools or middleware) to ensure every frontend request has a corresponding implemented route returning expected data without 4xx/5xx errors.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-29T08:40:55.210Z"
+          }
+        ],
+        "updatedAt": "2025-12-29T08:40:55.210Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-28T18:32:29.691Z",
-      "taskCount": 39,
-      "completedCount": 15,
+      "lastModified": "2025-12-29T09:32:04.820Z",
+      "taskCount": 40,
+      "completedCount": 16,
       "tags": [
         "master"
       ]

@@ -18,6 +18,8 @@ export default function ParentLoginPage() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
+  const [token, setToken] = useState('');
+  const [attempts, setAttempts] = useState(0);
 
   const handleMobileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +44,9 @@ export default function ParentLoginPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setToken(data.token); // Store token for verification
+        setAttempts(0); // Reset attempts
         setStep('otp');
         setResendTimer(60);
         const timer = setInterval(() => {
@@ -78,7 +83,12 @@ export default function ParentLoginPage() {
       const response = await fetch('/api/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: otp, phone: mobile })
+        body: JSON.stringify({
+          code: otp,
+          token: token,
+          attempts: attempts,
+          userAgent: navigator.userAgent
+        })
       });
 
       if (response.ok) {
@@ -86,10 +96,12 @@ export default function ParentLoginPage() {
       } else {
         const data = await response.json();
         setError(data.message || 'Invalid OTP. Please try again.');
+        setAttempts(prev => prev + 1); // Increment attempts on failure
         setStep('otp');
       }
     } catch (err) {
       setError('Failed to verify OTP. Please try again.');
+      setAttempts(prev => prev + 1); // Increment attempts on error
       setStep('otp');
     }
   };
@@ -98,13 +110,16 @@ export default function ParentLoginPage() {
     if (resendTimer > 0) return;
 
     try {
-      const response = await fetch('/api/otp/resend', {
+      const response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: mobile })
+        body: JSON.stringify({ phone: mobile, vertical: 'parent' })
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setToken(data.token); // Update token with new one
+        setAttempts(0); // Reset attempts
         setResendTimer(60);
         setError('');
       } else {

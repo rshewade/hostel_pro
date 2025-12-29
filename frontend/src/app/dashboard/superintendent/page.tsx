@@ -6,6 +6,8 @@ import { Chip } from '@/components/ui/Chip';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/feedback/Modal';
 import { Table } from '@/components/data/Table';
+import { SendMessagePanel, type SendMessageData, DEFAULT_TEMPLATES } from '@/components/communication/SendMessagePanel';
+import { MessageLog, type MessageLogEntry } from '@/components/communication/MessageLog';
 import type { TableColumn, TableRowDensity } from '@/components/types';
 import { cn } from '@/components/utils';
 import { Input } from '@/components/forms/Input';
@@ -70,6 +72,35 @@ export default function SuperintendentDashboard() {
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+
+  // Communication state
+  const [showMessagePanel, setShowMessagePanel] = useState(false);
+  const [selectedMessageRecipient, setSelectedMessageRecipient] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [messageEntries, setMessageEntries] = useState<MessageLogEntry[]>([
+    {
+      id: 'msg-1',
+      recipient: { id: '1', name: 'Rahul Sharma', role: 'applicant' },
+      channels: ['sms', 'email'],
+      template: 'interview_invitation',
+      message: 'Your interview is scheduled on Dec 28, 2024 at 10:00 AM. Mode: Online. Meeting link: https://meet.google.com/abc-xyz',
+      status: 'SENT',
+      sentAt: '2024-12-22T14:30:00Z',
+      sentBy: { id: 'sup-001', name: 'John Smith', role: 'Superintendent' },
+      auditLogId: 'AUD-004'
+    },
+    {
+      id: 'msg-2',
+      recipient: { id: '2', name: 'Priya Patel', role: 'applicant' },
+      channels: ['whatsapp'],
+      template: 'fee_reminder',
+      message: 'Reminder: Application fee of ₹5,000 due on Dec 25, 2024. Pay now.',
+      status: 'DELIVERED',
+      sentAt: '2024-12-21T09:00:00Z',
+      sentBy: { id: 'sup-001', name: 'John Smith', role: 'Superintendent' },
+      auditLogId: 'AUD-003'
+    }
+  ]);
 
   // Configuration state
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([
@@ -237,6 +268,35 @@ export default function SuperintendentDashboard() {
       case 'APPROVED': return 'success';
       case 'REJECTED': return 'error';
       default: return 'default';
+    }
+  };
+
+  const handleSendMessage = async (data: SendMessageData) => {
+    setIsSending(true);
+    try {
+      const newEntry: MessageLogEntry = {
+        id: `msg-${Date.now()}`,
+        recipient: mockApplications.find(app => app.id === data.recipientId) ? {
+          id: data.recipientId,
+          name: mockApplications.find(app => app.id === data.recipientId)!.applicantName,
+          role: 'applicant' as const
+        } : { id: data.recipientId, name: 'Unknown', role: 'applicant' as const },
+        channels: data.channels,
+        template: DEFAULT_TEMPLATES.find(t => t.id === data.templateId)?.name,
+        message: data.message,
+        status: data.schedule ? 'SCHEDULED' : 'SENT',
+        sentAt: data.schedule ? undefined : new Date().toISOString(),
+        scheduledFor: data.schedule?.date ? `${data.schedule.date}T${data.schedule.time || '00:00'}:00Z` : undefined,
+        escalatedTo: data.escalate ? { id: 'trustee-001', name: 'Trustee Board', role: 'Trustee' } : undefined,
+        escalatedAt: data.escalate ? new Date().toISOString() : undefined,
+        sentBy: { id: 'sup-001', name: 'John Smith', role: 'Superintendent' },
+        auditLogId: `AUD-${Date.now()}`
+      };
+      setMessageEntries([newEntry, ...messageEntries]);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -819,6 +879,58 @@ export default function SuperintendentDashboard() {
 
         {selectedTab === 'communication' && (
           <div className="space-y-8">
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button
+                onClick={() => setShowMessagePanel(true)}
+                className="p-6 rounded-lg border-2 border-dashed hover:border-navy-900 transition-colors text-left"
+                style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-gray-200)' }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">💬</span>
+                  <h3 className="font-semibold text-navy-900">Send Message</h3>
+                </div>
+                <p className="text-sm text-gray-600">Send SMS, WhatsApp, or Email to applicants</p>
+              </button>
+              <button
+                onClick={() => {}}
+                className="p-6 rounded-lg border-2 border-dashed hover:border-navy-900 transition-colors text-left"
+                style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-gray-200)' }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📊</span>
+                  <h3 className="font-semibold text-navy-900">View Statistics</h3>
+                </div>
+                <p className="text-sm text-gray-600">View communication analytics and reports</p>
+              </button>
+              <button
+                onClick={() => {}}
+                className="p-6 rounded-lg border-2 border-dashed hover:border-navy-900 transition-colors text-left"
+                style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-gray-200)' }}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">📋</span>
+                  <h3 className="font-semibold text-navy-900">Manage Templates</h3>
+                </div>
+                <p className="text-sm text-gray-600">Create and edit message templates</p>
+              </button>
+            </div>
+
+            {/* Message History */}
+            <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
+              <MessageLog
+                entries={messageEntries}
+                loading={false}
+                onRetry={(entryId) => {
+                  console.log('Retry message:', entryId);
+                }}
+                onViewDetails={(entryId) => {
+                  console.log('View details:', entryId);
+                }}
+                maxEntries={10}
+              />
+            </div>
+
             {/* Notification Rules Configuration */}
             <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
               <div className="flex items-center justify-between mb-6">
@@ -1158,7 +1270,8 @@ export default function SuperintendentDashboard() {
               <Button
                 variant="secondary"
                 onClick={() => {
-                  console.log('Send message to applicant');
+                  setSelectedMessageRecipient(selectedApplication.id);
+                  setShowMessagePanel(true);
                 }}
               >
                 Send Message
@@ -1522,6 +1635,32 @@ export default function SuperintendentDashboard() {
           </div>
         )}
       </Modal>
+
+      {/* Send Message Panel */}
+      <SendMessagePanel
+        isOpen={showMessagePanel}
+        onClose={() => {
+          setShowMessagePanel(false);
+          setSelectedMessageRecipient(null);
+        }}
+        onSend={handleSendMessage}
+        recipients={mockApplications.map(app => ({
+          id: app.id,
+          name: app.applicantName,
+          role: 'applicant' as const,
+          phone: '+91 9876543210',
+          email: `${app.applicantName.toLowerCase().replace(' ', '.')}@example.com`
+        }))}
+        templates={DEFAULT_TEMPLATES}
+        defaultRecipientId={selectedMessageRecipient || undefined}
+        context={selectedApplication ? {
+          trackingNumber: selectedApplication.trackingNumber,
+          status: selectedApplication.status,
+          vertical: selectedApplication.vertical
+        } : undefined}
+        isLoading={isSending}
+        showContextWarning={!!selectedApplication}
+      />
     </div>
   );
 }

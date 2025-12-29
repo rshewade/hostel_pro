@@ -172,14 +172,15 @@ describe('Task 8 - Parent/Guardian View-only Login', () => {
     });
 
     it('verifies OTP and redirects to dashboard', async () => {
+      const mockToken = 'mock-token-123';
       const mockFetch = vi.fn()
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({}),
+          json: () => Promise.resolve({ token: mockToken, success: true }),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({}),
+          json: () => Promise.resolve({ success: true }),
         }) as any;
 
       (global as any).fetch = mockFetch;
@@ -205,7 +206,14 @@ describe('Task 8 - Parent/Guardian View-only Login', () => {
       fireEvent.click(verifyButton);
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/otp/verify', expect.anything());
+        expect(mockFetch).toHaveBeenLastCalledWith(
+          '/api/otp/verify',
+          expect.objectContaining({
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: expect.stringContaining(mockToken)
+          })
+        );
       }, { timeout: 5000 });
     });
 
