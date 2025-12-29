@@ -81,6 +81,7 @@ const TemplateSelector = ({
         placeholder="Select a template"
         disabled={disabled}
         helperText="Templates can be customized after selection"
+        data-testid="template-select"
       />
 
       {availableVariables.length > 0 && (

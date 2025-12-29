@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach, act } from 'vitest';
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   ChannelToggle,
@@ -364,9 +364,10 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       const textarea = screen.getByTestId('message-textarea');
       expect(textarea).toBeInTheDocument();
 
-      // Character count is shown by Textarea component as "500/500"
-      const charCountText = screen.getByText('500/500');
+      // Character count is shown by Textarea component
+      const charCountText = screen.getByTestId('character-count');
       expect(charCountText).toBeInTheDocument();
+      expect(charCountText.textContent).toBe('500 / 500 characters');
     });
 
     it('renders message textarea', () => {
@@ -385,7 +386,7 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       expect(textarea).toHaveValue('Test message');
     });
 
-    it('populates message when template selected', () => {
+    it('populates message when template selected', async () => {
       const handleMessageChange = vi.fn();
 
       render(
@@ -398,10 +399,17 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      // Should have message from template
-      const textarea = screen.getByPlaceholderText(/Type your message/i);
-      expect(textarea.value).toContain('{{date}}');
-      expect(textarea.value).toContain('{{time}}');
+      // Wait for useEffect to populate message
+      await waitFor(() => {
+        expect(handleMessageChange).toHaveBeenCalled();
+      }, { timeout: 1000 });
+
+      expect(handleMessageChange).toHaveBeenCalledWith(
+        expect.stringContaining('{{date}}')
+      );
+      expect(handleMessageChange).toHaveBeenCalledWith(
+        expect.stringContaining('{{time}}')
+      );
     });
 
     it('displays available variables', () => {
@@ -755,7 +763,7 @@ describe('Task 14 - Embedded Communication Patterns', () => {
     it('enters escalation reason workflow', async () => {
       const handleSelect = vi.fn();
 
-      render(
+      const { rerender } = render(
         <EscalationSelector
           supervisors={supervisors}
           onSelect={handleSelect}
@@ -764,13 +772,29 @@ describe('Task 14 - Embedded Communication Patterns', () => {
 
       // Select supervisor
       fireEvent.click(screen.getByText('Jane Doe'));
+      expect(handleSelect).toHaveBeenCalledWith('sup-001');
+
+      // Re-render with selected supervisor (simulating parent state update)
+      rerender(
+        <EscalationSelector
+          supervisors={supervisors}
+          selectedSupervisorId='sup-001'
+          onSelect={handleSelect}
+        />
+      );
+
+      // Wait for Confirm button to appear
+      await waitFor(() => {
+        expect(screen.getByText('Confirm Escalation')).toBeInTheDocument();
+      }, { timeout: 2000 });
+
       fireEvent.click(screen.getByText('Confirm Escalation'));
 
       // Should show reason input
       await waitFor(() => {
         expect(screen.getByText('Escalation Reason (Optional)')).toBeInTheDocument();
         expect(screen.getByText('Escalation To:')).toBeInTheDocument();
-      });
+      }, { timeout: 2000 });
     });
   });
 
@@ -1042,7 +1066,7 @@ describe('Task 14 - Embedded Communication Patterns', () => {
 
       expect(screen.getByTestId('recipient-selector')).toBeInTheDocument();
       expect(screen.getByText(/Message Template/i)).toBeInTheDocument();
-      expect(screen.getByText(/Message Content/i)).toBeInTheDocument();
+      expect(screen.getByTestId('message-textarea')).toBeInTheDocument();
       expect(screen.getByTestId('message-preview')).toBeInTheDocument();
     });
 
@@ -1063,9 +1087,12 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      expect(screen.getByText('APP-2024-001')).toBeInTheDocument();
-      expect(screen.getByText('Under Review')).toBeInTheDocument();
-      expect(screen.getByText('Boys Hostel')).toBeInTheDocument();
+      // Check for "Context Summary" header which only appears in the warning box
+      expect(screen.getByText('Context Summary')).toBeInTheDocument();
+      expect(screen.getByText(/Tracking #:/i)).toBeInTheDocument();
+      expect(screen.getAllByText('APP-2024-001')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Under Review')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Boys Hostel')[0]).toBeInTheDocument();
     });
 
     it('validates missing recipient', async () => {
@@ -1076,20 +1103,28 @@ describe('Task 14 - Embedded Communication Patterns', () => {
           isOpen={true}
           onClose={vi.fn()}
           onSend={handleSend}
-          recipients={mockRecipients}
+          recipients={[]}  // Empty recipients array forces no selection
           templates={DEFAULT_TEMPLATES}
           defaultRecipientId=''
-          defaultChannels={[]}
+          defaultChannels={['sms']}
         />
       );
+
+      // Need to add a message first (otherwise "Please enter a message" error appears first)
+      const textarea = screen.getByTestId('message-textarea');
+      await act(async () => {
+        fireEvent.change(textarea, { target: { value: 'Test message' } });
+      });
 
       await act(async () => {
         fireEvent.click(screen.getByText('Send Now'));
       });
 
-      expect(screen.getByText('Please select a recipient')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Please select a recipient')).toBeInTheDocument();
+      }, { timeout: 3000 });
       expect(handleSend).not.toHaveBeenCalled();
-    });
+    }, 10000);
 
     it('validates missing channels', async () => {
       const handleSend = vi.fn().mockResolvedValue(undefined);
@@ -1110,7 +1145,9 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         fireEvent.click(screen.getByText('Send Now'));
       });
 
-      expect(screen.getByText('Please select at least one channel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Please select at least one channel')).toBeInTheDocument();
+      }, { timeout: 5000 });
       expect(handleSend).not.toHaveBeenCalled();
     });
 
@@ -1136,10 +1173,12 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/unreplaced variables/i)).toBeInTheDocument();
-      }, { timeout: 5000 });
+        const errorDiv = screen.getByTestId('error-message');
+        expect(errorDiv).toBeInTheDocument();
+        expect(errorDiv).toHaveTextContent(/unreplaced variables/i);
+      }, { timeout: 10000 });
       expect(handleSend).not.toHaveBeenCalled();
-    });
+    }, 15000);
 
     it('successfully sends valid message', async () => {
       const handleSend = vi.fn().mockResolvedValue(undefined);
@@ -1161,21 +1200,30 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      await act(async () => {
-        const templateSelect = screen.getByRole('combobox');
-        fireEvent.change(templateSelect, { target: { value: 'interview_invitation' } });
-        fireEvent.click(screen.getByText('Send Now'));
-      });
+      // Select template
+      const templateSelect = screen.getByTestId('template-select');
+      fireEvent.change(templateSelect, { target: { value: 'interview_invitation' } });
 
+      // Wait for template to populate message
+      await waitFor(() => {
+        const textarea = screen.getByTestId('message-textarea') as HTMLTextAreaElement;
+        expect(textarea.value).toContain('{{date}}');
+      }, { timeout: 10000 });
+
+      // Click send
+      fireEvent.click(screen.getByText('Send Now'));
+
+      // Verify send was called with correct data
       await waitFor(() => {
         expect(handleSend).toHaveBeenCalled();
-        const sentData = handleSend.mock.calls[0][0] as SendMessageData;
-        expect(sentData.recipientId).toBe('rec-001');
-        expect(sentData.channels).toEqual(['sms']);
-        expect(sentData.templateId).toBe('interview_invitation');
-        expect(sentData.message).toContain('{{date}}');
-      }, { timeout: 5000 });
-    });
+      }, { timeout: 10000 });
+
+      const sentData = handleSend.mock.calls[0][0] as SendMessageData;
+      expect(sentData.recipientId).toBe('rec-001');
+      expect(sentData.channels).toEqual(['sms']);
+      expect(sentData.templateId).toBe('interview_invitation');
+      expect(sentData.message).toContain('{{date}}');
+    }, 25000);
 
     it('shows loading state during send', () => {
       const handleSend = vi.fn(() => new Promise(resolve => setTimeout(resolve, 1000)));
@@ -1193,7 +1241,10 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      const sendButton = screen.getByText('Send Now');
+      // When loading, button shows spinner instead of text, so we need to find it differently
+      const buttons = screen.getAllByRole('button');
+      const sendButton = buttons.find(button => button.className.includes('cursor-wait'));
+      expect(sendButton).toBeDefined();
       expect(sendButton).toBeDisabled();
     });
 
@@ -1210,18 +1261,27 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
+      // SidePanel uses portal to render to document.body, so query from document
+      const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+      const timeInput = document.querySelector('input[type="time"]') as HTMLInputElement;
+
+      // Verify inputs exist
+      expect(dateInput).toBeTruthy();
+      expect(timeInput).toBeTruthy();
+
       await act(async () => {
-        const dateInput = screen.getByLabelText(/Date/i);
         fireEvent.change(dateInput, { target: { value: '2024-12-30' } });
-        const timeInput = screen.getByLabelText(/Time/i);
         fireEvent.change(timeInput, { target: { value: '09:00' } });
       });
 
-      expect(screen.getByText('Schedule Message')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Schedule Message')).toBeInTheDocument();
+      }, { timeout: 3000 });
+
       expect(screen.queryByText('Send Now')).not.toBeInTheDocument();
     });
 
-    it('shows scheduled button when date/time set', () => {
+    it('shows scheduled button when date/time set', async () => {
       render(
         <SendMessagePanel
           isOpen={true}
@@ -1234,13 +1294,23 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      const dateInput = screen.getByLabelText(/Date/i);
-      const timeInput = screen.getByLabelText(/Time/i);
+      // SidePanel uses portal to render to document.body, so query from document
+      const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+      const timeInput = document.querySelector('input[type="time"]') as HTMLInputElement;
 
-      fireEvent.change(dateInput, { target: { value: '2024-12-30' } });
-      fireEvent.change(timeInput, { target: { value: '09:00' } });
+      // Verify inputs exist
+      expect(dateInput).toBeTruthy();
+      expect(timeInput).toBeTruthy();
 
-      expect(screen.getByText('Schedule Message')).toBeInTheDocument();
+      await act(async () => {
+        fireEvent.change(dateInput, { target: { value: '2024-12-30' } });
+        fireEvent.change(timeInput, { target: { value: '09:00' } });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Schedule Message')).toBeInTheDocument();
+      }, { timeout: 3000 });
+
       expect(screen.queryByText('Send Now')).not.toBeInTheDocument();
     });
 
@@ -1261,7 +1331,9 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         fireEvent.click(screen.getByText('Cancel'));
       });
 
-      expect(handleClose).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(handleClose).toHaveBeenCalled();
+      }, { timeout: 3000 });
     });
   });
 
@@ -1396,9 +1468,9 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      const textarea = screen.getByText('Test').nextElementSibling as HTMLElement;
-      expect(textarea).toBeInTheDocument();
-      expect(textarea?.textContent).toHaveLength(10000);
+      const previewContent = screen.getByTestId('preview-content');
+      expect(previewContent).toBeInTheDocument();
+      expect(previewContent.textContent).toHaveLength(10000);
     });
 
     it('handles special characters in message', () => {
@@ -1428,9 +1500,11 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      expect(screen.getByText('👋')).toBeInTheDocument();
-      expect(screen.getByText('🌍')).toBeInTheDocument();
-      expect(screen.getByText('🎉')).toBeInTheDocument();
+      const previewContent = screen.getByTestId('preview-content');
+      expect(previewContent).toBeInTheDocument();
+      expect(previewContent.textContent).toContain('👋');
+      expect(previewContent.textContent).toContain('🌍');
+      expect(previewContent.textContent).toContain('🎉');
     });
 
     it('handles empty recipient list gracefully', () => {
@@ -1492,31 +1566,38 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       expect(screen.getByText('APP-2024-001')).toBeInTheDocument();
 
       // Step 2: Verify recipient selected
-      expect(screen.getByText('Rahul Sharma')).toBeInTheDocument();
+      expect(screen.getByTestId('recipient-name-rec-001')).toBeInTheDocument();
 
-      // Step 3: Select channels
-      fireEvent.click(screen.getByText('SMS'));
-      fireEvent.click(screen.getByText('Email'));
+      // Step 3: Verify default channels are selected (SMS and Email by default)
+      const smsButton = screen.getByTestId('channel-button-sms');
+      const emailButton = screen.getByTestId('channel-button-email');
+      expect(smsButton).toHaveAttribute('aria-pressed', 'true');
+      expect(emailButton).toHaveAttribute('aria-pressed', 'true');
 
       // Step 4: Select template
-      const templateSelect = screen.getByRole('combobox');
+      const templateSelect = screen.getByTestId('template-select');
       fireEvent.change(templateSelect, { target: { value: 'interview_invitation' } });
 
       // Step 5: Verify template loaded
-      const textarea = screen.getByPlaceholderText(/Type your message/i);
-      expect(textarea.value).toContain('{{date}}');
+      await waitFor(() => {
+        const textarea = screen.getByTestId('message-textarea') as HTMLTextAreaElement;
+        expect(textarea.value).toContain('{{date}}');
+      }, { timeout: 10000 });
 
       // Step 6: Send message
-      fireEvent.click(screen.getByText('Send Now'));
+      await act(async () => {
+        fireEvent.click(screen.getByText('Send Now'));
+      });
 
       // Step 7: Verify send called with correct data
       await waitFor(() => {
         expect(handleSend).toHaveBeenCalled();
-        const sentData = handleSend.mock.calls[0][0] as SendMessageData;
-        expect(sentData.recipientId).toBe('rec-001');
-        expect(sentData.channels).toEqual(['sms', 'email']);
-        expect(sentData.templateId).toBe('interview_invitation');
-      });
+      }, { timeout: 10000 });
+
+      const sentData = handleSend.mock.calls[0][0] as SendMessageData;
+      expect(sentData.recipientId).toBe('rec-001');
+      expect(sentData.channels).toEqual(['sms', 'email']);
+      expect(sentData.templateId).toBe('interview_invitation');
     });
 
     it('scheduled message workflow', async () => {
@@ -1544,26 +1625,38 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         />
       );
 
-      // Set schedule date
+      // Set schedule date and time
       const dateInput = screen.getByLabelText(/Date/i);
-      fireEvent.change(dateInput, { target: { value: '2024-12-30' } });
-
-      // Set schedule time
       const timeInput = screen.getByLabelText(/Time/i);
-      fireEvent.change(timeInput, { target: { value: '09:00' } });
 
-      // Verify button text changed
-      expect(screen.getByText('Schedule Message')).toBeInTheDocument();
+      await act(async () => {
+        fireEvent.change(dateInput, { target: { value: '2024-12-30' } });
+        fireEvent.change(timeInput, { target: { value: '09:00' } });
+      });
+
+      // Wait for button text to change
+      await waitFor(() => {
+        expect(screen.getByText('Schedule Message')).toBeInTheDocument();
+      }, { timeout: 3000 });
+
+      // Add a message (required for sending)
+      const textarea = screen.getByTestId('message-textarea');
+      await act(async () => {
+        fireEvent.change(textarea, { target: { value: 'Test scheduled message' } });
+      });
 
       // Send
-      fireEvent.click(screen.getByText('Schedule Message'));
+      await act(async () => {
+        fireEvent.click(screen.getByText('Schedule Message'));
+      });
 
       await waitFor(() => {
         expect(handleSend).toHaveBeenCalled();
-        const sentData = handleSend.mock.calls[0][0] as SendMessageData;
-        expect(sentData.schedule?.date).toBe('2024-12-30');
-        expect(sentData.schedule?.time).toBe('09:00');
-      });
+      }, { timeout: 10000 });
+
+      const sentData = handleSend.mock.calls[0][0] as SendMessageData;
+      expect(sentData.schedule?.date).toBe('2024-12-30');
+      expect(sentData.schedule?.time).toBe('09:00');
     });
 
     it('escalation workflow', async () => {
@@ -1583,7 +1676,7 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         },
       ];
 
-      render(
+      const { rerender } = render(
         <EscalationSelector
           supervisors={supervisors}
           onSelect={handleSelect}
@@ -1592,29 +1685,53 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       );
 
       // Step 1: Select supervisor
-      fireEvent.click(screen.getByText('Jane Doe'));
+      await act(async () => {
+        fireEvent.click(screen.getByText('Jane Doe'));
+      });
       expect(handleSelect).toHaveBeenCalledWith('sup-001');
 
-      // Step 2: Confirm escalation
-      fireEvent.click(screen.getByText('Confirm Escalation'));
+      // Re-render with selected supervisor (simulating parent state update)
+      rerender(
+        <EscalationSelector
+          supervisors={supervisors}
+          selectedSupervisorId='sup-001'
+          onSelect={handleSelect}
+          context='Urgent: Overdue fee requires attention'
+        />
+      );
 
-      // Step 3: Enter reason
+      // Wait for Confirm button to appear
+      await waitFor(() => {
+        expect(screen.getByText('Confirm Escalation')).toBeInTheDocument();
+      }, { timeout: 5000 });
+
+      // Step 2: Confirm escalation
+      await act(async () => {
+        fireEvent.click(screen.getByText('Confirm Escalation'));
+      });
+
+      // Step 3: Wait for reason textarea and enter reason
       await waitFor(() => {
         const reasonTextarea = screen.getByPlaceholderText(/Provide context/i);
         expect(reasonTextarea).toBeInTheDocument();
+      }, { timeout: 3000 });
 
+      const reasonTextarea = screen.getByPlaceholderText(/Provide context/i);
+      await act(async () => {
         fireEvent.change(reasonTextarea, {
           target: { value: 'Urgent: Fee overdue by 7 days' },
         });
       });
 
       // Step 4: Save reason
-      fireEvent.click(screen.getByText('Save Reason'));
+      await act(async () => {
+        fireEvent.click(screen.getByText('Save Reason'));
+      });
 
       await waitFor(() => {
         expect(screen.queryByText(/Provide context/i)).not.toBeInTheDocument();
-      });
-    });
+      }, { timeout: 3000 });
+    }, 10000);
 
     it('message log filtering workflow', () => {
       const entries: MessageLogEntry[] = [

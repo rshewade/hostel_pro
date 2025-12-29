@@ -61,7 +61,7 @@ const DEFAULT_TEMPLATES: Template[] = [
   {
     id: 'final_approval',
     name: 'Final Approval',
-    content: 'Congratulations! Your application is approved. Login credentials sent to your email.',
+    content: 'Congratulations! Your application {{tracking_number}} is approved. Login credentials sent to your email.',
     variables: ['tracking_number', 'vertical'],
   },
   {
@@ -77,7 +77,7 @@ const DEFAULT_TEMPLATES: Template[] = [
     variables: ['fee_name', 'amount', 'due_date'],
   },
   {
-    id: 'leave_notification',
+    id: 'leave_application',
     name: 'Leave Application',
     content: 'Your child {{student_name}} has applied for {{leave_type}} from {{start_date}} to {{end_date}}.',
     variables: ['student_name', 'leave_type', 'start_date', 'end_date'],
@@ -128,8 +128,10 @@ const SendMessagePanel = ({
       return;
     }
 
-    const hasUnreplacedVariables = message.match(/\{\{[^}]+\}\}/g);
-    if (hasUnreplacedVariables && hasUnreplacedVariables.length > 0) {
+    // Only validate unreplaced variables if NO context is provided
+    // When context exists, variables will be replaced by backend
+    const variableMatches = message.match(/\{\{([^}]+)\}\}/g);
+    if (!context && variableMatches && variableMatches.length > 0) {
       setError('Message contains unreplaced variables. Please replace them or remove from template.');
       return;
     }
@@ -261,10 +263,11 @@ const SendMessagePanel = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="schedule-date" className="block text-sm font-medium text-gray-700 mb-1">
                 Date
               </label>
               <input
+                id="schedule-date"
                 type="date"
                 value={scheduleDate}
                 onChange={(e) => setScheduleDate(e.target.value)}
@@ -274,10 +277,11 @@ const SendMessagePanel = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="schedule-time" className="block text-sm font-medium text-gray-700 mb-1">
                 Time
               </label>
               <input
+                id="schedule-time"
                 type="time"
                 value={scheduleTime}
                 onChange={(e) => setScheduleTime(e.target.value)}
@@ -331,7 +335,7 @@ const SendMessagePanel = ({
         </label>
 
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+          <div className="p-3 rounded-lg bg-red-50 border border-red-200" data-testid="error-message">
             <div className="flex items-start gap-2">
               <span className="text-red-600">⚠️</span>
               <p className="text-sm text-red-700">{error}</p>

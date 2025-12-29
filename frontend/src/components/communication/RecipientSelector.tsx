@@ -49,7 +49,7 @@ const RecipientSelector = ({
 
   return (
     <div className={cn('space-y-3', className)} data-testid="recipient-selector">
-      <label className="block text-sm font-medium text-navy-900" id="recipient-selector-label">
+      <label className="block text-sm font-medium text-navy-900" id="recipient-selector-label" data-testid="recipient-selector-label">
         Recipient
       </label>
 

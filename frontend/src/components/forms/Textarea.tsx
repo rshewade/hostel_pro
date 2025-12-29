@@ -136,8 +136,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
         )}
 
         {maxLength && (
-          <p className="text-xs text-gray-400">
-            {value?.length || 0}/{maxLength}
+          <p className="text-xs text-gray-400" data-testid="character-count">
+            {value?.length || 0} / {maxLength} characters
           </p>
         )}
       </div>
