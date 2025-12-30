@@ -113,11 +113,16 @@ export async function POST(request: NextRequest) {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 300));
 
+    // Determine redirect based on vertical
+    const redirect = tokenData.vertical === 'parent' 
+      ? '/dashboard/parent' 
+      : `/apply/${tokenData.vertical}/form`;
+
     return NextResponse.json({
       success: true,
       sessionToken,
       message: 'OTP verified successfully',
-      redirect: `/apply/${tokenData.vertical}/form`
+      redirect
     });
 
   } catch (error) {

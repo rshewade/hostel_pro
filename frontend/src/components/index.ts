@@ -41,6 +41,7 @@ export * from './feedback/Alert';
 export * from './feedback/Spinner';
 export * from './feedback/EmptyState';
 export * from './feedback/SidePanel';
+export * from './feedback/Tooltip';
 
 // Layout Components
 export * from './layout/Container';

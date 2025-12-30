@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Input, Button, cn } from '@/components';
+import { OtpInput } from '@/components/forms/OtpInput';
 
 // Parent Login Flow
 // 1. Enter registered mobile number
@@ -16,10 +17,18 @@ export default function ParentLoginPage() {
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'input' | 'otp' | 'loading'>('input');
   const [otp, setOtp] = useState('');
+  const [otpComplete, setOtpComplete] = useState(false);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   const [token, setToken] = useState('');
   const [attempts, setAttempts] = useState(0);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(prev => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
 
   const handleMobileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,15 +58,6 @@ export default function ParentLoginPage() {
         setAttempts(0); // Reset attempts
         setStep('otp');
         setResendTimer(60);
-        const timer = setInterval(() => {
-          setResendTimer((prev) => {
-            if (prev <= 1) {
-              clearInterval(timer);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
       } else {
         const data = await response.json();
         setError(data.message || 'Failed to send OTP. Please try again.');
@@ -69,9 +69,8 @@ export default function ParentLoginPage() {
     }
   };
 
-  const handleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp.trim() || otp.length !== 6) {
+  const handleOtpSubmit = async () => {
+    if (!otp || otp.length !== 6) {
       setError('Please enter a valid 6-digit OTP');
       return;
     }
@@ -92,16 +91,17 @@ export default function ParentLoginPage() {
       });
 
       if (response.ok) {
-        window.location.href = '/dashboard/parent';
+        const data = await response.json();
+        window.location.href = data.redirect || '/dashboard/parent';
       } else {
         const data = await response.json();
         setError(data.message || 'Invalid OTP. Please try again.');
-        setAttempts(prev => prev + 1); // Increment attempts on failure
+        setAttempts(prev => prev + 1);
         setStep('otp');
       }
     } catch (err) {
       setError('Failed to verify OTP. Please try again.');
-      setAttempts(prev => prev + 1); // Increment attempts on error
+      setAttempts(prev => prev + 1);
       setStep('otp');
     }
   };
@@ -118,8 +118,8 @@ export default function ParentLoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setToken(data.token); // Update token with new one
-        setAttempts(0); // Reset attempts
+        setToken(data.token);
+        setAttempts(0);
         setResendTimer(60);
         setError('');
       } else {
@@ -197,44 +197,46 @@ export default function ParentLoginPage() {
             )}
 
             {step === 'otp' && (
-              <form onSubmit={handleOtpSubmit} className="space-y-6">
-                <Input
-                  id="otp"
-                  label="Enter OTP"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="000000"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  maxLength={6}
-                  required
-                  helperText={`OTP sent to ${mobile}`}
+              <div className="space-y-6">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-600">
+                    Enter OTP sent to <span className="font-semibold">{mobile}</span>
+                  </p>
+                </div>
+
+                <OtpInput
+                  length={6}
+                  onChange={(value) => setOtp(value)}
+                  onComplete={handleOtpSubmit}
+                  error={error}
+                  disabled={false}
                 />
 
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                    {error}
-                  </div>
-                )}
+                <div className="flex justify-between items-center mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep('input');
+                      setError('');
+                    }}
+                    className="text-sm text-gray-600 hover:underline"
+                  >
+                    ← Change mobile number
+                  </button>
 
-                <Button type="submit" className="w-full">
-                  Verify OTP & Login
-                </Button>
-
-                <div className="text-center">
                   <button
                     type="button"
                     onClick={handleResendOtp}
                     disabled={resendTimer > 0}
                     className={cn(
                       'text-sm',
-                      resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:underline'
+                      resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:underline font-medium'
                     )}
                   >
-                    {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
+                    {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
                   </button>
                 </div>
-              </form>
+              </div>
             )}
 
             {step === 'loading' && (

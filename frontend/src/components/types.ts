@@ -1,12 +1,15 @@
 // components/types.ts - Common TypeScript interfaces for component props
-import { ReactNode } from 'react';
+import { ReactNode, AriaAttributes } from 'react';
 
-// Base component props
-export interface BaseComponentProps {
+// Base component props - includes common ARIA attributes for accessibility
+export interface BaseComponentProps extends AriaAttributes {
   className?: string;
   children?: ReactNode;
   id?: string;
   'data-testid'?: string;
+  role?: string;
+  tabIndex?: number;
+  style?: React.CSSProperties;
 }
 
 // Size variants
@@ -39,8 +42,8 @@ export interface IconProps extends BaseComponentProps {
   color?: string;
 }
 
-// Common form field props
-export interface FormFieldProps extends BaseComponentProps {
+// Common form field props - omit onChange to allow custom onChange signatures
+export interface FormFieldProps extends Omit<BaseComponentProps, 'onChange'> {
   label?: string;
   error?: string;
   required?: boolean;

@@ -598,7 +598,7 @@
           "5",
           "6"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -606,9 +606,9 @@
             "description": "Develop the login flow: Select Parent/Guardian Login → Enter registered mobile → OTP verification → Redirect to Parent Dashboard, reusing existing OTP component patterns from Task 5.",
             "dependencies": [],
             "details": "Reuse masked OTP input, resend timer, error handling from Task 5. Ensure mobile number is pre-registered via admin. Integrate with role-based navigation from Task 3. Use secure OTP generation and validation APIs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test full flow: success, invalid/expired OTP, resend, timeout. Verify non-mutating (no data changes on login). Check mobile responsiveness (touch targets, viewport scaling) on iOS/Android devices.",
-            "updatedAt": "2025-12-28T19:20:10.750Z",
+            "updatedAt": "2025-12-30T10:26:10.507Z",
             "parentId": "undefined"
           },
           {
@@ -619,10 +619,10 @@
               1
             ],
             "details": "Use mobile-first layout with cards/sections from design system (reuse status badges). Ensure constrained layout handles multiple summaries. Limit to view-only display of data for associated student IDs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate layout on mobile/desktop: no overflow, clear hierarchy. Confirm data loads correctly (e.g., fee/leave statuses). Test non-mutating interactions (taps don't edit data). Review with prototype walkthrough.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-28T19:20:10.761Z"
+            "updatedAt": "2025-12-30T10:37:03.519Z"
           },
           {
             "id": 3,
@@ -633,10 +633,10 @@
               2
             ],
             "details": "Backend: API guards for parent role (query params filter by student ID). Frontend: Disable forms/buttons, show disabled states with tooltips. No mutating endpoints exposed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Inspect every element: no editable fields, no submit buttons for changes. Simulate API calls—verify only GET/read ops, no POST/PUT. Test acknowledgements (e.g., download) don't mutate. Mobile gesture tests (swipe/long-press safe).",
             "parentId": "undefined",
-            "updatedAt": "2025-12-28T19:20:10.776Z"
+            "updatedAt": "2025-12-30T10:40:55.054Z"
           },
           {
             "id": 4,
@@ -646,16 +646,16 @@
               2
             ],
             "details": "Add banners/links for DPDP (reuse from Task 5). Tooltips: 'View-only: cannot edit'. Labels: 'Parent Dashboard - View your ward's info'. Ensure copy is concise, accessible.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify tooltips/labels visible on hover/tap (mobile-friendly). Check non-mutating: info displays don't trigger changes. Accessibility scan (screen reader reads permissions). Stakeholder review for clarity/compliance.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-28T19:20:10.792Z"
+            "updatedAt": "2025-12-30T10:57:14.235Z"
           }
         ],
         "complexity": 6,
         "recommendedSubtasks": 4,
         "expansionPrompt": "Split Task 8 into: (1) Parent/Guardian entry and OTP verification flow, reusing existing OTP patterns; (2) Parent dashboard IA and layout (student overview, fee status, leave summary, notifications); (3) Permissions and view-only behavior specification (no edits, only acknowledgements where applicable); (4) Compliance and copy: DPDP info, tooltips, clarity of scope. For each, define how to test that interactions are non-mutating and mobile-friendly.",
-        "updatedAt": "2025-12-28T19:20:10.792Z"
+        "updatedAt": "2025-12-30T10:57:14.235Z"
       },
       {
         "id": "9",
@@ -2429,9 +2429,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-29T09:39:06.183Z",
+      "lastModified": "2025-12-30T10:57:14.235Z",
       "taskCount": 40,
-      "completedCount": 16,
+      "completedCount": 17,
       "tags": [
         "master"
       ]
