@@ -54,7 +54,7 @@ export interface FormFieldProps extends Omit<BaseComponentProps, 'onChange'> {
 // Table column definition
 export interface TableColumn<T = any> {
   key: keyof T | string;
-  header: string;
+  header: string | ReactNode;
   sortable?: boolean;
   width?: string;
   render?: (value: any, row: T) => ReactNode;
@@ -137,4 +137,17 @@ export interface CardProps extends BaseComponentProps {
   subtitle?: string;
   actions?: ReactNode;
   padding?: SizeVariant;
+}
+
+// Skeleton variants
+export type SkeletonVariant = 'text' | 'circular' | 'rectangular';
+export type SkeletonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+export type SkeletonAnimation = 'pulse' | 'wave' | 'none';
+
+// Help center
+export interface HelpItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
 }

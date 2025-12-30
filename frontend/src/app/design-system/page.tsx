@@ -43,6 +43,7 @@ import {
   ReceiptRow,
   ReceiptDivider,
 } from '../../components';
+import { ComingSoonPlaceholder } from '@/components/future/ComingSoonPlaceholder';
 
 export default function DesignSystemPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -878,6 +879,132 @@ export default function DesignSystemPage() {
               <p className="text-xs text-gray-500 text-center mt-4">
                 Use Ctrl+P to test print styling
               </p>
+            </div>
+          </section>
+
+          {/* Future Module Placeholders */}
+          <section className="space-y-6">
+            <h2 className="text-heading-2">Future Module Placeholders</h2>
+            <p className="text-body-sm mb-4">
+              Placeholder components for future modules that are planned but not yet implemented.
+              These ensure consistent visual treatment of upcoming features across the application.
+            </p>
+
+            <div className="card p-8">
+              <h3 className="text-heading-3 mb-6">Coming Soon Placeholders</h3>
+              <p className="text-body-sm mb-6">
+                Use these components to indicate features that are planned but not yet available.
+                They provide clear visual cues that manage user expectations.
+              </p>
+
+              <div className="space-y-8">
+                <div>
+                  <h4 className="text-heading-4 mb-4">Card Variant (for dashboards)</h4>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <ComingSoonPlaceholder
+                      title="Biometric Attendance"
+                      description="Track attendance via fingerprint or face scan"
+                      icon="👆"
+                      estimatedLaunch="Q2 2026"
+                      featureFlag="FEAT_BIOMETRIC_ATTENDANCE"
+                    />
+                    <ComingSoonPlaceholder
+                      title="Mess Management"
+                      description="View menus and track mess attendance"
+                      icon="🍽️"
+                      estimatedLaunch="Q1 2026"
+                      featureFlag="FEAT_MESS_MANAGEMENT"
+                    />
+                    <ComingSoonPlaceholder
+                      title="Visitor Management"
+                      description="Pre-register visitors and manage passes"
+                      icon="👥"
+                      estimatedLaunch="Q3 2026"
+                      featureFlag="FEAT_VISITOR_MANAGEMENT"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-heading-4 mb-4">Page Variant (for full pages)</h4>
+                  <div className="max-w-md">
+                    <ComingSoonPlaceholder
+                      title="Feature Coming Soon"
+                      description="This module is currently under development and will be available in a future update."
+                      variant="page"
+                      estimatedLaunch="Q2 2026"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-lg bg-blue-50 border border-blue-200">
+                  <h4 className="text-heading-4 mb-3 text-blue-900">Implementation Guidelines</h4>
+                  <ul className="space-y-2 text-body-sm text-blue-800">
+                    <li><strong>Feature Flags:</strong> Always specify the feature flag for each placeholder to enable/disable via configuration.</li>
+                    <li><strong>No CTAs:</strong> Placeholders should not have active call-to-action buttons that lead to non-functional flows.</li>
+                    <li><strong>Est. Launch:</strong> Include estimated launch quarter to manage user expectations.</li>
+                    <li><strong>Responsive:</strong> All variants are responsive and work on mobile devices.</li>
+                    <li><strong>Accessibility:</strong> Components include proper ARIA labels for screen readers.</li>
+                    <li><strong>Routes:</strong> Create placeholder pages at /dashboard/&#123;role&#125;/&#123;module&#125; for each future module.</li>
+                  </ul>
+                </div>
+
+                <div className="p-6 rounded-lg bg-amber-50 border border-amber-200">
+                  <h4 className="text-heading-4 mb-3 text-amber-900">Do's and Don'ts</h4>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h5 className="font-semibold text-amber-900 mb-2">✓ Do</h5>
+                      <ul className="space-y-1 text-body-sm text-amber-800">
+                        <li>• Use clear "Coming Soon" messaging</li>
+                        <li>• Include estimated launch timeframe</li>
+                        <li>• Show planned features when possible</li>
+                        <li>• Make placeholders visually distinct</li>
+                        <li>• Use feature flags for control</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-amber-900 mb-2">✗ Don't</h5>
+                      <ul className="space-y-1 text-body-sm text-amber-800">
+                        <li>• Create false expectations</li>
+                        <li>• Add clickable actions that don't work</li>
+                        <li>• Hide behind feature flags without fallback</li>
+                        <li>• Make placeholders look like errors</li>
+                        <li>• Clutter navigation with too many placeholders</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-heading-4 mb-4">Code Example</h4>
+                  <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+{`import { ComingSoonPlaceholder } from '@/components/future/ComingSoonPlaceholder';
+
+// Card variant for dashboards
+<ComingSoonPlaceholder
+  title="Biometric Attendance"
+  description="Track attendance via fingerprint or face scan"
+  icon="👆"
+  estimatedLaunch="Q2 2026"
+  featureFlag="FEAT_BIOMETRIC_ATTENDANCE"
+/>
+
+// Page variant for full pages
+<FutureModulePage
+  title="Mess Management"
+  description="View menus and manage food preferences"
+  fullDescription="Detailed description of the module..."
+  icon="🍽️"
+  estimatedLaunch="Q1 2026"
+  plannedFeatures={[
+    'Daily mess menu display',
+    'Mess attendance tracking',
+    'Special diet management',
+  ]}
+/>`}
+                  </pre>
+                </div>
+              </div>
             </div>
           </section>
 

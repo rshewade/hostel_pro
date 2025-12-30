@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components';
+import { ComingSoonPlaceholder } from '@/components/future/ComingSoonPlaceholder';
 
 export default function StudentDashboard() {
   const [vertical] = useState('Boys Hostel');
@@ -115,6 +116,33 @@ export default function StudentDashboard() {
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Renewal</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Renew your stay for next semester</p>
               <Button variant="primary" size="md" fullWidth>Renew Now</Button>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-heading-3 mb-4" style={{ color: 'var(--text-primary)' }}>Coming Soon</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <ComingSoonPlaceholder
+                title="Biometric Attendance"
+                description="Mark attendance via fingerprint or face scan"
+                icon="👆"
+                estimatedLaunch="Q2 2026"
+                featureFlag="FEAT_BIOMETRIC_ATTENDANCE"
+              />
+              <ComingSoonPlaceholder
+                title="Mess Management"
+                description="View menus, track attendance, manage food preferences"
+                icon="🍽️"
+                estimatedLaunch="Q1 2026"
+                featureFlag="FEAT_MESS_MANAGEMENT"
+              />
+              <ComingSoonPlaceholder
+                title="Visitor Management"
+                description="Pre-register visitors and manage gate passes"
+                icon="👥"
+                estimatedLaunch="Q3 2026"
+                featureFlag="FEAT_VISITOR_MANAGEMENT"
+              />
             </div>
           </div>
 

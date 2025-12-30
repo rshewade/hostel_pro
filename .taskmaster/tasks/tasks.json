@@ -1064,7 +1064,7 @@
           "12",
           "13"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1099,16 +1099,16 @@
               2
             ],
             "details": "For scheduling: date/time picker with presets (e.g., T-24h interview, fee cadence T-15/7/3/due). Escalation: prominent 'Escalate' button auto-selecting parents + superintendent with consolidated report template. Add 'Log will be stored' info tooltip everywhere. Ensure non-blocking of parent context.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Build and test 3 scenarios (interview reminder, fee escalation, leave rejection); validate scheduling presets, escalation auto-select, and logging visibility without UX friction.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-28T20:30:19.271Z"
+            "updatedAt": "2025-12-30T11:39:02.029Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
         "expansionPrompt": "Break down this task with a focus on design embedded communication patterns (whatsapp, sms, email).",
-        "updatedAt": "2025-12-29T09:39:06.181Z"
+        "updatedAt": "2025-12-30T11:39:02.029Z"
       },
       {
         "id": "15",
@@ -1177,7 +1177,7 @@
           "15",
           "14"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1185,9 +1185,10 @@
             "description": "Build the main overview dashboard displaying key performance indicators for receivables, collections, overdue amounts, and upcoming dues, with filters for vertical and period selection.",
             "dependencies": [],
             "details": "Include cards for total receivables, collected, overdue, upcoming due this month; add dropdown filters for vertical (hostel) and date period; ensure responsive layout with alternating row backgrounds if tables are used.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate KPI calculations with sample data; test filter functionality across different verticals and periods; check readability on 1080p and 1366x768 resolutions.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T12:32:56.067Z"
           },
           {
             "id": 2,
@@ -1197,9 +1198,10 @@
               1
             ],
             "details": "Receivables table: student, amount, due date, status, contact summary; Payment logs: filters by status/method/date, quick export; Receipts: generate/view by student/receipt number under multiple heads, include communication log links.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test table scrolling with frozen headers; simulate export actions; test search functionality for receipts; ensure dense data readability with alternating backgrounds.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T13:53:02.903Z"
           },
           {
             "id": 3,
@@ -1210,14 +1212,16 @@
               2
             ],
             "details": "Export layout: CSV/XLS with explicit dev notes on fields; add audit filters throughout views; incorporate notes for devs on export implementation and table optimizations like frozen headers.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate Tally export with example data via print/PDF; verify all PRD elements present; test audit filters across scenarios; review on multiple resolutions for scanability.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T14:34:25.167Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design accounts / accounting team dashboards."
+        "expansionPrompt": "Break down this task with a focus on design accounts / accounting team dashboards.",
+        "updatedAt": "2025-12-30T14:34:25.167Z"
       },
       {
         "id": "17",
@@ -1288,7 +1292,7 @@
           "14",
           "8"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1296,9 +1300,10 @@
             "description": "Create detailed UI/UX for the student leave experience, including request creation for all leave types, rule visibility, and history views.",
             "dependencies": [],
             "details": "Implement the student dashboard section for leave management with option cards for Short leave, Night-out, and Multi-day leave, each opening a tailored form capturing dates/times, reason, destination, and contact details. Ensure rules and policies (notice periods, curfew, limits) are prominently surfaced contextually near form actions. Define empty, loading, and error states for leave creation. Implement a leave history list with clear status badges, remarks, and sorting/filtering by type and date. Integrate calendar and time picker components from the existing design system and ensure mobile responsiveness.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test a full student flow: create each leave type, review validation and rule messaging, then verify visibility and clarity of history entries and statuses.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T16:34:06.500Z"
           },
           {
             "id": 2,
@@ -1308,9 +1313,10 @@
               1
             ],
             "details": "Create a superintendent dashboard with tables for pending and past leaves, including filters by leave type, status, date range, and student. Implement the leave detail/review screen with prominent display of request data, admin-configurable rules summary (read-only), and past decisions. Specify Approve/Reject flows with mandatory remarks, confirmation patterns, and clear state changes. Integrate an embedded Send Message panel to contact students and/or parents directly from the decision screen. Include visible audit log references (who approved/rejected, when, and key actions) for authorized staff, ensuring the layout supports strict-governance and non-editability after final decisions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run through sample scenarios: filter and open a pending leave, approve with remarks and message, reject with remarks, and verify that audit entries are updated and immutable in UI while list and detail views stay consistent.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T16:39:06.340Z"
           },
           {
             "id": 3,
@@ -1321,14 +1327,16 @@
               2
             ],
             "details": "Implement a parent leave overview screen showing a list of their ward’s leave requests only, with clear display of dates, times, type, status, and superintendent remarks. Ensure no action controls for creating, editing, or approving leave are present. Add patterns for notification indicators (e.g., tags or icons) and an optional lightweight confirmation UI for parents to acknowledge they have been notified, without affecting the approval state. Align visual language with broader notification/alert patterns from the project while maintaining strict access boundaries between parent and student data.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test a parent session: view multiple leave records for a single ward, verify absence of action controls, test the notification acknowledgment interaction, and confirm that data matches the student and superintendent views for the same leave records.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:02:35.056Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design leave management module (student, superintendent, parent views)."
+        "expansionPrompt": "Break down this task with a focus on design leave management module (student, superintendent, parent views).",
+        "updatedAt": "2025-12-30T17:02:35.056Z"
       },
       {
         "id": "19",
@@ -1616,7 +1624,7 @@
           "3",
           "2"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1624,9 +1632,10 @@
             "description": "Analyze existing information architecture to decide where Biometric Attendance, Visitor Management, and Mess Management should appear in admin and student views and specify how they should be accessed as non-functional entries.",
             "dependencies": [],
             "details": "Review current navigation, dashboards, and role-based views to identify logical positions for the three future modules without disrupting core workflows. Specify whether each will appear as a nav item, dashboard card, or both for each role. Document click behavior (e.g., opens static info screen only, no CTAs), and define rules for when they are visible or hidden (e.g., feature flags, environment settings). Capture these decisions in the IA/route map so devs can wire routes and flags consistently later.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Cross-check final IA map against PRD to ensure all three modules are represented in the right sections and that no flows require active functionality from these entries.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:03:03.870Z"
           },
           {
             "id": 2,
@@ -1636,9 +1645,10 @@
               1
             ],
             "details": "Implement card states (e.g., greyed-out, low emphasis, lock or clock icon) for Biometric Attendance, Visitor Management, and Mess Management with a unified style. Create corresponding placeholder screens with iconography, short description of intended capabilities, and explicit ‘Coming Soon / Not yet available’ messaging. Define tooltip and helper text patterns that clarify non-availability and avoid any impression that an error occurred. Ensure typography, spacing, colors, and icons follow the existing design system and accessibility rules. Provide React components or similar reusable assets for placeholders.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run quick usability checks or stakeholder reviews on mockups to confirm users interpret these elements as future features, not broken links or active modules, and verify visual consistency with the existing design system.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:03:04.402Z"
           },
           {
             "id": 3,
@@ -1649,14 +1659,16 @@
               2
             ],
             "details": "Add a dedicated section to the style guide that documents when and where to use placeholder cards and screens, including examples for Biometric Attendance, Visitor Management, and Mess Management. Specify technical treatment expectations: use of feature flags vs. static pages, routing behavior, analytics tracking (if any), and rules for hiding/removing placeholders in certain deployments. Clarify non-interference requirements (no blocking primary tasks, minimal nav clutter) and do/don’t examples. Include redlines and component specs so devs can implement without additional clarification.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review the updated style guide with implement and engineering leads to ensure the instructions are unambiguous, feasible for implementation, and cover all three modules and environments (web/mobile).",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:03:04.707Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design future-proofing placeholders for biometric, visitor, and mess management."
+        "expansionPrompt": "Break down this task with a focus on design future-proofing placeholders for biometric, visitor, and mess management.",
+        "updatedAt": "2025-12-30T17:03:04.707Z"
       },
       {
         "id": "23",
@@ -1669,7 +1681,7 @@
           "1",
           "2"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1677,9 +1689,10 @@
             "description": "Create detailed, WCAG-aligned implement specs for tooltips, inline help, progress indicators, confirmation modals, error banners/inline errors, and empty states.",
             "dependencies": [],
             "details": "Document component-level patterns covering: tooltip trigger icon and label, hover/focus behavior, dismissal, and ARIA usage; inline help placement, wording, and interaction; visual progress indicators including steppers, loaders, and skeletons with text alternatives; confirmation modal structure for irreversible actions with clear primary/secondary actions and warnings; error banners and inline field errors with clear copy, iconography, and associations to fields; empty states that explain next steps and link to primary actions. Ensure consistency with existing design system tokens and component library.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:22:07.528Z"
           },
           {
             "id": 2,
@@ -1689,9 +1702,10 @@
               1
             ],
             "details": "Write WCAG 2.1 AA–aligned guidelines for minimum contrast ratios, focus ring styles, and state changes for all relevant components. Define keyboard behavior for tooltips, progress steppers, modals (open/close, trap focus, escape handling), banners, and inline errors. Include rules for logical tab order and visible focus. Implement and document the compact help center pattern using a small \"?\" icon that is reachable by keyboard, has accessible name/tooltip, and links to contextual help or FAQ per page.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:22:08.038Z"
           },
           {
             "id": 3,
@@ -1702,14 +1716,16 @@
               2
             ],
             "details": "Write tone guidelines for error, warning, and help messages (formal, clear, non-technical, action-oriented), including examples for banners, inline errors, and confirmation modals. Provide pseudo-code and interaction notes for focus management, covering: moving focus to an error summary region on form submission failure; setting focus on first errored field when appropriate; trapping and restoring focus for modals; returning focus to the triggering element on modal close. Align documentation with existing coding standards so devs can integrate patterns consistently.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-30T17:22:08.754Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design accessibility, help, and error handling patterns."
+        "expansionPrompt": "Break down this task with a focus on design accessibility, help, and error handling patterns.",
+        "updatedAt": "2025-12-30T17:22:08.754Z"
       },
       {
         "id": "24",
@@ -2429,9 +2445,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-30T10:57:14.235Z",
+      "lastModified": "2025-12-30T17:22:08.755Z",
       "taskCount": 40,
-      "completedCount": 17,
+      "completedCount": 22,
       "tags": [
         "master"
       ]

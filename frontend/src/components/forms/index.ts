@@ -7,3 +7,4 @@ export { Radio } from './Radio';
 export { FileUpload } from './FileUpload';
 export { Stepper } from './Stepper';
 export { FormWizard } from './FormWizard';
+export { InlineHelp, FieldError, FormFieldWrapper } from './InlineHelp';

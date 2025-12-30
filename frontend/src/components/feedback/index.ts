@@ -8,6 +8,8 @@ export { Spinner } from './Spinner';
 export { EmptyState } from './EmptyState';
 export { SidePanel } from './SidePanel';
 export { Tooltip, InfoIcon, InfoTooltip } from './Tooltip';
+export { Skeleton, SkeletonCard, SkeletonTable, SkeletonList } from './Skeleton';
+export { HelpCenter, PageHelp } from './HelpCenter';
 
 // Re-export types
 export type { SidePanelProps } from './SidePanel';

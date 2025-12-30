@@ -15,6 +15,7 @@ export * from './forms/DatePicker';
 export * from './forms/TimePicker';
 export * from './forms/Toggle';
 export * from './forms/SearchField';
+export * from './forms/InlineHelp';
 
 // UI Components
 export * from './ui/Button';
@@ -42,6 +43,8 @@ export * from './feedback/Spinner';
 export * from './feedback/EmptyState';
 export * from './feedback/SidePanel';
 export * from './feedback/Tooltip';
+export * from './feedback/Skeleton';
+export * from './feedback/HelpCenter';
 
 // Layout Components
 export * from './layout/Container';
