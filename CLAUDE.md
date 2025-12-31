@@ -212,3 +212,55 @@ task-master set-status --id=<id> --status=done  # Complete task
 - The `.docs/` folder contains complete specifications. Reference these documents when implementing features.
 - All development should follow the Guest-First architecture pattern.
 - Every feature should consider the multi-role access model and audit requirements.
+
+## CLI TOOLING & ENVIRONMENT
+I have installed specialized CLI utilities to speed up your workflow. You must use these specific binaries instead of standard Unix tools whenever possible.
+
+### 1. SEARCH (Use `rg`)
+* **Tool:** `ripgrep`
+* **Binary Name:** `rg`
+* **Instruction:** Always use `rg` instead of `grep` or `find`. It is faster and respects `.gitignore` automatically.
+* **Typical Usage:** `rg -n "search_term" src/` (Shows line numbers).
+
+### 2. NAVIGATION (Use `zoxide`)
+* **Tool:** `zoxide`
+* **Binary Name:** `zoxide`
+* **Instruction:** Use `zoxide query <name>` to find directory paths if you are unsure of the exact location.
+* **Typical Usage:**
+    * To find a path: `zoxide query my-project`
+    * To move (if shell allows): `cd $(zoxide query my-project)`
+
+### 3. CONTEXT GATHERING (Use `repomix`)
+* **Tool:** `repomix`
+* **Binary Name:** `repomix`
+* **Instruction:** Use this to read multiple files at once. It packs the repository content into a single, LLM-friendly XML format.
+* **Typical Usage:** `repomix src/components --style xml` (Then read the output).
+* **Strategy for context gathering** run after successful build completion
+
+### 4. STRUCTURAL SEARCH (Use `sg`)
+* **Tool:** `ast-grep`
+* **Binary Name:** `sg`
+* **Instruction:** Use this for complex code queries (finding patterns, not just text).
+* **Typical Usage:** `sg run -p 'console.log($$$)'`
+
+### 5. SEARCH STRATEGY: `rg` vs `sg`
+You must choose the right tool based on what you are looking for. Follow this decision matrix:
+
+**A. Use `rg` (Ripgrep) when:**
+1.  **Finding Literals:** Searching for exact strings, error codes (e.g., "Error: 500"), or TODO comments.
+2.  **Simple References:** Finding where a variable name is mentioned (e.g., `user_id`).
+3.  **File Finding:** Locating files by name/path.
+4.  **Speed:** You need a quick "grep" of the codebase.
+
+**B. Use `sg` (AST-Grep) when:**
+1.  **Multi-line Logic:** You need to find a function call that might be split across lines (e.g., a function with many arguments).
+2.  **Syntax Specifics:** You need to find "all function definitions" (not calls) or "all try/catch blocks".
+3.  **Refactoring:** You need to replace a pattern safely without breaking syntax.
+4.  **Ignoring Formatting:** You want to find code regardless of spaces, tabs, or newlines.
+
+**C. The Fallback Rule:**
+* Start with `rg` for initial discovery.
+* If `rg` returns too much noise (false positives) or misses multi-line occurrences, switch to `sg`.
+
+### ERROR HANDLING
+If a specific tool command fails (e.g., "command not found"), immediately fall back to standard tools (`grep`, `find`, `cat`) without asking for permission.

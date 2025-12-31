@@ -1,19 +1,416 @@
 {
-  "posts": [
+  "students": [
     {
-      "id": 1,
-      "title": "json-server",
-      "author": "typicode"
+      "id": "STU001",
+      "name": "Amit Kumar Jain",
+      "mobile": "9876543210",
+      "email": "amit.jain@email.com",
+      "vertical": "Boys Hostel",
+      "room": "A-201",
+      "bed": "A",
+      "joiningDate": "2024-08-15",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-02-15",
+      "daysRemainingForRenewal": 45,
+      "parentName": "Suresh Kumar Jain",
+      "parentMobile": "9876543211",
+      "course": "B.Tech",
+      "institution": "Indian Institute of Technology",
+      "year": "2nd Year"
+    },
+    {
+      "id": "STU002",
+      "name": "Priya Sharma",
+      "mobile": "9876543220",
+      "email": "priya.sharma@email.com",
+      "vertical": "Girls Ashram",
+      "room": "B-105",
+      "bed": "A",
+      "joiningDate": "2024-07-01",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "IN_PROGRESS",
+      "renewalDueDate": "2026-01-15",
+      "daysRemainingForRenewal": 15,
+      "parentName": "Rajesh Sharma",
+      "parentMobile": "9876543221",
+      "course": "B.Sc",
+      "institution": "Delhi University",
+      "year": "3rd Year"
+    },
+    {
+      "id": "STU003",
+      "name": "Rahul Verma",
+      "mobile": "9876543230",
+      "email": "rahul.verma@email.com",
+      "vertical": "Boys Hostel",
+      "room": "C-301",
+      "bed": "B",
+      "joiningDate": "2024",
+      "current-01-10Period": "SEMESTER_1",
+      "academicYear": "2025-26",
+      "status": "CHECKED_IN",
+      "renewalStatus": "APPROVED",
+      "renewalDueDate": "2025-07-10",
+      "daysRemainingForRenewal": 0,
+      "parentName": "Ajay Verma",
+      "parentMobile": "9876543231",
+      "course": "M.Sc",
+      "institution": "JNU",
+      "year": "1st Year"
     }
   ],
-  "comments": [
+  "renewals": [
     {
-      "id": 1,
-      "body": "some comment",
-      "postId": 1
+      "id": "REN001",
+      "studentId": "STU001",
+      "type": "NEW",
+      "status": "NOT_STARTED",
+      "academicYear": "2025-26",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 60000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 60000,
+      "feePaid": 0,
+      "documentsRequired": [
+        "marksheet_latest",
+        "id_proof",
+        "address_proof"
+      ],
+      "documentsUploaded": [],
+      "consentGiven": false,
+      "consentTimestamp": null,
+      "createdAt": null,
+      "submittedAt": null,
+      "reviewedAt": null,
+      "approvedAt": null,
+      "rejectedAt": null,
+      "rejectionReason": null,
+      "superintendentRemarks": null,
+      "trusteeRemarks": null
+    },
+    {
+      "id": "REN002",
+      "studentId": "STU002",
+      "type": "RENEWAL",
+      "status": "IN_PROGRESS",
+      "academicYear": "2025-26",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 60000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 55000,
+      "feePaid": 5000,
+      "documentsRequired": [
+        "marksheet_latest",
+        "id_proof"
+      ],
+      "documentsUploaded": [
+        {
+          "type": "marksheet_latest",
+          "fileName": "marksheet_2024.pdf",
+          "uploadedAt": "2025-01-10T10:30:00Z",
+          "status": "UPLOADED"
+        }
+      ],
+      "consentGiven": false,
+      "consentTimestamp": null,
+      "createdAt": "2025-01-08T09:00:00Z",
+      "submittedAt": null,
+      "reviewedAt": null,
+      "approvedAt": null,
+      "rejectedAt": null,
+      "rejectionReason": null,
+      "superintendentRemarks": null,
+      "trusteeRemarks": null
+    },
+    {
+      "id": "REN003",
+      "studentId": "STU003",
+      "type": "RENEWAL",
+      "status": "UNDER_REVIEW",
+      "academicYear": "2025-26",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 65000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 60000,
+      "feePaid": 60000,
+      "documentsRequired": [
+        "marksheet_latest"
+      ],
+      "documentsUploaded": [
+        {
+          "type": "marksheet_latest",
+          "fileName": "marksheet_2024_final.pdf",
+          "uploadedAt": "2025-01-05T14:20:00Z",
+          "status": "UPLOADED"
+        },
+        {
+          "type": "id_proof",
+          "fileName": "aadhar_card.pdf",
+          "uploadedAt": "2025-01-05T14:25:00Z",
+          "status": "UPLOADED"
+        }
+      ],
+      "consentGiven": true,
+      "consentTimestamp": "2025-01-05T14:30:00Z",
+      "createdAt": "2025-01-05T14:00:00Z",
+      "submittedAt": "2025-01-05T14:35:00Z",
+      "reviewedAt": null,
+      "approvedAt": null,
+      "rejectedAt": null,
+      "rejectionReason": null,
+      "superintendentRemarks": null,
+      "trusteeRemarks": null
+    },
+    {
+      "id": "REN004",
+      "studentId": "STU001",
+      "type": "RENEWAL",
+      "status": "APPROVED",
+      "academicYear": "2024-25",
+      "period": "SEMESTER_2",
+      "currentHostelFees": 60000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 55000,
+      "feePaid": 55000,
+      "documentsRequired": [
+        "marksheet_latest",
+        "id_proof"
+      ],
+      "documentsUploaded": [
+        {
+          "type": "marksheet_latest",
+          "fileName": "marksheet_s1.pdf",
+          "uploadedAt": "2024-01-10T10:00:00Z",
+          "status": "UPLOADED"
+        }
+      ],
+      "consentGiven": true,
+      "consentTimestamp": "2024-01-10T10:15:00Z",
+      "createdAt": "2024-01-10T09:00:00Z",
+      "submittedAt": "2024-01-10T10:20:00Z",
+      "reviewedAt": "2024-01-11T09:00:00Z",
+      "approvedAt": "2024-01-11T09:30:00Z",
+      "rejectedAt": null,
+      "rejectionReason": null,
+      "superintendentRemarks": "All documents verified. Fee payment confirmed.",
+      "trusteeRemarks": null
     }
   ],
-  "profile": {
-    "name": "typicode"
-  }
+  "applications": [
+    {
+      "id": "APP001",
+      "trackingNumber": "JH-2024-00001",
+      "type": "NEW",
+      "vertical": "Boys Hostel",
+      "applicantName": "Amit Kumar Jain",
+      "applicantMobile": "9876543210",
+      "applicantEmail": "amit.jain@email.com",
+      "currentStatus": "APPROVED",
+      "paymentStatus": "PAID",
+      "submittedAt": "2024-07-15T10:00:00Z",
+      "approvedAt": "2024-08-01T14:00:00Z",
+      "checkedInAt": "2024-08-15T09:00:00Z"
+    },
+    {
+      "id": "APP002",
+      "trackingNumber": "JH-2024-00002",
+      "type": "NEW",
+      "vertical": "Girls Ashram",
+      "applicantName": "Priya Sharma",
+      "applicantMobile": "9876543220",
+      "applicantEmail": "priya.sharma@email.com",
+      "currentStatus": "APPROVED",
+      "paymentStatus": "PAID",
+      "submittedAt": "2024-06-20T11:00:00Z",
+      "approvedAt": "2024-06-28T16:00:00Z",
+      "checkedInAt": "2024-07-01T08:00:00Z"
+    }
+  ],
+  "fees": [
+    {
+      "id": "FEE001",
+      "studentId": "STU001",
+      "type": "HOSTEL_FEE",
+      "academicYear": "2024-25",
+      "period": "SEMESTER_2",
+      "amount": 60000,
+      "paidAmount": 30000,
+      "status": "PENDING",
+      "dueDate": "2025-01-30",
+      "paymentHistory": [
+        {
+          "transactionId": "TXN-2024-001",
+          "amount": 30000,
+          "method": "UPI",
+          "date": "2024-08-20T10:30:00Z",
+          "status": "SUCCESS"
+        }
+      ]
+    },
+    {
+      "id": "FEE002",
+      "studentId": "STU002",
+      "type": "HOSTEL_FEE",
+      "academicYear": "2024-25",
+      "period": "SEMESTER_2",
+      "amount": 55000,
+      "paidAmount": 55000,
+      "status": "PAID",
+      "dueDate": "2025-01-15",
+      "paymentHistory": [
+        {
+          "transactionId": "TXN-2024-002",
+          "amount": 55000,
+          "method": "QR",
+          "date": "2024-08-18T14:15:00Z",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "ROOM-A-201",
+      "building": "A",
+      "floor": "2",
+      "number": "201",
+      "vertical": "Boys Hostel",
+      "capacity": 2,
+      "occupied": 1,
+      "type": "SHARED_DOUBLE",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "ROOM-B-105",
+      "building": "B",
+      "floor": "1",
+      "number": "105",
+      "vertical": "Girls Ashram",
+      "capacity": 2,
+      "occupied": 2,
+      "type": "SHARED_DOUBLE",
+      "status": "FULL"
+    }
+  ],
+  "leaves": [
+    {
+      "id": "LEV001",
+      "studentId": "STU001",
+      "type": "NIGHT_OUT",
+      "reason": "Family function at home",
+      "destination": "Home - Jaipur",
+      "contactNumber": "9876543211",
+      "startDate": "2025-01-20",
+      "endDate": "2025-01-21",
+      "startTime": "14:00",
+      "endTime": "18:00",
+      "status": "APPROVED",
+      "superintendentRemarks": "Approved. Safe travel.",
+      "createdAt": "2025-01-18T09:00:00Z",
+      "approvedAt": "2025-01-18T10:30:00Z"
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC001",
+      "studentId": "STU001",
+      "type": "MARKSHEET",
+      "fileName": "marksheet_2024.pdf",
+      "uploadedAt": "2024-07-10T10:00:00Z",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "DOC002",
+      "studentId": "STU001",
+      "type": "ID_PROOF",
+      "fileName": "aadhar_card.pdf",
+      "uploadedAt": "2024-07-10T10:05:00Z",
+      "status": "VERIFIED"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "NOT001",
+      "studentId": "STU001",
+      "type": "RENINDER",
+      "title": "Renewal Reminder",
+      "message": "Your 6-month stay renewal is due in 30 days. Please complete the renewal process before the deadline.",
+      "read": false,
+      "createdAt": "2025-01-10T08:00:00Z"
+    },
+    {
+      "id": "NOT002",
+      "studentId": "STU001",
+      "type": "FEE_REMINDER",
+      "title": "Fee Payment Due",
+      "message": "Your hostel fee payment of ₹30,000 is due on January 30, 2025.",
+      "read": true,
+      "createdAt": "2025-01-05T09:00:00Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "USR001",
+      "mobile": "9876543210",
+      "role": "STUDENT",
+      "studentId": "STU001",
+      "name": "Amit Kumar Jain",
+      "vertical": "Boys Hostel"
+    },
+    {
+      "id": "USR002",
+      "mobile": "9876543220",
+      "role": "STUDENT",
+      "studentId": "STU002",
+      "name": "Priya Sharma",
+      "vertical": "Girls Ashram"
+    },
+    {
+      "id": "USR003",
+      "mobile": "9876543001",
+      "role": "SUPERINTENDENT",
+      "name": "Mahesh Patel",
+      "vertical": "Boys Hostel"
+    },
+    {
+      "id": "USR004",
+      "mobile": "9876543002",
+      "role": "SUPERINTENDENT",
+      "name": "Sunita Devi",
+      "vertical": "Girls Ashram"
+    },
+    {
+      "id": "USR005",
+      "mobile": "9876543003",
+      "role": "TRUSTEE",
+      "name": "Dr. Ramesh Chand"
+    },
+    {
+      "id": "USR006",
+      "mobile": "9876543004",
+      "role": "ACCOUNTS",
+      "name": "Vikram Singh"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "AUD001",
+      "action": "RENEWAL_APPROVED",
+      "entityType": "RENEWAL",
+      "entityId": "REN004",
+      "userId": "USR003",
+      "userRole": "SUPERINTENDENT",
+      "details": {
+        "studentId": "STU001",
+        "previousStatus": "UNDER_REVIEW",
+        "newStatus": "APPROVED"
+      },
+      "timestamp": "2024-01-11T09:30:00Z"
+    }
+  ]
 }

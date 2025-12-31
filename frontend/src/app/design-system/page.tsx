@@ -34,7 +34,6 @@ import {
   Alert,
   Spinner,
   EmptyState,
-  Container,
   Grid,
   Flex,
   Spacer,
@@ -812,9 +811,9 @@ export default function DesignSystemPage() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-heading-3 mb-4">Container</h3>
-                <Container className="bg-gray-100 p-4">
+                <div className="bg-gray-100 p-4">
                   <p>This content is constrained to a max-width container.</p>
-                </Container>
+                </div>
               </div>
 
               <div>

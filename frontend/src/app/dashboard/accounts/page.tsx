@@ -40,7 +40,7 @@ interface Receivable {
 }
 
 export default function AccountsDashboard() {
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'receivables' | 'payment-logs' | 'receipts' | 'export'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'receivables' | 'payment-logs' | 'receipts' | 'clearance' | 'data-export'>('overview');
   const [selectedVertical, setSelectedVertical] = useState<Vertical>('ALL');
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('THIS_MONTH');
   const [statusFilter, setStatusFilter] = useState<Status>('ALL');
@@ -720,84 +720,99 @@ export default function AccountsDashboard() {
         </div>
       </header>
 
-      <nav className="mx-auto max-w-7xl border-b" style={{ borderColor: 'var(--border-gray-200)' }}>
-        <div className="flex gap-8 px-6">
-          <button
-            className={cn(
-              'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
-              selectedTab === 'overview'
-                ? 'border-navy-900 text-navy-900'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            )}
-            style={{
-              borderColor: selectedTab === 'overview' ? 'var(--border-primary)' : 'transparent',
-              color: selectedTab === 'overview' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => setSelectedTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            className={cn(
-              'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
-              selectedTab === 'receivables'
-                ? 'border-navy-900 text-navy-900'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            )}
-            style={{
-              borderColor: selectedTab === 'receivables' ? 'var(--border-primary)' : 'transparent',
-              color: selectedTab === 'receivables' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => setSelectedTab('receivables')}
-          >
-            Receivables
-          </button>
-          <button
-            className={cn(
-              'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
-              selectedTab === 'payment-logs'
-                ? 'border-navy-900 text-navy-900'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            )}
-            style={{
-              borderColor: selectedTab === 'payment-logs' ? 'var(--border-primary)' : 'transparent',
-              color: selectedTab === 'payment-logs' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => setSelectedTab('payment-logs')}
-          >
-            Payment Logs
-          </button>
-          <button
-            className={cn(
-              'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
-              selectedTab === 'receipts'
-                ? 'border-navy-900 text-navy-900'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            )}
-            style={{
-              borderColor: selectedTab === 'receipts' ? 'var(--border-primary)' : 'transparent',
-              color: selectedTab === 'receipts' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => setSelectedTab('receipts')}
-          >
-            Receipts
-          </button>
-          <button
-            className={cn(
-              'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
-              selectedTab === 'export'
-                ? 'border-navy-900 text-navy-900'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            )}
-            style={{
-              borderColor: selectedTab === 'export' ? 'var(--border-primary)' : 'transparent',
-              color: selectedTab === 'export' ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
-            onClick={() => setSelectedTab('export')}
-          >
-            Export
-          </button>
-        </div>
+          <nav className="mx-auto max-w-7xl border-b" style={{ borderColor: 'var(--border-gray-200)' }}>
+            <div className="flex gap-8 px-6">
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'overview'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'overview' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'overview' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('overview')}
+              >
+                Overview
+              </button>
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'receivables'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'receivables' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'receivables' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('receivables')}
+              >
+                Receivables
+              </button>
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'payment-logs'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'payment-logs' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'payment-logs' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('payment-logs')}
+              >
+                Payment Logs
+              </button>
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'receipts'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'receipts' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'receipts' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('receipts')}
+              >
+                Receipts
+              </button>
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'clearance'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'clearance' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'clearance' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('clearance')}
+              >
+                Clearance
+              </button>
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'data-export'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'data-export' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'data-export' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('data-export')}
+              >
+                Export
+              </button>
+            </div>
       </nav>
 
       <main className="mx-auto max-w-7xl px-6 py-8">
@@ -1078,7 +1093,7 @@ export default function AccountsDashboard() {
           </div>
         )}
 
-        {selectedTab === 'export' && (
+        {selectedTab === 'data-export' && (
           <>
             <div className="space-y-6">
               <div>

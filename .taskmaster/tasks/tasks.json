@@ -1351,7 +1351,7 @@
           "15",
           "12"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1363,9 +1363,10 @@
               12
             ],
             "details": "Map all UI entry points: dashboard renewal card, dedicated renewal page, and deep links from notifications. Specify pages/components for: (a) default dashboard with no active window, (b) dashboard when renewal window is open with remaining days and benefit messaging, (c) banners/alerts for upcoming renewal at 30/15/7 days, and (d) post-renewal dashboard showing updated status and new end date. Enumerate states such as eligible, not-yet-open, open, closed, and renewed. Document dependencies on notification/communications module and existing dashboard layouts from earlier tasks so layout and tone stay consistent.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate that a student can always find a clear entry to renewal during the open window and that notifications appear in the right time windows without overlapping or cluttering other dashboard components.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:15.813Z"
           },
           {
             "id": 2,
@@ -1377,9 +1378,10 @@
               19
             ],
             "details": "Define pages/components for each wizard step: (1) review personal and academic information, (2) mandatory and optional document re-upload screen for updated certificates/marksheets, (3) confirmation review step before payment and consent, and (4) final summary. For each step, list states: pristine, validation errors, saving, and success. Integrate document handling patterns from Task 11 for upload, preview, and status chips. Define navigation behaviors (next/back, autosave, resume later) and guardrails preventing skipping required uploads. Document dependencies on core profile data modules and document-management components so information is read-only where needed and edits are constrained.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run through end-to-end wizard prototypes verifying that each step validates correctly, documents can be re-uploaded and previewed, and that users cannot submit renewal without completing required sections.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:19.933Z"
           },
           {
             "id": 3,
@@ -1392,9 +1394,10 @@
               19
             ],
             "details": "Specify pages/components for the payment step: fee breakdown, selectable payment methods, charges summary, and confirmation screen. Reuse layouts, components, and error states defined in Task 15 for payment initiation, progress, success, and failure. Capture states for: pending calculation, payment in progress, success, failure with retry, and partial payment (if supported). Define how payment outcomes affect the wizard state (lock next steps until success, or allow exit-and-resume). Document integrations and data surfaces needed for Accounts dashboards from Task 16, including how receipts and logs will appear post-payment.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate payments with mock states (success, failure, timeout) ensuring UI feedback is clear, amounts match upstream fee rules, and payment records surface correctly for Accounts views.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:24.720Z"
           },
           {
             "id": 4,
@@ -1407,9 +1410,10 @@
               19
             ],
             "details": "Define pages/components for the consent step: initial consent screen with DPDP summary text, detailed policy access, and checkboxes for specific consents; error states where consent is not given or incomplete; and confirmation of recorded consents. Ensure copy and patterns align with earlier DPDP treatments from Tasks 5 and 11. Specify how the consent step links to the overall wizard (block submission until required consents are checked, show tooltips or inline help). Capture states for first-time consent vs renewal of previously given consent and show historical consent reference where needed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review consent copy with compliance stakeholders, test flows where users partially consent or refuse, and verify that renewal cannot be completed without mandatory DPDP consents while optional consents behave as configured.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:28.923Z"
           },
           {
             "id": 5,
@@ -1423,9 +1427,10 @@
               19
             ],
             "details": "Specify pages/components for the renewal tracker component: inline widget on dashboard, full-width tracker on the renewal page, and compact status chip versions. Enumerate and visually differentiate states: Not started, In Progress, Under Review, Approved, Rejected, and any payment-pending or docs-pending intermediates. Define transitions triggered by student actions (submit, edit) and admin decisions. Ensure that after approval, the student dashboard clearly shows status as Renewed with the new end date. Document dependencies on backend status codes and existing status-badge components to keep naming and color semantics consistent.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Walk through sample timelines from creation to approval/rejection confirming the UI always shows the correct current state, prevents contradictory statuses, and updates immediately following simulated backend changes.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:33.218Z"
           },
           {
             "id": 6,
@@ -1439,9 +1444,10 @@
               19
             ],
             "details": "Define pages/components for Superintendent/Trustee renewal lists: list view with filters, compact cards, and key columns (student, due date, status, flags). Implement a simplified detail/review screen highlighting only renewal-relevant data: updated documents, fee payment confirmation, consent status, and prior year data snapshot. Specify decision actions (quick approve, reject with reasons, send back for correction) and corresponding confirmation or error states. Compare and document differences from full admission review screens so the UX is lighter but still auditable. Capture dependencies on roles/permissions, document verification flows from Task 11, and accounting data from Tasks 15 and 16 for fee verification.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test sample admin journeys where multiple renewals are processed in bulk and individually, confirming that decisions correctly update student-facing status trackers and that minimal but sufficient information is available for safe decisions.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:37.928Z"
           },
           {
             "id": 7,
@@ -1457,14 +1463,16 @@
               19
             ],
             "details": "Enumerate edge-case scenarios: early renewals before standard window, renewals submitted in the final days or hours, and renewals attempted after the window closes. For each, define pages/components and banner states on dashboards and in the wizard: eligibility warnings, urgency prompts, and post-deadline information (e.g., escalation path or appeal process if any). Specify behavior for partially completed renewals when the window closes, including what students see and what admins can do. Align all messaging tone with program policy and ensure no conflicting calls to action appear across surfaces. Document dependencies on scheduling/notification logic and policy rules from product and legal teams.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run scenario-based tests walking through each edge case using dated test data, verifying correct access rules, messaging, and handoffs between student and admin views, including how missed renewals are communicated and recorded.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T05:12:42.025Z"
           }
         ],
         "complexity": 9,
         "recommendedSubtasks": 7,
-        "expansionPrompt": "Split Task 19 into: (1) Renewal entry points and notification surfaces across dashboards; (2) Student renewal wizard steps and UI, including document re-upload; (3) Payment top-up integration using Task 15 patterns; (4) Consent renewal UX and DPDP text; (5) Renewal status tracking for students; (6) Admin (Superintendent/Trustee) renewal review and decisions (simplified vs full admission); (7) Edge-case flows (early, last-minute, and missed renewals) and associated messaging. For each subtask, define required frames, states, and dependencies on other modules."
+        "expansionPrompt": "Split Task 19 into: (1) Renewal entry points and notification surfaces across dashboards; (2) Student renewal wizard steps and UI, including document re-upload; (3) Payment top-up integration using Task 15 patterns; (4) Consent renewal UX and DPDP text; (5) Renewal status tracking for students; (6) Admin (Superintendent/Trustee) renewal review and decisions (simplified vs full admission); (7) Edge-case flows (early, last-minute, and missed renewals) and associated messaging. For each subtask, define required frames, states, and dependencies on other modules.",
+        "updatedAt": "2025-12-31T05:12:42.025Z"
       },
       {
         "id": "20",
@@ -1479,7 +1487,7 @@
           "11",
           "9"
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -1487,9 +1495,10 @@
             "description": "Implement the end-to-end student exit request experience, including form fields, guidance copy, and clear explanation of conditions, fees, deposits, and irreversible consequences.",
             "dependencies": [],
             "details": "Map the student journey from discovering the exit option on their dashboard through filling the request form (desired exit date, reason, forwarding address, preferred contact) and submitting it. Include inline help and a dedicated info section summarizing implications: possible forfeiture or adjustment of deposits, fee proration rules, loss of hostel access, and timeline expectations. Clearly differentiate editable vs non-editable fields after submission, and support a limited pre-approval edit/cancel window with explicit warnings before lock-in. Surface a visible status badge for the current exit state (Draft, Submitted, Under Clearance, Approved, Rejected/Withdrawn) and log all key actions (created, edited, canceled, submitted) with timestamp and actor in an audit trail panel that is read-only for admins and view-only for the student. Ensure irreversible transitions (e.g., from Submitted to Under Clearance) require confirmation dialogs that mention their audit-logged nature and that future changes must go through admin roles.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test the full student flow: create draft → edit → submit → attempt edit after lock → cancel within allowed window. Verify audit log entries are created for each action and remain visible even after state changes, and that irreversible transitions cannot be bypassed via alternative navigation paths.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T06:27:42.774Z"
           },
           {
             "id": 2,
@@ -1556,7 +1565,8 @@
         ],
         "complexity": 8,
         "recommendedSubtasks": 6,
-        "expansionPrompt": "Break Task 20 into: (1) Student exit request flow and explanatory messaging about implications; (2) Clearance checklist UI and status tracking across roles; (3) Superintendent/Accounts clearance dashboards and workflows; (4) Exit approval and audit-safe finalization patterns; (5) Exit certificate print-ready template and download flow; (6) Alumni state and minimal alumni profile views, including links to history. For each, outline how to handle irreversible states and audit requirements in the design."
+        "expansionPrompt": "Break Task 20 into: (1) Student exit request flow and explanatory messaging about implications; (2) Clearance checklist UI and status tracking across roles; (3) Superintendent/Accounts clearance dashboards and workflows; (4) Exit approval and audit-safe finalization patterns; (5) Exit certificate print-ready template and download flow; (6) Alumni state and minimal alumni profile views, including links to history. For each, outline how to handle irreversible states and audit requirements in the design.",
+        "updatedAt": "2025-12-31T06:27:42.774Z"
       },
       {
         "id": "21",
@@ -2445,9 +2455,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-30T17:22:08.755Z",
+      "lastModified": "2025-12-31T06:27:42.776Z",
       "taskCount": 40,
-      "completedCount": 22,
+      "completedCount": 23,
       "tags": [
         "master"
       ]

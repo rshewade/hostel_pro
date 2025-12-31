@@ -29,9 +29,10 @@ export default function StudentDashboard() {
           </div>
           <nav className="flex items-center gap-6">
             <a href="/dashboard/student" className="text-sm" style={{ color: 'var(--text-link)' }}>Dashboard</a>
-            <a href="/dashboard/student/fees" className="text-sm" style={{ color: 'var(--text-link)' }}>Fees</a>
-            <a href="/dashboard/student/leave" className="text-sm" style={{ color: 'var(--text-link)' }}>Leave</a>
-            <a href="/dashboard/student/documents" className="text-sm" style={{ color: 'var(--text-link)' }}>Documents</a>
+              <a href="/dashboard/student/fees" className="text-sm" style={{ color: 'var(--text-link)' }}>Fees</a>
+              <a href="/dashboard/student/leave" className="text-sm" style={{ color: 'var(--text-link)' }}>Leave</a>
+              <a href="/dashboard/student/documents" className="text-sm" style={{ color: 'var(--text-link)' }}>Documents</a>
+              <a href="/dashboard/student/exit" className="text-sm" style={{ color: 'var(--text-link)' }}>Exit</a>
             <Button variant="ghost" size="sm">Logout</Button>
           </nav>
         </div>
@@ -115,7 +116,9 @@ export default function StudentDashboard() {
               <div className="text-3xl mb-3">📜</div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Renewal</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Renew your stay for next semester</p>
-              <Button variant="primary" size="md" fullWidth>Renew Now</Button>
+              <Button variant="primary" size="md" fullWidth onClick={() => window.location.href = '/dashboard/student/renewal'}>
+                Renew Now
+              </Button>
             </div>
           </div>
 

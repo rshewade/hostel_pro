@@ -47,7 +47,6 @@ export * from './feedback/Skeleton';
 export * from './feedback/HelpCenter';
 
 // Layout Components
-export * from './layout/Container';
 export * from './layout/Grid';
 export * from './layout/Flex';
 export * from './layout/Spacer';
