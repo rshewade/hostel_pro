@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { find, findOne } from '@/lib/api/db';
 
 /**
  * GET /api/parent/student
  *
  * Read-only endpoint for parent to view their ward's student information.
- * In production, this would verify parent session and return associated student data.
+ * Looks up students by matching parent mobile number in applications/profiles.
  *
  * Query Parameters:
  * - sessionToken: string - Parent session token from OTP login
@@ -28,8 +29,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Decode and verify session token (mock implementation)
-    // In production, this would validate against database
+    // Decode and verify session token
     let tokenData;
     try {
       const decoded = Buffer.from(sessionToken, 'base64').toString('utf-8');
@@ -60,35 +60,131 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Mock student data - in production, query database for parent's associated student
-    const studentData = {
-      id: 'STU001',
-      name: 'Rahul Jain',
-      photo: null, // Optional photo URL
-      vertical: 'Boys Hostel',
-      room: 'Room 201, Block A',
-      joiningDate: '2024-06-15',
-      status: 'CHECKED_IN',
-      academicYear: '2024-25',
-      currentPeriod: 'SEMESTER_2',
-    };
+    // Get parent's mobile number from token
+    const parentMobile = tokenData.contact;
+
+    // Normalize mobile number for comparison (remove +91, spaces, etc.)
+    const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
+    const normalizedParentMobile = normalizePhone(parentMobile);
+
+    // Look up applications where parent mobile matches
+    const applications = await find('applications', (app: any) => {
+      const fatherMobile = normalizePhone(app.data?.guardian_info?.father_mobile || '');
+      const motherMobile = normalizePhone(app.data?.guardian_info?.mother_mobile || '');
+      return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
+    });
+
+    // Also check profiles for existing students
+    const profiles = await find('profiles', (profile: any) => {
+      const fatherMobile = normalizePhone(profile.details?.father_mobile || '');
+      const motherMobile = normalizePhone(profile.details?.mother_mobile || '');
+      return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
+    });
+
+    // Combine and deduplicate students
+    const students = [];
+
+    // Add students from applications
+    for (const app of applications) {
+      const verticalMap: Record<string, string> = {
+        'BOYS_HOSTEL': 'Boys Hostel',
+        'GIRLS_ASHRAM': 'Girls Ashram',
+        'DHARAMSHALA': 'Dharamshala',
+      };
+
+      // Check if student has allocation (checked-in)
+      let room = 'Not Allocated';
+      let status = app.current_status;
+
+      if (app.student_user_id) {
+        const allocation = await findOne('allocations', (a: any) =>
+          a.student_id === app.student_user_id && a.status === 'ACTIVE'
+        );
+        if (allocation) {
+          const roomData = await findOne('rooms', (r: any) => r.id === allocation.room_id);
+          room = roomData ? `Room ${roomData.room_number}` : 'Allocated';
+          status = 'CHECKED_IN';
+        }
+      }
+
+      students.push({
+        id: app.id,
+        name: app.data?.personal_info?.full_name || 'Unknown',
+        photo: null,
+        vertical: verticalMap[app.vertical] || app.vertical,
+        room,
+        joiningDate: app.submitted_at || app.created_at,
+        status,
+        academicYear: '2024-25',
+        currentPeriod: 'SEMESTER_2',
+        trackingNumber: app.tracking_number,
+      });
+    }
+
+    // Add students from profiles (existing residents)
+    for (const profile of profiles) {
+      // Skip if already added from applications
+      if (students.some(s => s.name === profile.full_name)) continue;
+
+      const allocation = await findOne('allocations', (a: any) =>
+        a.student_id === profile.user_id && a.status === 'ACTIVE'
+      );
+
+      let room = 'Not Allocated';
+      let vertical = 'N/A';
+
+      if (allocation) {
+        const roomData = await findOne('rooms', (r: any) => r.id === allocation.room_id);
+        if (roomData) {
+          room = `Room ${roomData.room_number}`;
+          const verticalMap: Record<string, string> = {
+            'BOYS_HOSTEL': 'Boys Hostel',
+            'GIRLS_ASHRAM': 'Girls Ashram',
+            'DHARAMSHALA': 'Dharamshala',
+          };
+          vertical = verticalMap[roomData.vertical] || roomData.vertical;
+        }
+      }
+
+      students.push({
+        id: profile.user_id,
+        name: profile.full_name,
+        photo: null,
+        vertical,
+        room,
+        joiningDate: allocation?.allocated_at || 'N/A',
+        status: allocation ? 'CHECKED_IN' : 'PENDING',
+        academicYear: '2024-25',
+        currentPeriod: 'SEMESTER_2',
+      });
+    }
+
+    // If no students found, return appropriate message
+    if (students.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: null,
+        message: 'No student records found for this mobile number.',
+      });
+    }
 
     // Mock logging
     console.log('\n========================================');
     console.log('👨‍👩‍👧 PARENT DATA ACCESS');
     console.log('========================================');
     console.log('Endpoint: /api/parent/student');
-    console.log('Session ID:', tokenData.sessionId || 'unknown');
-    console.log('Student ID:', studentData.id);
+    console.log('Parent Mobile:', parentMobile);
+    console.log('Students Found:', students.length);
     console.log('Access Type: READ-ONLY');
     console.log('========================================\n');
 
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 100));
 
+    // Return first student (or array if multiple children)
     return NextResponse.json({
       success: true,
-      data: studentData,
+      data: students.length === 1 ? students[0] : students,
     });
 
   } catch (error) {

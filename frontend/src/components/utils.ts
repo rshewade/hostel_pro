@@ -1,16 +1,9 @@
 // components/utils.ts - Utility functions for components
 import { type ClassValue, clsx } from "clsx";
 
-// Utility for merging Tailwind classes (fallback)
+// Utility for merging Tailwind classes using clsx
 export function cn(...inputs: ClassValue[]) {
-  if (inputs.length === 0) return '';
-  
-  return inputs
-    .filter(Boolean)
-    .join(' ')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .toLowerCase();
+  return clsx(inputs);
 }
 
 /**

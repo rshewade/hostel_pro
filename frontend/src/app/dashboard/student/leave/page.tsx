@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Input } from '@/components/forms/Input';
 import { DatePicker } from '@/components/forms/DatePicker';
+import { TimePicker } from '@/components/forms/TimePicker';
+import { Textarea } from '@/components/forms/Textarea';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
@@ -368,35 +370,24 @@ export default function LeaveManagementPage() {
                 </div>
 
                 {(selectedType === 'short' || selectedType === 'night-out') && (
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div>
-                      <Input
-                        type="text"
-                        label="From Time"
-                        placeholder="HH:MM"
-                        value={formData.fromTime}
-                        onChange={(e) => handleInputChange('fromTime', e.target.value)}
-                        helperText="Start time for your leave"
-                        error={formErrors.fromDate}
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        type="text"
-                        label="To Time"
-                        placeholder="HH:MM"
-                        value={formData.toTime}
-                        onChange={(e) => handleInputChange('toTime', e.target.value)}
-                        helperText="End time for your leave"
-                        error={formErrors.toDate}
-                      />
-                    </div>
+                  <div className="grid gap-6 md:grid-cols-2 mt-6">
+                    <TimePicker
+                      label="From Time"
+                      value={formData.fromTime}
+                      onChange={(e) => handleInputChange('fromTime', e.target.value)}
+                      helperText="Start time for your leave"
+                    />
+                    <TimePicker
+                      label="To Time"
+                      value={formData.toTime}
+                      onChange={(e) => handleInputChange('toTime', e.target.value)}
+                      helperText="End time for your leave"
+                    />
                   </div>
                 )}
 
-                <div className="mb-6">
-                  <Input
-                    type="text"
+                <div className="mb-6 mt-6">
+                  <Textarea
                     label="Reason for Leave"
                     placeholder="Please provide a detailed reason for your leave request"
                     value={formData.reason}
@@ -404,6 +395,7 @@ export default function LeaveManagementPage() {
                     error={formErrors.reason}
                     helperText="Minimum 10 characters required. Include all relevant details."
                     required
+                    rows={4}
                   />
                 </div>
 

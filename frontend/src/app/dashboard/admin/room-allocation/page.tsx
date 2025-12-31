@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components';
+import { Select } from '@/components/forms/Select';
+import { SearchField } from '@/components/forms/SearchField';
 import AllocationModal from '@/components/AllocationModal';
 
 // Types
@@ -134,71 +136,40 @@ export default function RoomAllocationPage() {
       <div className="mb-6 p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Vertical Filter */}
-          <div>
-            <label htmlFor="vertical-filter" className="block text-body-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Vertical
-            </label>
-            <select
-              id="vertical-filter"
-              value={verticalFilter}
-              onChange={(e) => setVerticalFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-md border"
-              style={{
-                borderColor: 'var(--border-primary)',
-                background: 'var(--surface-secondary)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              <option value="ALL">All Verticals</option>
-              <option value="BOYS_HOSTEL">Boys Hostel</option>
-              <option value="GIRLS_ASHRAM">Girls Ashram</option>
-              <option value="DHARAMSHALA">Dharamshala</option>
-            </select>
-          </div>
+          <Select
+            label="Vertical"
+            value={verticalFilter}
+            onChange={(e) => setVerticalFilter(e.target.value)}
+            options={[
+              { value: 'ALL', label: 'All Verticals' },
+              { value: 'BOYS_HOSTEL', label: 'Boys Hostel' },
+              { value: 'GIRLS_ASHRAM', label: 'Girls Ashram' },
+              { value: 'DHARAMSHALA', label: 'Dharamshala' },
+            ]}
+          />
 
           {/* Occupancy Filter */}
-          <div>
-            <label htmlFor="occupancy-filter" className="block text-body-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Occupancy Status
-            </label>
-            <select
-              id="occupancy-filter"
-              value={occupancyFilter}
-              onChange={(e) => setOccupancyFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-md border"
-              style={{
-                borderColor: 'var(--border-primary)',
-                background: 'var(--surface-secondary)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              <option value="ALL">All Status</option>
-              <option value="EMPTY">Available</option>
-              <option value="PARTIAL">Partially Occupied</option>
-              <option value="FULL">Full</option>
-              <option value="BLOCKED">Blocked</option>
-            </select>
-          </div>
+          <Select
+            label="Occupancy Status"
+            value={occupancyFilter}
+            onChange={(e) => setOccupancyFilter(e.target.value)}
+            options={[
+              { value: 'ALL', label: 'All Status' },
+              { value: 'EMPTY', label: 'Available' },
+              { value: 'PARTIAL', label: 'Partially Occupied' },
+              { value: 'FULL', label: 'Full' },
+              { value: 'BLOCKED', label: 'Blocked' },
+            ]}
+          />
 
           {/* Search */}
-          <div>
-            <label htmlFor="search-room" className="block text-body-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
-              Search Room
-            </label>
-            <input
-              id="search-room"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Room number..."
-              className="w-full px-3 py-2 rounded-md border"
-              style={{
-                borderColor: 'var(--border-primary)',
-                background: 'var(--surface-secondary)',
-                color: 'var(--text-primary)',
-              }}
-            />
-          </div>
+          <SearchField
+            label="Search Room"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Room number..."
+            showClearButton
+          />
 
           {/* Summary */}
           <div className="flex items-end">

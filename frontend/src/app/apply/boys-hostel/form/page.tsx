@@ -1,6 +1,6 @@
 'use client';
 
-import { FormWizard, Input, Select, DatePicker, FileUpload } from '@/components/forms';
+import { FormWizard, Input, Select, DatePicker, FileUpload, Textarea, Checkbox } from '@/components/forms';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Save, FileText, User, GraduationCap, Home, Users, Upload, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -540,25 +540,14 @@ export default function ApplicationFormPage() {
               helperText="Expected date of admission"
             />
 
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                Special Requirements (Optional)
-              </label>
-              <textarea
-                value={data.specialRequirements || ''}
-                onChange={(e) => onChange('specialRequirements', e.target.value)}
-                placeholder="Any specific needs or requirements (e.g., medical conditions, dietary restrictions)"
-                className="w-full px-4 py-3 border rounded-lg text-base min-h-[100px]"
-                style={{
-                  borderColor: 'var(--border-primary)',
-                  backgroundColor: 'var(--surface-primary)',
-                  color: 'var(--text-primary)',
-                }}
-              />
-              <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
-                Please mention any special needs or health conditions we should be aware of
-              </p>
-            </div>
+            <Textarea
+              label="Special Requirements (Optional)"
+              value={data.specialRequirements || ''}
+              onChange={(e) => onChange('specialRequirements', e.target.value)}
+              placeholder="Any specific needs or requirements (e.g., medical conditions, dietary restrictions)"
+              rows={4}
+              helperText="Please mention any special needs or health conditions we should be aware of"
+            />
           </div>
         </div>
       ),
@@ -791,7 +780,7 @@ export default function ApplicationFormPage() {
       id: 'review',
       title: 'Review & Submit',
       description: 'Review before submitting',
-      component: ({ data }: any) => (
+      component: ({ data, onChange }: any) => (
         <div className="space-y-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-green-100)' }}>
@@ -901,21 +890,21 @@ export default function ApplicationFormPage() {
               I hereby declare that all the information provided above is true and correct to the best of my knowledge.
               I understand that any false information may result in rejection of my application.
             </p>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="mt-1"
-                required
-              />
-              <span className="text-sm" style={{ color: 'var(--text-primary)' }}>
-                I agree to the terms and conditions and declare that the information provided is accurate
-              </span>
-            </label>
+            <Checkbox
+              checked={data.declarationAccepted || false}
+              onChange={(e) => onChange('declarationAccepted', e.target.checked)}
+              label="I agree to the terms and conditions and declare that the information provided is accurate"
+              required
+            />
           </div>
         </div>
       ),
       validate: (data: any) => {
-        return null;
+        const errors: any = {};
+        if (!data.declarationAccepted) {
+          errors.declarationAccepted = 'You must accept the declaration to submit';
+        }
+        return Object.keys(errors).length > 0 ? errors : null;
       },
     },
   ];

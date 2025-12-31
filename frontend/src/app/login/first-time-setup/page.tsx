@@ -4,6 +4,7 @@ import { useState, useId, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input } from '@/components';
+import { Checkbox } from '@/components/forms/Checkbox';
 
 type PasswordChangeFormData = {
   newPassword: string;
@@ -265,14 +266,14 @@ function FirstTimeSetupContent() {
 
           {/* DPDP Consent Checkbox */}
           <div className="p-4 rounded-lg mb-4" style={{ background: 'var(--surface-secondary)' }}>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={dpdpConsent}
-                onChange={(e) => setDpdpConsent(e.target.checked)}
-                required
-                className="mt-1 h-5 w-5 rounded border-gray-300 text-gold-600 focus:ring-gold-500"
-              />
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5">
+                <Checkbox
+                  checked={dpdpConsent}
+                  onChange={(e) => setDpdpConsent(e.target.checked)}
+                  required
+                />
+              </div>
               <div className="flex-1">
                 <span className="text-body font-medium mb-1 block" style={{ color: 'var(--text-primary)' }}>
                   I accept the Data Protection and Privacy Principles
@@ -288,7 +289,7 @@ function FirstTimeSetupContent() {
                   Read Full DPDP Policy →
                 </Link>
               </div>
-            </label>
+            </div>
           </div>
 
           {/* Submit Button */}

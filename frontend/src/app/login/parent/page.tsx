@@ -69,8 +69,11 @@ export default function ParentLoginPage() {
     }
   };
 
-  const handleOtpSubmit = async () => {
-    if (!otp || otp.length !== 6) {
+  const handleOtpSubmit = async (otpValue?: string) => {
+    // Use passed value (from onComplete) or fall back to state
+    const otpToVerify = otpValue || otp;
+
+    if (!otpToVerify || otpToVerify.length !== 6) {
       setError('Please enter a valid 6-digit OTP');
       return;
     }
@@ -83,7 +86,7 @@ export default function ParentLoginPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: otp,
+          code: otpToVerify,
           token: token,
           attempts: attempts,
           userAgent: navigator.userAgent
@@ -92,7 +95,10 @@ export default function ParentLoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.redirect || '/dashboard/parent';
+        // Pass sessionToken in URL for the dashboard to fetch student data
+        const redirectUrl = data.redirect || '/dashboard/parent';
+        const separator = redirectUrl.includes('?') ? '&' : '?';
+        window.location.href = `${redirectUrl}${separator}sessionToken=${encodeURIComponent(data.sessionToken)}`;
       } else {
         const data = await response.json();
         setError(data.message || 'Invalid OTP. Please try again.');

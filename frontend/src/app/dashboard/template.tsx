@@ -28,6 +28,14 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
   const handleLogout = () => {
     // In a real app, we would call the logout API here
     // await fetch('/api/auth/logout', { method: 'POST' });
+
+    // Clear parent session token if on parent dashboard
+    if (pathname.startsWith('/dashboard/parent')) {
+      localStorage.removeItem('parentSessionToken');
+      router.push('/login/parent');
+      return;
+    }
+
     router.push('/login');
   };
 
@@ -116,7 +124,7 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
     </Card>
   );
 
-  const isTopNavRole = pathname.includes('/student') || pathname.includes('/superintendent') || pathname.includes('/trustee');
+  const isTopNavRole = pathname.includes('/student') || pathname.includes('/superintendent') || pathname.includes('/trustee') || pathname.includes('/parent');
 
   return (
     <div className="min-h-screen bg-gray-50">

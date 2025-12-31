@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Shield, RefreshCw, Phone, Mail, Clock } from 'lucide-react';
+import { Input } from '@/components/forms/Input';
 
 export default function ContactOTPPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -231,51 +232,33 @@ export default function ContactOTPPage() {
             {/* Contact Input */}
             {contactMethod === 'phone' && (
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>
-                  Mobile Number
-                </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Enter 10-digit mobile number"
-                    className="w-full px-4 py-3 border rounded-lg text-lg"
-                    style={{
-                      borderColor: errors.includes('Phone number') ? 'var(--color-red-500)' : 'var(--border-primary)',
-                      paddingLeft: '48px'
-                    }}
-                  />
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: "var(--color-gray-400)" }} />
-                </div>
-                <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
-                  We'll send a 6-digit OTP to this number
-                </p>
+                <Input
+                  type="tel"
+                  label="Mobile Number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter 10-digit mobile number"
+                  size="lg"
+                  leftIcon={<Phone className="w-5 h-5" />}
+                  error={errors.some(e => e.includes('phone') || e.includes('Phone')) ? errors.find(e => e.includes('phone') || e.includes('Phone')) : undefined}
+                  helperText="We'll send a 6-digit OTP to this number"
+                />
               </div>
             )}
 
             {contactMethod === 'email' && (
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>
-                  Email Address
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    className="w-full px-4 py-3 border rounded-lg text-lg"
-                    style={{
-                      borderColor: errors.includes('Email') ? 'var(--color-red-500)' : 'var(--border-primary)',
-                      paddingLeft: '48px'
-                    }}
-                  />
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: "var(--color-gray-400)" }} />
-                </div>
-                <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
-                  We'll send a 6-digit OTP to this email
-                </p>
+                <Input
+                  type="email"
+                  label="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  size="lg"
+                  leftIcon={<Mail className="w-5 h-5" />}
+                  error={errors.some(e => e.includes('email') || e.includes('Email')) ? errors.find(e => e.includes('email') || e.includes('Email')) : undefined}
+                  helperText="We'll send a 6-digit OTP to this email"
+                />
               </div>
             )}
           </div>
