@@ -1855,7 +1855,7 @@
           "23",
           "24"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1863,9 +1863,10 @@
             "description": "Map all personas to their full journey, group relevant pages/components, and configure flow starting points for each role.",
             "dependencies": [],
             "details": "Create a working application architecture map listing Applicant, Student, Superintendent, Trustee, Accounts, and Parent flows and their exact component sequences. Group pages/components into labeled sections per persona, define which screen is the starting component for each journey, and set named flows (e.g., “Applicant – Application Wizard,” “Student – Renewal & Exit”). Note cross-journey links (e.g., from Landing to Parent OTP, Student Login, Applicant start). Specify where device type and viewport settings differ between desktop and mobile. Document which pages/components will be reused across flows and where role-based props and conditional styles of a screen are needed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "In Figma, use the Flow list to verify each persona has a distinct named starting point and that pressing Present from each flow starts on the intended component without showing other journeys by default.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T17:02:57.408Z"
           },
           {
             "id": 2,
@@ -1875,9 +1876,10 @@
               1
             ],
             "details": "On the Applicant journey pages/components, connect primary CTAs and form actions from Landing to OTP entry, OTP verification success, and error/retry states, then into the multi-step Application Wizard and final Tracking view. Use Framer Motion or CSS transitions between steps where UI elements persist (e.g., header, progress, form container) to show smooth transitions. Demonstrate interactive component props and conditional styles for buttons (default, hover, disabled, loading), text fields (empty, focused, filled, error), steppers/progress indicators (step changes), and status badges on the Tracking screen. Ensure back, cancel, and resume actions navigate correctly without dead ends and that failure paths (invalid OTP, required-field errors) are represented with at least one dedicated component each.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run the Applicant flow in development server, clicking through both success and error paths. Confirm: all CTAs navigate to the correct next step, Framer Motion or CSS transitions is applied where elements persist, and each important component shows at least one interactive or variant-driven state (focus, error, hover, disabled).",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T17:02:57.929Z"
           },
           {
             "id": 3,
@@ -1887,9 +1889,10 @@
               1
             ],
             "details": "Link Student Login to Dashboard using appropriate success and error states. From the Dashboard, wire quick actions to Pay Fees (including at least one payment-in-progress and success/failure variant), Apply for Leave (integrated with Task 18 leave forms and statuses), View Room Details, Renewal, and Exit flows. Use Framer Motion or CSS transitions or instant transitions where appropriate to illustrate changes in resident status (Checked-in, Renewal Due, Renewed, Exit-initiated, Exited) via the tracker and badges. Demonstrate component props and conditional styles such as tab switches, accordions, table row hover/selection (for histories), and notification states (unread vs read). Ensure that renewal completion returns to an updated Dashboard state, and exit completion reflects restricted or read-only access where applicable.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate a full Student session in the prototype: login, pay a fee, submit a leave request, inspect room details, complete a renewal, and initiate/complete exit. Verify that status indicators and dashboards update to the correct state screens and that there are no broken links or loops that trap the user.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T17:06:01.532Z"
           },
           {
             "id": 4,
@@ -1899,9 +1902,10 @@
               1
             ],
             "details": "For Superintendent, wire Login to Application Review lists, then to detail views enabling Approve/Forward paths, Leave Approval, and Config screens, showing table interactions (filters, sort hover, row selection) and action button states (default, hover, disabled). For Trustee, connect entry from a forwarded application list to application detail, Schedule Interview, and Final Decision pages/components, including at least one confirmation modal. For Accounts, wire navigation to receivables views (tables with pagination/filter props and conditional styles) and Export actions with a feedback state (e.g., export-in-progress, success). For Parent, implement OTP Login (aligned with Task 8) through to a read-only Dashboard showing fee status, leave summary, and notifications, explicitly demonstrating disabled or hidden edit actions and view-only interactions like tabs or filters. Reuse interactive components and props and conditional styles wherever possible to maintain consistency across admin and parent flows.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Present each role’s flow independently and walk through its primary tasks: superintendent reviewing and approving/forwarding an application and a leave request, trustee scheduling an interview and recording a decision, accounts exporting receivables, and parent logging in via OTP and reviewing fees and leaves. Confirm that all critical buttons and navigation elements respond with a state change or screen transition, and that parent views do not expose any state-changing controls.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T17:07:09.112Z"
           },
           {
             "id": 5,
@@ -1913,14 +1917,16 @@
               4
             ],
             "details": "Create dedicated annotation/legend pages/components or overlay components describing each persona’s flow, key assumptions, and any non-obvious interactions, then hook them up via info icons or a separate ‘Guided Tour’ flow. Add hotspot hints on complex screens to indicate functional areas where discoverability is a concern. Review and simplify transitions or Framer Motion or CSS transitions usage where performance may lag, and adjust device settings or remove unnecessary media to keep interactions smooth. Conduct a systematic link audit across all flows, checking that back, close, and alternative paths always return to a valid component and that all modal overlays have both entry and exit interactions. Ensure every major component type (buttons, fields, tables, tabs, steppers, badges) is demonstrated with at least one interactive or variant-driven state somewhere in the working application for stakeholder review.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use Figma’s working application development server to run scripted end-to-end scenarios for each persona, deliberately testing edge paths (cancel, back, error, and overlay close actions) while monitoring for jank or long load times. Fix any dead links or misrouted transitions identified, then share the working application with a small stakeholder set per role and collect feedback specifically on clarity of flows, discoverability of hotspots, and performance, iterating until no critical navigation or state-visibility issues remain.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T17:09:19.461Z"
           }
         ],
         "complexity": 7,
         "recommendedSubtasks": 5,
-        "expansionPrompt": "Decompose Task 25 into: (1) Prototype architecture and entry points definition per persona; (2) Wiring and interactions for applicant-related flows (Landing → OTP → Application → Tracking); (3) Wiring and interactions for student flows (Login → Dashboard → Fees → Leave → Room → Renewal → Exit); (4) Wiring for admin/parent/accounts roles with key tasks; (5) Prototype performance, annotation overlays, and validation pass to fix dead ends or incorrect transitions. For each, define how states and component variants will be demonstrated."
+        "expansionPrompt": "Decompose Task 25 into: (1) Prototype architecture and entry points definition per persona; (2) Wiring and interactions for applicant-related flows (Landing → OTP → Application → Tracking); (3) Wiring and interactions for student flows (Login → Dashboard → Fees → Leave → Room → Renewal → Exit); (4) Wiring for admin/parent/accounts roles with key tasks; (5) Prototype performance, annotation overlays, and validation pass to fix dead ends or incorrect transitions. For each, define how states and component variants will be demonstrated.",
+        "updatedAt": "2025-12-31T17:09:19.461Z"
       },
       {
         "id": "26",
@@ -2469,9 +2475,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-31T10:55:08.396Z",
+      "lastModified": "2025-12-31T17:09:19.463Z",
       "taskCount": 40,
-      "completedCount": 26,
+      "completedCount": 27,
       "tags": [
         "master"
       ]

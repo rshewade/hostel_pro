@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Sort by room number
     rooms.sort((a: any, b: any) => a.room_number.localeCompare(b.room_number));
 
-    return successResponse({ data: rooms } as RoomAPI.ListResponse);
+    return successResponse(rooms);
   } catch (error: any) {
     console.error('Error in GET /api/rooms:', error);
     return serverErrorResponse('Failed to fetch rooms', error);

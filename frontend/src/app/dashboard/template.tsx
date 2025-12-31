@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { Container, Grid, Col, Stack, useResponsive, Breakpoint } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ClipboardCheck, Users, ShieldAlert, History, BookOpen } from 'lucide-react';
+import { cn } from '@/components/utils';
 
 interface DashboardTemplateProps {
   title?: string;
@@ -18,148 +22,206 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
 }) => {
   const { breakpoint, isMobile, isTablet, isDesktop } = useResponsive();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // In a real app, we would call the logout API here
+    // await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
+
+  const getNavigationItems = (path: string) => {
+    if (path.startsWith('/dashboard/student')) {
+      return [
+        { label: 'Overview', href: '/dashboard/student', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: 'Fees', href: '/dashboard/student/fees', icon: <Wallet className="w-4 h-4" /> },
+        { label: 'Leave', href: '/dashboard/student/leave', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: 'Room', href: '/dashboard/student/room', icon: <BedDouble className="w-4 h-4" /> },
+        { label: 'Documents', href: '/dashboard/student/documents', icon: <FileText className="w-4 h-4" /> },
+        { label: 'Renewal', href: '/dashboard/student/renewal', icon: <History className="w-4 h-4" /> },
+        { label: 'Exit', href: '/dashboard/student/exit', icon: <LogOut className="w-4 h-4" /> },
+        { label: 'Manual', href: '/dashboard/student/manual', icon: <BookOpen className="w-4 h-4" /> },
+      ];
+    } else if (path.startsWith('/dashboard/superintendent')) {
+      return [
+        { label: 'Applications', href: '/dashboard/superintendent', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: 'Leaves', href: '/dashboard/superintendent/leaves', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: 'Clearance', href: '/dashboard/superintendent/clearance', icon: <FileCheck className="w-4 h-4" /> },
+        { label: 'Configuration', href: '/dashboard/superintendent/config', icon: <Settings className="w-4 h-4" /> },
+        { label: 'Manual', href: '/dashboard/superintendent/manual', icon: <BookOpen className="w-4 h-4" /> },
+      ];
+    } else if (path.startsWith('/dashboard/trustee')) {
+      return [
+        { label: 'Overview', href: '/dashboard/trustee', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: 'Renewals', href: '/dashboard/trustee/renewal', icon: <FileText className="w-4 h-4" /> },
+      ];
+    } else if (path.startsWith('/dashboard/accounts')) {
+      return [
+        { label: 'Overview', href: '/dashboard/accounts', icon: <LayoutDashboard className="w-4 h-4" /> },
+      ];
+    } else if (path.startsWith('/dashboard/parent')) {
+      return [
+        { label: 'Overview', href: '/dashboard/parent', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: 'Leave', href: '/dashboard/parent/leave', icon: <CalendarDays className="w-4 h-4" /> },
+      ];
+    } else if (path.startsWith('/dashboard/admin')) {
+      return [
+        { label: 'Room Allocation', href: '/dashboard/admin/room-allocation', icon: <BedDouble className="w-4 h-4" /> },
+        { label: 'Renewal', href: '/dashboard/admin/renewal', icon: <FileText className="w-4 h-4" /> },
+        { label: 'Audit Logs', href: '/dashboard/admin/audit/logs', icon: <ShieldAlert className="w-4 h-4" /> },
+        { label: 'Clearance', href: '/dashboard/admin/clearance', icon: <ClipboardCheck className="w-4 h-4" /> },
+        { label: 'Exit Approval', href: '/dashboard/admin/exit-approval', icon: <LogOut className="w-4 h-4" /> },
+      ];
+    }
+    return [];
+  };
+
+  const navItems = getNavigationItems(pathname);
+
+  // Determine role label for header
+  const getRoleLabel = (path: string) => {
+    if (path.includes('/student')) return 'Student';
+    if (path.includes('/superintendent')) return 'Superintendent';
+    if (path.includes('/trustee')) return 'Trustee';
+    if (path.includes('/accounts')) return 'Accounts';
+    if (path.includes('/parent')) return 'Parent';
+    if (path.includes('/admin')) return 'Admin';
+    return 'Guest';
+  };
 
   const sidebar = (
     <Card padding="md" className="h-full">
       <nav className="space-y-1">
-        {['Overview', 'Applications', 'Residents', 'Leave', 'Payments', 'Reports'].map((item) => (
-          <button
-            key={item}
-            className="w-full text-left px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            {item}
-          </button>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-colors",
+                isActive 
+                  ? "bg-navy-50 text-navy-900 border-l-4 border-navy-900" 
+                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              )}
+              onClick={() => isMobile && setSidebarOpen(false)}
+            >
+              {item.icon}
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
     </Card>
   );
 
+  const isTopNavRole = pathname.includes('/student') || pathname.includes('/superintendent') || pathname.includes('/trustee');
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <Container>
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              {isMobile && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
+      <header
+        className="px-6 py-4 border-b sticky top-0 z-50 shadow-sm"
+        style={{
+          backgroundColor: "var(--surface-primary)",
+          borderColor: "var(--border-primary)",
+        }}
+      >
+        <div className="w-full flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {isMobile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="mr-2"
+              >
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+            )}
+            
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="Hirachand Gumanji Family Charitable Trust"
+                width={48}
+                height={48}
+                className="h-12 w-auto"
+              />
+              <div>
+                <h1
+                  className="text-lg font-semibold"
+                  style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}
                 >
-                  {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </Button>
-              )}
-              <h1 className="text-xl font-bold text-navy-900">{title}</h1>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500 hidden sm:block">
-                {breakpoint.toUpperCase()}
-              </span>
-              <Badge variant="info" size="sm">
-                Admin
-              </Badge>
+                  Hirachand Gumanji Family
+                </h1>
+                <p className="text-caption">Charitable Trust</p>
+              </div>
             </div>
           </div>
-        </Container>
+
+          <div className="flex items-center gap-6">
+            {/* Desktop Navigation */}
+            {isTopNavRole && isDesktop && (
+              <nav className="hidden md:flex items-center gap-6">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-navy-900",
+                      pathname === item.href ? "text-navy-900 font-bold" : "text-gray-600"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-600 hover:text-red-600 hover:bg-red-50"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
       </header>
 
       <div className="flex">
-        {(isDesktop || sidebarOpen) && (
-          <aside className="w-64 flex-shrink-0 hidden lg:block sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
-            {sidebar}
+        {/* Sidebar: Show on Desktop for Non-TopNav Roles, or if explicitly opened */}
+        {((!isTopNavRole && isDesktop) || sidebarOpen) && navItems.length > 0 && (
+          <aside className={`flex-shrink-0 ${isTopNavRole ? 'lg:hidden' : 'hidden lg:block w-64'} sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-4 pl-0`}>
+             <div className="pl-4 h-full">
+               {sidebar}
+             </div>
           </aside>
         )}
 
         {sidebarOpen && isMobile && (
           <div className="fixed inset-0 z-40 lg:hidden">
             <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-            <div className="relative w-64 bg-white h-full">
-              <div className="p-4 border-b">
-                <h2 className="font-semibold">Navigation</h2>
+            <div className="relative w-64 bg-white h-full shadow-xl">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h2 className="font-semibold text-navy-900">Navigation</h2>
+                <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(false)}>
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
-              {sidebar}
+              <div className="p-4">
+                {sidebar}
+              </div>
             </div>
           </div>
         )}
 
         <main className="flex-1 min-w-0">
-          <Container className="py-6">
-            {children || (
-              <Grid gap="lg">
-                <Col span={{ xs: 12, md: 8, lg: 9 }}>
-                  <Card padding="lg">
-                    <h2 className="text-lg font-semibold mb-4">Main Content Area</h2>
-                    <p className="text-gray-600 mb-4">
-                      Breakpoint: <strong>{breakpoint.toUpperCase()}</strong>
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="bg-gray-100 p-4 rounded-lg text-center">
-                          Card {i}
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </Col>
-
-                <Col span={{ xs: 12, md: 4, lg: 3 }}>
-                  <Card padding="lg">
-                    <h2 className="text-lg font-semibold mb-4">Sidebar</h2>
-                    <Stack gap={3}>
-                      <div className="p-3 bg-blue-50 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900">Pending Actions</p>
-                        <p className="text-2xl font-bold text-blue-600">12</p>
-                      </div>
-                      <div className="p-3 bg-green-50 rounded-lg">
-                        <p className="text-sm font-medium text-green-900">Completed Today</p>
-                        <p className="text-2xl font-bold text-green-600">28</p>
-                      </div>
-                      <div className="p-3 bg-amber-50 rounded-lg">
-                        <p className="text-sm font-medium text-amber-900">Pending Reviews</p>
-                        <p className="text-2xl font-bold text-amber-600">5</p>
-                      </div>
-                    </Stack>
-                  </Card>
-                </Col>
-
-                <Col span={12}>
-                  <Card padding="lg">
-                    <h2 className="text-lg font-semibold mb-4">Data Table</h2>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b">
-                            <th className="text-left py-2 px-1">ID</th>
-                            <th className="text-left py-2 px-1">Name</th>
-                            <th className="text-left py-2 px-1 hidden md:table-cell">Status</th>
-                            <th className="text-left py-2 px-1 hidden lg:table-cell">Date</th>
-                            <th className="text-right py-2 px-1">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[1, 2, 3, 4, 5].map((i) => (
-                            <tr key={i} className="border-b last:border-0">
-                              <td className="py-3 px-1">#{1000 + i}</td>
-                              <td className="py-3 px-1">Student Name {i}</td>
-                              <td className="py-3 px-1 hidden md:table-cell">
-                                <Badge variant={i % 2 === 0 ? 'success' : 'warning'} size="sm">
-                                  {i % 2 === 0 ? 'Active' : 'Pending'}
-                                </Badge>
-                              </td>
-                              <td className="py-3 px-1 hidden lg:table-cell">Jan {10 + i}, 2025</td>
-                              <td className="py-3 px-1 text-right">
-                                <Button variant="ghost" size="xs">View</Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </Card>
-                </Col>
-              </Grid>
-            )}
+          <Container className="py-6" size="full">
+            {children}
           </Container>
         </main>
       </div>

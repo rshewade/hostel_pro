@@ -606,6 +606,76 @@ export default function WorkingApplicationPage() {
             )}
           </div>
 
+          {/* Quick Links to Tracking Demo Pages */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--text-primary)' }}>
+              Tracking Demo Pages
+            </h2>
+            <div className="grid gap-4 md:grid-cols-3">
+              {statusFlows.map((flow) => (
+                <Link 
+                  key={flow.path}
+                  href={flow.path}
+                  className="card p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span 
+                      className={`px-3 py-1 rounded-full text-xs font-medium text-white ${
+                        flow.status === 'APPROVED' ? 'bg-green-500' : 
+                        flow.status === 'REJECTED' ? 'bg-red-500' : 'bg-yellow-500'
+                      }`}
+                    >
+                      {flow.status.replace('_', ' ')}
+                    </span>
+                    <ArrowRight className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+                  </div>
+                  <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {flow.name}
+                  </h3>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    {flow.path}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Links to Demo Pages */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--text-primary)' }}>
+              Quick Access - Persona Starting Points
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {personas.map((persona) => (
+                <Link 
+                  key={persona.id}
+                  href={persona.startingPage}
+                  className="card p-6 hover:shadow-lg transition-all hover:border-blue-300"
+                >
+                  <div className="flex items-start gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: persona.bgColor, color: persona.color }}
+                    >
+                      {persona.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                        {persona.name}
+                      </h3>
+                      <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
+                        {persona.description}
+                      </p>
+                      <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                        {persona.startingPage}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
           {/* Component States Demo */}
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--text-primary)' }}>
@@ -857,7 +927,156 @@ export default function WorkingApplicationPage() {
         </div>
       </main>
 
-      {/* Footer */}
+          {/* Annotations & Hotspots Section */}
+          <div className="mt-12">
+            <div 
+              className="p-6 rounded-xl cursor-pointer"
+              style={{ backgroundColor: 'var(--surface-secondary)', borderColor: 'var(--border-primary)', borderWidth: 1 }}
+              onClick={() => setShowHotspots(!showHotspots)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Eye className="w-5 h-5" style={{ color: 'var(--color-amber-600)' }} />
+                  <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                    Annotations & Hotspots
+                  </h2>
+                </div>
+                <ChevronRight 
+                  className={`w-5 h-5 transition-transform ${showHotspots ? 'rotate-90' : ''}`} 
+                  style={{ color: 'var(--text-secondary)' }} 
+                />
+              </div>
+              <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+                Visual hotspots for stakeholder demos with annotations explaining key UI elements.
+              </p>
+            </div>
+
+            {showHotspots && (
+              <div className="mt-6 p-6 rounded-xl" style={{ backgroundColor: 'var(--surface-primary)', borderColor: 'var(--border-primary)', borderWidth: 1 }}>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {/* Hotspot Legend */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+                      Active Hotspots
+                    </h3>
+                    <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                      Click a hotspot to view its annotation. These indicators highlight key functional areas for stakeholder demos.
+                    </p>
+                    
+                    <div className="space-y-3">
+                      {hotspots.map((hotspot) => (
+                        <div
+                          key={hotspot.id}
+                          onClick={() => setActiveHotspot(activeHotspot === hotspot.id ? null : hotspot.id)}
+                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                            activeHotspot === hotspot.id 
+                              ? 'border-amber-500 bg-amber-50' 
+                              : 'border-gray-200 hover:border-amber-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="relative">
+                                <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                                <div className="absolute inset-0 w-3 h-3 rounded-full bg-amber-500 animate-ping opacity-75"></div>
+                              </div>
+                              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {hotspot.label}
+                              </span>
+                            </div>
+                            <Link 
+                              href={hotspot.page}
+                              className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
+                              style={{ color: 'var(--text-secondary)' }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {hotspot.page}
+                            </Link>
+                          </div>
+                          {activeHotspot === hotspot.id && (
+                            <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+                              {hotspot.description}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Hotspot Visualization Preview */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+                      Hotspot Visualization
+                    </h3>
+                    <div 
+                      className="relative rounded-lg overflow-hidden border-2"
+                      style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-primary)' }}
+                    >
+                      {/* Mock Dashboard Preview */}
+                      <div className="p-4 bg-gray-100" style={{ minHeight: '300px' }}>
+                        <div className="flex gap-2 mb-4">
+                          <div className="w-8 h-8 rounded bg-blue-600"></div>
+                          <div className="flex-1 h-8 rounded bg-gray-200"></div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 mb-4">
+                          <div className="h-16 rounded bg-white border shadow-sm"></div>
+                          <div className="h-16 rounded bg-white border shadow-sm"></div>
+                          <div className="h-16 rounded bg-white border shadow-sm"></div>
+                        </div>
+                        <div className="h-24 rounded bg-white border shadow-sm"></div>
+                        
+                        {/* Pulsing Hotspot Indicators */}
+                        {hotspots.slice(0, 4).map((hotspot, idx) => (
+                          <div
+                            key={hotspot.id}
+                            className="absolute"
+                            style={{
+                              left: `${15 + (idx % 2) * 45}%`,
+                              top: `${20 + Math.floor(idx / 2) * 35}%`,
+                            }}
+                          >
+                            <div className="relative">
+                              <div className="w-4 h-4 rounded-full bg-amber-500 cursor-pointer"></div>
+                              <div className="absolute inset-0 w-4 h-4 rounded-full bg-amber-500 animate-ping opacity-75"></div>
+                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap bg-amber-600 text-white px-2 py-0.5 rounded">
+                                {hotspot.label}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs mt-2 text-center" style={{ color: 'var(--text-secondary)' }}>
+                      Hotspots appear as pulsing amber indicators on dashboard screens
+                    </p>
+                  </div>
+                </div>
+
+                {/* Annotation Legend */}
+                <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--border-primary)' }}>
+                  <h4 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+                    Annotation Types
+                  </h4>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Dashboard Widgets & Stats</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Action Buttons & CTAs</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Status Indicators</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
       <footer className="px-6 py-8 mt-12 border-t" style={{ borderColor: 'var(--border-primary)' }}>
         <div className="mx-auto max-w-6xl text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
           <p className="mb-2">Working Application Demo - Task 25 | Jain Hostel Management System</p>

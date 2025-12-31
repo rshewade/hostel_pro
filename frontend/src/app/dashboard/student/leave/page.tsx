@@ -497,21 +497,7 @@ export default function LeaveManagementPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
-                            {leave.fromDate}
-                            {leave.fromTime && (
-                              <>
-                                {' '}
-                                {leave.fromTime}
-                              </>
-                            )}
-                            {' → '}
-                            {leave.toDate}
-                            {leave.toTime && (
-                              <>
-                                {' '}
-                                {leave.toTime}
-                              </>
-                            )}
+                            {leave.fromDate} → {leave.toDate}
                           </td>
                           <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
                             {leave.reason}

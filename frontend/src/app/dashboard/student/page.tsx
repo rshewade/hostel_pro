@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components';
 import { ComingSoonPlaceholder } from '@/components/future/ComingSoonPlaceholder';
 import { DPDPComplianceBanner } from '@/components/audit/DPDPComplianceBanner';
 
 export default function StudentDashboard() {
+  const router = useRouter();
   const [vertical] = useState('Boys Hostel');
   const [status] = useState('CHECKED_IN');
   const [academicYear] = useState('2024-25');
@@ -15,30 +17,6 @@ export default function StudentDashboard() {
 
   return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      <header className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-6xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
-            <div>
-              <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Student Dashboard
-              </h1>
-              <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-                {vertical}
-              </span>
-            </div>
-          </div>
-          <nav className="flex items-center gap-6">
-            <a href="/dashboard/student" className="text-sm" style={{ color: 'var(--text-link)' }}>Dashboard</a>
-              <a href="/dashboard/student/fees" className="text-sm" style={{ color: 'var(--text-link)' }}>Fees</a>
-              <a href="/dashboard/student/leave" className="text-sm" style={{ color: 'var(--text-link)' }}>Leave</a>
-              <a href="/dashboard/student/documents" className="text-sm" style={{ color: 'var(--text-link)' }}>Documents</a>
-              <a href="/dashboard/student/exit" className="text-sm" style={{ color: 'var(--text-link)' }}>Exit</a>
-            <Button variant="ghost" size="sm">Logout</Button>
-          </nav>
-        </div>
-      </header>
-
       <main className="px-6 py-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
@@ -89,35 +67,35 @@ export default function StudentDashboard() {
               <div className="text-3xl mb-3">💳</div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Pay Fees</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>View and pay your pending dues</p>
-              <Button variant="primary" size="md" fullWidth>Go to Fees</Button>
+              <Button variant="primary" size="md" fullWidth onClick={() => router.push('/dashboard/student/fees')}>Go to Fees</Button>
             </div>
 
             <div className="card p-6 text-center">
               <div className="text-3xl mb-3">📄</div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Download Letters</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Get admission and official documents</p>
-              <Button variant="primary" size="md" fullWidth>View Documents</Button>
+              <Button variant="primary" size="md" fullWidth onClick={() => router.push('/dashboard/student/documents')}>View Documents</Button>
             </div>
 
             <div className="card p-6 text-center">
               <div className="text-3xl mb-3">🏖️</div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Apply for Leave</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Request leave from hostel</p>
-              <Button variant="primary" size="md" fullWidth>Apply Leave</Button>
+              <Button variant="primary" size="md" fullWidth onClick={() => router.push('/dashboard/student/leave')}>Apply Leave</Button>
             </div>
 
             <div className="card p-6 text-center">
               <div className="text-3xl mb-3">🛏️</div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Room Details</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>View your room information</p>
-              <Button variant="primary" size="md" fullWidth>View Room</Button>
+              <Button variant="primary" size="md" fullWidth onClick={() => router.push('/dashboard/student/room')}>View Room</Button>
             </div>
 
             <div className="card p-6 text-center">
               <div className="text-3xl mb-3">📜</div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Renewal</h3>
               <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Renew your stay for next semester</p>
-              <Button variant="primary" size="md" fullWidth onClick={() => window.location.href = '/dashboard/student/renewal'}>
+              <Button variant="primary" size="md" fullWidth onClick={() => router.push('/dashboard/student/renewal')}>
                 Renew Now
               </Button>
             </div>

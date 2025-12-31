@@ -190,30 +190,27 @@ export default function StudentExitPage() {
 
   return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      {/* Header */}
-      <header className="px-4 py-4 border-b bg-white" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-6xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => router.push('/dashboard/student')} className="!p-2">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
-            <div>
-              <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Exit Request
-              </h1>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Initiate your hostel exit process
-              </p>
-            </div>
-          </div>
-          <ExitStatusBadge status={currentStatus} />
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="px-6 py-8">
         <div className="mx-auto max-w-4xl space-y-6">
+          {/* Page Toolbar */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => router.push('/dashboard/student')} className="!p-2">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Exit Request
+                </h1>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  Initiate your hostel exit process
+                </p>
+              </div>
+            </div>
+            <ExitStatusBadge status={currentStatus} />
+          </div>
+
           {/* Status-specific Banners */}
           {currentStatus === 'SUBMITTED' && (
             <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 border border-blue-200">

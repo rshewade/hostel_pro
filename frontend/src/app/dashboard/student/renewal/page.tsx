@@ -58,22 +58,19 @@ export default function StudentRenewalPage() {
   if (renewalCompleted) {
     return (
       <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-        <header className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-          <div className="mx-auto max-w-4xl flex items-center gap-4">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
-            <div>
-              <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                6-Month Stay Renewal
-              </h1>
-              <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-                Boys Hostel
-              </span>
-            </div>
-          </div>
-        </header>
-
         <main className="px-6 py-8">
           <div className="mx-auto max-w-4xl">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                  6-Month Stay Renewal
+                </h1>
+                <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
+                  Boys Hostel
+                </span>
+              </div>
+            </div>
+
             <div className="text-center mb-8">
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mx-auto mb-4">
                 <CheckCircle className="w-10 h-10 text-green-600" />
@@ -155,27 +152,19 @@ export default function StudentRenewalPage() {
 
   return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      <header className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-4xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
+      <main className="px-6 py-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 6-Month Stay Renewal
               </h1>
-              <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
+              <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
                 Boys Hostel | 2025-26 | SEMESTER 1
               </span>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => window.location.href = '/dashboard/student'}>
-            Cancel
-          </Button>
-        </div>
-      </header>
 
-      <main className="px-6 py-8">
-        <div className="mx-auto max-w-4xl">
           {currentStep === 0 && (
             <div className="mb-6">
               <RenewalCard

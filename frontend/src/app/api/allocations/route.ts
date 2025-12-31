@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       return new Date(b.allocated_at).getTime() - new Date(a.allocated_at).getTime();
     });
 
-    return successResponse({ data: allocations });
+    return successResponse(allocations);
   } catch (error: any) {
     console.error('Error in GET /api/allocations:', error);
     return serverErrorResponse('Failed to fetch allocations', error);

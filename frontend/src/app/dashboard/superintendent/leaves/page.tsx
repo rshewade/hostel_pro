@@ -266,9 +266,6 @@ export default function SuperintendentLeaveManagement() {
               Boys Hostel
             </span>
           </div>
-          <Button variant="ghost" size="sm">
-            Back to Dashboard
-          </Button>
         </div>
       </header>
 

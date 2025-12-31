@@ -194,9 +194,6 @@ export default function SuperintendentConfig() {
               {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
             </span>
           </div>
-          <Button variant="ghost" size="sm">
-            Back to Dashboard
-          </Button>
         </div>
       </header>
 

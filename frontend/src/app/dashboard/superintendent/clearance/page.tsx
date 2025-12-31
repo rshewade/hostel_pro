@@ -158,33 +158,25 @@ export default function SuperintendentClearancePage() {
 
   return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      {/* Header */}
-      <header className="px-4 py-4 border-b bg-white" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => router.push('/dashboard/superintendent')} className="!p-2">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
-            <div>
-              <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Exit Clearance Dashboard
-              </h1>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Manage and process student exit clearances
-              </p>
-            </div>
-          </div>
-          <Button variant="secondary" onClick={handleExportReport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="px-6 py-8">
         <div className="mx-auto max-w-7xl">
+          {/* Page Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                Exit Clearance Dashboard
+              </h1>
+              <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                Manage and process student exit clearances
+              </p>
+            </div>
+            <Button variant="secondary" onClick={handleExportReport}>
+              <Download className="w-4 h-4 mr-2" />
+              Export Report
+            </Button>
+          </div>
+
           {/* Info Banner */}
           <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
             <div className="flex items-start gap-3">

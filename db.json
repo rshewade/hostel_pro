@@ -26,6 +26,15 @@
       "mobile_no": "+919876543212",
       "status": "ACTIVE",
       "created_at": "2024-01-05T10:00:00Z"
+    },
+    {
+      "id": "u4",
+      "email": "roommate@example.com",
+      "password_hash": "mockhash",
+      "role": "student",
+      "mobile_no": "+919876543219",
+      "status": "ACTIVE",
+      "created_at": "2024-01-15T10:00:00Z"
     }
   ],
   "profiles": [
@@ -42,6 +51,22 @@
           "institution": "Mumbai University",
           "course": "B.Com",
           "year": "3rd Year"
+        }
+      }
+    },
+    {
+      "id": "p4",
+      "user_id": "u4",
+      "full_name": "Sameer Jain",
+      "profile_type": "student",
+      "details": {
+        "father_name": "Anil Jain",
+        "age": 21,
+        "native_place": "Pune, Maharashtra",
+        "education": {
+          "institution": "Mumbai University",
+          "course": "B.Sc",
+          "year": "2nd Year"
         }
       }
     }
@@ -219,7 +244,87 @@
       "room_id": "r1",
       "allocated_at": "2024-02-01T00:00:00Z",
       "vacated_at": null,
-      "status": "ACTIVE"
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2025-12-31T16:29:05.179Z",
+      "check_in_inventory": [
+        {
+          "id": "bed",
+          "name": "Bed with Mattress",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "table",
+          "name": "Study Table",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "chair",
+          "name": "Chair",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "cupboard",
+          "name": "Cupboard",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "fan",
+          "name": "Ceiling Fan",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "light",
+          "name": "Light Fixture",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "windows",
+          "name": "Windows (Working)",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        },
+        {
+          "id": "door_lock",
+          "name": "Door Lock",
+          "expected_quantity": 1,
+          "verified": true,
+          "actual_quantity": 1,
+          "notes": ""
+        }
+      ],
+      "check_in_notes": "",
+      "updatedAt": "2025-12-31T16:29:05.233Z"
+    },
+    {
+      "id": "alloc2",
+      "student_id": "u4",
+      "room_id": "r1",
+      "allocated_at": "2024-01-20T00:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-01-21T10:00:00Z"
     }
   ],
   "leaves": [

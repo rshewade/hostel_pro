@@ -62,7 +62,7 @@ export default function CheckInPage() {
   const [additionalNotes, setAdditionalNotes] = useState('');
 
   // Mock student ID - in production, get from auth session
-  const studentId = 'student1';
+  const studentId = 'u1';
 
   useEffect(() => {
     fetchAllocationData();
@@ -220,7 +220,7 @@ export default function CheckInPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-heading-1 mb-2" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
             Room Check-in
           </h1>
           <p className="text-body" style={{ color: 'var(--text-secondary)' }}>

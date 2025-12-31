@@ -128,33 +128,18 @@ export default function StudentFeesPage() {
 
   return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      <header className="px-4 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-6xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} />
-            <div>
-              <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+      <main className="px-6 py-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 Fee Payments
               </h1>
               <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
                 {vertical}
               </span>
             </div>
-          </div>
-          <nav className="flex items-center gap-6">
-            <a href="/dashboard/student" className="text-sm" style={{ color: 'var(--text-link)' }}>Dashboard</a>
-            <a href="/dashboard/student/fees" className="text-sm font-semibold" style={{ color: 'var(--text-link)' }}>Fees</a>
-            <a href="/dashboard/student/leave" className="text-sm" style={{ color: 'var(--text-link)' }}>Leave</a>
-            <a href="/dashboard/student/documents" className="text-sm" style={{ color: 'var(--text-link)' }}>Documents</a>
-            <Button variant="ghost" size="sm">Logout</Button>
-          </nav>
-        </div>
-      </header>
-
-      <main className="px-6 py-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-            <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
               Fee Overview
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

@@ -32,9 +32,11 @@ export default function LoginPage() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const responseBody = await response.json();
 
       if (response.ok) {
+        const { data } = responseBody;
+        
         // Check if first-time login
         if (data.requiresPasswordChange) {
           router.push(`/login/first-time-setup?token=${data.token}`);
@@ -44,7 +46,7 @@ export default function LoginPage() {
           router.push(redirectPath);
         }
       } else {
-        setError(data.error || 'Invalid credentials or account not found');
+        setError(responseBody.error || 'Invalid credentials or account not found');
       }
     } catch (err) {
       setError('Unable to connect. Please try again later.');
