@@ -95,7 +95,9 @@ describe('Task 4 - Responsive Landing Page with Vertical Selection', () => {
       renderWithRouter(<Home />);
       const loginButtons = screen.getAllByText(/Login/i);
       expect(loginButtons.length).toBeGreaterThan(0);
-      expect(screen.getByText(/Parent/i)).toBeInTheDocument();
+      // Find parent button by exact text match to avoid matching "transparent"
+      const parentButtons = screen.getAllByText('Parent');
+      expect(parentButtons.length).toBeGreaterThan(0);
     });
 
     it('nav links are functional', () => {

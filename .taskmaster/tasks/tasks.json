@@ -1487,7 +1487,7 @@
           "11",
           "9"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1498,7 +1498,7 @@
             "status": "done",
             "testStrategy": "Build and test the full student flow: create draft → edit → submit → attempt edit after lock → cancel within allowed window. Verify audit log entries are created for each action and remain visible even after state changes, and that irreversible transitions cannot be bypassed via alternative navigation paths.",
             "parentId": "undefined",
-            "updatedAt": "2025-12-31T06:27:42.774Z"
+            "updatedAt": "2025-12-31T09:48:34.460Z"
           },
           {
             "id": 2,
@@ -1508,9 +1508,10 @@
               1
             ],
             "details": "Define the canonical checklist items (room inventory, key return, ID card return, accounts clearance, library dues, any custom items) as rows in a unified checklist view attached to the exit request. For each item, show owner role, current status (Pending, In Progress, Completed, Waived), last updated timestamp, and optional remarks. Allow role-based interaction: students see read-only statuses and any student-facing instructions; admins and specific departments can update only their owned items. Capture every change as an immutable audit entry (previous status, new status, remarks, actor, timestamp) and expose this via an expandable history per item. Visually signal when all mandatory items are completed and which items are blocking final approval. Implement safeguards for irreversible status changes (e.g., Completed → revert) by either disallowing reversal in the primary UI or gating it behind an elevated override pattern with justification and separate audit tagging.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with sample roles (student, superintendent, accounts) updating multiple checklist items and confirm visibility rules, status accuracy, and that all changes appear in per-item history. Attempt invalid operations (student editing statuses, cross-role edits) and verify they are blocked. Validate that once an item is marked Completed, UI reversal flows either do not exist or clearly request justification and log enhanced audit data.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T09:58:15.597Z"
           },
           {
             "id": 3,
@@ -1520,9 +1521,10 @@
               2
             ],
             "details": "Implement separate but consistent dashboards for superintendent and accounts roles, listing exiting students with key attributes (name, room, vertical, requested exit date, overall clearance progress, aging). Provide filters (by hostel, date range, progress state) and sort options (oldest requests first, high-risk cases). Include quick actions to open a student’s clearance detail view and mark owned checklist items as completed, with mandatory remarks where appropriate. Integrate compact views of communication history and financial settlement links so admins can reference context without leaving the workflow. All dashboard actions that change state must route through the same underlying checklist update patterns, ensuring comprehensive audit logging. Irreversible operations (e.g., mass-complete multiple items, closing an old request) should require confirmation, display impact (number of students/items affected), and be highlighted in audit logs as bulk operations for later review.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate typical admin workflows: triage by filters, open a case, update multiple checklist items, and close a batch of older cases. Verify that dashboard counts match individual student views, that every state-changing action generates a traceable log entry, and that bulk actions correctly log affected records. Run through least-privilege tests ensuring each role only sees and acts on its permitted scope.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:11:26.463Z"
           },
           {
             "id": 4,
@@ -1533,9 +1535,10 @@
               3
             ],
             "details": "Create an approval screen that summarizes student details, requested exit parameters, full checklist with statuses, financial settlement summary, and any unresolved warnings. Disable the final approval action until all mandatory checklist items and financial requirements are satisfied or explicitly waived with justification. On approval, trigger a clearly marked irreversible transition that locks editing of the exit record and checklist while still allowing read-only viewing by authorized roles. Require explicit confirmation (modal) that outlines consequences: student will no longer be treated as active resident, certain features will be disabled, and data becomes part of permanent records. Capture structured approval metadata (approver role, name, timestamp, remarks, device/IP if available) and present it as the final entry in the audit log. Provide a narrowly scoped post-approval override pattern (e.g., admin-of-admins) for exceptional reversals that is visually distinct, requires detailed justification, and creates a prominent audit entry referencing the original approval.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Walk through approval scenarios: fully compliant case, case with missing checklist item, and case requiring a waiver. Confirm that finalization cannot proceed with unresolved blockers and that once approved, all editing controls disappear while data remains viewable. Execute an exceptional reversal using the override role and check that both the approval and reversal are clearly recorded and chronologically ordered in the audit log.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:33:31.074Z"
           },
           {
             "id": 5,
@@ -1545,9 +1548,10 @@
               4
             ],
             "details": "Define a certificate template with institution branding, student identity details, vertical, stay period, conduct statement (if applicable), approval date, and authorized signatures/ seals. Ensure layout is optimized for A4 printing with safe margins and high-contrast typography. In the UI, make certificate generation available only after final approval, with a one-click action that generates a versioned PDF snapshot of the exit record at that time. Prevent editing of certificate content by rendering from immutable data captured at approval; if post-approval corrections are necessary, require a controlled re-issue flow that stores both the old and new versions with reasons. Provide clear controls for viewing online, downloading, and printing, and include a small footer with version number or hash and generation timestamp to support audit verification. Log every certificate generation and download event with actor, timestamp, and version, accessible to admins in an audit panel.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Print sample certificates (including re-issued ones) to verify layout consistency, legibility, and presence of all required fields. Test generation immediately after approval and after a later correction to confirm that versioning works and historical certificates remain accessible. Track multiple downloads by different roles and ensure each event is logged and retrievable in audit views.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:44:52.765Z"
           },
           {
             "id": 6,
@@ -1558,15 +1562,16 @@
               5
             ],
             "details": "Specify that upon final exit approval, the system transitions the student to an Alumni status and removes them from active resident lists while retaining a linked alumni record. Implement a minimal alumni profile page showing core identity details, contact information, stay history summary, exit certificate access, and links to communication history and financial settlement records. Make the alumni status visually distinct from active residents across the system (badges, filters) and ensure alumni records are read-only except for allowed fields like updated contact info, which should be logged when changed. Treat the resident→alumni transition as fundamentally irreversible in standard workflows; any return to resident-like status must follow a separate re-admission process rather than toggling flags. Reflect the transition in an audit trail entry capturing who triggered it (usually automated from approval), when, and from which prior status. Provide filter and search options for admins to locate alumni, and ensure that alumni data is covered by data retention and governance rules surfaced in implement notes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Simulate an end-to-end journey from active resident to alumni, verifying that the user disappears from active views and appears in alumni lists with the correct status and profile. Test updates to allowed alumni fields and confirm they generate audit entries. Attempt to revert alumni back to active using normal admin roles and confirm that it is blocked, forcing use of the defined re-admission path if needed, and verify that alumni history links (communications, financials, certificate) open read-only records.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:55:08.394Z"
           }
         ],
         "complexity": 8,
         "recommendedSubtasks": 6,
         "expansionPrompt": "Break Task 20 into: (1) Student exit request flow and explanatory messaging about implications; (2) Clearance checklist UI and status tracking across roles; (3) Superintendent/Accounts clearance dashboards and workflows; (4) Exit approval and audit-safe finalization patterns; (5) Exit certificate print-ready template and download flow; (6) Alumni state and minimal alumni profile views, including links to history. For each, outline how to handle irreversible states and audit requirements in the design.",
-        "updatedAt": "2025-12-31T06:27:42.774Z"
+        "updatedAt": "2025-12-31T10:55:08.394Z"
       },
       {
         "id": "21",
@@ -1581,7 +1586,7 @@
           "13",
           "11"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1589,9 +1594,10 @@
             "description": "Create table-based interfaces for communication logs (WhatsApp/SMS/Email with columns: date/time, sender role, recipient(s), channel, status, context) and approval history (per application/leave/payment/renewal with authority, decision, date/time, remarks).",
             "dependencies": [],
             "details": "Include server-side pagination for large datasets, read-only emphasis via visual cues (no edit buttons), filtering by date range, vertical, role, channel, entity type. Add export options (CSV/PDF) with dev notes on implementation.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Build and test tables with sample data; test filters, pagination, export on desktop/mobile; validate read-only behavior prevents accidental edits.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T09:37:19.318Z"
           },
           {
             "id": 2,
@@ -1601,9 +1607,10 @@
               1
             ],
             "details": "Use card or table layout for consents per entity; integrate filters matching other logs; highlight timestamps and methods prominently; ensure linkage to related entities like students/applications.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test drill-down from student profiles to filtered consents; verify completeness across modules (e.g., registration, renewal); UX review for scannability.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T09:37:24.804Z"
           },
           {
             "id": 3,
@@ -1614,14 +1621,16 @@
               2
             ],
             "details": "Make banners unobtrusive (footer or subtle top bar); implement info page with clear sections on retention policies; prompts as modals/checkboxes with explicit text; integrate into Tasks 5,19 navigation.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate accessibility from login/settings/renewal; cross-check with PRD for DPDP elements; simulate consent renewal flow; stakeholder review for compliance visibility.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T09:37:35.455Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Break down this task with a focus on design audit, logs, and compliance screens."
+        "expansionPrompt": "Break down this task with a focus on design audit, logs, and compliance screens.",
+        "updatedAt": "2025-12-31T09:37:35.455Z"
       },
       {
         "id": "22",
@@ -1748,7 +1757,7 @@
           "1",
           "2"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1760,9 +1769,10 @@
               24
             ],
             "details": "• Analyze current and target devices to finalize breakpoint ranges (e.g., mobile ≤767px, tablet 768–1199px, desktop ≥1200px, plus any XL/landscape props and conditional styles if needed).\n• Decide naming convention for breakpoints (e.g., xs/sm/md/lg/xl or mobile/tablet/desktop).\n• Create a dedicated section in the design system file and implement docs describing each breakpoint, its pixel range, intended usage, and example layouts.\n• Add example pages/components per breakpoint (blank shells) labeled with viewport size and responsive CSS for later reuse.\n• Ensure breakpoint definitions align with or can be mapped to front-end tokens or CSS media query variables used by engineering.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "• Review breakpoint list with implement and dev leads to confirm feasibility and alignment with front-end media queries.\n• Check that the design system documentation includes explicit ranges, names, and example pages/components for each breakpoint.\n• Validate no conflicting or duplicate breakpoint definitions exist in previous files or specs.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:50:09.375Z"
           },
           {
             "id": 2,
@@ -1773,9 +1783,10 @@
               24
             ],
             "details": "• For each breakpoint, define grid specs: number of columns (e.g., 12 for desktop, 8 for tablet, 4 for mobile), gutter width, and outer margins.\n• Map grid spacing (gutters/margins) to existing spacing tokens from Task 1 (e.g., 16/24/32px) and ensure typographic line lengths support readability (e.g., max content width ~1200px).\n• Create layout grid styles per breakpoint and save them as reusable named styles (e.g., Grid/Desktop/12col).\n• Document how typography scales across breakpoints (e.g., heading size adjustments, line-height, and content width recommendations).\n• Include visual examples: one or two simple content layouts per breakpoint that demonstrate proper column usage and spacing alignment to tokens.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "• Apply each grid style to sample pages/components at each breakpoint and verify columns, gutters, and margins match the documented values.\n• Check that spacing units visible in redlines align with design tokens (no ad-hoc values).\n• Confirm max content width and line length meet readability goals when previewed at common device sizes.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:50:16.056Z"
           },
           {
             "id": 3,
@@ -1787,9 +1798,10 @@
               24
             ],
             "details": "• Create base template pages/components for each key screen type (dashboards, data tables, forms, modals, print views) at mobile, tablet, and desktop breakpoints.\n• Apply the appropriate layout grid style to each component and ensure components snap to columns and respect gutters/margins.\n• Configure responsive CSS and Flexbox/Grid so core components (nav, sidebars, content area, modals) resize and reflow correctly on component width changes.\n• Include at least one annotated example component per template/breakpoint combination showing column spans, content width, and stacking rules.\n• Define simple rules for component behavior across breakpoints (e.g., sidebar collapses, table columns stack or scroll, form fields move from multi-column to single-column).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "• Manually resize each template component in and verify that components remain aligned to the grid and behave according to defined rules.\n• Check that all key templates use only the standardized grid styles (no local grid overrides).\n• Review example pages/components with at least one other designer to confirm clarity and consistency of grid usage.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:50:22.384Z"
           },
           {
             "id": 4,
@@ -1802,14 +1814,16 @@
               24
             ],
             "details": "• Document mapping from each breakpoint and grid spec to front-end implementation (e.g., CSS Grid template columns, Flexbox wrappers, or MUI/Bootstrap grid props).\n• Provide example code snippets or pseudo-code for common layouts (dashboard with sidebar, form page, data table) reflecting the agreed column counts and breakpoints.\n• Walk through the grid and breakpoint documentation with dev leads to confirm naming, token mapping, and feasibility within the existing tech stack.\n• Run responsive checks on interactive prototypes or staged builds, comparing behavior to example pages/components for each breakpoint.\n• Capture any deviations or responsive CSS from engineering and update implement guidelines and example pages/components accordingly.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "• Cross-check breakpoints and column counts in CSS or UI library configuration against the design system specs.\n• Test real or working application pages in browser dev tools across a range of viewport widths to ensure layouts switch at the correct breakpoints and match examples.\n• Collect developer feedback on implementation clarity and adjust documentation until no ambiguities remain.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-31T10:50:29.338Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 4,
-        "expansionPrompt": "Split Task 24 into: (1) Breakpoint strategy definition and documentation; (2) Grid systems (columns, gutters, margins) per breakpoint and mapping to typography/spacing tokens; (3) Application of grids to key templates (dashboards, forms, tables, modals, print views) and Figma constraints setup; (4) Developer alignment: notes on mapping Figma grids to CSS Grid/Flexbox or chosen UI libraries, plus validation via resizing tests. For each, define explicit guidelines and example frames."
+        "expansionPrompt": "Split Task 24 into: (1) Breakpoint strategy definition and documentation; (2) Grid systems (columns, gutters, margins) per breakpoint and mapping to typography/spacing tokens; (3) Application of grids to key templates (dashboards, forms, tables, modals, print views) and Figma constraints setup; (4) Developer alignment: notes on mapping Figma grids to CSS Grid/Flexbox or chosen UI libraries, plus validation via resizing tests. For each, define explicit guidelines and example frames.",
+        "updatedAt": "2025-12-31T10:50:29.338Z"
       },
       {
         "id": "25",
@@ -2455,9 +2469,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-31T06:27:42.776Z",
+      "lastModified": "2025-12-31T10:55:08.396Z",
       "taskCount": 40,
-      "completedCount": 23,
+      "completedCount": 26,
       "tags": [
         "master"
       ]

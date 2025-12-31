@@ -27,6 +27,7 @@ export interface FormWizardProps {
     validate?: (data: WizardFormData) => Record<string, string> | null;
   }[];
   initialData?: WizardFormData;
+  currentStep?: number;
   onSaveDraft?: (data: WizardFormData, step: number) => Promise<void>;
   onSubmit?: (data: WizardFormData) => Promise<void>;
   onSubmitLabel?: string;
@@ -37,13 +38,16 @@ export interface FormWizardProps {
 const FormWizard: React.FC<FormWizardProps> = ({
   steps,
   initialData = {},
+  currentStep: controlledStep,
   onSaveDraft,
   onSubmit,
   onSubmitLabel = 'Submit Application',
   orientation = 'horizontal',
   className,
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [internalStep, setInternalStep] = useState(0);
+  const currentStep = controlledStep !== undefined ? controlledStep : internalStep;
+  const setCurrentStep = controlledStep !== undefined ? () => {} : setInternalStep;
   const [formData, setFormData] = useState<WizardFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [stepValidity, setStepValidity] = useState<boolean[]>(
@@ -131,6 +135,27 @@ const FormWizard: React.FC<FormWizardProps> = ({
     });
   }, [currentStep]);
 
+  // Validate current step on mount and when form data changes
+  useEffect(() => {
+    const validate = steps[currentStep].validate;
+    if (validate) {
+      const validationErrors = validate(formData);
+      const isValid = !validationErrors;
+      setStepValidity(prev => {
+        const newValidity = [...prev];
+        newValidity[currentStep] = isValid;
+        return newValidity;
+      });
+    } else {
+      // No validation means step is always valid
+      setStepValidity(prev => {
+        const newValidity = [...prev];
+        newValidity[currentStep] = true;
+        return newValidity;
+      });
+    }
+  }, [currentStep, formData, steps]);
+
   const stepperSteps: Step[] = steps.map((step, index) => ({
     id: step.id,
     title: step.title,
@@ -145,7 +170,7 @@ const FormWizard: React.FC<FormWizardProps> = ({
         : 'pending',
   }));
 
-  const canGoNext = stepValidity[currentStep] || Object.keys(errors).length === 0;
+  const canGoNext = stepValidity[currentStep] && Object.keys(errors).length === 0;
   const isLastStep = currentStep === steps.length - 1;
 
   return (
@@ -179,25 +204,30 @@ const FormWizard: React.FC<FormWizardProps> = ({
         </div>
 
         <div className="border-t px-6 py-4 flex items-center justify-between gap-4" style={{ borderColor: 'var(--border-primary)' }}>
-          <Button
-            variant="ghost"
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-            leftIcon={<ChevronLeft className="w-4 h-4" />}
-          >
-            Back
-          </Button>
+          {currentStep > 0 && (
+            <Button
+              variant="ghost"
+              onClick={handlePrevious}
+              disabled={submitting}
+              leftIcon={<ChevronLeft className="w-4 h-4" />}
+            >
+              Back
+            </Button>
+          )}
+          {currentStep === 0 && <div />}
 
           <div className="flex items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={handleSaveDraft}
-              disabled={saving || !onSaveDraft}
-              loading={saving}
-              leftIcon={<Save className="w-4 h-4" />}
-            >
-              {saving ? 'Saving...' : 'Save as Draft'}
-            </Button>
+            {onSaveDraft && (
+              <Button
+                variant="secondary"
+                onClick={handleSaveDraft}
+                disabled={saving || submitting}
+                loading={saving}
+                leftIcon={<Save className="w-4 h-4" />}
+              >
+                Save as Draft
+              </Button>
+            )}
 
             {isLastStep ? (
               <Button
@@ -207,13 +237,13 @@ const FormWizard: React.FC<FormWizardProps> = ({
                 loading={submitting}
                 rightIcon={<ChevronRight className="w-4 h-4" />}
               >
-                {submitting ? 'Submitting...' : onSubmitLabel}
+                {onSubmitLabel}
               </Button>
             ) : (
               <Button
                 variant="primary"
                 onClick={handleNext}
-                disabled={!canGoNext}
+                disabled={!canGoNext || submitting}
                 rightIcon={<ChevronRight className="w-4 h-4" />}
               >
                 Next

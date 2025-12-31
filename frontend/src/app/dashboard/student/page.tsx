@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components';
 import { ComingSoonPlaceholder } from '@/components/future/ComingSoonPlaceholder';
+import { DPDPComplianceBanner } from '@/components/audit/DPDPComplianceBanner';
 
 export default function StudentDashboard() {
   const [vertical] = useState('Boys Hostel');
@@ -213,6 +214,8 @@ export default function StudentDashboard() {
           </div>
         </div>
       </main>
+
+      <DPDPComplianceBanner variant="footer" showPolicyLink={true} showRetentionLink={true} />
     </div>
   );
 }

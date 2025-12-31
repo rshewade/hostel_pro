@@ -109,6 +109,99 @@ export default function TrackingDetailPage() {
   const [uploading, setUploading] = useState(false);
   const [timeUntilInterview, setTimeUntilInterview] = useState<{ days: number; hours: number; minutes: number } | null>(null);
 
+  // Fetch application data on mount
+  useEffect(() => {
+    async function fetchApplicationData() {
+      try {
+        setLoading(true);
+        setError('');
+
+        // Fetch application by tracking number
+        const response = await fetch(`/api/applications?tracking_number=${trackingId}`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch application');
+        }
+
+        const data = await response.json();
+        const applications = Array.isArray(data) ? data : [data];
+
+        if (applications.length === 0) {
+          throw new Error('Application not found');
+        }
+
+        const appData = applications[0];
+
+        // Transform data to match component structure
+        const transformedApp: Application = {
+          id: appData.id || trackingId,
+          tracking_number: appData.trackingNumber || appData.tracking_number || trackingId,
+          type: appData.type || 'NEW',
+          applicant_mobile: appData.personalDetails?.phone || appData.applicant_mobile || '',
+          current_status: appData.status || appData.current_status || 'SUBMITTED',
+          vertical: appData.vertical || 'BOYS_HOSTEL',
+          data: {
+            personal_info: {
+              full_name: appData.name || `${appData.personalDetails?.firstName || ''} ${appData.personalDetails?.lastName || ''}`.trim(),
+              email: appData.personalDetails?.email || '',
+              mobile: appData.personalDetails?.phone || '',
+            }
+          },
+          submitted_at: appData.appliedDate || appData.submitted_at || new Date().toISOString(),
+          created_at: appData.created_at || appData.appliedDate || new Date().toISOString(),
+        };
+
+        setApplication(transformedApp);
+
+        // Set documents if available
+        if (appData.documents && Array.isArray(appData.documents)) {
+          setDocuments(appData.documents);
+        }
+
+        // Set interview if available
+        if (appData.interviewDetails) {
+          const interviewData: Interview = {
+            id: appData.interviewDetails.id || '1',
+            schedule_time: appData.interviewDetails.date
+              ? new Date(`${appData.interviewDetails.date} ${appData.interviewDetails.time || '00:00'}`).toISOString()
+              : new Date().toISOString(),
+            mode: appData.interviewDetails.mode === 'In-Person' ? 'IN_PERSON' : 'ONLINE',
+            status: appData.interviewDetails.status === 'upcoming' || appData.interviewDetails.status === 'scheduled'
+              ? 'SCHEDULED'
+              : appData.interviewDetails.status === 'completed'
+                ? 'COMPLETED'
+                : 'SCHEDULED',
+            internal_remarks: appData.interviewDetails.internal_remarks,
+          };
+          setInterview(interviewData);
+
+          // Calculate time until interview if scheduled
+          if (interviewData.status === 'SCHEDULED') {
+            const now = new Date();
+            const interviewTime = new Date(interviewData.schedule_time);
+            const diffMs = interviewTime.getTime() - now.getTime();
+
+            if (diffMs > 0) {
+              const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+              setTimeUntilInterview({ days, hours, minutes });
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching application:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load application');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (trackingId) {
+      fetchApplicationData();
+    }
+  }, [trackingId]);
+
   // Get current status safely (returns default status if application is null)
   const currentStepOrder = getCurrentStepOrder(application?.current_status || '');
 

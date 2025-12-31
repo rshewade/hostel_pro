@@ -224,7 +224,8 @@ describe('Task 6 - Application Tracking Page', () => {
     it('shows only high-level outcomes and instructions', async () => {
       render(<TrackingDetailPage />);
       await waitFor(() => {
-        expect(screen.queryByText(/Data Protection/i)).toBeInTheDocument();
+        const dataProtectionElements = screen.queryAllByText(/Data Protection/i);
+        expect(dataProtectionElements.length).toBeGreaterThan(0);
       }, { timeout: 1000 });
     });
   });

@@ -411,6 +411,182 @@
         "newStatus": "APPROVED"
       },
       "timestamp": "2024-01-11T09:30:00Z"
+    },
+    {
+      "id": "AUD002",
+      "action": "APPLICATION_APPROVED",
+      "entityType": "APPLICATION",
+      "entityId": "APP-2025-001",
+      "userId": "USR003",
+      "userRole": "TRUSTEE",
+      "details": {
+        "studentId": "STU003",
+        "previousStatus": "INTERVIEW",
+        "newStatus": "APPROVED"
+      },
+      "timestamp": "2025-01-15T09:30:00Z"
+    },
+    {
+      "id": "AUD003",
+      "action": "LEAVE_APPROVED",
+      "entityType": "LEAVE",
+      "entityId": "LEV-2025-015",
+      "userId": "USR001",
+      "userRole": "SUPERINTENDENT",
+      "details": {
+        "studentId": "STU001",
+        "previousStatus": "PENDING",
+        "newStatus": "APPROVED"
+      },
+      "timestamp": "2025-01-14T15:00:00Z"
+    },
+    {
+      "id": "AUD004",
+      "action": "PAYMENT_COMPLETED",
+      "entityType": "PAYMENT",
+      "entityId": "PAY-2025-089",
+      "userId": "USR002",
+      "userRole": "ACCOUNTS",
+      "details": {
+        "studentId": "STU002",
+        "amount": 45000,
+        "method": "ONLINE"
+      },
+      "timestamp": "2025-01-13T10:45:00Z"
+    },
+    {
+      "id": "AUD005",
+      "action": "RENEWAL_RETURNED",
+      "entityType": "RENEWAL",
+      "entityId": "REN-2025-012",
+      "userId": "USR001",
+      "userRole": "SUPERINTENDENT",
+      "details": {
+        "studentId": "STU004",
+        "previousStatus": "SUBMITTED",
+        "newStatus": "DOCUMENTS_PENDING",
+        "remarks": "Please re-upload your latest marksheet"
+      },
+      "timestamp": "2025-01-12T14:20:00Z"
+    }
+  ],
+  "communication_logs": [
+    {
+      "id": "COM001",
+      "dateTime": "2025-01-15T10:30:00Z",
+      "sender": { "id": "USR001", "name": "Admin User", "role": "SUPERINTENDENT" },
+      "recipients": [{ "id": "STU001", "name": "Amit Kumar Jain", "role": "STUDENT" }],
+      "channel": "whatsapp",
+      "status": "DELIVERED",
+      "context": "fee",
+      "message": "Reminder: Your hostel fee for Semester 2 is due. Please complete payment by January 20th.",
+      "recipientCount": 1
+    },
+    {
+      "id": "COM002",
+      "dateTime": "2025-01-14T14:15:00Z",
+      "sender": { "id": "USR002", "name": "Accounts Office", "role": "ACCOUNTS" },
+      "recipients": [
+        { "id": "STU001", "name": "Amit Kumar Jain", "role": "STUDENT" },
+        { "id": "STU002", "name": "Priya Sharma", "role": "STUDENT" }
+      ],
+      "channel": "email",
+      "status": "SENT",
+      "context": "renewal",
+      "message": "6-Month Stay Renewal Reminder - Please complete your renewal process.",
+      "recipientCount": 2
+    },
+    {
+      "id": "COM003",
+      "dateTime": "2025-01-13T09:00:00Z",
+      "sender": { "id": "USR003", "name": "Trustee Office", "role": "TRUSTEE" },
+      "recipients": [{ "id": "STU005", "name": "Rahul Verma", "role": "STUDENT" }],
+      "channel": "sms",
+      "status": "FAILED",
+      "context": "interview",
+      "message": "Your interview has been scheduled for January 18th at 10:00 AM.",
+      "recipientCount": 1
+    },
+    {
+      "id": "COM004",
+      "dateTime": "2025-01-12T16:45:00Z",
+      "sender": { "id": "USR001", "name": "Admin User", "role": "SUPERINTENDENT" },
+      "recipients": [{ "id": "STU003", "name": "Rahul Verma", "role": "STUDENT" }],
+      "channel": "whatsapp",
+      "status": "READ",
+      "context": "leave",
+      "message": "Your leave request for January 20-22 has been approved.",
+      "recipientCount": 1
+    },
+    {
+      "id": "COM005",
+      "dateTime": "2025-01-11T11:20:00Z",
+      "sender": { "id": "USR004", "name": "System", "role": "SYSTEM" },
+      "recipients": [{ "id": "STU006", "name": "Vikram Singh", "role": "STUDENT" }],
+      "channel": "email",
+      "status": "PENDING",
+      "context": "admission",
+      "message": "Welcome to the hostel! Your admission has been confirmed.",
+      "recipientCount": 1
+    }
+  ],
+  "consent_logs": [
+    {
+      "id": "CNS001",
+      "consentType": "DPDP",
+      "studentId": "STU001",
+      "studentName": "Amit Kumar Jain",
+      "timestamp": "2025-01-10T14:30:00Z",
+      "expiryDate": "2025-07-10",
+      "method": "DIGITAL",
+      "ipAddress": "192.168.1.100",
+      "version": "2.1",
+      "status": "ACTIVE",
+      "context": "6-Month Stay Renewal 2025-26"
+    },
+    {
+      "id": "CNS002",
+      "consentType": "HOSTEL_RULES",
+      "studentId": "STU001",
+      "studentName": "Amit Kumar Jain",
+      "parentName": "Suresh Kumar Jain",
+      "timestamp": "2024-08-15T10:00:00Z",
+      "method": "PHYSICAL_UPLOAD",
+      "status": "ACTIVE",
+      "context": "New Admission 2024-25"
+    },
+    {
+      "id": "CNS003",
+      "consentType": "PARENT_CONSENT",
+      "studentId": "STU002",
+      "studentName": "Priya Sharma",
+      "parentName": "Rajesh Sharma",
+      "timestamp": "2024-07-01T09:15:00Z",
+      "method": "DIGITAL",
+      "ipAddress": "192.168.1.105",
+      "version": "1.0",
+      "status": "ACTIVE",
+      "context": "New Admission 2024-25"
+    },
+    {
+      "id": "CNS004",
+      "consentType": "MEDICAL_CONSENT",
+      "studentId": "STU003",
+      "studentName": "Rahul Verma",
+      "timestamp": "2024-08-20T11:30:00Z",
+      "method": "PHYSICAL_UPLOAD",
+      "status": "ACTIVE",
+      "context": "Medical Emergency Contact Form"
+    },
+    {
+      "id": "CNS005",
+      "consentType": "DPDP",
+      "studentId": "STU004",
+      "studentName": "Neha Gupta",
+      "timestamp": "2024-07-05T16:00:00Z",
+      "method": "MANUAL_ENTRY",
+      "status": "RENEWED",
+      "context": "Initial DPDP Consent"
     }
   ]
 }
