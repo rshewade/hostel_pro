@@ -12,6 +12,7 @@ interface CardProps extends BaseComponentProps {
   border?: boolean;
   hover?: boolean;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
 const Card = ({
