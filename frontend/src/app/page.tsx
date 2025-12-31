@@ -812,12 +812,25 @@ Contact &amp; Support
         href="/design-system"
         className="fixed bottom-4 right-4 px-4 py-2 rounded-md text-sm font-medium shadow-lg"
         style={{
-          backgroundColor: "var(--surface-primary)",
-          color: "var(--text-secondary)",
-          border: "1px solid var(--border-primary)",
+          backgroundColor: 'var(--surface-primary)',
+          color: 'var(--text-secondary)',
+          border: '1px solid var(--border-primary)',
         }}
       >
         Design System →
+      </Link>
+      
+      {/* Working Application Demo - Dev Only */}
+      <Link
+        href="/demo"
+        className="fixed bottom-4 left-4 px-4 py-2 rounded-md text-sm font-medium shadow-lg"
+        style={{
+          backgroundColor: 'var(--bg-brand)',
+          color: 'var(--text-inverse)',
+          border: '1px solid var(--border-primary)',
+        }}
+      >
+        🎯 Working App Demo
       </Link>
     </div>
   );
