@@ -4,11 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Container, Grid, Col, Stack, useResponsive, Breakpoint } from '@/components/layout';
+import { Container, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Menu, X, ChevronDown, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ClipboardCheck, Users, ShieldAlert, History, BookOpen } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ClipboardCheck, ShieldAlert, History, BookOpen } from 'lucide-react';
 import { cn } from '@/components/utils';
 
 interface DashboardTemplateProps {
@@ -17,10 +16,9 @@ interface DashboardTemplateProps {
 }
 
 const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
-  title = 'Dashboard',
   children,
 }) => {
-  const { breakpoint, isMobile, isTablet, isDesktop } = useResponsive();
+  const { isMobile, isDesktop } = useResponsive();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();

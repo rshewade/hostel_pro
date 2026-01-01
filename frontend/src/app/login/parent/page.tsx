@@ -17,7 +17,6 @@ export default function ParentLoginPage() {
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'input' | 'otp' | 'loading'>('input');
   const [otp, setOtp] = useState('');
-  const [otpComplete, setOtpComplete] = useState(false);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   const [token, setToken] = useState('');
@@ -63,7 +62,7 @@ export default function ParentLoginPage() {
         setError(data.message || 'Failed to send OTP. Please try again.');
         setStep('input');
       }
-    } catch (err) {
+    } catch {
       setError('Unable to connect. Please try again later.');
       setStep('input');
     }
@@ -105,7 +104,7 @@ export default function ParentLoginPage() {
         setAttempts(prev => prev + 1);
         setStep('otp');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to verify OTP. Please try again.');
       setAttempts(prev => prev + 1);
       setStep('otp');
@@ -131,7 +130,7 @@ export default function ParentLoginPage() {
       } else {
         setError('Failed to resend OTP. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to resend OTP. Please try again.');
     }
   };
@@ -171,7 +170,7 @@ export default function ParentLoginPage() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold mb-2">Parent/Guardian Login</h2>
-              <p className="text-gray-600">View your ward's hostel information and status</p>
+              <p className="text-gray-600">View your ward&apos;s hostel information and status</p>
             </div>
 
             {step === 'input' && (
@@ -262,7 +261,7 @@ export default function ParentLoginPage() {
                 <div>
                   <h4 className="text-sm font-medium text-blue-900 mb-1">View-Only Access</h4>
                   <p className="text-sm text-blue-700">
-                    Parent accounts have read-only access to view your ward's hostel information. 
+                    Parent accounts have read-only access to view your ward&apos;s hostel information.
                     You cannot make changes or approve requests through this portal.
                   </p>
                 </div>
@@ -277,7 +276,7 @@ export default function ParentLoginPage() {
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-1">Secure Login</h4>
                   <p className="text-sm text-gray-600">
-                    Your mobile number is used only to verify your identity and retrieve your ward's information.
+                    Your mobile number is used only to verify your identity and retrieve your ward&apos;s information.
                     All data transmission is encrypted and complies with DPDP Act, 2023.
                   </p>
                 </div>

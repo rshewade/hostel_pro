@@ -16,7 +16,7 @@ interface StudentData {
 }
 
 // Helper to format student data
-const formatStudent = (student: any): StudentData => ({
+const formatStudent = (student: Partial<StudentData> & Record<string, unknown>): StudentData => ({
   id: student.id || '',
   name: student.name || 'Unknown',
   photo: student.photo || null,
@@ -263,7 +263,7 @@ export default function ParentDashboard() {
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-2">Welcome, Parent</h2>
             <p className="text-gray-600">
-              View {studentData.name}'s hostel information, fees, and leave status.
+              View {studentData.name}&apos;s hostel information, fees, and leave status.
             </p>
           </div>
 
@@ -282,7 +282,7 @@ export default function ParentDashboard() {
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-blue-900 mb-1">Data Protection & Privacy (DPDP Act, 2023)</h4>
                 <p className="text-sm text-blue-700 mb-2">
-                  This dashboard displays your ward's information in compliance with DPDP Act, 2023. 
+                  This dashboard displays your ward&apos;s information in compliance with DPDP Act, 2023.
                   All data is encrypted and access is logged for audit purposes.
                 </p>
                 <Link 
@@ -311,7 +311,7 @@ export default function ParentDashboard() {
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-amber-900 mb-1">View-Only Access</h4>
                 <p className="text-sm text-amber-700">
-                  This dashboard provides read-only access to view your ward's information.
+                  This dashboard provides read-only access to view your ward&apos;s information.
                   <strong>You cannot make changes or approve requests through this portal.</strong>
                   For any changes, please contact hostel administration.
                 </p>
