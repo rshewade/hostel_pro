@@ -61,7 +61,7 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           port: ${{ env.SSH_PORT || '22' }}
-          source: "docker-compose.yml,nginx.conf"
+          source: "docker-compose.yml,db.json"
           target: /home/${{ env.SSH_USER }}/hostel_pro
 
       - name: Remote deploy (docker compose)
@@ -75,7 +75,7 @@ jobs:
           script: |
             mkdir -p ~/hostel_pro
             mv /home/${{ env.SSH_USER }}/hostel_pro/docker-compose.yml ~/hostel_pro/docker-compose.yml || true
-            mv /home/${{ env.SSH_USER }}/hostel_pro/nginx.conf ~/hostel_pro/nginx.conf || true
+            mv /home/${{ env.SSH_USER }}/hostel_pro/db.json ~/hostel_pro/db.json || true
             cd ~/hostel_pro
             export FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             docker compose pull || true

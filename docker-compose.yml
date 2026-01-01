@@ -1,32 +1,11 @@
 version: '3.8'
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "7011:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - hostel
-      - hostel_api
-    restart: unless-stopped
-
   hostel:
-    image: ${FRONTEND_IMAGE:-ghcr.io/hostel_pro-frontend:latest}
-    expose:
-      - "3000"
+    image: node:20-alpine #${FRONTEND_IMAGE:-ghcr.io/hostel_pro-frontend:latest}
+    ports:
+      - "7011:3000"
     environment:
       - NODE_ENV=production
-    depends_on:
-      - hostel_api
-    restart: unless-stopped
-
-  hostel_api:
-    image: node:20-alpine
-    working_dir: /app
-    command: sh -c "npm install -g json-server && json-server --watch /data/db.json --port 4001 --host 0.0.0.0"
-    expose:
-      - "4001"
     volumes:
-      - ./db.json:/data/db.json:ro
+      - ./db.json:/app/db.json:rw
     restart: unless-stopped
