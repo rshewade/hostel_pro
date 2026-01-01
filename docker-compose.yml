@@ -1,18 +1,18 @@
 version: '3.8'
 services:
-  frontend:
+  hostel:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "7011:3000"
     environment:
       - NODE_ENV=production
     depends_on:
-      - api
+      - hostel_api
     restart: unless-stopped
 
-  api:
+  hostel_api:
     image: node:18-alpine
     working_dir: /app
     command: sh -c "npm install -g json-server && json-server --watch /data/db.json --port 4001 --host 0.0.0.0"
