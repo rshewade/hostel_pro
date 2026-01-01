@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { find, findOne } from '@/lib/api/db';
 
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     try {
       const decoded = Buffer.from(sessionToken, 'base64').toString('utf-8');
       tokenData = JSON.parse(decoded);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid session token' },
         { status: 401 }
