@@ -4,12 +4,17 @@ on:
   push:
     branches: [ release ]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}-frontend
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -19,25 +24,36 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Login to DockerHub
-        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_ACCESS_TOKEN != '' }}
-        uses: docker/login-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_ACCESS_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=
 
       - name: Build and push frontend image
-        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_ACCESS_TOKEN != '' }}
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ env.DOCKERHUB_USERNAME }}/hostel_pro-frontend:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Copy docker-compose to remote host
+      - name: Copy deployment files to remote host
         if: ${{ env.SSH_HOST != '' && env.SSH_USER != '' && env.SSH_PRIVATE_KEY != '' }}
         uses: appleboy/scp-action@master
         with:
@@ -45,7 +61,7 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           port: ${{ env.SSH_PORT || '22' }}
-          source: docker-compose.yml
+          source: "docker-compose.yml,nginx.conf"
           target: /home/${{ env.SSH_USER }}/hostel_pro
 
       - name: Remote deploy (docker compose)
@@ -59,6 +75,8 @@ jobs:
           script: |
             mkdir -p ~/hostel_pro
             mv /home/${{ env.SSH_USER }}/hostel_pro/docker-compose.yml ~/hostel_pro/docker-compose.yml || true
+            mv /home/${{ env.SSH_USER }}/hostel_pro/nginx.conf ~/hostel_pro/nginx.conf || true
             cd ~/hostel_pro
+            export FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             docker compose pull || true
-            docker compose up -d --build
+            docker compose up -d
