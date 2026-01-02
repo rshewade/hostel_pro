@@ -1,0 +1,147 @@
+{
+  "tasks": [
+    {
+      "id": "41",
+      "title": "Fix All Failing Tests",
+      "description": "Fix 138 failing tests across 14 test files to achieve 98%+ test pass rate. This involves fixing Next.js router mocking, component UI issues, and API logic problems.",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "details": "Comprehensive test fix task addressing 138 failures across 8 categories:\n\n## Test Results Baseline\n- **Current:** 1,309/1,475 tests passing (88.7%)\n- **Target:** 1,447/1,475 tests passing (98%+)\n- **Failures:** 138 tests across 14 files\n\n## Failure Categories\n1. Next.js App Router Issues (20+ tests)\n2. Component/UI Mismatches (51+ tests)\n3. API & Logic Issues (67+ tests)\n\n## Phases\n\n### Phase 1: Critical Infrastructure Fixes (Est. 30-45 min)\n- Create Next.js router mocks for tests\n- Wrap async state updates in act()\n\n### Phase 2: Component & UI Fixes (Est. 2-2 hours)\n- Fix Parent Dashboard element queries\n- Add DPDP compliance UI elements\n- Add Student Login DPDP consent checkbox\n- Fix Student Room View mock data/element queries\n- Fix FormWizard duplicate test names\n- Fix Stepper orientation tests\n\n### Phase 3: API & Logic Fixes (Est. 20-30 min)\n- Fix Parent API GET requests and data filtering\n- Fix Retention Policies IST to UTC conversion\n- Fix document lifecycle validation\n\n### Phase 4: Verification (Est. 10-15 min)\n- Run full test suite after fixes\n- Verify no regressions\n- Document any remaining edge cases\n\n## Key Fix Areas\n\n**1. Router Mocking (Task 07, 09, 17)**\n- `useRouter` throws \"invariant expected app router to be mounted\" in test environment\n- Create `tests/mocks/next/navigation.ts` with mocked `useRouter`, `useSearchParams`, `usePathname`\n- Update `vitest.setup.ts` to import the mock\n- Create router wrapper component for tests that need router context\n- Fix redirection tests in Student Login\n\n\n**2. Parent Dashboard (Task 08.2 - 21 failures)**\n- Student overview section elements missing\n- Fee status section not rendering\n- Leave summary components not found\n- Notification center missing\n- Mobile viewport rendering issues\n- Fix element selectors to match actual component output\n\n\n**3. Parent Compliance (Task 08.4 - 30 failures)**\n- All 30 tests failing - likely component not implementing DPDP features\n- Missing DPDP compliance banner\n- Missing view-only access banner\n- Missing ARIA labels and help section\n\n\n**4. Student Login (Task 07 - 5 failures)**\n- DPDP consent checkbox not found\n- Role-based redirection tests failing (after router fix)\n\n\n**5. Student Room View (Task 17 - 10+ failures)**\n- \"Refresh Data\" button not found (component shows \"Retry\")\n- \"Allocated On\" text not found (error state showing)\n- Mock data not properly set for room allocation tests\n\n\n**6. Parent API (Task 08.3 - 2 failures)**\n- GET requests with valid session token failing\n- Student data filtering not excluding sensitive fields\n\n\n**7. Retention Policies (Task 11 - 1 failure)**\n- IST to UTC conversion failing\n- Offset calculation incorrect\n\n\n**8. FormWizard & Stepper (Task 10 - 3 failures)**\n- Duplicate test names causing conflicts\n- Vertical orientation rendering issues\n\n\n",
+      "testStrategy": "1. Run `npm run test:run` before any fixes to get baseline count of 138 failures\n2. After each fix category, run tests to verify expected number of tests now pass\n3. Verify no regressions by running full test suite after all fixes\n4. Run `npm run build` to ensure TypeScript compilation succeeds\n5. Test on multiple viewports to verify responsive behavior still works\n6. Document any remaining edge cases in task notes",
+      "subtasks": [
+        {
+          "id": "1",
+          "title": "Create Next.js Router Mock Infrastructure",
+          "description": "Create mocks for useRouter, useSearchParams, usePathname hooks to fix 'invariant expected app router to be mounted' errors in test environment.",
+          "dependencies": [],
+          "details": "Create `tests/mocks/next/navigation.ts` with mock implementations:\n- `useRouter()` mock returning push, replace, pathname, and asPath\n- `useSearchParams()` mock returning searchParams and default values\n- `usePathname()` mock returning current pathname\n\nUpdate `vitest.setup.ts` to import mocks at the top\n\nCreate a `RouterProvider` or wrapper component for tests that need router context\n\nExport mocks with `vi.mock()` so they're available for all test files",
+          "status": "pending",
+          "testStrategy": "After creating mocks, run tests for Tasks 07, 09, 17 and verify 'invariant expected app router to be mounted' errors no longer occur. Verify redirection tests work with mocked router."
+        },
+        {
+          "id": "2",
+          "title": "Fix React act() Warnings in Tests",
+          "description": "Wrap async state updates in act() to eliminate 'An update to LoginPage inside a test was not wrapped in act(...)' warnings in test execution.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Identify all locations in test files where React state updates occur without act() wrapping:\n- `tests/Task07-StudentLogin.test.tsx` - Login form state updates after user interactions\n- `tests/Task08.2-ParentDashboard.test.tsx` - Dashboard loading states\n- Any other test files with async state updates\n\nWrap each state-updating operation in act() or waitFor()\n\nRe-run tests to verify warnings are eliminated\nEnsure proper cleanup in useEffect hooks",
+          "status": "pending",
+          "testStrategy": "After fixing act() wrappers, run tests and verify no warnings appear in console output. Check that all async operations are properly handled."
+        },
+        {
+          "id": "3",
+          "title": "Fix Parent Dashboard UI and Component Tests",
+          "description": "Fix 21 failing tests in Task 08.2 by correcting element queries and adding missing UI elements.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Analyze the 21 failing tests:\n1. Student overview section elements missing\n2. Fee status section not rendering properly\n3. Leave summary components not found\n4. Notification center missing\n5. Mobile viewport rendering issues\n\nRead the actual Parent Dashboard component implementation at `/dashboard/parent/page.tsx`\nCompare test expectations with actual rendered output\nFix strategy: Update test selectors to match actual component structure\nAdd missing DPDP compliance banner with 'View-only access: cannot edit' messaging\nAdd missing help section and ARIA labels\nFix mobile responsive behavior issues\nRe-run tests after fixes to verify all 21 tests pass",
+          "status": "pending",
+          "testStrategy": "Inspect Parent Dashboard component code to understand actual UI structure. For each failing test, determine if the element exists but has different text/selector, or if it doesn't exist at all. Fix tests by updating selectors or marking as skip if feature not yet implemented. After fixes, verify all 21 tests pass."
+        },
+        {
+          "id": "4",
+          "title": "Implement DPDP Compliance UI Elements",
+          "description": "Add all 30 failing DPDP compliance tests from Task 08.4 by implementing missing compliance features.",
+          "dependencies": [
+            "3"
+          ],
+          "details": "Failing tests expectations:\n- DPDP compliance banner with year reference\n- Explanation of data encryption\n- Mention of audit logging\n- View-only access banner\n- Info icons with aria-labels\n- Clear section labels\n- Proper ARIA labels on headings and status cards\n- Help section with phone/email\n- Session expiration info\n- Data encryption info\n\nImplementation approach:\n1. Update Parent Dashboard component at `/dashboard/parent/page.tsx` to include all DPDP compliance elements\n2. Add DPDP banner component near top of dashboard with:\n   - Year reference text\n   - Link to full DPDP policy\n   - Close button\n3. Add view-only access banner with clear messaging\n4. Implement info icons with proper aria-labels for key sections\n5. Add help section at bottom with:\n   - Phone number\n   - Email address\n   - Help availability hours\n6. Ensure all ARIA labels are present on section headings\n7. Verify all 30 tests pass after implementation",
+          "status": "pending",
+          "testStrategy": "Read Task 08.4 test file to understand all 30 expected elements. Implement each missing element in the Parent Dashboard component. Run tests to verify all 30 tests now pass."
+        },
+        {
+          "id": "5",
+          "title": "Fix Student Login DPDP Consent and Redirection",
+          "description": "Fix 5 failing tests in Task 07 by adding DPDP consent checkbox and fixing role-based redirection.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Failing tests:\n1. 'shows DPDP consent checkbox' not found\n2. 'redirects to Student Dashboard' (4x)\n3. 'redirects to superintendent dashboard' (1x)\n4. 'redirects to trustee dashboard' (1x)\n5. 'redirects to accounts dashboard' (1x)\n\nFix approach:\n1. Read Login page at `/app/login/page.tsx`\n2. Add DPDP consent checkbox before login button with:\n   - Required field validation\n   - Link to full policy\n   - Explicit checkbox with 'I agree' text\n3. After router mock is in place (Subtask 1), verify redirection tests work\n4. If redirection tests still fail, investigate if test expectations match actual routing logic\n5. Wrap all form submission state updates in act()\nRe-run Task 07 tests to verify all 5 tests pass",
+          "status": "pending",
+          "testStrategy": "Inspect login page component to understand current form structure. Add DPDP consent checkbox in appropriate location. Verify redirection tests pass after router mock is implemented. Ensure no act() warnings remain."
+        },
+        {
+          "id": "6",
+          "title": "Fix Student Room View Mock Data and Element Queries",
+          "description": "Fix 10+ failing tests in Task 17 by correcting mock data and updating element selectors.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Failing tests:\n1. 'should have Refresh Data button' - component shows 'Retry' instead\n2. 'should display allocated date' - error state showing instead of data\n3. Other element query failures matching error state\n\nRoot cause: Tests not providing proper mock data for room allocation, causing error state to render\n\nFix approach:\n1. Analyze Student Room page at `/dashboard/student/room/page.tsx`\n2. Identify where mock data should be injected for successful allocation state\n3. Update test mock to include:\n   - Room number\n   - Room type\n   - Sharing details\n   - Allocated date\n4. Update element selectors in tests to match actual UI:\n   - Change 'Refresh Data' to 'Retry' where appropriate\n   - Update error state handling\nRe-run Task 17 tests to verify all fixes work",
+          "status": "pending",
+          "testStrategy": "Review Student Room page component to understand data structure. Fix test mocks to provide proper room allocation data instead of error state. Update test expectations to match actual button text and error messages."
+        },
+        {
+          "id": "7",
+          "title": "Fix Parent API Session and Data Filtering",
+          "description": "Fix 2 failing tests in Task 08.3 by correcting session validation and data filtering logic.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Failing tests:\n1. 'allows GET requests with valid session token' - failing in tests\n2. 'returns only student data (no sensitive fields)' - filtering not working\n\nRoot cause: API endpoint implementation or mock server not correctly handling session tokens or filtering sensitive fields\n\nFix approach:\n1. Read Parent API endpoint at `/api/parent/student/route.ts` or similar\n2. Verify session token validation logic\n3. Ensure student data response filters sensitive fields (passwords, internal remarks, etc.)\n4. Update mock server responses to return properly filtered data\n5. Re-run Task 08.3 tests to verify both API tests pass",
+          "status": "pending",
+          "testStrategy": "Inspect Parent API routes to understand session and data filtering logic. Update mock server to correctly handle tokens and filter sensitive fields. Verify both API tests pass."
+        },
+        {
+          "id": "8",
+          "title": "Fix Retention Policies IST to UTC Conversion",
+          "description": "Fix 1 failing test in Task 11 by correcting timezone offset calculation.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Failing test:\n1. 'should convert IST to UTC' - offset calculation incorrect\n\nRoot cause: IST offset (+5:30) not being applied correctly in timezone conversion function\n\nFix approach:\n1. Read retention policies utility file to find IST to UTC conversion function\n2. Check if IST offset is correctly defined as +5:30 (330 minutes)\n3. Verify the conversion logic in the utility function\n4. Fix the offset calculation or update the test expectation\nRe-run Task 11 tests to verify all 42 tests now pass (including the one failing IST test)",
+          "status": "pending",
+          "testStrategy": "Locate retention policies file in the codebase. Find the IST to UTC conversion function and verify offset calculation. Test the conversion manually with sample timestamps. Fix the bug and update test expectation."
+        },
+        {
+          "id": "9",
+          "title": "Fix Document Lifecycle and Validation Tests",
+          "description": "Fix multiple failing tests in Task 11 related to document status tracking and validation.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Failing tests:\nMultiple document lifecycle and validation tests failing\n\nRoot cause: Document status transitions or validation not matching actual implementation\n\nFix approach:\n1. Review all document status tests and identify mismatches\n2. Check document component implementations\n3. Update test expectations to match actual behavior\n4. Verify document lifecycle transitions work correctly\nRe-run Task 11 document-related tests to verify fixes work",
+          "status": "pending",
+          "testStrategy": "Review Task 11 test file for document-related failures. Identify which tests are for status tracking vs validation vs upload vs preview. Fix implementation or update test expectations accordingly. Run all document tests after fixes."
+        },
+        {
+          "id": "10",
+          "title": "Fix FormWizard and Stepper Tests",
+          "description": "Fix 3 failing tests in Task 10 by fixing duplicate test names and stepper orientation.",
+          "dependencies": [
+            "1"
+          ],
+          "details": "Failing tests:\n1. Duplicate test names causing test execution conflicts\n2. 'renders vertical orientation when specified' - prop or test issue\n3. 'calls onStepClick when clicking a completed step' - duplicated test with different assertions\n\nRoot cause: Test file has duplicate test names or incorrect stepper implementation\n\nFix approach:\n1. Identify all duplicate test names in the file\n2. Rename duplicates to unique, descriptive names\n3. Fix stepper orientation test by ensuring correct props are passed\n4. Verify test expectations match component behavior\nRe-run Task 10 tests to verify all 11 tests pass",
+          "status": "pending",
+          "testStrategy": "Search for duplicate 'describe()' blocks with identical test names. Rename conflicts with unique names like 'should render vertical orientation when step completed' vs 'should render vertical orientation after step completes'. Verify stepper implementation accepts orientation prop correctly."
+        },
+        {
+          "id": "11",
+          "title": "Run Full Test Suite and Verify No Regressions",
+          "description": "Execute complete test suite after all fixes, verify pass rate, and document remaining edge cases.",
+          "dependencies": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "details": "After completing all 9 fix subtasks:\n1. Run full test suite with `npm run test:run`\n2. Verify target achieved: 98%+ pass rate (1,447/1,475 tests passing)\n3. Check for any new test failures introduced\n4. Run `npm run build` to ensure no TypeScript errors\n5. Test on multiple viewports to verify responsive behavior still works\n6. Document any remaining edge cases or known issues in task notes\n\nExit criteria:\n- All 138 original failing tests now passing\n- Test pass rate: 98%+\n- No new test failures\n- Build succeeds without errors\n- Full test suite completes without regressions\n- All 11 subtasks completed before marking task as done",
+          "status": "pending",
+          "testStrategy": "Run full test suite and capture results. Compare against baseline of 1,309/1,475 passing. Ensure 1,447+ tests are now passing. Check test report for any remaining failures. Verify build succeeds. Document final test statistics."
+        }
+      ],
+      "complexity": 9,
+      "recommendedSubtasks": 11,
+      "expansionPrompt": "Break down this task into subtasks covering: (1) Next.js router mocking infrastructure; (2) React act() warning fixes; (3) Parent Dashboard UI fixes (21 tests); (4) DPDP compliance implementation (30 tests); (5) Student Login DPDP consent and redirection (5 tests); (6) Student Room View mock data and element queries (10+ tests); (7) Parent API session and data filtering (2 tests); (8) Retention policies IST to UTC conversion (1 test); (9) Document lifecycle and validation fixes; (10) FormWizard and Stepper fixes (3 tests); (11) Full test suite execution and verification. For each subtask, define specific failing tests to fix, fix approach, and success criteria. Ensure total of 138 failing tests are addressed across all 14 test files."
+    }
+  ]
+}

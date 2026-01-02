@@ -35,6 +35,33 @@
       "mobile_no": "+919876543219",
       "status": "ACTIVE",
       "created_at": "2024-01-15T10:00:00Z"
+    },
+    {
+      "id": "USR003",
+      "mobile_no": "9876543001",
+      "role": "superintendent",
+      "email": "superintendent.boys@jainhostel.com",
+      "password_hash": "password123",
+      "status": "ACTIVE",
+      "created_at": "2025-12-31T07:54:25.269Z"
+    },
+    {
+      "id": "USR004",
+      "mobile_no": "9876543002",
+      "role": "superintendent",
+      "email": "superintendent.girls@jainhostel.com",
+      "password_hash": "password123",
+      "status": "ACTIVE",
+      "created_at": "2025-12-30T07:54:25.269Z"
+    },
+    {
+      "id": "USR006",
+      "mobile_no": "9876543004",
+      "role": "accounts",
+      "email": "accounts@jainhostel.com",
+      "password_hash": "password123",
+      "status": "ACTIVE",
+      "created_at": "2025-12-28T07:54:25.269Z"
     }
   ],
   "profiles": [
@@ -45,6 +72,8 @@
       "profile_type": "student",
       "details": {
         "father_name": "Rajesh Kumar",
+        "father_mobile": "+919876543220",
+        "mother_mobile": "+919876543221",
         "age": 22,
         "native_place": "Mumbai, Maharashtra",
         "education": {
@@ -61,6 +90,7 @@
       "profile_type": "student",
       "details": {
         "father_name": "Anil Jain",
+        "father_mobile": "+919876543222",
         "age": 21,
         "native_place": "Pune, Maharashtra",
         "education": {
@@ -71,15 +101,39 @@
       }
     }
   ],
+  "students": [
+    {
+      "id": "STU001",
+      "user_id": "u1",
+      "name": "Rahul Kumar",
+      "mobile": "9876543210",
+      "email": "rahul.kumar@email.com",
+      "vertical": "Boys Hostel",
+      "room": "101",
+      "joiningDate": "2024-08-15",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-02-15",
+      "parentName": "Rajesh Kumar",
+      "parentMobile": "9876543220",
+      "course": "B.Com",
+      "institution": "Mumbai University",
+      "year": "3rd Year"
+    }
+  ],
   "applications": [
     {
       "id": "app1",
-      "tracking_number": "BH2024001",
+      "tracking_number": "BH-2024-00001",
+      "trackingNumber": "BH-2024-00001",
       "type": "NEW",
       "parent_application_id": null,
       "applicant_mobile": "+919876543213",
       "student_user_id": null,
       "current_status": "SUBMITTED",
+      "status": "SUBMITTED",
       "vertical": "BOYS_HOSTEL",
       "data": {
         "personal_info": {
@@ -92,6 +146,7 @@
           "father_name": "Prakash Shah",
           "father_mobile": "+919876543220",
           "mother_name": "Meena Shah",
+          "mother_mobile": "+919876543225",
           "address": "123, Gandhi Road, Ahmedabad"
         },
         "education": {
@@ -105,12 +160,14 @@
     },
     {
       "id": "app2",
-      "tracking_number": "GA2024002",
+      "tracking_number": "GA-2024-00002",
+      "trackingNumber": "GA-2024-00002",
       "type": "NEW",
       "parent_application_id": null,
       "applicant_mobile": "+919876543214",
       "student_user_id": null,
       "current_status": "REVIEW",
+      "status": "REVIEW",
       "vertical": "GIRLS_ASHRAM",
       "data": {
         "personal_info": {
@@ -122,19 +179,26 @@
         "guardian_info": {
           "father_name": "Ramesh Patel",
           "father_mobile": "+919876543221"
+        },
+        "education": {
+          "institution": "Rajkot University",
+          "course": "B.Sc",
+          "year": "1st Year"
         }
       },
       "submitted_at": "2024-12-10T09:15:00Z",
       "created_at": "2024-12-09T11:00:00Z"
     },
     {
-      "id": "app4",
-      "tracking_number": "GA2024004",
+      "id": "app3",
+      "tracking_number": "GA-2024-00003",
+      "trackingNumber": "GA-2024-00003",
       "type": "NEW",
       "parent_application_id": null,
       "applicant_mobile": "+919876543216",
       "student_user_id": null,
       "current_status": "APPROVED",
+      "status": "APPROVED",
       "vertical": "GIRLS_ASHRAM",
       "data": {
         "personal_info": {
@@ -159,28 +223,149 @@
       "created_at": "2024-12-11T09:00:00Z"
     },
     {
-      "id": "app3",
-      "tracking_number": "DH2024003",
+      "id": "1767341576847",
+      "tracking_number": "HG-2026-00001",
+      "trackingNumber": "HG-2026-00001",
       "type": "NEW",
-      "parent_application_id": null,
-      "applicant_mobile": "+919876543215",
-      "student_user_id": null,
-      "current_status": "DRAFT",
-      "vertical": "DHARAMSHALA",
+      "vertical": "BOYS_HOSTEL",
+      "current_status": "SUBMITTED",
+      "status": "SUBMITTED",
+      "applicant_mobile": "9920730223",
       "data": {
         "personal_info": {
-          "full_name": "Vikram Singh",
-          "age": 45,
-          "native_place": "Jaipur, Rajasthan"
+          "full_name": "Ramesh Pawar",
+          "age": 27,
+          "native_place": "Mumbai, Maharashtra",
+          "mobile": "9920730223",
+          "email": "ramesh@pawar.com"
         },
-        "stay_duration": {
-          "from": "2024-12-20",
-          "to": "2024-12-25",
-          "purpose": "Religious visit"
+        "guardian_info": {
+          "father_name": "Suresh Pawar",
+          "father_mobile": "9920730223",
+          "father_email": "suresh@pawar.com",
+          "mother_name": "Sudha Pawar",
+          "mother_mobile": "9720730223",
+          "address": "Test home address, Near another home, Mumbai, Maharashtra - 400001"
+        },
+        "education": {
+          "institution": "MSRDC",
+          "course": "B.Com.",
+          "year": "1"
         }
       },
-      "submitted_at": null,
-      "created_at": "2024-12-18T08:00:00Z"
+      "firstName": "Ramesh",
+      "lastName": "Pawar",
+      "dob": "1999-01-01",
+      "gender": "male",
+      "bloodGroup": "A+",
+      "addressLine1": "Test home address",
+      "addressLine2": "Near another home",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pinCode": "400001",
+      "fatherName": "Suresh Pawar",
+      "fatherMobile": "9920730223",
+      "motherName": "Sudha Pawar",
+      "motherMobile": "9720730223",
+      "institution": "MSRDC",
+      "course": "B.Com.",
+      "submitted_at": "2026-01-02T08:12:56.666Z",
+      "created_at": "2026-01-02T08:12:56.847Z"
+    },
+    {
+      "id": "1767341901430",
+      "tracking_number": "HG-2026-00002",
+      "trackingNumber": "HG-2026-00002",
+      "type": "NEW",
+      "vertical": "BOYS_HOSTEL",
+      "current_status": "WITHDRAWN",
+      "status": "WITHDRAWN",
+      "applicant_mobile": "9920730223",
+      "data": {
+        "personal_info": {
+          "full_name": "Ramesh Pawar",
+          "age": 21,
+          "native_place": "Mumbai, Maharashtra",
+          "mobile": "9920730223"
+        },
+        "guardian_info": {
+          "father_name": "Suresh Pawar",
+          "father_mobile": "9920730223",
+          "mother_name": "Sudha Pawar",
+          "mother_mobile": "9720730223",
+          "address": "Home Sweet Home, Near Home, Mumbai, Maharashtra - 400001"
+        },
+        "education": {
+          "institution": "IRCTC",
+          "course": "B. Com",
+          "year": "1"
+        }
+      },
+      "firstName": "Ramesh",
+      "lastName": "Pawar",
+      "dob": "2005-01-01",
+      "gender": "male",
+      "bloodGroup": "A+",
+      "addressLine1": "Home Sweet Home",
+      "addressLine2": "Near Home",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pinCode": "400001",
+      "fatherName": "Suresh Pawar",
+      "fatherMobile": "9920730223",
+      "motherName": "Sudha Pawar",
+      "motherMobile": "9720730223",
+      "institution": "IRCTC",
+      "course": "B. Com",
+      "submitted_at": "2026-01-02T08:18:21.407Z",
+      "created_at": "2026-01-02T08:18:21.431Z",
+      "updatedAt": "2026-01-02T14:13:01.911Z"
+    },
+    {
+      "id": "1767363417308",
+      "trackingNumber": "HG-2026-00003",
+      "vertical": "boys-hostel",
+      "firstName": "Ramesh",
+      "lastName": "Gulati",
+      "dob": "2004-01-01",
+      "gender": "male",
+      "bloodGroup": "B+",
+      "addressLine1": "Home",
+      "addressLine2": "Near Home",
+      "city": "Baramati",
+      "state": "Maharashtra",
+      "pinCode": "400009",
+      "fatherName": "Mahesh Gulati",
+      "fatherOccupation": "Business",
+      "fatherMobile": "9820098202",
+      "motherName": "Phulwari Gulati",
+      "motherOccupation": "No",
+      "motherMobile": "9820098203",
+      "emergencyContactPerson": "Phulwari Gulati",
+      "emergencyMobile": "9820098203",
+      "emergencyRelationship": "Parent",
+      "institution": "IDBC",
+      "course": "D Bom",
+      "year": "2",
+      "percentage": "98%",
+      "qualification": "12",
+      "board": "Gujrat University",
+      "passingYear": "2020",
+      "roomType": "4-sharing",
+      "duration": "1-year",
+      "joiningDate": "2026-01-02",
+      "ref1Name": "Ref1",
+      "ref1Mobile": "9820098204",
+      "ref1Year": "2020-2021",
+      "photoFile": {},
+      "birthCertificate": {},
+      "marksheet": {},
+      "recommendationLetter": {},
+      "declarationAccepted": true,
+      "status": "SUBMITTED",
+      "submittedAt": "2026-01-02T14:16:57.277Z",
+      "createdAt": "2026-01-02T14:16:57.308Z",
+      "updatedAt": "2026-01-02T14:16:57.308Z"
     }
   ],
   "documents": [
@@ -277,75 +462,7 @@
       "vacated_at": null,
       "status": "ACTIVE",
       "check_in_confirmed": true,
-      "check_in_confirmed_at": "2025-12-31T16:29:05.179Z",
-      "check_in_inventory": [
-        {
-          "id": "bed",
-          "name": "Bed with Mattress",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "table",
-          "name": "Study Table",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "chair",
-          "name": "Chair",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "cupboard",
-          "name": "Cupboard",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "fan",
-          "name": "Ceiling Fan",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "light",
-          "name": "Light Fixture",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "windows",
-          "name": "Windows (Working)",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        },
-        {
-          "id": "door_lock",
-          "name": "Door Lock",
-          "expected_quantity": 1,
-          "verified": true,
-          "actual_quantity": 1,
-          "notes": ""
-        }
-      ],
-      "check_in_notes": "",
-      "updatedAt": "2025-12-31T16:29:05.233Z"
+      "check_in_confirmed_at": "2025-12-31T16:29:05.179Z"
     },
     {
       "id": "alloc2",
@@ -420,6 +537,28 @@
       "created_at": "2024-01-15T14:00:00Z"
     }
   ],
+  "renewals": [
+    {
+      "id": "REN001",
+      "studentId": "u1",
+      "type": "RENEWAL",
+      "status": "PENDING",
+      "academicYear": "2025-26",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 60000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 60000,
+      "feePaid": 0,
+      "documentsRequired": [
+        "marksheet_latest",
+        "id_proof"
+      ],
+      "documentsUploaded": [],
+      "consentGiven": false,
+      "createdAt": null,
+      "submittedAt": null
+    }
+  ],
   "auditLogs": [
     {
       "id": "audit1",
@@ -445,6 +584,19 @@
       "performed_at": "2024-12-11T10:00:00Z",
       "metadata": {
         "remarks": "Initial review started"
+      }
+    },
+    {
+      "id": "audit1767363181911",
+      "entity_type": "APPLICATION",
+      "entity_id": "1767341901430",
+      "action": "STATUS_CHANGE",
+      "old_value": "SUBMITTED",
+      "new_value": "WITHDRAWN",
+      "performed_by": null,
+      "performed_at": "2026-01-02T14:13:01.911Z",
+      "metadata": {
+        "tracking_number": "HG-2026-00002"
       }
     }
   ]

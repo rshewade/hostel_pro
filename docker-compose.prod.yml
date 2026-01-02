@@ -1,13 +1,11 @@
 version: '3.8'
 services:
   hostel:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ${FRONTEND_IMAGE:-ghcr.io/hostel_pro-frontend:latest}
     ports:
       - "7011:3000"
     environment:
       - NODE_ENV=production
     volumes:
-      - ./db.json:/db.json:rw
+      - ./db.json:/app/db.json:rw
     restart: unless-stopped

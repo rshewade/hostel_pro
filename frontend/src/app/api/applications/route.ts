@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'db.json');
+// Use consistent path with other API routes (repo root db.json)
+const dbPath = process.env.DB_FILE_PATH || path.join(process.cwd(), '../db.json');
 
 // Read db.json
 async function readDb() {
@@ -16,10 +17,23 @@ async function writeDb(data: any) {
   return data;
 }
 
-// GET /api/applications - Get all applications
-export async function GET() {
+// GET /api/applications - Get all applications or filter by tracking_number
+export async function GET(request: NextRequest) {
   const db = await readDb();
-  return NextResponse.json(db.applications || []);
+  const { searchParams } = new URL(request.url);
+  const trackingNumber = searchParams.get('tracking_number');
+
+  const applications = db.applications || [];
+
+  // Filter by tracking number if provided
+  if (trackingNumber) {
+    const filtered = applications.filter(
+      (app: any) => app.trackingNumber === trackingNumber || app.tracking_number === trackingNumber
+    );
+    return NextResponse.json(filtered);
+  }
+
+  return NextResponse.json(applications);
 }
 
 // POST /api/applications - Create new application

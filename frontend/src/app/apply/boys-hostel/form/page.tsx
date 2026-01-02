@@ -921,7 +921,7 @@ export default function ApplicationFormPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      const response = await fetch('/api/applications/route', {
+      const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

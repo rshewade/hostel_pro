@@ -57,6 +57,11 @@ const statusConfig = {
     label: 'Rejected',
     color: 'red',
     description: 'Application has been rejected'
+  },
+  WITHDRAWN: {
+    label: 'Withdrawn',
+    color: 'gray',
+    description: 'Application has been withdrawn by applicant'
   }
 };
 
@@ -108,6 +113,40 @@ export default function TrackingDetailPage() {
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [uploading, setUploading] = useState(false);
   const [timeUntilInterview, setTimeUntilInterview] = useState<{ days: number; hours: number; minutes: number } | null>(null);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
+
+  // Handle application withdrawal
+  const handleWithdraw = async () => {
+    if (!application) return;
+
+    setWithdrawing(true);
+    try {
+      const response = await fetch(`/api/applications/${application.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'WITHDRAWN',
+          current_status: 'WITHDRAWN'
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to withdraw application');
+      }
+
+      // Update local state
+      setApplication(prev => prev ? { ...prev, current_status: 'WITHDRAWN' } : null);
+      setShowWithdrawModal(false);
+      alert('Application withdrawn successfully');
+    } catch (err) {
+      console.error('Error withdrawing application:', err);
+      alert(err instanceof Error ? err.message : 'Failed to withdraw application');
+    } finally {
+      setWithdrawing(false);
+    }
+  };
 
   // Fetch application data on mount
   useEffect(() => {
@@ -297,6 +336,23 @@ export default function TrackingDetailPage() {
                 <h4 className="text-sm font-semibold text-red-900 mb-1">Application Rejected</h4>
                 <p className="text-sm text-red-700">
                   Your application could not be approved. For more information, please contact our admissions team.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'WITHDRAWN':
+        return (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">Application Withdrawn</h4>
+                <p className="text-sm text-gray-700">
+                  You have withdrawn this application. If you wish to apply again, please submit a new application.
                 </p>
               </div>
             </div>
@@ -546,11 +602,17 @@ export default function TrackingDetailPage() {
                   Download Provisional Letter
                 </button>
               )}
-              <button className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700">
+              <button
+                className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"
+                onClick={() => window.open(`/api/applications/${trackingId}/pdf`, '_blank')}
+              >
                 Download Application PDF
               </button>
-              {application.current_status !== 'APPROVED' && application.current_status !== 'REJECTED' && (
-                <button className="w-full border-2 border-red-500 text-red-600 py-2 px-4 rounded-md hover:bg-red-50">
+              {application.current_status !== 'APPROVED' && application.current_status !== 'REJECTED' && application.current_status !== 'WITHDRAWN' && (
+                <button
+                  className="w-full border-2 border-red-500 text-red-600 py-2 px-4 rounded-md hover:bg-red-50"
+                  onClick={() => setShowWithdrawModal(true)}
+                >
                   Withdraw Application
                 </button>
               )}
@@ -724,6 +786,41 @@ export default function TrackingDetailPage() {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Confirmation Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-center mb-2">Withdraw Application?</h3>
+              <p className="text-gray-600 text-center mb-6">
+                Are you sure you want to withdraw your application <strong>{application?.tracking_number}</strong>? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowWithdrawModal(false)}
+                  disabled={withdrawing}
+                  className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleWithdraw}
+                  disabled={withdrawing}
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:opacity-50"
+                >
+                  {withdrawing ? 'Withdrawing...' : 'Yes, Withdraw'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

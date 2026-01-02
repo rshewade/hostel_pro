@@ -12,7 +12,7 @@ import path from 'path';
 // Database Path Configuration
 // ============================================================================
 
-const DB_PATH = path.join(process.cwd(), '../db.json');
+const DB_PATH = process.env.DB_FILE_PATH || path.join(process.cwd(), '../db.json');
 
 // ============================================================================
 // Database Types
