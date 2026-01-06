@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { Chip } from '@/components/ui/Chip';
 import { Button } from '@/components/ui/Button';
@@ -16,9 +16,10 @@ import { Select, type SelectOption } from '@/components/forms/Select';
 import { Toggle } from '@/components/forms/Toggle';
 import { Checkbox } from '@/components/forms/Checkbox';
 import { Textarea } from '@/components/forms/Textarea';
+import { Spinner } from '@/components/feedback/Spinner';
 
 // Types
-type ApplicationStatus = 'NEW' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
+type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
 type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 
 interface Application {
@@ -31,6 +32,8 @@ interface Application {
   paymentStatus: string;
   interviewScheduled: boolean;
   flags?: string[];
+  email?: string;
+  mobile?: string;
 }
 
 interface LeaveType {
@@ -72,6 +75,69 @@ export default function SuperintendentDashboard() {
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+
+  // API data state
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch applications from API
+  const fetchApplications = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch('/api/applications');
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications');
+      }
+      const data = await response.json();
+      
+      // Transform API data to UI format
+      const transformedApplications: Application[] = Array.isArray(data) ? data.map((app: any) => {
+        // Extract applicant name from different formats
+        let applicantName = 'Unknown';
+        if (app.applicantName) {
+          applicantName = app.applicantName;
+        } else if (app.firstName) {
+          applicantName = `${app.firstName} ${app.lastName || ''}`.trim();
+        } else if (app.data?.personal_info?.full_name) {
+          applicantName = app.data.personal_info.full_name;
+        } else if (app.data?.personalInfo?.fullName) {
+          applicantName = app.data.personalInfo.fullName;
+        }
+
+        return {
+          id: app.id,
+          trackingNumber: app.trackingNumber || app.tracking_number || `HG-${new Date().getFullYear()}-00000`,
+          applicantName,
+          vertical: mapVertical(app.personalInfo?.vertical || app.vertical || app.data?.vertical),
+          status: mapApplicationStatus(app.currentStatus || app.status),
+          applicationDate: app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') : 
+                          app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-GB') : 
+                          app.submitted_at ? new Date(app.submitted_at).toLocaleDateString('en-GB') : 
+                          new Date().toLocaleDateString('en-GB'),
+          paymentStatus: app.fees?.paymentStatus || app.paymentStatus || 'PENDING',
+          interviewScheduled: app.interview?.scheduled || app.interviewScheduled || false,
+          flags: app.flags || [],
+          email: app.personalInfo?.email || app.applicantEmail || app.email,
+          mobile: app.personalInfo?.mobile || app.applicantMobile || app.mobile
+        };
+      }) : [];
+      
+      setApplications(transformedApplications);
+    } catch (err: any) {
+      console.error('Error fetching applications:', err);
+      setError(err.message || 'Failed to load applications');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedTab === 'applications') {
+      fetchApplications();
+    }
+  }, [selectedTab, fetchApplications]);
 
   // Communication state
   const [showMessagePanel, setShowMessagePanel] = useState(false);
@@ -192,67 +258,35 @@ export default function SuperintendentDashboard() {
     { value: 'DAILY', label: 'Daily Summary' }
   ];
 
-  // Mock data
-  const mockApplications: Application[] = [
-    {
-      id: '1',
-      trackingNumber: 'APP-2024-001',
-      applicantName: 'Rahul Sharma',
-      vertical: 'BOYS',
-      status: 'UNDER_REVIEW',
-      applicationDate: '2024-12-20',
-      paymentStatus: 'PAID',
-      interviewScheduled: true,
-      flags: ['Documents Pending']
-    },
-    {
-      id: '2',
-      trackingNumber: 'APP-2024-002',
-      applicantName: 'Priya Patel',
-      vertical: 'GIRLS',
-      status: 'NEW',
-      applicationDate: '2024-12-21',
-      paymentStatus: 'PENDING',
-      interviewScheduled: false,
-      flags: []
-    },
-    {
-      id: '3',
-      trackingNumber: 'APP-2024-003',
-      applicantName: 'Amit Kumar',
-      vertical: 'BOYS',
-      status: 'APPROVED',
-      applicationDate: '2024-12-15',
-      paymentStatus: 'PAID',
-      interviewScheduled: false,
-      flags: []
-    },
-    {
-      id: '4',
-      trackingNumber: 'APP-2024-004',
-      applicantName: 'Sneha Reddy',
-      vertical: 'DHARAMSHALA',
-      status: 'REJECTED',
-      applicationDate: '2024-12-18',
-      paymentStatus: 'REFUNDED',
-      interviewScheduled: false,
-      flags: ['Incomplete Documents']
-    },
-    {
-      id: '5',
-      trackingNumber: 'APP-2024-005',
-      applicantName: 'Vijay Singh',
-      vertical: 'GIRLS',
-      status: 'UNDER_REVIEW',
-      applicationDate: '2024-12-22',
-      paymentStatus: 'PAID',
-      interviewScheduled: true,
-      flags: ['High Priority']
-    }
-  ];
+  // Status mapping functions
+  const mapApplicationStatus = (status: string): ApplicationStatus => {
+    const statusMap: Record<string, ApplicationStatus> = {
+      'DRAFT': 'DRAFT',
+      'SUBMITTED': 'SUBMITTED',
+      'REVIEW': 'REVIEW',
+      'UNDER_REVIEW': 'REVIEW',
+      'NEW': 'SUBMITTED',
+      'APPROVED': 'APPROVED',
+      'REJECTED': 'REJECTED',
+      'ARCHIVED': 'ARCHIVED',
+      'INTERVIEW': 'REVIEW'
+    };
+    return statusMap[status] || 'DRAFT';
+  };
 
-  // Filter applications
-  const filteredApplications = mockApplications.filter(app => {
+  const mapVertical = (vertical: string): Vertical => {
+    const verticalMap: Record<string, Vertical> = {
+      'BOYS': 'BOYS',
+      'BOYS_HOSTEL': 'BOYS',
+      'GIRLS': 'GIRLS',
+      'GIRLS_ASHRAM': 'GIRLS',
+      'DHARAMSHALA': 'DHARAMSHALA'
+    };
+    return verticalMap[vertical] || 'BOYS';
+  };
+
+  // Filter applications from API data
+  const filteredApplications = applications.filter(app => {
     const matchesStatus = selectedStatus === 'ALL' || app.status === selectedStatus;
     const matchesVertical = selectedVertical === 'ALL' || app.vertical === selectedVertical;
     const matchesSearch = app.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -263,10 +297,12 @@ export default function SuperintendentDashboard() {
   // Status badge variants
   const getStatusVariant = (status: ApplicationStatus): BadgeVariant => {
     switch (status) {
-      case 'NEW': return 'info';
-      case 'UNDER_REVIEW': return 'warning';
+      case 'DRAFT': return 'default';
+      case 'SUBMITTED':
+      case 'REVIEW': return 'warning';
       case 'APPROVED': return 'success';
       case 'REJECTED': return 'error';
+      case 'ARCHIVED': return 'default';
       default: return 'default';
     }
   };
@@ -276,9 +312,9 @@ export default function SuperintendentDashboard() {
     try {
       const newEntry: MessageLogEntry = {
         id: `msg-${Date.now()}`,
-        recipient: mockApplications.find(app => app.id === data.recipientId) ? {
+        recipient: applications.find(app => app.id === data.recipientId) ? {
           id: data.recipientId,
-          name: mockApplications.find(app => app.id === data.recipientId)!.applicantName,
+          name: applications.find(app => app.id === data.recipientId)!.applicantName,
           role: 'applicant' as const
         } : { id: data.recipientId, name: 'Unknown', role: 'applicant' as const },
         channels: data.channels,
@@ -568,28 +604,28 @@ export default function SuperintendentDashboard() {
                   >
                     All Statuses
                   </button>
-                  <button
-                    onClick={() => setSelectedStatus('NEW')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedStatus === 'NEW'
-                        ? 'border-blue-500 bg-blue-500 text-white'
-                        : 'border-blue-200 text-blue-700 hover:border-blue-300'
-                    )}
-                  >
-                    New
-                  </button>
-                  <button
-                    onClick={() => setSelectedStatus('UNDER_REVIEW')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedStatus === 'UNDER_REVIEW'
-                        ? 'border-yellow-500 bg-yellow-500 text-white'
-                        : 'border-yellow-200 text-yellow-700 hover:border-yellow-300'
-                    )}
-                  >
-                    Under Review
-                  </button>
+                    <button
+                      onClick={() => setSelectedStatus('SUBMITTED')}
+                      className={cn(
+                        'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
+                        selectedStatus === 'SUBMITTED'
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-blue-200 text-blue-700 hover:border-blue-300'
+                      )}
+                    >
+                      New
+                    </button>
+                    <button
+                      onClick={() => setSelectedStatus('REVIEW')}
+                      className={cn(
+                        'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
+                        selectedStatus === 'REVIEW'
+                          ? 'border-yellow-500 bg-yellow-500 text-white'
+                          : 'border-yellow-200 text-yellow-700 hover:border-yellow-300'
+                      )}
+                    >
+                      Under Review
+                    </button>
                   <button
                     onClick={() => setSelectedStatus('APPROVED')}
                     className={cn(
@@ -642,29 +678,61 @@ export default function SuperintendentDashboard() {
                   >
                     Clear Filters
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={fetchApplications}
+                  >
+                    Refresh
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* Applications Table */}
-            <Table<Application>
-              data={filteredApplications}
-              columns={columns}
-              onRowClick={(row) => setSelectedApplication(row)}
-              pagination={{
-                currentPage: 1,
-                pageSize: 10,
-                totalItems: filteredApplications.length,
-                totalPages: Math.ceil(filteredApplications.length / 10),
-                onPageChange: (page) => console.log('Page change:', page)
-              }}
-              density="normal"
-              striped={true}
-            />
+            {/* Applications Content */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Spinner size="lg" />
+                <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>Loading applications...</span>
+              </div>
+            ) : error ? (
+              <div className="p-4 rounded-lg border" style={{ background: 'var(--color-red-50)', borderColor: 'var(--color-red-200)' }}>
+                <p style={{ color: 'var(--color-red-700)' }} className="font-medium">Error loading applications</p>
+                <p style={{ color: 'var(--color-red-600)' }} className="text-sm">{error}</p>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={fetchApplications}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : filteredApplications.length === 0 ? (
+              <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
+                <p className="text-gray-600 mb-2">No applications found</p>
+                <p className="text-sm text-gray-500">Try adjusting your filters or check back later.</p>
+              </div>
+            ) : (
+              <Table<Application>
+                data={filteredApplications}
+                columns={columns}
+                onRowClick={(row) => setSelectedApplication(row)}
+                pagination={{
+                  currentPage: 1,
+                  pageSize: 10,
+                  totalItems: filteredApplications.length,
+                  totalPages: Math.ceil(filteredApplications.length / 10),
+                  onPageChange: (page) => console.log('Page change:', page)
+                }}
+                density="normal"
+                striped={true}
+              />
+            )}
           </>
         )}
 
-        {selectedTab === 'leaves' && (
+          {selectedTab === 'leaves' && (
           <div className="space-y-8">
             {/* Leave Types Configuration */}
             <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
@@ -1644,7 +1712,7 @@ export default function SuperintendentDashboard() {
           setSelectedMessageRecipient(null);
         }}
         onSend={handleSendMessage}
-        recipients={mockApplications.map(app => ({
+        recipients={applications.map(app => ({
           id: app.id,
           name: app.applicantName,
           role: 'applicant' as const,
