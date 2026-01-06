@@ -414,14 +414,12 @@ export function toTimestampInfo(utcTimestamp: string): TimestampInfo {
  */
 export function istToUtc(istDateString: string): string {
   // Handle ISO 8601 strings with timezone offset
+  // When parsing a string with timezone offset (like +05:30),
+  // JavaScript automatically converts it to UTC
   const istDate = new Date(istDateString);
-  
-  // If the string has a timezone offset, JavaScript will parse it correctly
-  // We just need to return it as UTC
-  const utcTime = istDate.getTime() - (istDate.getTimezoneOffset() * 60 * 1000);
-  const utcDate = new Date(utcTime);
-  
-  return utcDate.toISOString();
+
+  // toISOString() always returns UTC time
+  return istDate.toISOString();
 }
 
 /**

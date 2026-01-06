@@ -55,6 +55,7 @@ const Stepper: React.FC<StepperProps> = ({
                 <button
                   onClick={() => handleStepClick(index)}
                   disabled={!canNavigate}
+                  aria-label={step.title}
                   className={cn(
                     'rounded-full flex items-center justify-center font-medium transition-colors duration-200 border-2',
                     sizeClasses[size],
@@ -125,6 +126,7 @@ const Stepper: React.FC<StepperProps> = ({
                 <button
                   onClick={() => handleStepClick(index)}
                   disabled={!canNavigate}
+                  aria-label={step.title}
                   className={cn(
                     'rounded-full flex items-center justify-center font-medium transition-colors duration-200 border-2',
                     sizeClasses[size],

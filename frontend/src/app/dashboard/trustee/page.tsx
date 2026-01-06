@@ -1209,16 +1209,18 @@ export default function TrusteeDashboard() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium mb-2 block">Date</label>
+                          <label htmlFor="interview-date" className="text-sm font-medium mb-2 block">Date</label>
                           <input
+                            id="interview-date"
                             type="date"
                             className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                             style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-medium mb-2 block">Time</label>
+                          <label htmlFor="interview-time" className="text-sm font-medium mb-2 block">Time</label>
                           <input
+                            id="interview-time"
                             type="time"
                             className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                             style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}

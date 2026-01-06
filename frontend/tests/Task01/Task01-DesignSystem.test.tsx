@@ -7,7 +7,7 @@ import path from 'path';
 describe('Design System Foundation - Colors and Typography', () => {
   beforeEach(() => {
     // Read and inject CSS directly
-    const cssPath = path.resolve(__dirname, '../src/app/globals.css');
+    const cssPath = path.resolve(__dirname, '../../src/app/globals.css');
     const cssContent = fs.readFileSync(cssPath, 'utf-8');
     
     // Create style element and inject CSS

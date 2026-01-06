@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PUT, DELETE, PATCH } from '../../src/app/api/parent/student/route';
 
 // Mock the database layer
-vi.mock('../src/lib/api/db', () => ({
-  find: vi.fn().mockImplementation((collection: string) => {
+vi.mock('../../src/lib/api/db', () => ({
+  find: vi.fn().mockImplementation((collection: string, filter?: (item: any) => boolean) => {
     if (collection === 'applications') {
-      return Promise.resolve([{
+      const mockApps = [{
         id: 'app-1',
         vertical: 'BOYS_HOSTEL',
         current_status: 'APPROVED',
@@ -16,26 +16,32 @@ vi.mock('../src/lib/api/db', () => ({
           personal_info: { full_name: 'Rahul Jain' },
           guardian_info: { father_mobile: '9876543210' }
         }
-      }]);
+      }];
+      return Promise.resolve(filter ? mockApps.filter(filter) : mockApps);
+    }
+    if (collection === 'profiles') {
+      return Promise.resolve([]);
     }
     return Promise.resolve([]);
   }),
-  findOne: vi.fn().mockImplementation((collection: string) => {
+  findOne: vi.fn().mockImplementation((collection: string, filter?: (item: any) => boolean) => {
     if (collection === 'allocations') {
-      return Promise.resolve({
+      const mockAlloc = {
         id: 'alloc-1',
         student_id: 'student-1',
         room_id: 'room-1',
         status: 'ACTIVE',
         allocated_at: '2024-06-15'
-      });
+      };
+      return Promise.resolve(filter ? (filter(mockAlloc) ? mockAlloc : null) : mockAlloc);
     }
     if (collection === 'rooms') {
-      return Promise.resolve({
+      const mockRoom = {
         id: 'room-1',
         room_number: 'B-101',
         vertical: 'BOYS_HOSTEL'
-      });
+      };
+      return Promise.resolve(filter ? (filter(mockRoom) ? mockRoom : null) : mockRoom);
     }
     return Promise.resolve(null);
   }),

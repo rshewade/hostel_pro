@@ -34,17 +34,15 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
         fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      // Wait for Summary tab to appear
+      await screen.findByText('Summary');
 
       // Click the Interview tab in the modal (second occurrence)
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        expect(screen.getByText('Schedule Interview')).toBeInTheDocument();
-      }, { timeout: 2000 });
+      // Wait for Schedule Interview heading to appear (using role for specificity)
+      expect(await screen.findByRole('heading', { name: /Schedule Interview/i })).toBeInTheDocument();
     });
 
     it('should display Mode selector with Online and Physical options', async () => {
@@ -99,22 +97,18 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
         fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const dateInput = screen.getByLabelText(/Date/i);
-        expect(dateInput).toBeInTheDocument();
-        expect(dateInput).toHaveAttribute('type', 'date');
+      const dateInput = await screen.findByLabelText(/Date/i);
+      expect(dateInput).toBeInTheDocument();
+      expect(dateInput).toHaveAttribute('type', 'date');
 
-        const timeInput = screen.getByLabelText(/Time/i);
-        expect(timeInput).toBeInTheDocument();
-        expect(timeInput).toHaveAttribute('type', 'time');
-      }, { timeout: 2000 });
+      const timeInput = await screen.findByLabelText(/Time/i);
+      expect(timeInput).toBeInTheDocument();
+      expect(timeInput).toHaveAttribute('type', 'time');
     });
 
     it('should have Send invitation checkbox', async () => {
@@ -165,16 +159,13 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
         fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        expect(screen.getByText('Schedule Interview')).toBeInTheDocument();
-      }, { timeout: 2000 });
+      const scheduleButton = await screen.findByRole('button', { name: /Schedule Interview/i });
+      expect(scheduleButton).toBeInTheDocument();
     });
 
     it('should have Cancel button', async () => {
@@ -206,147 +197,153 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
     it('should display Interview Details heading', async () => {
       render(<TrusteeDashboard />);
 
+      // Switch to "Pending Final Decision" tab to see PROVISIONALLY_APPROVED applications
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
       // Open application with scheduled interview (Priya Patel - APP-2024-002)
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        expect(screen.getByText('Interview Details')).toBeInTheDocument();
-      }, { timeout: 2000 });
+      expect(await screen.findByRole('heading', { name: /Interview Details/i })).toBeInTheDocument();
     });
 
     it('should display Scheduled For date and time', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        expect(screen.getByText(/Scheduled For:/i)).toBeInTheDocument();
-      }, { timeout: 2000 });
+      expect(await screen.findByText(/Scheduled For:/i)).toBeInTheDocument();
     });
 
     it('should display Mode badge (Online)', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const onlineBadges = screen.getAllByText('Online');
-        expect(onlineBadges.length).toBeGreaterThan(0);
-      }, { timeout: 2000 });
+      // Wait for Interview Details to load first
+      await screen.findByRole('heading', { name: /Interview Details/i });
+
+      const onlineBadges = screen.getAllByText('Online');
+      expect(onlineBadges.length).toBeGreaterThan(0);
     });
 
     it('should display meeting link for online interviews', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        expect(screen.getByText('Meeting Link:')).toBeInTheDocument();
-        expect(screen.getByText(/https:\/\/meet.google.com\/abc-xyz-def/)).toBeInTheDocument();
-      }, { timeout: 2000 });
+      expect(await screen.findByText('Meeting Link:')).toBeInTheDocument();
+      expect(await screen.findByText(/https:\/\/meet.google.com\/abc-xyz-def/)).toBeInTheDocument();
     });
 
     it('should have Join Interview button for scheduled interviews', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const joinButton = screen.getByText('Join Interview');
-        expect(joinButton).toBeInTheDocument();
-      }, { timeout: 2000 });
+      const joinButton = await screen.findByRole('button', { name: /Join Interview/i });
+      expect(joinButton).toBeInTheDocument();
     });
 
     it('should have Reschedule button', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const rescheduleButtons = screen.getAllByText('Reschedule');
-        expect(rescheduleButtons.length).toBeGreaterThan(0);
-      }, { timeout: 2000 });
+      const rescheduleButton = await screen.findByRole('button', { name: /Reschedule/i });
+      expect(rescheduleButton).toBeInTheDocument();
     });
 
     it('should have Cancel button for scheduled interviews', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 1) {
-        fireEvent.click(reviewButtons[1]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 0) {
+        fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const allCancelButtons = screen.getAllByText('Cancel');
-        expect(allCancelButtons.length).toBeGreaterThan(0);
-      }, { timeout: 2000 });
+      // Wait for Interview Details to load
+      await screen.findByRole('heading', { name: /Interview Details/i });
+
+      const allCancelButtons = screen.getAllByRole('button', { name: /Cancel/i });
+      expect(allCancelButtons.length).toBeGreaterThan(0);
     });
   });
 
@@ -357,87 +354,94 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
     it('should display Interview Evaluation heading for completed interviews', async () => {
       render(<TrusteeDashboard />);
 
+      // Switch to "Pending Final Decision" tab to see INTERVIEW_COMPLETED applications
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
       // Open application with completed interview (Amit Kumar - APP-2024-003)
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 2) {
-        fireEvent.click(reviewButtons[2]);
+      const reviewButtons = await screen.findAllByText('Review');
+      // Amit Kumar should be second in the "Pending Final" list (after Priya)
+      if (reviewButtons.length > 1) {
+        fireEvent.click(reviewButtons[1]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        // Note: This test may need adjustment based on actual implementation
-        const evaluationHeading = screen.queryByText('Interview Evaluation');
-        if (evaluationHeading) {
-          expect(evaluationHeading).toBeInTheDocument();
-        }
-      }, { timeout: 2000 });
+      // Wait for Interview Details to load
+      await screen.findByRole('heading', { name: /Interview Details/i });
+
+      // Note: This test may need adjustment based on actual implementation
+      const evaluationHeading = screen.queryByRole('heading', { name: /Interview Evaluation/i });
+      if (evaluationHeading) {
+        expect(evaluationHeading).toBeInTheDocument();
+      }
     });
 
     it('should display criteria for evaluation (placeholder)', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 2) {
-        fireEvent.click(reviewButtons[2]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 1) {
+        fireEvent.click(reviewButtons[1]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        // Note: These tests will need adjustment when evaluation form is implemented
-        const academicBackground = screen.queryByText(/Academic Background/i);
-        const communicationSkills = screen.queryByText(/Communication Skills/i);
-        const discipline = screen.queryByText(/Discipline & Conduct/i);
-        const motivation = screen.queryByText(/Motivation & Fit/i);
+      // Wait for Interview Details to load
+      await screen.findByRole('heading', { name: /Interview Details/i });
 
-        // If form is implemented, these should be present
-        if (academicBackground) {
-          expect(academicBackground).toBeInTheDocument();
-        }
-        if (communicationSkills) {
-          expect(communicationSkills).toBeInTheDocument();
-        }
-        if (discipline) {
-          expect(discipline).toBeInTheDocument();
-        }
-        if (motivation) {
-          expect(motivation).toBeInTheDocument();
-        }
-      }, { timeout: 2000 });
+      // Note: These tests will need adjustment when evaluation form is implemented
+      const academicBackground = screen.queryByText(/Academic Background/i);
+      const communicationSkills = screen.queryByText(/Communication Skills/i);
+      const discipline = screen.queryByText(/Discipline & Conduct/i);
+      const motivation = screen.queryByText(/Motivation & Fit/i);
+
+      // If form is implemented, these should be present
+      if (academicBackground) {
+        expect(academicBackground).toBeInTheDocument();
+      }
+      if (communicationSkills) {
+        expect(communicationSkills).toBeInTheDocument();
+      }
+      if (discipline) {
+        expect(discipline).toBeInTheDocument();
+      }
+      if (motivation) {
+        expect(motivation).toBeInTheDocument();
+      }
     });
 
     it('should have score inputs or sliders for criteria', async () => {
       render(<TrusteeDashboard />);
 
-      const reviewButtons = screen.getAllByText('Review');
-      if (reviewButtons.length > 2) {
-        fireEvent.click(reviewButtons[2]);
+      // Switch to "Pending Final Decision" tab
+      const pendingFinalTab = screen.getByText('Pending Final Decision');
+      fireEvent.click(pendingFinalTab);
+
+      const reviewButtons = await screen.findAllByText('Review');
+      if (reviewButtons.length > 1) {
+        fireEvent.click(reviewButtons[1]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const evaluateButton = screen.getByText('View Evaluation');
-        // Note: Will need adjustment based on actual implementation
-        // This test is placeholder until evaluation form is implemented
-        expect(evaluateButton).toBeInTheDocument();
-      }, { timeout: 2000 });
+      // Note: Will need adjustment based on actual implementation
+      // This test is placeholder until evaluation form is implemented
+      const evaluateButton = await screen.findByRole('button', { name: /View Evaluation/i });
+      expect(evaluateButton).toBeInTheDocument();
     });
   });
 
@@ -544,20 +548,16 @@ describe('Task 13.3 - Interview Scheduling, Internal Remarks and Outcome Summary
         fireEvent.click(reviewButtons[0]);
       }
 
-      await waitFor(() => {
-        expect(screen.getByText('Summary')).toBeInTheDocument();
-      });
+      await screen.findByText('Summary');
 
       const interviewTabs = screen.getAllByText('Interview');
       fireEvent.click(interviewTabs[interviewTabs.length - 1]);
 
-      await waitFor(() => {
-        const scheduleButton = screen.getByText('Schedule Interview');
-        expect(scheduleButton).toBeInTheDocument();
+      const scheduleButton = await screen.findByRole('button', { name: /Schedule Interview/i });
+      expect(scheduleButton).toBeInTheDocument();
 
-        // Note: Test will need actual scheduling implementation
-        expect(true).toBeTruthy(); // Placeholder
-      }, { timeout: 2000 });
+      // Note: Test will need actual scheduling implementation
+      expect(true).toBeTruthy(); // Placeholder
     });
 
     it('should show COMPLETED status after evaluation is submitted', async () => {
