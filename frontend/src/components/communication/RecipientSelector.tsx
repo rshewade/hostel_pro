@@ -70,7 +70,7 @@ const RecipientSelector = ({
                 disabled={disabled}
                 onClick={() => onChange(recipient.id)}
                 aria-labelledby="recipient-selector-label"
-                aria-selected={isSelected}
+                aria-pressed={isSelected}
                 data-testid={`recipient-card-${recipient.id}`}
                 data-selected={isSelected}
                 className={cn(

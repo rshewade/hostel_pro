@@ -107,7 +107,6 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(({
             disabled={disabled}
             required={required}
             className={radioClasses}
-            aria-invalid={error ? 'true' : 'false'}
             aria-describedby={describedBy}
             data-testid={testId}
             {...props}
@@ -209,7 +208,6 @@ function RadioGroup({
           orientation === 'horizontal' && 'flex space-y-0 space-x-6'
         )}
         role="radiogroup"
-        aria-invalid={error ? 'true' : 'false'}
         aria-describedby={describedBy}
         data-testid={testId}
       >

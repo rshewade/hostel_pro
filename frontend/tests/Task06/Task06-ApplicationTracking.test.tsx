@@ -33,7 +33,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: (props: any) => <img {...props} />
+  default: (props: any) => <img {...props} alt={props.alt || ''} />
 }));
 
 describe('Task 6 - Application Tracking Page', () => {

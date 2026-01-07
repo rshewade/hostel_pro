@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    let leaves = await find('leaves', (leave: any) => {
+    const leaves = await find('leaves', (leave: any) => {
       const matchesStudent = !studentId || leave.student_id === studentId;
       const matchesStatus = !status || leave.status === status;
 

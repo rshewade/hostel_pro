@@ -9,6 +9,8 @@
 
 'use client';
 
+import Link from 'next/link';
+
 import { useState } from 'react';
 import {
   Button,
@@ -65,7 +67,7 @@ export default function DesignSystemPage() {
           >
             Design System
           </h1>
-          <a
+          <Link
             href="/"
             className="text-sm font-medium px-4 py-2 rounded-md"
             style={{
@@ -74,7 +76,7 @@ export default function DesignSystemPage() {
             }}
           >
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </header>
 

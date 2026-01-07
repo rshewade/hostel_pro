@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const floor = searchParams.get('floor');
     const status = searchParams.get('status') as RoomStatus | null;
 
-    let rooms = await find('rooms', (room: any) => {
+    const rooms = await find('rooms', (room: any) => {
       const matchesVertical = !vertical || room.vertical === vertical;
       const matchesFloor = !floor || room.floor === parseInt(floor);
       const matchesStatus = !status || room.status === status;

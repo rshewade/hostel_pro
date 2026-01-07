@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const studentId = searchParams.get('student_id');
     const status = searchParams.get('status') as FeeStatus | null;
 
-    let fees = await find('fees', (fee: any) => {
+    const fees = await find('fees', (fee: any) => {
       const matchesStudent = !studentId || fee.student_id === studentId;
       const matchesStatus = !status || fee.status === status;
 
