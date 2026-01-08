@@ -1,4 +1,4 @@
-{Please 
+{
   "users": [
     {
       "id": "u1",
@@ -925,10 +925,7 @@
       "currentSecurityDeposit": 10000,
       "feeTopupRequired": 60000,
       "feePaid": 0,
-      "documentsRequired": [
-        "marksheet_latest",
-        "id_proof"
-      ],
+      "documentsRequired": ["marksheet_latest", "id_proof"],
       "documentsUploaded": [],
       "consentGiven": false,
       "createdAt": null,
