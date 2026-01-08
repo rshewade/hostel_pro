@@ -67,14 +67,19 @@ export async function GET(request: NextRequest) {
     const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
     const normalizedParentMobile = normalizePhone(parentMobile);
 
-    // Look up applications where parent mobile matches
+    // First, look up parent user by mobile to get linked_student_id
+    const parentUser = await findOne('users', (u: any) => 
+      u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
+    );
+
+    // Also check applications where parent mobile matches
     const applications = await find('applications', (app: any) => {
       const fatherMobile = normalizePhone(app.data?.guardian_info?.father_mobile || '');
       const motherMobile = normalizePhone(app.data?.guardian_info?.mother_mobile || '');
       return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
     });
 
-    // Also check profiles for existing students
+    // Check profiles for existing students
     const profiles = await find('profiles', (profile: any) => {
       const fatherMobile = normalizePhone(profile.details?.father_mobile || '');
       const motherMobile = normalizePhone(profile.details?.mother_mobile || '');
@@ -84,15 +89,55 @@ export async function GET(request: NextRequest) {
     // Combine and deduplicate students
     const students = [];
 
+    // If parent user has linked_student_id, look up the student directly
+    if (parentUser?.linked_student_id) {
+      const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
+      if (student) {
+        const verticalMap: Record<string, string> = {
+          'BOYS_HOSTEL': 'Boys Hostel',
+          'GIRLS_ASHRAM': 'Girls Ashram',
+          'DHARAMSHALA': 'Dharamshala',
+        };
+
+        let room = 'Not Allocated';
+        let status = student.status || 'UNKNOWN';
+
+        if (student.user_id) {
+          const allocation = await findOne('allocations', (a: any) =>
+            a.student_id === student.user_id && a.status === 'ACTIVE'
+          );
+          if (allocation) {
+            const roomData = await findOne('rooms', (r: any) => r.id === allocation.room_id);
+            room = roomData ? `Room ${roomData.room_number}` : 'Allocated';
+            status = 'CHECKED_IN';
+          }
+        }
+
+        students.push({
+          id: student.id,
+          name: student.name,
+          photo: null,
+          vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
+          room,
+          joiningDate: student.joiningDate || 'N/A',
+          status,
+          academicYear: student.academicYear || '2024-25',
+          currentPeriod: student.currentPeriod || 'SEMESTER_2',
+        });
+      }
+    }
+
     // Add students from applications
     for (const app of applications) {
+      // Skip if already added
+      if (students.some(s => s.id === app.id)) continue;
+
       const verticalMap: Record<string, string> = {
         'BOYS_HOSTEL': 'Boys Hostel',
         'GIRLS_ASHRAM': 'Girls Ashram',
         'DHARAMSHALA': 'Dharamshala',
       };
 
-      // Check if student has allocation (checked-in)
       let room = 'Not Allocated';
       let status = app.current_status;
 
@@ -123,7 +168,7 @@ export async function GET(request: NextRequest) {
 
     // Add students from profiles (existing residents)
     for (const profile of profiles) {
-      // Skip if already added from applications
+      // Skip if already added
       if (students.some(s => s.name === profile.full_name)) continue;
 
       const allocation = await findOne('allocations', (a: any) =>

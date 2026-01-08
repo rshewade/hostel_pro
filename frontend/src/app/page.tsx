@@ -286,94 +286,100 @@ Discipline &amp; Safety
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {/* Boys Hostel Card */}
-            <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
-              <div className="text-center">
-                <div
-                  className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "var(--color-blue-100)" }}
-                >
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--color-blue-600)" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+            <Link href="/apply/boys-hostel/contact" className="block">
+              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
+                <div className="text-center">
+                  <div
+                    className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "var(--color-blue-100)" }}
+                  >
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--color-blue-600)" }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>Boys Hostel</h3>
+                  <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+                    Modern accommodation for male students with focus on academic excellence and character building
+                  </p>
+                  <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> 2-3 person sharing rooms
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Study hall and library
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Sports and recreation
+                    </li>
+                  </ul>
+                  <span className="btn-primary w-full inline-flex items-center justify-center">Apply to Boys Hostel</span>
                 </div>
-                <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>Boys Hostel</h3>
-                <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
-                  Modern accommodation for male students with focus on academic excellence and character building
-                </p>
-                <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> 2-3 person sharing rooms
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Study hall and library
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Sports and recreation
-                  </li>
-                </ul>
-                <button className="btn-primary w-full">Apply to Boys Hostel</button>
               </div>
-            </div>
+            </Link>
 
             {/* Girls Ashram Card */}
-            <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
-              <div className="text-center">
-                <div
-                  className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "var(--color-purple-100)" }}
-                >
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--color-purple-600)" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+            <Link href="/apply/girls-ashram/contact" className="block">
+              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
+                <div className="text-center">
+                  <div
+                    className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "var(--color-purple-100)" }}
+                  >
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--color-purple-600)" }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>Girls Ashram</h3>
+                  <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+                    Safe and nurturing environment for female students with emphasis on holistic development
+                  </p>
+                  <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Enhanced security measures
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Women's study areas
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Cultural and spiritual activities
+                    </li>
+                  </ul>
+                  <span className="btn-primary w-full inline-flex items-center justify-center">Apply to Girls Ashram</span>
                 </div>
-                <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>Girls Ashram</h3>
-                <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
-                  Safe and nurturing environment for female students with emphasis on holistic development
-                </p>
-                <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Enhanced security measures
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Women's study areas
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Cultural and spiritual activities
-                  </li>
-                </ul>
-                <button className="btn-primary w-full">Apply to Girls Ashram</button>
               </div>
-            </div>
+            </Link>
 
             {/* Dharamshala Card */}
-            <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
-              <div className="text-center">
-                <div
-                  className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "var(--color-amber-100)" }}
-                >
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--color-amber-600)" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
+            <Link href="/apply/dharamshala/contact" className="block">
+              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
+                <div className="text-center">
+                  <div
+                    className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "var(--color-amber-100)" }}
+                  >
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--color-amber-600)" }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>Dharamshala</h3>
+                  <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+                    Spiritual retreat and temporary accommodation for pilgrims and visitors seeking peaceful stay
+                  </p>
+                  <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Prayer and meditation halls
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Simple, clean accommodation
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-500">✓</span> Community kitchen facilities
+                    </li>
+                  </ul>
+                  <span className="btn-primary w-full inline-flex items-center justify-center">Book Dharamshala</span>
                 </div>
-                <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>Dharamshala</h3>
-                <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
-                  Spiritual retreat and temporary accommodation for pilgrims and visitors seeking peaceful stay
-                </p>
-                <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Prayer and meditation halls
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Simple, clean accommodation
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Community kitchen facilities
-                  </li>
-                </ul>
-                <button className="btn-primary w-full">Book Dharamshala</button>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

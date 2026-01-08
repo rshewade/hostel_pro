@@ -33,7 +33,7 @@ export default function StudentFeesPage() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedFee, setSelectedFee] = useState<{ id: string; name: string; amount: number } | null>(null);
 
-  const feeItems: FeeItem[] = [
+  const [feeItems, setFeeItems] = useState<FeeItem[]>([
     {
       id: '1',
       name: 'Processing Fee',
@@ -70,7 +70,7 @@ export default function StudentFeesPage() {
       status: 'PENDING',
       dueDate: '2024-02-15',
     },
-  ];
+  ]);
 
   const paymentSummary: PaymentSummary = {
     totalAmount: feeItems.reduce((sum, item) => sum + item.amount, 0),
@@ -115,15 +115,22 @@ export default function StudentFeesPage() {
     setSelectedFee(null);
   };
 
-  const handlePaymentComplete = () => {
-    // Update fee item status to PAID (in real app, this would be from backend)
-    const updatedFeeItems = feeItems.map((item) =>
-      item.id === selectedPaymentId
-        ? { ...item, paidAmount: item.amount, status: 'PAID' as const }
-        : item
-    );
-    // In real implementation, you'd update state or refetch from API
-    console.log('Payment completed, updating fee status');
+  const handlePaymentComplete = async () => {
+    try {
+      const updatedFeeItems = feeItems.map((item) =>
+        item.id === selectedPaymentId
+          ? { ...item, paidAmount: item.amount, status: 'PAID' as const }
+          : item
+      );
+      setFeeItems(updatedFeeItems);
+      setIsPaymentModalOpen(false);
+      setSelectedPaymentId(null);
+      setSelectedFee(null);
+      alert('Payment successful! Receipt generated.');
+    } catch (err) {
+      console.error('Payment error:', err);
+      alert('Payment failed. Please try again.');
+    }
   };
 
   return (

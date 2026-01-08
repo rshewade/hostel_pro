@@ -14,6 +14,7 @@ export default function TrackingPage() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
+  const [otpToken, setOtpToken] = useState('');
 
   const handleTrackingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,29 +27,46 @@ export default function TrackingPage() {
     setStep('loading');
 
     try {
-      // Simulate API call to verify tracking ID and send OTP
-      const response = await fetch('http://localhost:4001/applications?tracking_number=' + trackingId);
-      const applications = await response.json();
+      const response = await fetch('/api/applications/track/' + trackingId);
+      const result = await response.json();
 
-      if (applications.length === 0) {
+      if (!response.ok || !result.data) {
         setError('Application not found with this tracking ID');
         setStep('input');
         return;
       }
 
-      const application = applications[0];
-      if (application.applicant_mobile !== mobile) {
+      const appData = result.data.data || result.data;
+      const normalizedMobile = mobile.replace(/^\+?91/, '').trim();
+      const appMobileNormalized = (appData.applicant_mobile || '').replace(/^\+?91/, '').trim();
+      
+      if (appMobileNormalized !== normalizedMobile) {
         setError('Mobile number does not match the application');
         setStep('input');
         return;
       }
 
-      // Send OTP
-      await fetch('/api/otp/send', {
+      // Send OTP (use 10-digit number without +91)
+      // Map vertical values to expected format
+      const verticalMap: Record<string, string> = {
+        'BOYS_HOSTEL': 'boys-hostel',
+        'GIRLS_ASHRAM': 'girls-ashram',
+        'DHARAMSHA': 'dharamshala'
+      };
+      const verticalKey = appData.vertical?.toUpperCase() || 'BOYS_HOSTEL';
+      const vertical = verticalMap[verticalKey] || 'boys-hostel';
+
+      const otpResponse = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: mobile, vertical: application.vertical })
+        body: JSON.stringify({ phone: normalizedMobile, vertical })
       });
+
+      const otpData = await otpResponse.json();
+      
+      if (otpData.token) {
+        setOtpToken(otpData.token);
+      }
 
       setStep('otp');
       setResendTimer(60);
@@ -79,15 +97,13 @@ export default function TrackingPage() {
     setStep('loading');
 
     try {
-      // Verify OTP
       const response = await fetch('/api/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: otp, phone: mobile })
+        body: JSON.stringify({ code: otp, token: otpToken })
       });
 
       if (response.ok) {
-        // Redirect to tracking detail page
         window.location.href = `/track/${trackingId}`;
       } else {
         setError('Invalid OTP. Please try again.');

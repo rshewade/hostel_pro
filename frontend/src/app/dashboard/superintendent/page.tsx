@@ -239,6 +239,7 @@ export default function SuperintendentDashboard() {
     application: null,
     remarks: ''
   });
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   // Select options
   const eventTypeOptions: SelectOption[] = [
@@ -1591,13 +1592,42 @@ export default function SuperintendentDashboard() {
         }
         size="md"
         variant={actionModal.type === 'reject' ? 'destructive' : 'confirmation'}
-        onConfirm={() => {
-          console.log(`${actionModal.type} application:`, actionModal.application?.id, 'remarks:', actionModal.remarks);
-          setActionModal({ isOpen: false, type: 'approve', application: null, remarks: '' });
-          setSelectedApplication(null);
+        onConfirm={async () => {
+          if (!actionModal.application) return;
+          
+          setIsActionLoading(true);
+          try {
+            const newStatus = actionModal.type === 'approve' ? 'APPROVED' : 
+                              actionModal.type === 'reject' ? 'REJECTED' : 
+                              'REVIEW';
+            
+            const response = await fetch(`/api/applications/${actionModal.application.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                status: newStatus,
+                current_status: newStatus,
+                remarks: actionModal.remarks
+              })
+            });
+
+            if (response.ok) {
+              await fetchApplications();
+              setActionModal({ isOpen: false, type: 'approve', application: null, remarks: '' });
+              setSelectedApplication(null);
+              alert(`Application ${actionModal.type === 'approve' ? 'approved' : actionModal.type === 'reject' ? 'rejected' : 'forwarded'} successfully`);
+            } else {
+              alert('Failed to update application status');
+            }
+          } catch (err) {
+            console.error('Error updating application:', err);
+            alert('Failed to update application status');
+          } finally {
+            setIsActionLoading(false);
+          }
         }}
         confirmText={actionModal.type === 'approve' ? 'Approve' : actionModal.type === 'reject' ? 'Reject' : 'Forward'}
-        confirmLoading={false}
+        confirmLoading={isActionLoading}
       >
         {actionModal.application && (
           <div className="space-y-4">

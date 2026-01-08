@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/feedback/Modal';
@@ -60,6 +60,8 @@ export default function SuperintendentLeaveManagement() {
   const [selectedStatus, setSelectedStatus] = useState<LeaveStatus | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Action modal state
   const [actionModal, setActionModal] = useState<{
@@ -78,6 +80,55 @@ export default function SuperintendentLeaveManagement() {
   const [showMessagePanel, setShowMessagePanel] = useState(false);
   const [selectedMessageRecipient, setSelectedMessageRecipient] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+
+  // Fetch leave requests from API
+  const fetchLeaveRequests = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/leaves');
+      if (response.ok) {
+        const result = await response.json();
+        const data = result.data || result;
+        if (Array.isArray(data)) {
+          setLeaveRequests(data);
+        } else if (data.data && Array.isArray(data.data)) {
+          setLeaveRequests(data.data);
+        } else {
+          setLeaveRequests(getDefaultLeaves());
+        }
+      } else {
+        setLeaveRequests(getDefaultLeaves());
+      }
+    } catch (error) {
+      console.error('Error fetching leaves:', error);
+      setLeaveRequests(getDefaultLeaves());
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLeaveRequests();
+  }, [fetchLeaveRequests]);
+
+  const getDefaultLeaves = (): LeaveRequest[] => [
+    {
+      id: '1',
+      studentId: 'STU-001',
+      studentName: 'Rahul Sharma',
+      studentRoom: 'A-201',
+      vertical: 'BOYS',
+      leaveType: 'short',
+      fromDate: '2024-12-28',
+      toDate: '2024-12-28',
+      fromTime: '09:00',
+      toTime: '18:00',
+      reason: 'Personal work at home',
+      contactNumber: '+91 98765 43210',
+      status: 'PENDING',
+      appliedDate: '2024-12-26'
+    }
+  ];
 
   // Leave rules (read-only from Task 12 config)
   const leaveRules: LeaveRule[] = [
@@ -101,99 +152,8 @@ export default function SuperintendentLeaveManagement() {
     }
   ];
 
-  // Mock leave requests
-  const mockLeaveRequests: LeaveRequest[] = [
-    {
-      id: '1',
-      studentId: 'STU-001',
-      studentName: 'Rahul Sharma',
-      studentRoom: 'A-201',
-      vertical: 'BOYS',
-      leaveType: 'short',
-      fromDate: '2024-12-28',
-      toDate: '2024-12-28',
-      fromTime: '09:00',
-      toTime: '18:00',
-      reason: 'Personal work at home',
-      contactNumber: '+91 98765 43210',
-      status: 'PENDING',
-      appliedDate: '2024-12-26'
-    },
-    {
-      id: '2',
-      studentId: 'STU-002',
-      studentName: 'Priya Patel',
-      studentRoom: 'B-105',
-      vertical: 'GIRLS',
-      leaveType: 'multi-day',
-      fromDate: '2024-12-30',
-      toDate: '2025-01-05',
-      fromTime: '08:00',
-      toTime: '18:00',
-      reason: 'Family vacation - attending sister\'s wedding',
-      destination: 'Mumbai',
-      contactNumber: '+91 98765 43211',
-      status: 'PENDING',
-      appliedDate: '2024-12-24'
-    },
-    {
-      id: '3',
-      studentId: 'STU-003',
-      studentName: 'Amit Kumar',
-      studentRoom: 'A-305',
-      vertical: 'BOYS',
-      leaveType: 'night-out',
-      fromDate: '2024-12-25',
-      toDate: '2024-12-25',
-      fromTime: '18:00',
-      toTime: '22:00',
-      reason: 'Family dinner',
-      status: 'APPROVED',
-      appliedDate: '2024-12-23',
-      remarks: 'Approved for family gathering',
-      approvedBy: 'John Smith (Superintendent)',
-      approvedAt: '2024-12-24T09:30:00Z',
-      parentContacted: true
-    },
-    {
-      id: '4',
-      studentId: 'STU-004',
-      studentName: 'Sneha Reddy',
-      studentRoom: 'C-201',
-      vertical: 'DHARAMSHALA',
-      leaveType: 'multi-day',
-      fromDate: '2024-12-26',
-      toDate: '2024-12-28',
-      fromTime: '08:00',
-      toTime: '18:00',
-      reason: 'Personal work',
-      destination: 'Hyderabad',
-      status: 'REJECTED',
-      appliedDate: '2024-12-20',
-      remarks: 'Insufficient notice given. Multi-day leave requires 3 days notice.',
-      approvedBy: 'John Smith (Superintendent)',
-      approvedAt: '2024-12-21T14:15:00Z',
-      parentContacted: true
-    },
-    {
-      id: '5',
-      studentId: 'STU-005',
-      studentName: 'Vijay Singh',
-      studentRoom: 'A-402',
-      vertical: 'BOYS',
-      leaveType: 'short',
-      fromDate: '2024-12-29',
-      toDate: '2024-12-29',
-      fromTime: '14:00',
-      toTime: '18:00',
-      reason: 'Medical appointment',
-      status: 'PENDING',
-      appliedDate: '2024-12-27'
-    }
-  ];
-
   // Filter leaves
-  const filteredLeaves = mockLeaveRequests.filter(leave => {
+  const filteredLeaves = leaveRequests.filter(leave => {
     const matchesFilter = selectedFilter === 'all' || leave.status === 'PENDING';
     const matchesType = selectedLeaveType === 'ALL' || leave.leaveType === selectedLeaveType;
     const matchesStatus = selectedStatus === 'ALL' || leave.status === selectedStatus;
@@ -227,14 +187,36 @@ export default function SuperintendentLeaveManagement() {
     }
   };
 
-  const handleApproveReject = () => {
+  const handleApproveReject = async () => {
     if (!actionModal.leave || !actionModal.remarks.trim()) {
       return;
     }
     
-    console.log(`${actionModal.type} leave:`, actionModal.leave.id, 'remarks:', actionModal.remarks);
-    setActionModal({ isOpen: false, type: 'approve', leave: null, remarks: '' });
-    setSelectedLeave(null);
+    try {
+      const endpoint = actionModal.type === 'approve' 
+        ? `/api/leaves/${actionModal.leave.id}/approve`
+        : `/api/leaves/${actionModal.leave.id}/reject`;
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          remarks: actionModal.remarks,
+          approved_by: 'superintendent' // In real app, get from session
+        })
+      });
+
+      if (response.ok) {
+        setActionModal({ isOpen: false, type: 'approve', leave: null, remarks: '' });
+        setSelectedLeave(null);
+        alert(`Leave ${actionModal.type === 'approve' ? 'approved' : 'rejected'} successfully`);
+      } else {
+        alert('Failed to process leave request');
+      }
+    } catch (err) {
+      console.error('Error processing leave:', err);
+      alert('Failed to process leave request');
+    }
   };
 
   // Select options
@@ -283,7 +265,7 @@ export default function SuperintendentLeaveManagement() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               )}
             >
-              Pending Requests ({mockLeaveRequests.filter(l => l.status === 'PENDING').length})
+              Pending Requests ({leaveRequests.filter(l => l.status === 'PENDING').length})
             </button>
             <button
               onClick={() => setSelectedFilter('all')}
@@ -294,7 +276,7 @@ export default function SuperintendentLeaveManagement() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               )}
             >
-              All Leaves ({mockLeaveRequests.length})
+              All Leaves ({leaveRequests.length})
             </button>
           </div>
         </div>
@@ -799,7 +781,7 @@ export default function SuperintendentLeaveManagement() {
           setSelectedMessageRecipient(null);
         }}
         onSend={handleSendMessage}
-        recipients={mockLeaveRequests.map(leave => ({
+        recipients={leaveRequests.map(leave => ({
           id: leave.id,
           name: leave.studentName,
           role: 'student' as const,

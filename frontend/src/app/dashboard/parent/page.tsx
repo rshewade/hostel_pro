@@ -15,6 +15,41 @@ interface StudentData {
   trackingNumber?: string;
 }
 
+interface FeeSummary {
+  totalFees: number;
+  totalPaid: number;
+  outstanding: number;
+  nextDueDate: string;
+  status: string;
+}
+
+interface FeeItem {
+  id: string;
+  name: string;
+  amount: number;
+  status: string;
+  paidDate: string | null;
+  dueDate: string | null;
+}
+
+interface LeaveRequest {
+  id: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: string;
+  appliedDate: string;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  date: string;
+  type: string;
+}
+
 // Helper to format student data
 const formatStudent = (student: Partial<StudentData> & Record<string, unknown>): StudentData => ({
   id: student.id || '',
@@ -30,7 +65,6 @@ const formatStudent = (student: Partial<StudentData> & Record<string, unknown>):
 });
 
 export default function ParentDashboard() {
-  // Tooltip state for mobile (tap to show)
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +73,17 @@ export default function ParentDashboard() {
   const [allStudents, setAllStudents] = useState<StudentData[]>([]);
   // Currently selected student index
   const [selectedStudentIndex, setSelectedStudentIndex] = useState(0);
+
+  // Fee and leave data
+  const [feeSummary, setFeeSummary] = useState<FeeSummary>({
+    totalFees: 0,
+    totalPaid: 0,
+    outstanding: 0,
+    nextDueDate: 'N/A',
+    status: 'LOADING',
+  });
+  const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
 
   // Current student data (derived from selection)
   const studentData = allStudents[selectedStudentIndex] || {
@@ -54,11 +99,9 @@ export default function ParentDashboard() {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        // Get session token from URL or localStorage
         const urlParams = new URLSearchParams(window.location.search);
         let sessionToken = urlParams.get('sessionToken');
 
-        // Try localStorage if not in URL
         if (!sessionToken) {
           sessionToken = localStorage.getItem('parentSessionToken');
         }
@@ -69,10 +112,8 @@ export default function ParentDashboard() {
           return;
         }
 
-        // Store token for future use
         localStorage.setItem('parentSessionToken', sessionToken);
 
-        // Clean URL by removing sessionToken param after storing
         if (urlParams.has('sessionToken')) {
           const newUrl = new URL(window.location.href);
           newUrl.searchParams.delete('sessionToken');
@@ -84,7 +125,6 @@ export default function ParentDashboard() {
 
         if (response.ok && result.success) {
           if (result.data) {
-            // Handle single student or array of students
             const students = Array.isArray(result.data) ? result.data : [result.data];
             setAllStudents(students.map(formatStudent));
             setSelectedStudentIndex(0);
@@ -105,110 +145,37 @@ export default function ParentDashboard() {
     fetchStudentData();
   }, []);
 
-  const feeSummary = {
-    totalFees: 75000,
-    totalPaid: 50000,
-    outstanding: 25000,
-    nextDueDate: '31 December 2025',
-    status: 'PENDING' as const,
-  };
+  // Fetch fee and leave data when student changes
+  useEffect(() => {
+    const fetchAdditionalData = async () => {
+      if (allStudents.length === 0) return;
 
-  const feeItems = [
-    {
-      id: '1',
-      name: 'Processing Fee',
-      amount: 5000,
-      status: 'PAID' as const,
-      paidDate: '15 June 2024',
-    },
-    {
-      id: '2',
-      name: 'Hostel Fees (Semester 1)',
-      amount: 30000,
-      status: 'PAID' as const,
-      paidDate: '15 June 2024',
-    },
-    {
-      id: '3',
-      name: 'Security Deposit',
-      amount: 10000,
-      status: 'PAID' as const,
-      paidDate: '15 June 2024',
-    },
-    {
-      id: '4',
-      name: 'Hostel Fees (Semester 2)',
-      amount: 30000,
-      status: 'PENDING' as const,
-      dueDate: '31 December 2025',
-    },
-  ];
+      const urlParams = new URLSearchParams(window.location.search);
+      let sessionToken = urlParams.get('sessionToken') || localStorage.getItem('parentSessionToken');
+      if (!sessionToken) return;
 
-  const leaveRequests = [
-    {
-      id: '1',
-      type: 'Weekend',
-      startDate: '28 December 2025',
-      endDate: '29 December 2025',
-      reason: 'Family function',
-      status: 'PENDING' as const,
-    },
-    {
-      id: '2',
-      type: 'Holiday',
-      startDate: '20 December 2025',
-      endDate: '25 December 2025',
-      reason: 'Winter vacation',
-      status: 'APPROVED' as const,
-    },
-    {
-      id: '3',
-      type: 'Emergency',
-      startDate: '10 December 2025',
-      endDate: '11 December 2025',
-      reason: 'Medical emergency',
-      status: 'APPROVED' as const,
-    },
-    {
-      id: '4',
-      type: 'Weekend',
-      startDate: '05 December 2025',
-      endDate: '07 December 2025',
-      reason: 'Personal work',
-      status: 'REJECTED' as const,
-    },
-  ];
+      try {
+        // Fetch fees
+        const feesResponse = await fetch(`/api/parent/fees?sessionToken=${encodeURIComponent(sessionToken)}`);
+        const feesResult = await feesResponse.json();
+        if (feesResult.success && feesResult.data) {
+          setFeeSummary(feesResult.data.summary);
+          setFeeItems(feesResult.data.items || []);
+        }
 
-  const notifications = [
-    {
-      id: '1',
-      title: 'Fee Payment Reminder',
-      message: 'Semester 2 hostel fees of ₹30,000 are due on 31 December 2025.',
-      date: '25 December 2025',
-      type: 'fee',
-    },
-    {
-      id: '2',
-      title: 'Leave Application Approved',
-      message: 'Winter vacation leave from 20-25 December 2025 has been approved.',
-      date: '20 December 2025',
-      type: 'leave',
-    },
-    {
-      id: '3',
-      title: 'Room Inspection Notice',
-      message: 'Scheduled room inspection on 15 January 2025. Please ensure room is tidy.',
-      date: '18 December 2025',
-      type: 'general',
-    },
-    {
-      id: '4',
-      title: 'Winter Schedule',
-      message: 'Mess timings during winter vacation: Breakfast 7-9 AM, Lunch 12-2 PM, Dinner 7-9 PM.',
-      date: '15 December 2025',
-      type: 'general',
-    },
-  ];
+        // Fetch leave requests
+        const leaveResponse = await fetch(`/api/parent/leave?sessionToken=${encodeURIComponent(sessionToken)}`);
+        const leaveResult = await leaveResponse.json();
+        if (leaveResult.success && leaveResult.data) {
+          setLeaveRequests(leaveResult.data.items || []);
+        }
+      } catch (err) {
+        console.error('Error fetching additional data:', err);
+      }
+    };
+
+    fetchAdditionalData();
+  }, [allStudents]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -229,6 +196,14 @@ export default function ParentDashboard() {
   const toggleTooltip = (id: string) => {
     setActiveTooltip(activeTooltip === id ? null : id);
   };
+
+  const notifications: Notification[] = feeItems.filter(f => f.status === 'PENDING').map(f => ({
+    id: `fee-${f.id}`,
+    title: 'Fee Payment Due',
+    message: `${f.name} of ₹${f.amount.toLocaleString()} is due.`,
+    date: f.dueDate || 'N/A',
+    type: 'fee',
+  }));
 
   return (
     <div role="main" aria-label="Parent Dashboard Content">

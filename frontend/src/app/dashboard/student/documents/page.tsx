@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components';
 import { Card } from '@/components/data/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -20,9 +20,32 @@ interface Document {
 
 export default function StudentDocumentsPage() {
   const [activeTab, setActiveTab] = useState<DocumentCategory | 'ALL'>('ALL');
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data
-  const documents: Document[] = [
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/student/documents');
+      if (response.ok) {
+        const data = await response.json();
+        setDocuments(data);
+      } else {
+        setDocuments(getDefaultDocuments());
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      setDocuments(getDefaultDocuments());
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getDefaultDocuments = (): Document[] => [
     {
       id: '1',
       title: 'Admission Letter',

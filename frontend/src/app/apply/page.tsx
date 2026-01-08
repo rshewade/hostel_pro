@@ -36,7 +36,7 @@ export default function ApplyPage() {
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="nav-link">Home</Link>
             <Link href="/apply" className="nav-link text-primary">Apply Now</Link>
-            <Link href="/check-status" className="nav-link">Check Status</Link>
+            <Link href="/track" className="nav-link">Check Status</Link>
             <Link href="/login" className="nav-link">Login</Link>
           </nav>
         </div>

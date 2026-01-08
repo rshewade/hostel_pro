@@ -195,11 +195,39 @@ export default function LeaveManagementPage() {
     return Object.values(errors).every(error => error === '');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      alert('Leave request submitted successfully!');
-      setShowForm(false);
-      setSelectedType(null);
+      try {
+        const leaveTypeMap: Record<LeaveType, string> = {
+          'short': 'SHORT_LEAVE',
+          'night-out': 'NIGHT_OUT',
+          'multi-day': 'MULTI_DAY'
+        };
+
+        const response = await fetch('/api/leaves', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: leaveTypeMap[selectedType!],
+            start_time: `${formData.fromDate}T${formData.fromTime || '09:00'}:00Z`,
+            end_time: `${formData.toDate}T${formData.toTime || '18:00'}:00Z`,
+            reason: formData.reason,
+            destination: formData.destination,
+            contact_number: formData.contactNumber
+          })
+        });
+
+        if (response.ok) {
+          alert('Leave request submitted successfully!');
+          setShowForm(false);
+          setSelectedType(null);
+        } else {
+          alert('Failed to submit leave request');
+        }
+      } catch (err) {
+        console.error('Error submitting leave request:', err);
+        alert('Failed to submit leave request');
+      }
     }
   };
 

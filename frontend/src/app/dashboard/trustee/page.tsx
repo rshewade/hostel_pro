@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { Chip } from '@/components/ui/Chip';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +14,7 @@ import { Input } from '@/components/forms/Input';
 import { Select, type SelectOption } from '@/components/forms/Select';
 
 // Types
-type ApplicationStatus = 'FORWARDED' | 'PROVISIONALLY_APPROVED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED' | 'APPROVED' | 'REJECTED';
+type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'FORWARDED' | 'PROVISIONALLY_APPROVED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED' | 'APPROVED' | 'REJECTED';
 type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 type InterviewMode = 'ONLINE' | 'PHYSICAL';
 type InterviewStatus = 'NOT_SCHEDULED' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED' | 'CANCELLED';
@@ -88,7 +88,7 @@ interface InterviewEvaluation {
 
 export default function TrusteeDashboard() {
   const [selectedTab, setSelectedTab] = useState<'applications' | 'interviews' | 'approvals' | 'communication' | 'audit'>('applications');
-  const [selectedSubTab, setSelectedSubTab] = useState<'forwarded' | 'interview-queue' | 'pending-final'>('forwarded');
+  const [selectedSubTab, setSelectedSubTab] = useState<'forwarded' | 'interview-queue' | 'interview-scheduled' | 'pending-final'>('forwarded');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -126,6 +126,7 @@ export default function TrusteeDashboard() {
     remarks: '',
     rejectionReason: undefined
   });
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   // Interview evaluation state
   const [evaluationForm, setEvaluationForm] = useState<InterviewEvaluation>({
@@ -159,6 +160,26 @@ export default function TrusteeDashboard() {
     recommendation: 'APPROVE'
   });
 
+  // Interview scheduling state
+  const [interviewSchedule, setInterviewSchedule] = useState({
+    mode: 'ONLINE',
+    date: '',
+    time: '',
+    sendInvitation: true,
+    sendReminder: true
+  });
+  const [isSchedulingInterview, setIsSchedulingInterview] = useState(false);
+
+  // Interview evaluation modal state
+  const [evaluationModal, setEvaluationModal] = useState<{
+    isOpen: boolean;
+    application: Application | null;
+  }>({
+    isOpen: false,
+    application: null
+  });
+  const [isSavingEvaluation, setIsSavingEvaluation] = useState(false);
+
   // Select options
   const verticalOptions: SelectOption[] = [
     { value: 'ALL', label: 'All Verticals' },
@@ -167,166 +188,94 @@ export default function TrusteeDashboard() {
     { value: 'DHARAMSHALA', label: 'Dharamshala' }
   ];
 
-  // Mock data
-  const mockApplications: Application[] = [
-    {
-      id: '1',
-      trackingNumber: 'APP-2024-001',
-      applicantName: 'Rahul Sharma',
-      vertical: 'BOYS',
-      status: 'FORWARDED',
-      applicationDate: '2024-12-20',
-      paymentStatus: 'PAID',
-      interviewScheduled: false,
-      flags: ['High Priority'],
-      forwardedBy: {
-        superintendentId: 'sup-001',
-        superintendentName: 'John Smith',
-        forwardedOn: '2024-12-22',
-        recommendation: 'RECOMMEND',
-        remarks: 'Candidate has strong academic background and meets all eligibility criteria. Interview recommended.'
+  // API data state
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch applications from API
+  const fetchApplications = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/applications');
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications');
       }
-    },
-    {
-      id: '2',
-      trackingNumber: 'APP-2024-002',
-      applicantName: 'Priya Patel',
-      vertical: 'GIRLS',
-      status: 'PROVISIONALLY_APPROVED',
-      applicationDate: '2024-12-21',
-      paymentStatus: 'PAID',
-      interviewScheduled: true,
-      flags: [],
-      forwardedBy: {
-        superintendentId: 'sup-002',
-        superintendentName: 'Jane Doe',
-        forwardedOn: '2024-12-23',
-        recommendation: 'RECOMMEND',
-        remarks: 'Excellent candidate with strong references.'
-      },
-      interview: {
-        id: 'int-001',
-        scheduledDate: '2024-12-30',
-        scheduledTime: '10:00 AM',
-        mode: 'ONLINE',
-        meetingLink: 'https://meet.google.com/abc-xyz-def',
-        status: 'SCHEDULED'
-      }
-    },
-    {
-      id: '3',
-      trackingNumber: 'APP-2024-003',
-      applicantName: 'Amit Kumar',
-      vertical: 'DHARAMSHALA',
-      status: 'INTERVIEW_COMPLETED',
-      applicationDate: '2024-12-15',
-      paymentStatus: 'PAID',
-      interviewScheduled: true,
-      flags: [],
-      forwardedBy: {
-        superintendentId: 'sup-003',
-        superintendentName: 'Mike Johnson',
-        forwardedOn: '2024-12-17',
-        recommendation: 'RECOMMEND',
-        remarks: 'Candidate meets all requirements.'
-      },
-      interview: {
-        id: 'int-002',
-        scheduledDate: '2024-12-28',
-        scheduledTime: '2:00 PM',
-        mode: 'PHYSICAL',
-        location: 'Room 201, Boys Hostel Building',
-        status: 'COMPLETED',
-        score: 18
-      }
-    },
-    {
-      id: '4',
-      trackingNumber: 'APP-2024-004',
-      applicantName: 'Sneha Reddy',
-      vertical: 'GIRLS',
-      status: 'APPROVED',
-      applicationDate: '2024-12-18',
-      paymentStatus: 'PAID',
-      interviewScheduled: true,
-      flags: [],
-      forwardedBy: {
-        superintendentId: 'sup-002',
-        superintendentName: 'Jane Doe',
-        forwardedOn: '2024-12-19',
-        recommendation: 'RECOMMEND',
-        remarks: 'Strong candidate.'
-      },
-      interview: {
-        id: 'int-003',
-        scheduledDate: '2024-12-25',
-        scheduledTime: '3:00 PM',
-        mode: 'ONLINE',
-        meetingLink: 'https://meet.google.com/def-ghi-jkl',
-        status: 'COMPLETED',
-        score: 19
-      }
-    },
-    {
-      id: '5',
-      trackingNumber: 'APP-2024-005',
-      applicantName: 'Vijay Singh',
-      vertical: 'BOYS',
-      status: 'REJECTED',
-      applicationDate: '2024-12-10',
-      paymentStatus: 'REFUNDED',
-      interviewScheduled: true,
-      flags: ['Incomplete Documents'],
-      forwardedBy: {
-        superintendentId: 'sup-001',
-        superintendentName: 'John Smith',
-        forwardedOn: '2024-12-12',
-        recommendation: 'NOT_RECOMMEND',
-        remarks: 'Documents incomplete, verification pending.'
-      },
-      interview: {
-        id: 'int-004',
-        scheduledDate: '2024-12-20',
-        scheduledTime: '11:00 AM',
-        mode: 'ONLINE',
-        meetingLink: 'https://meet.google.com/mno-pqr-stu',
-        status: 'COMPLETED',
-        score: 12
-      }
+      const data = await response.json();
+      
+      const transformedApplications: Application[] = Array.isArray(data) ? data.map((app: any) => {
+        let applicantName = 'Unknown';
+        if (app.firstName) {
+          applicantName = `${app.firstName} ${app.lastName || ''}`.trim();
+        } else if (app.data?.personal_info?.full_name) {
+          applicantName = app.data.personal_info.full_name;
+        }
+
+        let status: ApplicationStatus = 'SUBMITTED';
+        if (app.status === 'REVIEW' || app.current_status === 'REVIEW') {
+          status = 'FORWARDED';
+        } else if (app.status === 'PROVISIONALLY_APPROVED' || app.current_status === 'PROVISIONALLY_APPROVED') {
+          status = 'PROVISIONALLY_APPROVED';
+        } else if (app.status === 'APPROVED' || app.current_status === 'APPROVED') {
+          status = 'PROVISIONALLY_APPROVED';
+        } else if (app.status === 'INTERVIEW_SCHEDULED' || app.current_status === 'INTERVIEW_SCHEDULED') {
+          status = 'INTERVIEW_SCHEDULED';
+        } else if (app.status === 'INTERVIEW_COMPLETED' || app.current_status === 'INTERVIEW_COMPLETED') {
+          status = 'INTERVIEW_COMPLETED';
+        }
+
+        return {
+          id: app.id,
+          trackingNumber: app.trackingNumber || app.tracking_number || app.id,
+          applicantName,
+          vertical: (app.vertical || 'BOYS').toUpperCase().replace('-HOSTEL', '').replace('_', ''),
+          status,
+          applicationDate: app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') : 
+                          app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-GB') : 
+                          new Date().toLocaleDateString('en-GB'),
+          paymentStatus: 'PAID',
+          interviewScheduled: status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED',
+          interview: status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED' ? {
+            id: 'int-1',
+            scheduledDate: new Date().toLocaleDateString('en-GB'),
+            scheduledTime: '10:00 AM',
+            mode: 'ONLINE',
+            status: status === 'INTERVIEW_SCHEDULED' ? 'SCHEDULED' : 'COMPLETED'
+          } : undefined,
+          flags: [],
+          forwardedBy: app.remarks ? {
+            superintendentId: 'u2',
+            superintendentName: 'Superintendent',
+            forwardedOn: new Date().toLocaleDateString('en-GB'),
+            recommendation: 'RECOMMEND',
+            remarks: app.remarks
+          } : undefined
+        };
+      }) : [];
+      
+      setApplications(transformedApplications);
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  }, []);
 
-  // Filter applications
-  const filteredApplications = mockApplications.filter(app => {
-    const matchesVertical = selectedVertical === 'ALL' || app.vertical === selectedVertical;
-    const matchesSearch = app.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                       app.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase());
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
-    if (selectedTab === 'applications') {
-      if (selectedSubTab === 'forwarded') {
-        return matchesVertical && matchesSearch && app.status === 'FORWARDED';
-      } else if (selectedSubTab === 'interview-queue') {
-        return matchesVertical && matchesSearch && app.interview?.status === 'SCHEDULED';
-      } else if (selectedSubTab === 'pending-final') {
-        return matchesVertical && matchesSearch &&
-               (app.status === 'PROVISIONALLY_APPROVED' || app.status === 'INTERVIEW_COMPLETED');
-      }
+  // Filter applications based on sub-tab
+  const filteredApplications = applications.filter(app => {
+    if (selectedSubTab === 'forwarded') {
+      return app.status === 'FORWARDED' || app.status === 'REVIEW';
+    } else if (selectedSubTab === 'interview-queue') {
+      return app.status === 'PROVISIONALLY_APPROVED' && !app.interviewScheduled;
+    } else if (selectedSubTab === 'interview-scheduled') {
+      return app.status === 'INTERVIEW_SCHEDULED';
+    } else if (selectedSubTab === 'pending-final') {
+      return app.status === 'INTERVIEW_COMPLETED';
     }
-
-    if (selectedTab === 'interviews') {
-      return matchesVertical && matchesSearch && app.interviewScheduled;
-    }
-
-    if (selectedTab === 'approvals') {
-      return matchesVertical && matchesSearch &&
-             (app.status === 'APPROVED' || app.status === 'REJECTED' || app.status === 'PROVISIONALLY_APPROVED');
-    }
-
-    if (selectedTab === 'audit') {
-      return matchesVertical && matchesSearch;
-    }
-
-    return matchesVertical && matchesSearch;
+    return true;
   });
 
   // Status badge variants
@@ -354,9 +303,9 @@ export default function TrusteeDashboard() {
     try {
       const newEntry: MessageLogEntry = {
         id: `msg-${Date.now()}`,
-        recipient: mockApplications.find(app => app.id === data.recipientId) ? {
+        recipient: applications.find(app => app.id === data.recipientId) ? {
           id: data.recipientId,
-          name: mockApplications.find(app => app.id === data.recipientId)!.applicantName,
+          name: applications.find(app => app.id === data.recipientId)!.applicantName,
           role: 'applicant' as const
         } : { id: data.recipientId, name: 'Unknown', role: 'applicant' as const },
         channels: data.channels,
@@ -375,6 +324,128 @@ export default function TrusteeDashboard() {
       console.error('Failed to send message:', error);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleScheduleInterview = async () => {
+    if (!interviewSchedule.date || !interviewSchedule.time || !selectedApplication) {
+      alert('Please select both date and time for the interview');
+      return;
+    }
+
+    setIsSchedulingInterview(true);
+    try {
+      const response = await fetch('/api/interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          application_id: selectedApplication.id,
+          trustee_id: 'u3', // Current logged in trustee
+          schedule_time: `${interviewSchedule.date}T${interviewSchedule.time}:00Z`,
+          mode: interviewSchedule.mode,
+          send_invitation: interviewSchedule.sendInvitation,
+          send_reminder: interviewSchedule.sendReminder
+        })
+      });
+
+      if (response.ok) {
+        // Update application status to INTERVIEW_SCHEDULED
+        await fetch(`/api/applications/${selectedApplication.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            status: 'INTERVIEW_SCHEDULED',
+            current_status: 'INTERVIEW_SCHEDULED'
+          })
+        });
+        
+        await fetchApplications();
+        setSelectedDetailTab('summary');
+        alert('Interview scheduled successfully!');
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to schedule interview');
+      }
+    } catch (err) {
+      console.error('Error scheduling interview:', err);
+      alert('Failed to schedule interview');
+      } finally {
+        setIsSchedulingInterview(false);
+      }
+    };
+
+  const handleJoinInterview = () => {
+    if (selectedApplication?.interview?.meetingLink) {
+      window.open(selectedApplication.interview.meetingLink, '_blank');
+    } else {
+      alert('No meeting link available for this interview');
+    }
+  };
+
+  const handleCompleteInterview = () => {
+    setEvaluationModal({
+      isOpen: true,
+      application: selectedApplication
+    });
+  };
+
+  const handleSaveEvaluation = async () => {
+    if (!evaluationModal.application) return;
+
+    setIsSavingEvaluation(true);
+    try {
+      const evaluationData = {
+        academicScore: evaluationForm.criteria.academicBackground.score,
+        academicComments: evaluationForm.criteria.academicBackground.comments,
+        communicationScore: evaluationForm.criteria.communicationSkills.score,
+        communicationComments: evaluationForm.criteria.communicationSkills.comments,
+        disciplineScore: evaluationForm.criteria.discipline.score,
+        disciplineComments: evaluationForm.criteria.discipline.comments,
+        motivationScore: evaluationForm.criteria.motivation.score,
+        motivationComments: evaluationForm.criteria.motivation.comments,
+        overallScore: evaluationForm.overallScore,
+        overallObservations: evaluationForm.overallObservations,
+        recommendation: evaluationForm.recommendation
+      };
+
+      await fetch(`/api/applications/${evaluationModal.application.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'INTERVIEW_COMPLETED',
+          current_status: 'INTERVIEW_COMPLETED',
+          interview_evaluation: evaluationData
+        })
+      });
+
+      await fetchApplications();
+      setEvaluationModal({ isOpen: false, application: null });
+      setSelectedDetailTab('summary');
+      // Reset evaluation form
+      setEvaluationForm({
+        id: '',
+        applicationId: '',
+        applicantName: '',
+        interviewDate: '',
+        interviewTime: '',
+        mode: 'ONLINE',
+        conductedBy: 'Trustee',
+        criteria: {
+          academicBackground: { score: 0, comments: '' },
+          communicationSkills: { score: 0, comments: '' },
+          discipline: { score: 0, comments: '' },
+          motivation: { score: 0, comments: '' }
+        },
+        overallScore: 0,
+        overallObservations: '',
+        recommendation: 'APPROVE'
+      });
+      alert('Interview evaluation saved successfully!');
+    } catch (err) {
+      console.error('Error saving evaluation:', err);
+      alert('Failed to save evaluation');
+    } finally {
+      setIsSavingEvaluation(false);
     }
   };
 
@@ -716,6 +787,17 @@ export default function TrusteeDashboard() {
               onClick={() => setSelectedSubTab('interview-queue')}
             >
               Interview Queue
+            </button>
+            <button
+              className={cn(
+                'py-3 px-2 text-sm font-medium transition-colors',
+                selectedSubTab === 'interview-scheduled'
+                  ? 'text-navy-900 border-b-2 border-navy-900'
+                  : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
+              )}
+              onClick={() => setSelectedSubTab('interview-scheduled')}
+            >
+              Interview Scheduled
             </button>
             <button
               className={cn(
@@ -1193,55 +1275,93 @@ export default function TrusteeDashboard() {
                     <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                       Schedule Interview
                     </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Mode</label>
-                        <div className="flex gap-4">
-                          <label className="flex items-center gap-2">
-                            <input type="radio" name="mode" value="online" className="w-4 h-4" />
-                            <span>Online (Zoom/Google Meet)</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input type="radio" name="mode" value="physical" className="w-4 h-4" />
-                            <span>Physical</span>
-                          </label>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-4">
                         <div>
-                          <label htmlFor="interview-date" className="text-sm font-medium mb-2 block">Date</label>
-                          <input
-                            id="interview-date"
-                            type="date"
-                            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                            style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
-                          />
+                          <label className="text-sm font-medium mb-2 block">Mode</label>
+                          <div className="flex gap-4">
+                            <label className="flex items-center gap-2">
+                              <input 
+                                type="radio" 
+                                name="mode" 
+                                value="ONLINE" 
+                                checked={interviewSchedule.mode === 'ONLINE'}
+                                onChange={(e) => setInterviewSchedule({ ...interviewSchedule, mode: e.target.value })}
+                                className="w-4 h-4" 
+                              />
+                              <span>Online (Zoom/Google Meet)</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input 
+                                type="radio" 
+                                name="mode" 
+                                value="PHYSICAL"
+                                checked={interviewSchedule.mode === 'PHYSICAL'}
+                                onChange={(e) => setInterviewSchedule({ ...interviewSchedule, mode: e.target.value })}
+                                className="w-4 h-4" 
+                              />
+                              <span>Physical</span>
+                            </label>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="interview-date" className="text-sm font-medium mb-2 block">Date</label>
+                            <input
+                              id="interview-date"
+                              type="date"
+                              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                              style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
+                              value={interviewSchedule.date}
+                              onChange={(e) => setInterviewSchedule({ ...interviewSchedule, date: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="interview-time" className="text-sm font-medium mb-2 block">Time</label>
+                            <input
+                              id="interview-time"
+                              type="time"
+                              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                              style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
+                              value={interviewSchedule.time}
+                              onChange={(e) => setInterviewSchedule({ ...interviewSchedule, time: e.target.value })}
+                            />
+                          </div>
                         </div>
                         <div>
-                          <label htmlFor="interview-time" className="text-sm font-medium mb-2 block">Time</label>
-                          <input
-                            id="interview-time"
-                            type="time"
-                            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                            style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
-                          />
+                          <label className="flex items-center gap-2">
+                            <input 
+                              type="checkbox" 
+                              checked={interviewSchedule.sendInvitation}
+                              onChange={(e) => setInterviewSchedule({ ...interviewSchedule, sendInvitation: e.target.checked })}
+                              className="w-4 h-4" 
+                            />
+                            <span className="text-sm">Send interview invitation to applicant</span>
+                          </label>
                         </div>
-                      </div>
-                      <div>
-                        <label className="flex items-center gap-2">
-                          <input type="checkbox" className="w-4 h-4" />
-                          <span className="text-sm">Send interview invitation to applicant</span>
-                        </label>
-                      </div>
-                      <div>
-                        <label className="flex items-center gap-2">
-                          <input type="checkbox" className="w-4 h-4" />
-                          <span className="text-sm">Send auto-reminder 24 hours before</span>
-                        </label>
-                      </div>
+                        <div>
+                          <label className="flex items-center gap-2">
+                            <input 
+                              type="checkbox"
+                              checked={interviewSchedule.sendReminder}
+                              onChange={(e) => setInterviewSchedule({ ...interviewSchedule, sendReminder: e.target.checked })}
+                              className="w-4 h-4" 
+                            />
+                            <span className="text-sm">Send auto-reminder 24 hours before</span>
+                          </label>
+                        </div>
                       <div className="flex gap-2">
-                        <Button variant="primary">Schedule Interview</Button>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button 
+                          variant="primary"
+                          onClick={handleScheduleInterview}
+                          loading={isSchedulingInterview}
+                        >
+                          Schedule Interview
+                        </Button>
+                        <Button variant="secondary" onClick={() => {
+                          setSelectedDetailTab('summary');
+                        }}>
+                          Cancel
+                        </Button>
                       </div>
                     </div>
                   </>
@@ -1290,11 +1410,15 @@ export default function TrusteeDashboard() {
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2 mt-4">
+                      <div className="flex gap-2 mt-4">
                       {selectedApplication.interview?.status === 'SCHEDULED' && (
                         <>
-                          <Button variant="primary">Join Interview</Button>
-                          <Button variant="secondary">Reschedule</Button>
+                          <Button variant="primary" onClick={handleJoinInterview}>
+                            Join Interview
+                          </Button>
+                          <Button variant="secondary" onClick={handleCompleteInterview}>
+                            Complete & Evaluate
+                          </Button>
                           <Button variant="destructive">Cancel</Button>
                         </>
                       )}
@@ -1509,16 +1633,50 @@ export default function TrusteeDashboard() {
         }
         size="lg"
         variant={decisionModal.type.includes('REJECT') ? 'destructive' : 'confirmation'}
-        onConfirm={() => {
-          console.log(`${decisionModal.type} application:`, decisionModal.application?.id, 'remarks:', decisionModal.remarks);
-          setDecisionModal({
-            isOpen: false,
-            type: 'PROVISIONAL_APPROVE_INTERVIEW',
-            application: null,
-            remarks: ''
-          });
-          if (selectedApplication) {
-            setSelectedApplication(null);
+        onConfirm={async () => {
+          if (!decisionModal.application) return;
+          
+          setIsActionLoading(true);
+          try {
+            let newStatus = 'APPROVED';
+            if (decisionModal.type === 'FINAL_REJECT' || decisionModal.type === 'PROVISIONAL_REJECT') {
+              newStatus = 'REJECTED';
+            } else if (decisionModal.type === 'PROVISIONAL_APPROVE_INTERVIEW' || decisionModal.type === 'PROVISIONAL_APPROVE_NO_INTERVIEW') {
+              newStatus = 'PROVISIONALLY_APPROVED';
+            }
+            
+            const response = await fetch(`/api/applications/${decisionModal.application.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                status: newStatus,
+                current_status: newStatus,
+                decision_type: decisionModal.type,
+                remarks: decisionModal.remarks,
+                rejection_reason: decisionModal.rejectionReason
+              })
+            });
+
+            if (response.ok) {
+              await fetchApplications();
+              setDecisionModal({
+                isOpen: false,
+                type: 'PROVISIONAL_APPROVE_INTERVIEW',
+                application: null,
+                remarks: ''
+              });
+              if (selectedApplication) {
+                setSelectedApplication(null);
+              }
+              alert(`Application ${newStatus === 'REJECTED' ? 'rejected' : 'processed'} successfully`);
+            } else {
+              alert('Failed to process application');
+            }
+          } catch (err) {
+            console.error('Error processing application:', err);
+            alert('Failed to process application');
+          } finally {
+            setIsActionLoading(false);
           }
         }}
         confirmText={
@@ -1527,6 +1685,7 @@ export default function TrusteeDashboard() {
           decisionModal.type === 'PROVISIONAL_REJECT' ? 'Confirm Rejection' :
           'Issue Provisional Decision'
         }
+        confirmLoading={isActionLoading}
       >
         {decisionModal.application && (
           <div className="space-y-4">
@@ -1637,6 +1796,220 @@ export default function TrusteeDashboard() {
         )}
       </Modal>
 
+      {/* Interview Evaluation Modal */}
+      <Modal
+        isOpen={evaluationModal.isOpen}
+        onClose={() => setEvaluationModal({ isOpen: false, application: null })}
+        title="Interview Evaluation"
+        size="lg"
+        variant="confirmation"
+        confirmText="Save Evaluation"
+        cancelText="Cancel"
+        onConfirm={handleSaveEvaluation}
+        confirmLoading={isSavingEvaluation}
+      >
+        {evaluationModal.application && (
+          <div className="space-y-4">
+            <div className="p-3 rounded bg-blue-50 mb-4">
+              <p className="font-medium">{evaluationModal.application.applicantName}</p>
+              <p className="text-sm text-gray-600">{evaluationModal.application.trackingNumber}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Academic Background (1-5)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={evaluationForm.criteria.academicBackground.score}
+                  onChange={(e) => setEvaluationForm({
+                    ...evaluationForm,
+                    criteria: {
+                      ...evaluationForm.criteria,
+                      academicBackground: {
+                        ...evaluationForm.criteria.academicBackground,
+                        score: parseInt(e.target.value) || 0
+                      }
+                    }
+                  })}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Communication Skills (1-5)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={evaluationForm.criteria.communicationSkills.score}
+                  onChange={(e) => setEvaluationForm({
+                    ...evaluationForm,
+                    criteria: {
+                      ...evaluationForm.criteria,
+                      communicationSkills: {
+                        ...evaluationForm.criteria.communicationSkills,
+                        score: parseInt(e.target.value) || 0
+                      }
+                    }
+                  })}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Discipline (1-5)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={evaluationForm.criteria.discipline.score}
+                  onChange={(e) => setEvaluationForm({
+                    ...evaluationForm,
+                    criteria: {
+                      ...evaluationForm.criteria,
+                      discipline: {
+                        ...evaluationForm.criteria.discipline,
+                        score: parseInt(e.target.value) || 0
+                      }
+                    }
+                  })}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Motivation (1-5)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={evaluationForm.criteria.motivation.score}
+                  onChange={(e) => setEvaluationForm({
+                    ...evaluationForm,
+                    criteria: {
+                      ...evaluationForm.criteria,
+                      motivation: {
+                        ...evaluationForm.criteria.motivation,
+                        score: parseInt(e.target.value) || 0
+                      }
+                    }
+                  })}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Comments - Academic</label>
+              <textarea
+                value={evaluationForm.criteria.academicBackground.comments}
+                onChange={(e) => setEvaluationForm({
+                  ...evaluationForm,
+                  criteria: {
+                    ...evaluationForm.criteria,
+                    academicBackground: {
+                      ...evaluationForm.criteria.academicBackground,
+                      comments: e.target.value
+                    }
+                  }
+                })}
+                className="w-full rounded border border-gray-300 px-3 py-2 min-h-[60px]"
+                placeholder="Comments on academic background..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Comments - Communication</label>
+              <textarea
+                value={evaluationForm.criteria.communicationSkills.comments}
+                onChange={(e) => setEvaluationForm({
+                  ...evaluationForm,
+                  criteria: {
+                    ...evaluationForm.criteria,
+                    communicationSkills: {
+                      ...evaluationForm.criteria.communicationSkills,
+                      comments: e.target.value
+                    }
+                  }
+                })}
+                className="w-full rounded border border-gray-300 px-3 py-2 min-h-[60px]"
+                placeholder="Comments on communication skills..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Comments - Discipline</label>
+              <textarea
+                value={evaluationForm.criteria.discipline.comments}
+                onChange={(e) => setEvaluationForm({
+                  ...evaluationForm,
+                  criteria: {
+                    ...evaluationForm.criteria,
+                    discipline: {
+                      ...evaluationForm.criteria.discipline,
+                      comments: e.target.value
+                    }
+                  }
+                })}
+                className="w-full rounded border border-gray-300 px-3 py-2 min-h-[60px]"
+                placeholder="Comments on discipline..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Comments - Motivation</label>
+              <textarea
+                value={evaluationForm.criteria.motivation.comments}
+                onChange={(e) => setEvaluationForm({
+                  ...evaluationForm,
+                  criteria: {
+                    ...evaluationForm.criteria,
+                    motivation: {
+                      ...evaluationForm.criteria.motivation,
+                      comments: e.target.value
+                    }
+                  }
+                })}
+                className="w-full rounded border border-gray-300 px-3 py-2 min-h-[60px]"
+                placeholder="Comments on motivation..."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Overall Score (1-20)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={evaluationForm.overallScore}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, overallScore: parseInt(e.target.value) || 0 })}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Recommendation</label>
+                <select
+                  value={evaluationForm.recommendation}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, recommendation: e.target.value as any })}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                >
+                  <option value="APPROVE">Approve</option>
+                  <option value="DEFERRED">Deferred</option>
+                  <option value="REJECT">Reject</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Overall Observations</label>
+              <textarea
+                value={evaluationForm.overallObservations}
+                onChange={(e) => setEvaluationForm({ ...evaluationForm, overallObservations: e.target.value })}
+                className="w-full rounded border border-gray-300 px-3 py-2 min-h-[80px]"
+                placeholder="Overall observations and recommendations..."
+              />
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* Send Message Panel */}
       <SendMessagePanel
         isOpen={showMessagePanel}
@@ -1645,7 +2018,7 @@ export default function TrusteeDashboard() {
           setSelectedMessageRecipient(null);
         }}
         onSend={handleSendMessage}
-        recipients={mockApplications.map(app => ({
+        recipients={applications.map(app => ({
           id: app.id,
           name: app.applicantName,
           role: 'applicant' as const,

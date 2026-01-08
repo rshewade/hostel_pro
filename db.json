@@ -1,4 +1,4 @@
-{
+{Please 
   "users": [
     {
       "id": "u1",
@@ -62,6 +62,54 @@
       "password_hash": "password123",
       "status": "ACTIVE",
       "created_at": "2025-12-28T07:54:25.269Z"
+    },
+    {
+      "id": "parent1",
+      "email": "parent@test.com",
+      "password_hash": "password123",
+      "role": "parent",
+      "mobile_no": "9876543210",
+      "status": "ACTIVE",
+      "linked_student_id": "STU001",
+      "created_at": "2024-01-15T10:00:00Z"
+    },
+    {
+      "id": "parent2",
+      "email": "prakash.shah@test.com",
+      "password_hash": "password123",
+      "role": "parent",
+      "mobile_no": "9876543220",
+      "status": "ACTIVE",
+      "linked_student_id": "STU002",
+      "created_at": "2026-01-09T10:00:00Z"
+    },
+    {
+      "id": "parent3",
+      "email": "parent.neha@test.com",
+      "password_hash": "password123",
+      "role": "parent",
+      "mobile_no": "9876543221",
+      "status": "ACTIVE",
+      "linked_student_id": "STU003",
+      "created_at": "2026-01-04T10:00:00Z"
+    },
+    {
+      "id": "u5",
+      "email": "amit.shah@email.com",
+      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "role": "student",
+      "mobile_no": "+919876543213",
+      "status": "ACTIVE",
+      "created_at": "2026-01-10T10:00:00Z"
+    },
+    {
+      "id": "u6",
+      "email": "neha.shah@email.com",
+      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "role": "student",
+      "mobile_no": "+919876543216",
+      "status": "ACTIVE",
+      "created_at": "2026-01-05T10:00:00Z"
     }
   ],
   "profiles": [
@@ -121,6 +169,46 @@
       "course": "B.Com",
       "institution": "Mumbai University",
       "year": "3rd Year"
+    },
+    {
+      "id": "STU002",
+      "user_id": "u5",
+      "name": "Amit Shah",
+      "mobile": "+919876543213",
+      "email": "amit.shah@email.com",
+      "vertical": "Boys Hostel",
+      "room": "102",
+      "joiningDate": "2026-01-10",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2025-26",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-07-10",
+      "parentName": "Prakash Shah",
+      "parentMobile": "+919876543220",
+      "course": "B.Com",
+      "institution": "Gujarat University",
+      "year": "2nd Year"
+    },
+    {
+      "id": "STU003",
+      "user_id": "u6",
+      "name": "Neha Shah",
+      "mobile": "+919876543216",
+      "email": "neha.shah@email.com",
+      "vertical": "Girls Ashram",
+      "room": "201",
+      "joiningDate": "2026-01-05",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2025-26",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-07-05",
+      "parentName": "Prakash Shah",
+      "parentMobile": "+919876543220",
+      "course": "B.Sc",
+      "institution": "Gujarat University",
+      "year": "1st Year"
     }
   ],
   "applications": [
@@ -132,8 +220,8 @@
       "parent_application_id": null,
       "applicant_mobile": "+919876543213",
       "student_user_id": null,
-      "current_status": "SUBMITTED",
-      "status": "SUBMITTED",
+      "current_status": "INTERVIEW_COMPLETED",
+      "status": "INTERVIEW_COMPLETED",
       "vertical": "BOYS_HOSTEL",
       "data": {
         "personal_info": {
@@ -156,7 +244,28 @@
         }
       },
       "submitted_at": "2024-12-15T14:30:00Z",
-      "created_at": "2024-12-14T10:00:00Z"
+      "created_at": "2024-12-14T10:00:00Z",
+      "updatedAt": "2026-01-08T16:59:11.929Z",
+      "interview_evaluation": {
+        "academicScore": 4,
+        "academicComments": "Strong academic background with good understanding of subjects",
+        "communicationScore": 4,
+        "communicationComments": "Clear and confident communication",
+        "disciplineScore": 5,
+        "disciplineComments": "Excellent discipline, follows rules properly",
+        "motivationScore": 4,
+        "motivationComments": "Clear goals and motivated to succeed",
+        "overallScore": 17,
+        "overallObservations": "A suitable candidate for the hostel. Demonstrates good character and motivation.",
+        "recommendation": "APPROVE"
+      },
+      "forwardedBy": {
+        "superIntendentId": "USR003",
+        "superIntendentName": "Boys Superintendent",
+        "forwardedOn": "2024-12-16T10:00:00Z",
+        "recommendation": "RECOMMEND",
+        "remarks": "Excellent academic record and clean background check. Recommend for admission."
+      }
     },
     {
       "id": "app2",
@@ -166,8 +275,8 @@
       "parent_application_id": null,
       "applicant_mobile": "+919876543214",
       "student_user_id": null,
-      "current_status": "REVIEW",
-      "status": "REVIEW",
+      "current_status": "APPROVED",
+      "status": "APPROVED",
       "vertical": "GIRLS_ASHRAM",
       "data": {
         "personal_info": {
@@ -187,7 +296,23 @@
         }
       },
       "submitted_at": "2024-12-10T09:15:00Z",
-      "created_at": "2024-12-09T11:00:00Z"
+      "created_at": "2024-12-09T11:00:00Z",
+      "decision_type": "FINAL_APPROVE",
+      "remarks": "",
+      "updatedAt": "2026-01-08T17:04:29.521Z",
+      "interview_evaluation": {
+        "academicScore": 4,
+        "academicComments": "Good",
+        "communicationScore": 3,
+        "communicationComments": "Good",
+        "disciplineScore": 4,
+        "disciplineComments": "Good",
+        "motivationScore": 4,
+        "motivationComments": "Good",
+        "overallScore": 13,
+        "overallObservations": "Good",
+        "recommendation": "APPROVE"
+      }
     },
     {
       "id": "app3",
@@ -392,6 +517,30 @@
       "s3_key": "mock/documents/app2-aadhar.pdf",
       "verification_status": "VERIFIED",
       "uploaded_at": "2024-12-09T15:00:00Z"
+    },
+    {
+      "id": "doc4",
+      "student_id": "u1",
+      "document_type": "AADHAR_CARD",
+      "s3_key": "mock/documents/u1-aadhar.pdf",
+      "verification_status": "VERIFIED",
+      "uploaded_at": "2024-01-10T10:00:00Z"
+    },
+    {
+      "id": "doc5",
+      "student_id": "u1",
+      "document_type": "PHOTO",
+      "s3_key": "mock/documents/u1-photo.jpg",
+      "verification_status": "VERIFIED",
+      "uploaded_at": "2024-01-10T10:00:00Z"
+    },
+    {
+      "id": "doc6",
+      "student_id": "u1",
+      "document_type": "MARKSHEET",
+      "s3_key": "mock/documents/u1-marksheet.pdf",
+      "verification_status": "VERIFIED",
+      "uploaded_at": "2024-01-10T10:00:00Z"
     }
   ],
   "interviews": [
@@ -402,6 +551,56 @@
       "schedule_time": "2024-12-20T10:00:00Z",
       "mode": "IN_PERSON",
       "internal_remarks": "Candidate shows good understanding of hostel rules",
+      "final_score": null,
+      "status": "SCHEDULED"
+    },
+    {
+      "id": "int1767879096091-9ivupun",
+      "application_id": "app1",
+      "trustee_id": "u3",
+      "schedule_time": "2026-01-20T10:00:00Z",
+      "mode": "ONLINE",
+      "internal_remarks": "",
+      "final_score": null,
+      "status": "SCHEDULED"
+    },
+    {
+      "id": "int1767879407409-c3t3pox",
+      "application_id": "app1",
+      "trustee_id": "u3",
+      "schedule_time": "2026-01-20T10:00:00Z",
+      "mode": "ONLINE",
+      "internal_remarks": "",
+      "final_score": null,
+      "status": "SCHEDULED"
+    },
+    {
+      "id": "int1767880136901-0fv6r8x",
+      "application_id": "app1",
+      "trustee_id": "u3",
+      "schedule_time": "2026-01-25T10:00:00Z",
+      "mode": "ONLINE",
+      "internal_remarks": "",
+      "final_score": null,
+      "status": "SCHEDULED"
+    },
+    {
+      "id": "int1767890129210-xus1w9l",
+      "application_id": "app2",
+      "trustee_id": "u3",
+      "schedule_time": "2026-01-09T22:05:00Z",
+      "mode": "ONLINE",
+      "internal_remarks": "",
+      "final_score": null,
+      "status": "SCHEDULED"
+    },
+    {
+      "id": "int1767890385993-2erlpsf",
+      "application_id": "app2",
+      "trustee_id": "u3",
+      "schedule_time": "2026-01-09T19:00:00Z",
+      "mode": "ONLINE",
+      "internal_remarks": "",
       "final_score": null,
       "status": "SCHEDULED"
     }
@@ -473,6 +672,26 @@
       "status": "ACTIVE",
       "check_in_confirmed": true,
       "check_in_confirmed_at": "2024-01-21T10:00:00Z"
+    },
+    {
+      "id": "alloc3",
+      "student_id": "u5",
+      "room_id": "r2",
+      "allocated_at": "2026-01-10T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2026-01-10T11:00:00Z"
+    },
+    {
+      "id": "alloc4",
+      "student_id": "u6",
+      "room_id": "r4",
+      "allocated_at": "2026-01-05T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2026-01-05T11:00:00Z"
     }
   ],
   "leaves": [
@@ -486,6 +705,73 @@
       "status": "APPROVED",
       "parent_notified_at": "2024-12-20T10:00:00Z",
       "created_at": "2024-12-18T09:00:00Z"
+    },
+    {
+      "id": "leave2",
+      "student_id": "u1",
+      "type": "SHORT_LEAVE",
+      "start_time": "2026-01-10T14:00:00Z",
+      "end_time": "2026-01-10T18:00:00Z",
+      "reason": "Medical appointment",
+      "status": "PENDING",
+      "parent_notified_at": null,
+      "created_at": "2026-01-08T09:00:00Z"
+    },
+    {
+      "id": "leave3",
+      "student_id": "u1",
+      "type": "NIGHT_OUT",
+      "start_time": "2026-01-15T18:00:00Z",
+      "end_time": "2026-01-15T22:00:00Z",
+      "reason": "Dinner with family friends",
+      "status": "APPROVED",
+      "parent_notified_at": "2026-01-14T10:00:00Z",
+      "created_at": "2026-01-14T09:00:00Z"
+    },
+    {
+      "id": "leave4",
+      "student_id": "u5",
+      "type": "SHORT_LEAVE",
+      "start_time": "2026-01-12T14:00:00Z",
+      "end_time": "2026-01-12T17:00:00Z",
+      "reason": "Visit to library for project work",
+      "status": "PENDING",
+      "parent_notified_at": null,
+      "created_at": "2026-01-11T10:00:00Z"
+    },
+    {
+      "id": "leave5",
+      "student_id": "u5",
+      "type": "HOME_VISIT",
+      "start_time": "2026-01-20T00:00:00Z",
+      "end_time": "2026-01-23T23:59:59Z",
+      "reason": "Family wedding in Ahmedabad",
+      "status": "APPROVED",
+      "parent_notified_at": "2026-01-17T10:00:00Z",
+      "created_at": "2026-01-15T09:00:00Z"
+    },
+    {
+      "id": "leave6",
+      "student_id": "u6",
+      "type": "SHORT_LEAVE",
+      "start_time": "2026-01-11T15:00:00Z",
+      "end_time": "2026-01-11T18:30:00Z",
+      "reason": "Medical checkup",
+      "status": "PENDING",
+      "parent_notified_at": null,
+      "created_at": "2026-01-10T14:00:00Z"
+    },
+    {
+      "id": "leave7",
+      "student_id": "u6",
+      "type": "MULTI_DAY",
+      "start_time": "2026-01-25T08:00:00Z",
+      "end_time": "2026-01-28T18:00:00Z",
+      "reason": "Home visit during semester break",
+      "destination": "Rajkot, Gujarat",
+      "status": "PENDING",
+      "parent_notified_at": null,
+      "created_at": "2026-01-18T09:00:00Z"
     }
   ],
   "fees": [
@@ -515,6 +801,96 @@
       "due_date": "2024-01-15",
       "status": "PAID",
       "paid_at": "2024-01-15T14:00:00Z"
+    },
+    {
+      "id": "fee4",
+      "student_id": "u1",
+      "head": "MESS_FEES",
+      "amount": 3000,
+      "due_date": "2026-01-15",
+      "status": "PENDING",
+      "paid_at": null
+    },
+    {
+      "id": "fee5",
+      "student_id": "u1",
+      "head": "RENEWAL_FEES",
+      "amount": 60000,
+      "due_date": "2026-02-15",
+      "status": "PENDING",
+      "paid_at": null
+    },
+    {
+      "id": "fee6",
+      "student_id": "u5",
+      "head": "PROCESSING_FEE",
+      "amount": 500,
+      "due_date": "2026-01-10",
+      "status": "PAID",
+      "paid_at": "2026-01-09T10:00:00Z"
+    },
+    {
+      "id": "fee7",
+      "student_id": "u5",
+      "head": "SECURITY_DEPOSIT",
+      "amount": 10000,
+      "due_date": "2026-01-10",
+      "status": "PAID",
+      "paid_at": "2026-01-09T10:00:00Z"
+    },
+    {
+      "id": "fee8",
+      "student_id": "u5",
+      "head": "HOSTEL_FEES",
+      "amount": 60000,
+      "due_date": "2026-01-15",
+      "status": "PENDING",
+      "paid_at": null
+    },
+    {
+      "id": "fee9",
+      "student_id": "u5",
+      "head": "MESS_FEES",
+      "amount": 3000,
+      "due_date": "2026-01-15",
+      "status": "PENDING",
+      "paid_at": null
+    },
+    {
+      "id": "fee10",
+      "student_id": "u6",
+      "head": "PROCESSING_FEE",
+      "amount": 500,
+      "due_date": "2026-01-05",
+      "status": "PAID",
+      "paid_at": "2026-01-04T10:00:00Z"
+    },
+    {
+      "id": "fee11",
+      "student_id": "u6",
+      "head": "SECURITY_DEPOSIT",
+      "amount": 10000,
+      "due_date": "2026-01-05",
+      "status": "PAID",
+      "paid_at": "2026-01-04T10:00:00Z"
+    },
+    {
+      "id": "fee12",
+      "student_id": "u6",
+      "head": "HOSTEL_FEES",
+      "amount": 55000,
+      "due_date": "2026-01-10",
+      "status": "PENDING",
+      "paid_at": null
+    },
+    {
+      "id": "fee13",
+      "student_id": "u6",
+      "head": "MESS_FEES",
+      "amount": 3000,
+      "due_date": "2026-01-10",
+      "status": "PENDING",
+      "paid_at": null
     }
   ],
   "transactions": [
@@ -598,6 +974,172 @@
       "metadata": {
         "tracking_number": "HG-2026-00002"
       }
+    },
+    {
+      "id": "audit1767889894903",
+      "entity_type": "APPLICATION",
+      "entity_id": "app1",
+      "action": "STATUS_CHANGE",
+      "old_value": "SUBMITTED",
+      "new_value": "REVIEW",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:31:34.903Z",
+      "metadata": {
+        "tracking_number": "BH-2024-00001"
+      }
+    },
+    {
+      "id": "audit1767890053096",
+      "entity_type": "APPLICATION",
+      "entity_id": "app1",
+      "action": "STATUS_CHANGE",
+      "old_value": "REVIEW",
+      "new_value": "PROVISIONALLY_APPROVED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:34:13.096Z",
+      "metadata": {
+        "tracking_number": "BH-2024-00001"
+      }
+    },
+    {
+      "id": "audit1767890105282",
+      "entity_type": "APPLICATION",
+      "entity_id": "app2",
+      "action": "STATUS_CHANGE",
+      "old_value": "REVIEW",
+      "new_value": "PROVISIONALLY_APPROVED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:35:05.282Z",
+      "metadata": {
+        "tracking_number": "GA-2024-00002"
+      }
+    },
+    {
+      "id": "audit1767890300916",
+      "entity_type": "APPLICATION",
+      "entity_id": "app1",
+      "action": "STATUS_CHANGE",
+      "old_value": "PROVISIONALLY_APPROVED",
+      "new_value": "INTERVIEW_SCHEDULED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:38:20.916Z",
+      "metadata": {
+        "tracking_number": "BH-2024-00001"
+      }
+    },
+    {
+      "id": "audit1767890386013",
+      "entity_type": "APPLICATION",
+      "entity_id": "app2",
+      "action": "STATUS_CHANGE",
+      "old_value": "PROVISIONALLY_APPROVED",
+      "new_value": "INTERVIEW_SCHEDULED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:39:46.013Z",
+      "metadata": {
+        "tracking_number": "GA-2024-00002"
+      }
+    },
+    {
+      "id": "audit1767890891826",
+      "entity_type": "APPLICATION",
+      "entity_id": "app1",
+      "action": "STATUS_CHANGE",
+      "old_value": "INTERVIEW_SCHEDULED",
+      "new_value": "INTERVIEW_COMPLETED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:48:11.826Z",
+      "metadata": {
+        "tracking_number": "BH-2024-00001"
+      }
+    },
+    {
+      "id": "audit1767891543344",
+      "entity_type": "APPLICATION",
+      "entity_id": "app1",
+      "action": "STATUS_CHANGE",
+      "old_value": "INTERVIEW_COMPLETED",
+      "new_value": "INTERVIEW_SCHEDULED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T16:59:03.344Z",
+      "metadata": {
+        "tracking_number": "BH-2024-00001"
+      }
+    },
+    {
+      "id": "audit1767891840452",
+      "entity_type": "APPLICATION",
+      "entity_id": "app2",
+      "action": "STATUS_CHANGE",
+      "old_value": "INTERVIEW_SCHEDULED",
+      "new_value": "INTERVIEW_COMPLETED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T17:04:00.452Z",
+      "metadata": {
+        "tracking_number": "GA-2024-00002"
+      }
+    },
+    {
+      "id": "audit1767891869522",
+      "entity_type": "APPLICATION",
+      "entity_id": "app2",
+      "action": "STATUS_CHANGE",
+      "old_value": "INTERVIEW_COMPLETED",
+      "new_value": "APPROVED",
+      "performed_by": null,
+      "performed_at": "2026-01-08T17:04:29.522Z",
+      "metadata": {
+        "tracking_number": "GA-2024-00002"
+      }
     }
-  ]
+  ],
+  "exitRequests": [
+    {
+      "id": "exit1",
+      "student_id": "u1",
+      "reason": "Course completion",
+      "requested_exit_date": "2026-05-30",
+      "status": "CLEARANCE_PENDING",
+      "created_at": "2026-01-08T10:00:00Z",
+      "clearance": {
+        "room_inventory_verified": false,
+        "keys_returned": false,
+        "dues_cleared": false,
+        "documents_submitted": false
+      }
+    }
+  ],
+  "config": {
+    "leaveRules": {
+      "SHORT_LEAVE": {
+        "maxHours": 4,
+        "maxPerMonth": 4,
+        "requiresReason": true
+      },
+      "HOME_VISIT": {
+        "maxDays": 7,
+        "maxPerSemester": 3,
+        "requiresParentConsent": true,
+        "requiresAdvanceNoticeDays": 3
+      },
+      "NIGHT_OUT": {
+        "maxHours": 12,
+        "maxPerMonth": 2,
+        "requiresReason": true
+      },
+      "MULTI_DAY": {
+        "maxDays": 15,
+        "maxPerYear": 2,
+        "requiresParentConsent": true,
+        "requiresDestination": true,
+        "requiresAdvanceNoticeDays": 7
+      }
+    },
+    "notificationTemplates": {
+      "leaveApproval": "Your leave request for {dates} has been {status} by the superintendent.",
+      "leaveRejected": "Your leave request for {dates} has been rejected. Reason: {reason}",
+      "parentLeaveNotification": "Your ward {student_name} has applied for leave from {start_date} to {end_date}. Reason: {reason}",
+      "applicationStatusChange": "Your application status has been updated to {status}. Remarks: {remarks}"
+    }
+  }
 }
