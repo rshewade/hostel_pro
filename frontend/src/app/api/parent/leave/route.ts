@@ -50,21 +50,51 @@ export async function GET(request: NextRequest) {
     const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
     const normalizedParentMobile = normalizePhone(tokenData.contact);
 
-    const parentUser = await findOne('users', (u: any) => 
-      u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
-    );
+    // Check if parent selected a specific student (from the dashboard selector)
+    const selectedStudentId = searchParams.get('studentId');
 
-    // Get student's user_id
     let studentUserId = null;
-    if (parentUser?.linked_student_id) {
-      const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
-      studentUserId = student?.user_id;
+
+    if (selectedStudentId) {
+      // Parent has selected a specific ward - use that student's user_id
+      const student = await findOne('students', (s: any) => s.id === selectedStudentId);
+      if (student) {
+        studentUserId = student.user_id;
+        console.log('\n========================================');
+        console.log('📋 PARENT LEAVE DATA ACCESS (Selected Ward)');
+        console.log('========================================');
+        console.log('Selected Ward ID:', selectedStudentId);
+        console.log('Ward User ID:', studentUserId);
+      }
+    } else {
+      // No selection - fall back to parent user linked_student_id
+      const parentUser = await findOne('users', (u: any) => 
+        u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
+      );
+
+      if (parentUser?.linked_student_id) {
+        const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
+        studentUserId = student?.user_id;
+        console.log('\n========================================');
+        console.log('📋 PARENT LEAVE DATA ACCESS (Default Ward)');
+        console.log('========================================');
+        console.log('Default Ward ID:', parentUser.linked_student_id);
+        console.log('Ward User ID:', studentUserId);
+      }
     }
 
     // Fetch leave requests for the student
     let leaves = [];
     if (studentUserId) {
       leaves = await find('leaves', (l: any) => l.student_id === studentUserId);
+      console.log('Leaves Found:', leaves.length);
+      console.log('========================================\n');
+    } else {
+      console.log('\n========================================');
+      console.log('📋 PARENT LEAVE DATA ACCESS');
+      console.log('========================================');
+      console.log('No student found for parent');
+      console.log('========================================\n');
     }
 
     const typeMap: Record<string, string> = {

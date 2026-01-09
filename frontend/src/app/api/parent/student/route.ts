@@ -129,8 +129,10 @@ export async function GET(request: NextRequest) {
 
     // Add students from applications
     for (const app of applications) {
-      // Skip if already added
-      if (students.some(s => s.id === app.id)) continue;
+      const applicantName = app.data?.personal_info?.full_name || 'Unknown';
+      
+      // Skip if already added by name (avoid duplicates like Amit Shah in both app and students)
+      if (students.some(s => s.name.toLowerCase() === applicantName.toLowerCase())) continue;
 
       const verticalMap: Record<string, string> = {
         'BOYS_HOSTEL': 'Boys Hostel',
@@ -152,9 +154,15 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // Only add application if it's not an approved/checked-in student
+      // (Approved students should be in the students collection)
+      if (['APPROVED', 'CHECKED_IN'].includes(status) && room !== 'Not Allocated') {
+        continue; // Skip - this student should be in students collection
+      }
+
       students.push({
         id: app.id,
-        name: app.data?.personal_info?.full_name || 'Unknown',
+        name: applicantName,
         photo: null,
         vertical: verticalMap[app.vertical] || app.vertical,
         room,
@@ -168,8 +176,8 @@ export async function GET(request: NextRequest) {
 
     // Add students from profiles (existing residents)
     for (const profile of profiles) {
-      // Skip if already added
-      if (students.some(s => s.name === profile.full_name)) continue;
+      // Skip if already added by user_id
+      if (students.some(s => s.id === profile.user_id)) continue;
 
       const allocation = await findOne('allocations', (a: any) =>
         a.student_id === profile.user_id && a.status === 'ACTIVE'

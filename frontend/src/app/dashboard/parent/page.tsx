@@ -154,17 +154,21 @@ export default function ParentDashboard() {
       let sessionToken = urlParams.get('sessionToken') || localStorage.getItem('parentSessionToken');
       if (!sessionToken) return;
 
+      // Get the currently selected student's ID
+      const currentStudent = allStudents[selectedStudentIndex];
+      if (!currentStudent) return;
+
       try {
-        // Fetch fees
-        const feesResponse = await fetch(`/api/parent/fees?sessionToken=${encodeURIComponent(sessionToken)}`);
+        // Fetch fees for the selected student
+        const feesResponse = await fetch(`/api/parent/fees?sessionToken=${encodeURIComponent(sessionToken)}&studentId=${encodeURIComponent(currentStudent.id)}`);
         const feesResult = await feesResponse.json();
         if (feesResult.success && feesResult.data) {
           setFeeSummary(feesResult.data.summary);
           setFeeItems(feesResult.data.items || []);
         }
 
-        // Fetch leave requests
-        const leaveResponse = await fetch(`/api/parent/leave?sessionToken=${encodeURIComponent(sessionToken)}`);
+        // Fetch leave requests for the selected student
+        const leaveResponse = await fetch(`/api/parent/leave?sessionToken=${encodeURIComponent(sessionToken)}&studentId=${encodeURIComponent(currentStudent.id)}`);
         const leaveResult = await leaveResponse.json();
         if (leaveResult.success && leaveResult.data) {
           setLeaveRequests(leaveResult.data.items || []);
@@ -175,7 +179,7 @@ export default function ParentDashboard() {
     };
 
     fetchAdditionalData();
-  }, [allStudents]);
+  }, [allStudents, selectedStudentIndex]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

@@ -44,19 +44,50 @@ export async function GET(request: NextRequest) {
     const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
     const normalizedParentMobile = normalizePhone(tokenData.contact);
 
-    const parentUser = await findOne('users', (u: any) => 
-      u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
-    );
+    // Check if parent selected a specific student (from the dashboard selector)
+    const selectedStudentId = searchParams.get('studentId');
 
     let studentUserId = null;
-    if (parentUser?.linked_student_id) {
-      const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
-      studentUserId = student?.user_id;
+
+    if (selectedStudentId) {
+      // Parent has selected a specific ward - use that student's user_id
+      const student = await findOne('students', (s: any) => s.id === selectedStudentId);
+      if (student) {
+        studentUserId = student.user_id;
+        console.log('\n========================================');
+        console.log('💰 PARENT FEE DATA ACCESS (Selected Ward)');
+        console.log('========================================');
+        console.log('Selected Ward ID:', selectedStudentId);
+        console.log('Ward User ID:', studentUserId);
+      }
+    } else {
+      // No selection - fall back to parent user linked_student_id
+      const parentUser = await findOne('users', (u: any) => 
+        u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
+      );
+
+      if (parentUser?.linked_student_id) {
+        const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
+        studentUserId = student?.user_id;
+        console.log('\n========================================');
+        console.log('💰 PARENT FEE DATA ACCESS (Default Ward)');
+        console.log('========================================');
+        console.log('Default Ward ID:', parentUser.linked_student_id);
+        console.log('Ward User ID:', studentUserId);
+      }
     }
 
     let fees = [];
     if (studentUserId) {
       fees = await find('fees', (f: any) => f.student_id === studentUserId);
+      console.log('Fees Found:', fees.length);
+      console.log('========================================\n');
+    } else {
+      console.log('\n========================================');
+      console.log('💰 PARENT FEE DATA ACCESS');
+      console.log('========================================');
+      console.log('No student found for parent');
+      console.log('========================================\n');
     }
 
     const totalFees = fees.reduce((sum: number, f: any) => sum + (f.amount || 0), 0);
