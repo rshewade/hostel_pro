@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/data/Card';
@@ -32,45 +32,46 @@ export default function StudentFeesPage() {
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedFee, setSelectedFee] = useState<{ id: string; name: string; amount: number } | null>(null);
+  const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [feeItems, setFeeItems] = useState<FeeItem[]>([
-    {
-      id: '1',
-      name: 'Processing Fee',
-      description: 'One-time application processing charge',
-      amount: 5000,
-      paidAmount: 5000,
-      status: 'PAID',
-      dueDate: '2024-01-15',
-    },
-    {
-      id: '2',
-      name: 'Hostel Fees',
-      description: 'Accommodation charges for academic year 2024-25',
-      amount: 60000,
-      paidAmount: 30000,
-      status: 'PENDING',
-      dueDate: '2024-01-30',
-    },
-    {
-      id: '3',
-      name: 'Security Deposit',
-      description: 'Refundable security deposit (held until check-out)',
-      amount: 10000,
-      paidAmount: 0,
-      status: 'PENDING',
-      dueDate: '2024-01-30',
-    },
-    {
-      id: '4',
-      name: 'Key Deposit',
-      description: 'Refundable deposit for room and locker keys',
-      amount: 2000,
-      paidAmount: 0,
-      status: 'PENDING',
-      dueDate: '2024-02-15',
-    },
-  ]);
+  useEffect(() => {
+    const fetchFees = async () => {
+      try {
+        setLoading(true);
+        // Get current student ID from session/auth - for demo, using STU001
+        const studentId = 'STU001';
+        const response = await fetch(`/api/fees?student_id=${studentId}`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch fees');
+        }
+
+        const data = await response.json();
+
+        const transformedFees: FeeItem[] = data.map((fee: any) => ({
+          id: fee.id,
+          name: fee.name,
+          description: fee.description || `${fee.name} for current period`,
+          amount: fee.amount,
+          paidAmount: fee.paid_amount || 0,
+          status: fee.status,
+          dueDate: fee.due_date,
+        }));
+
+        setFeeItems(transformedFees);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching fees:', err);
+        setError('Failed to load fee information. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFees();
+  }, []);
 
   const paymentSummary: PaymentSummary = {
     totalAmount: feeItems.reduce((sum, item) => sum + item.amount, 0),
@@ -203,7 +204,35 @@ export default function StudentFeesPage() {
               </h3>
             </div>
 
-            {feeItems.map((item) => (
+            {loading ? (
+              <Card padding="lg" shadow="md">
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-900 mx-auto mb-4"></div>
+                    <p style={{ color: 'var(--text-secondary)' }}>Loading fee information...</p>
+                  </div>
+                </div>
+              </Card>
+            ) : error ? (
+              <Card padding="lg" shadow="md">
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <p className="text-red-500 mb-2">{error}</p>
+                    <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+                      Retry
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ) : feeItems.length === 0 ? (
+              <Card padding="lg" shadow="md">
+                <div className="flex items-center justify-center py-8">
+                  <p style={{ color: 'var(--text-secondary)' }}>No fee items found.</p>
+                </div>
+              </Card>
+            ) : null}
+
+            {!loading && !error && feeItems.map((item) => (
               <Card
                 key={item.id}
                 padding="lg"

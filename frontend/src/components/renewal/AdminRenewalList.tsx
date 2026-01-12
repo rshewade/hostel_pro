@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -9,7 +9,7 @@ import { Select } from '@/components/forms/Select';
 import { Table } from '@/components/data/Table';
 import type { TableColumn } from '@/components/types';
 import { RenewalStatusTracker } from './RenewalStatusTracker';
-import { Search, Filter, Download, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, Filter, Download, Eye, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 
 export interface RenewalApplication {
   id: string;
@@ -38,73 +38,6 @@ interface AdminRenewalListProps {
   className?: string;
 }
 
-const SAMPLE_RENEWALS: RenewalApplication[] = [
-  {
-    id: 'REN001',
-    studentId: 'STU001',
-    studentName: 'Amit Kumar Jain',
-    vertical: 'Boys Hostel',
-    room: 'A-201',
-    type: 'RENEWAL',
-    status: 'IN_PROGRESS',
-    daysRemaining: 30,
-    documentsUploaded: 1,
-    documentsRequired: 2,
-    paymentStatus: 'PENDING',
-    amountDue: 60000,
-    submittedAt: null,
-    reviewedAt: null,
-  },
-  {
-    id: 'REN002',
-    studentId: 'STU002',
-    studentName: 'Priya Sharma',
-    vertical: 'Girls Ashram',
-    room: 'B-105',
-    type: 'RENEWAL',
-    status: 'UNDER_REVIEW',
-    daysRemaining: 15,
-    documentsUploaded: 2,
-    documentsRequired: 2,
-    paymentStatus: 'PARTIAL',
-    amountDue: 5000,
-    submittedAt: '2025-01-08T10:00:00Z',
-    reviewedAt: null,
-  },
-  {
-    id: 'REN003',
-    studentId: 'STU003',
-    studentName: 'Rahul Verma',
-    vertical: 'Boys Hostel',
-    room: 'C-301',
-    type: 'RENEWAL',
-    status: 'UNDER_REVIEW',
-    daysRemaining: 10,
-    documentsUploaded: 2,
-    documentsRequired: 1,
-    paymentStatus: 'COMPLETE',
-    amountDue: 0,
-    submittedAt: '2025-01-05T14:00:00Z',
-    reviewedAt: null,
-  },
-  {
-    id: 'REN004',
-    studentId: 'STU004',
-    studentName: 'Sneha Gupta',
-    vertical: 'Girls Ashram',
-    room: 'B-102',
-    type: 'NEW',
-    status: 'IN_PROGRESS',
-    daysRemaining: 45,
-    documentsUploaded: 0,
-    documentsRequired: 3,
-    paymentStatus: 'PENDING',
-    amountDue: 75000,
-    submittedAt: null,
-    reviewedAt: null,
-  },
-];
-
 export const AdminRenewalList: React.FC<AdminRenewalListProps> = ({
   title = 'Renewal Applications',
   showVerticalFilter = true,
@@ -117,8 +50,53 @@ export const AdminRenewalList: React.FC<AdminRenewalListProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [verticalFilter, setVerticalFilter] = useState(currentVertical);
+  const [renewals, setRenewals] = useState<RenewalApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredRenewals = SAMPLE_RENEWALS.filter((renewal) => {
+  useEffect(() => {
+    const fetchRenewals = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/renewals');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch renewals');
+        }
+
+        const data = await response.json();
+
+        const transformedRenewals: RenewalApplication[] = data.map((renewal: any) => ({
+          id: renewal.id,
+          studentId: renewal.student_id,
+          studentName: renewal.student_name,
+          vertical: renewal.vertical,
+          room: renewal.room,
+          type: renewal.type,
+          status: renewal.status,
+          daysRemaining: renewal.days_remaining,
+          documentsUploaded: renewal.documents_uploaded,
+          documentsRequired: renewal.documents_required,
+          paymentStatus: renewal.payment_status,
+          amountDue: renewal.amount_due,
+          submittedAt: renewal.submitted_at,
+          reviewedAt: renewal.reviewed_at,
+        }));
+
+        setRenewals(transformedRenewals);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching renewals:', err);
+        setError('Failed to load renewal applications.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRenewals();
+  }, []);
+
+  const filteredRenewals = renewals.filter((renewal) => {
     const matchesSearch =
       renewal.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       renewal.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -297,12 +275,41 @@ export const AdminRenewalList: React.FC<AdminRenewalListProps> = ({
   ];
 
   const statusCounts = {
-    all: SAMPLE_RENEWALS.length,
-    IN_PROGRESS: SAMPLE_RENEWALS.filter((r) => r.status === 'IN_PROGRESS').length,
-    UNDER_REVIEW: SAMPLE_RENEWALS.filter((r) => r.status === 'UNDER_REVIEW').length,
-    APPROVED: SAMPLE_RENEWALS.filter((r) => r.status === 'APPROVED').length,
-    REJECTED: SAMPLE_RENEWALS.filter((r) => r.status === 'REJECTED').length,
+    all: renewals.length,
+    IN_PROGRESS: renewals.filter((r) => r.status === 'IN_PROGRESS').length,
+    UNDER_REVIEW: renewals.filter((r) => r.status === 'UNDER_REVIEW').length,
+    APPROVED: renewals.filter((r) => r.status === 'APPROVED').length,
+    REJECTED: renewals.filter((r) => r.status === 'REJECTED').length,
   };
+
+  if (loading) {
+    return (
+      <div className={className}>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading renewal applications...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={className}>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <p className="text-red-500 mb-2">{error}</p>
+            <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
@@ -374,7 +381,7 @@ export const AdminRenewalList: React.FC<AdminRenewalListProps> = ({
       </Card>
 
       <div className="mt-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
-        Showing {filteredRenewals.length} of {SAMPLE_RENEWALS.length} applications
+        Showing {filteredRenewals.length} of {renewals.length} applications
       </div>
     </div>
   );

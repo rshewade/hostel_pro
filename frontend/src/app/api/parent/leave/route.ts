@@ -67,18 +67,19 @@ export async function GET(request: NextRequest) {
         console.log('Ward User ID:', studentUserId);
       }
     } else {
-      // No selection - fall back to parent user linked_student_id
-      const parentUser = await findOne('users', (u: any) => 
+      // No selection - fall back to first student in parent's linked_student_ids
+      const parentUser = await findOne('users', (u: any) =>
         u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
       );
 
-      if (parentUser?.linked_student_id) {
-        const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
+      if (parentUser?.linked_student_ids && parentUser.linked_student_ids.length > 0) {
+        const defaultStudentId = parentUser.linked_student_ids[0];
+        const student = await findOne('students', (s: any) => s.id === defaultStudentId);
         studentUserId = student?.user_id;
         console.log('\n========================================');
         console.log('📋 PARENT LEAVE DATA ACCESS (Default Ward)');
         console.log('========================================');
-        console.log('Default Ward ID:', parentUser.linked_student_id);
+        console.log('Default Ward ID:', defaultStudentId);
         console.log('Ward User ID:', studentUserId);
       }
     }

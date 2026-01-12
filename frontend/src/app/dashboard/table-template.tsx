@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Grid, Col, Stack, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
@@ -18,20 +18,57 @@ interface StudentData {
   dues: string;
 }
 
+interface ApiStudent {
+  id: string;
+  name: string;
+  vertical: string;
+  room_number: string;
+  status: string;
+  outstanding_balance: number;
+}
+
 const ResponsiveTableTemplate: React.FC = () => {
   const { breakpoint, isMobile } = useResponsive();
   const [currentPage, setCurrentPage] = useState(1);
+  const [students, setStudents] = useState<StudentData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalStudents, setTotalStudents] = useState(0);
 
-  const students: StudentData[] = [
-    { id: 'STU001', name: 'Amit Kumar Jain', vertical: 'Boys Hostel', room: 'A-201', status: 'Active', dues: '₹0' },
-    { id: 'STU002', name: 'Priya Sharma', vertical: 'Girls Ashram', room: 'B-105', status: 'Active', dues: '₹5,000' },
-    { id: 'STU003', name: 'Rahul Verma', vertical: 'Boys Hostel', room: 'C-301', status: 'On Leave', dues: '₹0' },
-    { id: 'STU004', name: 'Neha Gupta', vertical: 'Girls Ashram', room: 'D-102', status: 'Active', dues: '₹2,500' },
-    { id: 'STU005', name: 'Vikram Singh', vertical: 'Boys Hostel', room: 'A-105', status: 'Inactive', dues: '₹12,000' },
-    { id: 'STU006', name: 'Anjali Patel', vertical: 'Girls Ashram', room: 'B-201', status: 'Active', dues: '₹0' },
-    { id: 'STU007', name: 'Karan Mehta', vertical: 'Boys Hostel', room: 'C-105', status: 'Active', dues: '₹3,500' },
-    { id: 'STU008', name: 'Sonia Reddy', vertical: 'Girls Ashram', room: 'D-301', status: 'On Leave', dues: '₹0' },
-  ];
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/students');
+        if (!response.ok) {
+          throw new Error('Failed to fetch students');
+        }
+        const data: ApiStudent[] = await response.json();
+
+        const transformedStudents: StudentData[] = data.map((student) => ({
+          id: student.id,
+          name: student.name,
+          vertical: student.vertical,
+          room: student.room_number,
+          status: student.status,
+          dues: student.outstanding_balance > 0
+            ? `₹${student.outstanding_balance.toLocaleString('en-IN')}`
+            : '₹0',
+        }));
+
+        setStudents(transformedStudents);
+        setTotalStudents(transformedStudents.length);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching students:', err);
+        setError('Failed to load students. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
 
   const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'info' => {
     switch (status) {
@@ -143,7 +180,23 @@ const ResponsiveTableTemplate: React.FC = () => {
               </div>
             </div>
 
-            {isMobile ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-900 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading students...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <p className="text-red-500 mb-2">{error}</p>
+                  <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+                    Retry
+                  </Button>
+                </div>
+              </div>
+            ) : isMobile ? (
               <Stack gap={4}>
                 {students.map(renderMobileCard)}
               </Stack>
@@ -161,7 +214,15 @@ const ResponsiveTableTemplate: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {students.map(renderTableRow)}
+                    {students.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-gray-500">
+                          No students found
+                        </td>
+                      </tr>
+                    ) : (
+                      students.map(renderTableRow)
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -169,7 +230,7 @@ const ResponsiveTableTemplate: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t">
               <p className="text-sm text-gray-500">
-                Showing 1-8 of 156 students
+                Showing {students.length > 0 ? `1-${students.length}` : '0'} of {totalStudents} students
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="secondary" size="sm" disabled={currentPage === 1}>

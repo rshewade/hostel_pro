@@ -79,51 +79,45 @@ export async function GET(request: NextRequest) {
       return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
     });
 
-    // Check profiles for existing students
-    const profiles = await find('profiles', (profile: any) => {
-      const fatherMobile = normalizePhone(profile.details?.father_mobile || '');
-      const motherMobile = normalizePhone(profile.details?.mother_mobile || '');
+    // Check students for existing residents by parent mobile
+    const studentsWithParent = await find('students', (student: any) => {
+      const fatherMobile = normalizePhone(student.father_mobile || '');
+      const motherMobile = normalizePhone(student.mother_mobile || '');
       return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
     });
 
     // Combine and deduplicate students
-    const students = [];
+    const students: any[] = [];
 
-    // If parent user has linked_student_id, look up the student directly
-    if (parentUser?.linked_student_id) {
-      const student = await findOne('students', (s: any) => s.id === parentUser.linked_student_id);
-      if (student) {
-        const verticalMap: Record<string, string> = {
-          'BOYS_HOSTEL': 'Boys Hostel',
-          'GIRLS_ASHRAM': 'Girls Ashram',
-          'DHARAMSHALA': 'Dharamshala',
-        };
+    // If parent user has linked_student_ids, look up each student
+    if (parentUser?.linked_student_ids && Array.isArray(parentUser.linked_student_ids)) {
+      for (const studentId of parentUser.linked_student_ids) {
+        const student = await findOne('students', (s: any) => s.id === studentId);
+        if (student) {
+          // Skip if already added
+          if (students.some(s => s.id === student.id)) continue;
 
-        let room = 'Not Allocated';
-        let status = student.status || 'UNKNOWN';
+          const verticalMap: Record<string, string> = {
+            'Boys Hostel': 'Boys Hostel',
+            'Girls Ashram': 'Girls Ashram',
+            'Dharamshala': 'Dharamshala',
+            'BOYS_HOSTEL': 'Boys Hostel',
+            'GIRLS_ASHRAM': 'Girls Ashram',
+            'DHARAMSHALA': 'Dharamshala',
+          };
 
-        if (student.user_id) {
-          const allocation = await findOne('allocations', (a: any) =>
-            a.student_id === student.user_id && a.status === 'ACTIVE'
-          );
-          if (allocation) {
-            const roomData = await findOne('rooms', (r: any) => r.id === allocation.room_id);
-            room = roomData ? `Room ${roomData.room_number}` : 'Allocated';
-            status = 'CHECKED_IN';
-          }
+          students.push({
+            id: student.id,
+            name: student.name,
+            photo: null,
+            vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
+            room: student.room ? `Room ${student.room}` : 'Not Allocated',
+            joiningDate: student.joiningDate || 'N/A',
+            status: student.status || 'CHECKED_IN',
+            academicYear: student.academicYear || '2024-25',
+            currentPeriod: student.currentPeriod || 'SEMESTER_2',
+          });
         }
-
-        students.push({
-          id: student.id,
-          name: student.name,
-          photo: null,
-          vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
-          room,
-          joiningDate: student.joiningDate || 'N/A',
-          status,
-          academicYear: student.academicYear || '2024-25',
-          currentPeriod: student.currentPeriod || 'SEMESTER_2',
-        });
       }
     }
 
@@ -174,41 +168,30 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Add students from profiles (existing residents)
-    for (const profile of profiles) {
-      // Skip if already added by user_id
-      if (students.some(s => s.id === profile.user_id)) continue;
+    // Add students from students table (existing residents found by parent mobile)
+    for (const studentRecord of studentsWithParent) {
+      // Skip if already added by id
+      if (students.some(s => s.id === studentRecord.id || s.id === studentRecord.user_id)) continue;
 
-      const allocation = await findOne('allocations', (a: any) =>
-        a.student_id === profile.user_id && a.status === 'ACTIVE'
-      );
-
-      let room = 'Not Allocated';
-      let vertical = 'N/A';
-
-      if (allocation) {
-        const roomData = await findOne('rooms', (r: any) => r.id === allocation.room_id);
-        if (roomData) {
-          room = `Room ${roomData.room_number}`;
-          const verticalMap: Record<string, string> = {
-            'BOYS_HOSTEL': 'Boys Hostel',
-            'GIRLS_ASHRAM': 'Girls Ashram',
-            'DHARAMSHALA': 'Dharamshala',
-          };
-          vertical = verticalMap[roomData.vertical] || roomData.vertical;
-        }
-      }
+      const verticalMap: Record<string, string> = {
+        'Boys Hostel': 'Boys Hostel',
+        'Girls Ashram': 'Girls Ashram',
+        'Dharamshala': 'Dharamshala',
+        'BOYS_HOSTEL': 'Boys Hostel',
+        'GIRLS_ASHRAM': 'Girls Ashram',
+        'DHARAMSHALA': 'Dharamshala',
+      };
 
       students.push({
-        id: profile.user_id,
-        name: profile.full_name,
+        id: studentRecord.id,
+        name: studentRecord.name,
         photo: null,
-        vertical,
-        room,
-        joiningDate: allocation?.allocated_at || 'N/A',
-        status: allocation ? 'CHECKED_IN' : 'PENDING',
-        academicYear: '2024-25',
-        currentPeriod: 'SEMESTER_2',
+        vertical: verticalMap[studentRecord.vertical] || studentRecord.vertical || 'N/A',
+        room: studentRecord.room ? `Room ${studentRecord.room}` : 'Not Allocated',
+        joiningDate: studentRecord.joiningDate || 'N/A',
+        status: studentRecord.status || 'CHECKED_IN',
+        academicYear: studentRecord.academicYear || '2024-25',
+        currentPeriod: studentRecord.currentPeriod || 'SEMESTER_2',
       });
     }
 

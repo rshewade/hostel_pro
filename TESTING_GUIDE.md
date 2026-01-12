@@ -6,11 +6,40 @@ This guide provides step-by-step instructions to manually validate the functiona
 
 - **URL:** Access the application (e.g., `http://localhost:3000` or your deployment URL).
 - **Database:** Ensure `db.json` is populated with initial mock data.
-- **Credentials:**
-  - **Student:** `student@example.com` / `password123`
-  - **Superintendent:** `superintendent@jain.org` / `password123`
-  - **Trustee:** `trustee@jain.org` / `password123`
-  - **Parent:** Mobile Number `9876543210` (OTP: `123456`)
+- **API Server:** Run `npm run dev:api` to start json-server on port 3001.
+
+### Test Credentials
+
+| Role                   | Email                           | Password      |
+| ---------------------- | ------------------------------- | ------------- |
+| Student                | `student@example.com`           | `password123` |
+| Superintendent (Boys)  | `superintendent@jain.org`       | `password123` |
+| Superintendent (Girls) | `superintendent-girls@jain.org` | `password123` |
+| Trustee                | `trustee@jain.org`              | `password123` |
+| Accounts               | `accounts@jain.org`             | `password123` |
+| Parent                 | Mobile: `9876543210`            | OTP: `123456` |
+
+### Test Application Tracking Numbers
+
+| Tracking Number | Mobile Number | Status              | Vertical     |
+| --------------- | ------------- | ------------------- | ------------ |
+| `BH-2025-00001` | `9988776655`  | SUBMITTED           | Boys Hostel  |
+| `BH-2025-00002` | `9988776660`  | SUBMITTED           | Boys Hostel  |
+| `BH-2025-00003` | `9988776670`  | REVIEW              | Boys Hostel  |
+| `BH-2025-00004` | `9988776680`  | APPROVED            | Boys Hostel  |
+| `BH-2025-00005` | `9988776685`  | REJECTED            | Boys Hostel  |
+| `GA-2025-00001` | `9988776665`  | SUBMITTED           | Girls Ashram |
+| `GA-2025-00002` | `9988776675`  | INTERVIEW_SCHEDULED | Girls Ashram |
+| `DH-2025-00001` | `9988776690`  | DRAFT               | Dharamshala  |
+
+### Additional Test Students
+
+| Name            | Email                    | Vertical     | Room  |
+| --------------- | ------------------------ | ------------ | ----- |
+| Amit Kumar Jain | `amit.kumar@email.com`   | Boys Hostel  | A-101 |
+| Priya Sharma    | `priya.sharma@email.com` | Girls Ashram | B-101 |
+| Rahul Verma     | `rahul.verma@email.com`  | Boys Hostel  | A-102 |
+| Neha Gupta      | `neha.gupta@email.com`   | Girls Ashram | B-102 |
 
 ---
 
@@ -28,10 +57,10 @@ This guide provides step-by-step instructions to manually validate the functiona
 - [x] `TC-PUB-005` **Step 1:** Select "Boys Hostel" > "Apply Now".
 - [x] `TC-PUB-006` **Step 2 (OTP):** Enter a mobile number (e.g., `9988776655`). Click "Send OTP".
 - [x] `TC-PUB-007` **Step 3:** Enter mock OTP `123456`. Verify redirection to the application form.
-- [x] `TC-PUB-008` **Step 4 (Form):** Fill in Personal Details, Guardian Info, and Academic details.
-- [x] `TC-PUB-009` **Step 5 (Uploads):** Upload dummy files for Aadhar/Photo.
-- [x] `TC-PUB-010` **Step 6:** Submit the application.
-- [x] `TC-PUB-011` **Result:** You should see a "Success" screen with a **Tracking Number** (e.g., `BH-2025-00001`). Note this number.
+- [] `TC-PUB-008` **Step 4 (Form):** Fill in Personal Details, Guardian Info, and Academic details.
+- [] `TC-PUB-009` **Step 5 (Uploads):** Upload dummy files for Aadhar/Photo.
+- [] `TC-PUB-010` **Step 6:** Submit the application.
+- [] `TC-PUB-011` **Result:** You should see a "Success" screen with a **Tracking Number** (e.g., `BH-2025-00001`). Note this number.
 
 ### 1.3 Track Application
 
@@ -48,10 +77,10 @@ This section validates the complete admission cycle from application to approval
 
 ### 2.1 Applicant - Submission
 
-- [x] `TC-APP-001` Go to Landing Page (`/`).
-- [x] `TC-APP-002` Submit a new application for "Boys Hostel".
-- [x] `TC-APP-003` Note down the **Tracking Number**.
-- [x] `TC-APP-004` **State:** Application is now in `SUBMITTED` state.
+- [ ] `TC-APP-001` Go to Landing Page (`/`).
+- [ ] `TC-APP-002` Submit a new application for "Boys Hostel".
+- [ ] `TC-APP-003` Note down the **Tracking Number**.
+- [ ] `TC-APP-004` **State:** Application is now in `SUBMITTED` state.
 
 ### 2.2 Superintendent - Review & Forward
 
@@ -65,11 +94,11 @@ This section validates the complete admission cycle from application to approval
 
 ### 2.3 Trustee - Final Approval
 
-- [x] `TC-APP-012` Login as **Trustee** (`trustee@jain.org`).
-- [x] `TC-APP-013` Go to **Dashboard** (Applications tab).
-- [x] `TC-APP-014` Find the forwarded application.
-- [x] `TC-APP-015` **Action:** Click "Schedule Interview" (Optional test).
-- [x] `TC-APP-016` **Action:** Click "Approve" (Final Admission).
+- [ ] `TC-APP-012` Login as **Trustee** (`trustee@jain.org`).
+- [ ] `TC-APP-013` Go to **Dashboard** (Applications tab).
+- [ ] `TC-APP-014` Find the forwarded application.
+- [ ] `TC-APP-015` **Action:** Click "Schedule Interview" (Optional test).
+- [ ] `TC-APP-016` **Action:** Click "Approve" (Final Admission).
 - [ ] `TC-APP-017` Confirm room allocation preference if asked.
 - [ ] `TC-APP-018` **State:** Application moves to `ADMITTED` (or `FINAL_APPROVED`).
 
@@ -221,6 +250,35 @@ This section validates the complete admission cycle from application to approval
 
 ## Troubleshooting
 
-- **Login Fails:** Ensure `db.json` has `password_hash: "password123"` for the user or environment is set to Development.
-- **Empty Data:** Check if `db.json` is correctly mounted in Docker.
-- **API Errors:** Check browser console Network tab for 404/500 errors.
+### Common Issues
+
+| Issue                            | Solution                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| **Login Fails**                  | Ensure `db.json` has `password_hash: "password123"` for the user               |
+| **Empty Data**                   | Verify json-server is running: `npm run dev:api`                               |
+| **API Errors (404)**             | Check that API routes exist in `db.json` (collections should be at root level) |
+| **API Errors (500)**             | Check browser console Network tab for details                                  |
+| **Components show "Loading..."** | Ensure json-server is running on port 3001                                     |
+| **Data not updating**            | Refresh the page or restart json-server                                        |
+
+### Starting the Development Environment
+
+```bash
+# Terminal 1: Start Next.js frontend
+cd frontend
+npm run dev
+
+# Terminal 2: Start json-server API
+npm run dev:api
+
+# Or run both concurrently
+npm run dev:all
+```
+
+### Resetting Test Data
+
+If test data becomes corrupted, you can reset by:
+
+1. Stop the json-server
+2. Replace `db.json` with a fresh copy from version control
+3. Restart json-server

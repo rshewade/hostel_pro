@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
       return unauthorizedResponse('Student ID is required');
     }
 
-    // Get student profile
-    const profile = await findOne('profiles', (p: any) => p.user_id === studentId);
+    // Get student record
+    const student = await findOne('students', (s: any) => s.user_id === studentId);
 
     // Get room allocation
     const allocation = await findOne(
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     const dashboardData: DashboardAPI.ParentDashboard = {
       student: {
-        name: profile?.full_name || user?.email || 'Student',
+        name: student?.name || user?.full_name || user?.email || 'Student',
         vertical: vertical as any,
         room: roomNumber,
         joining_date: allocation?.allocated_at || 'N/A',

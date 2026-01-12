@@ -3,152 +3,207 @@
     {
       "id": "u1",
       "email": "student@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "password_hash": "password123",
       "role": "student",
-      "mobile_no": "+919876543210",
+      "mobile_no": "9876543210",
+      "full_name": "Rahul Kumar",
+      "photo_url": "/images/students/rahul-kumar.jpg",
       "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
       "created_at": "2024-01-15T10:00:00Z"
     },
     {
       "id": "u2",
-      "email": "superintendent@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "email": "superintendent@jain.org",
+      "password_hash": "password123",
       "role": "superintendent",
-      "mobile_no": "+919876543211",
+      "vertical": "BOYS_HOSTEL",
+      "mobile_no": "9876543211",
       "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
       "created_at": "2024-01-15T10:00:00Z"
     },
     {
       "id": "u3",
-      "email": "trustee@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "email": "trustee@jain.org",
+      "password_hash": "password123",
       "role": "trustee",
-      "mobile_no": "+919876543212",
+      "mobile_no": "9876543212",
       "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
       "created_at": "2024-01-15T10:00:00Z"
     },
     {
       "id": "u4",
-      "email": "student2@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "email": "accounts@jain.org",
+      "password_hash": "password123",
+      "role": "accounts",
+      "mobile_no": "9876543213",
+      "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-01-15T10:00:00Z"
+    },
+    {
+      "id": "u5",
+      "email": "amit.kumar@email.com",
+      "password_hash": "password123",
       "role": "student",
-      "mobile_no": "+919876543219",
+      "mobile_no": "9876543214",
+      "full_name": "Amit Kumar Jain",
+      "photo_url": "/images/students/amit-jain.jpg",
       "status": "ACTIVE",
-      "created_at": "2024-01-15T10:00:00Z"
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-06-15T10:00:00Z"
     },
     {
-      "id": "USR003",
-      "email": "superintendent-boys@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
-      "role": "superintendent",
-      "vertical": "BOYS_HOSTEL",
-      "mobile_no": "9876543001",
+      "id": "u6",
+      "email": "priya.sharma@email.com",
+      "password_hash": "password123",
+      "role": "student",
+      "mobile_no": "9876543215",
+      "full_name": "Priya Sharma",
+      "photo_url": "/images/students/priya-sharma.jpg",
       "status": "ACTIVE",
-      "created_at": "2024-01-15T10:00:00Z"
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-07-01T10:00:00Z"
     },
     {
-      "id": "USR004",
-      "email": "superintendent-girls@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "id": "u7",
+      "email": "rahul.verma@email.com",
+      "password_hash": "password123",
+      "role": "student",
+      "mobile_no": "9876543216",
+      "full_name": "Rahul Verma",
+      "photo_url": "/images/students/rahul-verma.jpg",
+      "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-08-01T10:00:00Z"
+    },
+    {
+      "id": "u8",
+      "email": "neha.gupta@email.com",
+      "password_hash": "password123",
+      "role": "student",
+      "mobile_no": "9876543217",
+      "full_name": "Neha Gupta",
+      "photo_url": "/images/students/neha-gupta.jpg",
+      "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-08-15T10:00:00Z"
+    },
+    {
+      "id": "u9",
+      "email": "superintendent-girls@jain.org",
+      "password_hash": "password123",
       "role": "superintendent",
       "vertical": "GIRLS_ASHRAM",
-      "mobile_no": "9876543002",
+      "mobile_no": "9876543218",
       "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
       "created_at": "2024-01-15T10:00:00Z"
     },
     {
-      "id": "USR006",
-      "email": "accounts@example.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
-      "role": "accounts",
-      "mobile_no": "9876543004",
+      "id": "u10",
+      "email": "superintendent-dharamshala@jain.org",
+      "password_hash": "password123",
+      "role": "superintendent",
+      "vertical": "DHARAMSHALA",
+      "mobile_no": "9876543219",
       "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
       "created_at": "2024-01-15T10:00:00Z"
     },
     {
       "id": "parent1",
       "email": "parent@example.com",
-      "password_hash": "password123",
       "role": "parent",
       "mobile_no": "9876543210",
+      "full_name": "Rajesh Kumar",
       "status": "ACTIVE",
-      "linked_student_id": "STU001",
+      "linked_student_ids": ["STU001"],
       "created_at": "2024-01-15T10:00:00Z"
     },
     {
       "id": "parent2",
-      "email": "prakash.shah@test.com",
-      "password_hash": "password123",
+      "email": "suresh.jain@email.com",
       "role": "parent",
       "mobile_no": "9876543220",
+      "full_name": "Suresh Kumar Jain",
       "status": "ACTIVE",
-      "linked_student_id": "STU002",
-      "created_at": "2026-01-09T10:00:00Z"
+      "linked_student_ids": ["STU002"],
+      "created_at": "2024-06-15T10:00:00Z"
     },
     {
       "id": "parent3",
-      "email": "parent.neha@test.com",
-      "password_hash": "password123",
+      "email": "rajesh.sharma@email.com",
       "role": "parent",
       "mobile_no": "9876543221",
+      "full_name": "Rajesh Sharma",
       "status": "ACTIVE",
-      "linked_student_id": "STU003",
-      "created_at": "2026-01-04T10:00:00Z"
+      "linked_student_ids": ["STU003"],
+      "created_at": "2024-07-01T10:00:00Z"
     },
     {
-      "id": "u5",
-      "email": "amit.shah@email.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "id": "u11",
+      "email": "vikram.singh@email.com",
+      "password_hash": "password123",
       "role": "student",
-      "mobile_no": "+919876543213",
+      "mobile_no": "9876543222",
+      "full_name": "Vikram Singh",
+      "photo_url": "/images/students/vikram-singh.jpg",
       "status": "ACTIVE",
-      "created_at": "2026-01-10T10:00:00Z"
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-09-01T10:00:00Z"
     },
     {
-      "id": "u6",
-      "email": "neha.shah@email.com",
-      "password_hash": "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+      "id": "u12",
+      "email": "anjali.patel@email.com",
+      "password_hash": "password123",
       "role": "student",
-      "mobile_no": "+919876543216",
+      "mobile_no": "9876543223",
+      "full_name": "Anjali Patel",
+      "photo_url": "/images/students/anjali-patel.jpg",
       "status": "ACTIVE",
-      "created_at": "2026-01-05T10:00:00Z"
-    }
-  ],
-  "profiles": [
-    {
-      "id": "p1",
-      "user_id": "u1",
-      "full_name": "Rahul Kumar",
-      "profile_type": "student",
-      "details": {
-        "father_name": "Rajesh Kumar",
-        "father_mobile": "+919876543221",
-        "mother_mobile": "+919876543221",
-        "age": 22,
-        "native_place": "Mumbai, Maharashtra",
-        "education": {
-          "institution": "Mumbai University",
-          "course": "B.Com",
-          "year": "3rd Year"
-        }
-      }
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-09-15T10:00:00Z"
     },
     {
-      "id": "p4",
-      "user_id": "u4",
-      "full_name": "Sameer Jain",
-      "profile_type": "student",
-      "details": {
-        "father_name": "Anil Jain",
-        "father_mobile": "+919876543222",
-        "age": 21,
-        "native_place": "Pune, Maharashtra",
-        "education": {
-          "institution": "Mumbai University",
-          "course": "B.Sc",
-          "year": "2nd Year"
-        }
-      }
+      "id": "u13",
+      "email": "karan.mehta@email.com",
+      "password_hash": "password123",
+      "role": "student",
+      "mobile_no": "9876543224",
+      "full_name": "Karan Mehta",
+      "photo_url": "/images/students/karan-mehta.jpg",
+      "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-10-01T10:00:00Z"
+    },
+    {
+      "id": "u14",
+      "email": "sneha.reddy@email.com",
+      "password_hash": "password123",
+      "role": "student",
+      "mobile_no": "9876543225",
+      "full_name": "Sneha Reddy",
+      "photo_url": "/images/students/sneha-reddy.jpg",
+      "status": "ACTIVE",
+      "requires_password_change": false,
+      "dpdp_consent": true,
+      "created_at": "2024-10-15T10:00:00Z"
     }
   ],
   "students": [
@@ -157,17 +212,26 @@
       "user_id": "u1",
       "name": "Rahul Kumar",
       "mobile": "9876543210",
-      "email": "rahul.kumar@email.com",
+      "email": "student@example.com",
       "vertical": "Boys Hostel",
       "room": "101",
-      "joiningDate": "2024-08-15",
+      "block": "A",
+      "bed": "A",
+      "joiningDate": "2024-01-15",
       "currentPeriod": "SEMESTER_2",
       "academicYear": "2024-25",
       "status": "CHECKED_IN",
       "renewalStatus": "PENDING",
-      "renewalDueDate": "2026-02-15",
-      "parentName": "Rajesh Kumar",
-      "parentMobile": "9876543210",
+      "renewalDueDate": "2026-07-15",
+      "father_name": "Rajesh Kumar",
+      "father_mobile": "9876543210",
+      "mother_name": "Sunita Kumar",
+      "mother_mobile": "9876543230",
+      "date_of_birth": "2002-05-15",
+      "gender": "Male",
+      "aadhar_number": "XXXX-XXXX-1234",
+      "native_place": "Mumbai, Maharashtra",
+      "permanent_address": "123, Shanti Nagar, Andheri West, Mumbai - 400058",
       "course": "B.Com",
       "institution": "Mumbai University",
       "year": "3rd Year"
@@ -175,104 +239,406 @@
     {
       "id": "STU002",
       "user_id": "u5",
-      "name": "Amit Shah",
-      "mobile": "+919876543213",
-      "email": "amit.shah@email.com",
+      "name": "Amit Kumar Jain",
+      "mobile": "9876543214",
+      "email": "amit.kumar@email.com",
       "vertical": "Boys Hostel",
       "room": "102",
-      "joiningDate": "2026-01-10",
+      "block": "A",
+      "bed": "A",
+      "joiningDate": "2024-06-15",
       "currentPeriod": "SEMESTER_2",
-      "academicYear": "2025-26",
+      "academicYear": "2024-25",
       "status": "CHECKED_IN",
       "renewalStatus": "PENDING",
-      "renewalDueDate": "2026-07-10",
-      "parentName": "Prakash Shah",
-      "parentMobile": "9876543220",
-      "course": "B.Com",
-      "institution": "Gujarat University",
+      "renewalDueDate": "2026-06-15",
+      "father_name": "Suresh Kumar Jain",
+      "father_mobile": "9876543220",
+      "mother_name": "Kamla Jain",
+      "mother_mobile": "9876543231",
+      "date_of_birth": "2003-03-20",
+      "gender": "Male",
+      "aadhar_number": "XXXX-XXXX-2345",
+      "native_place": "Jaipur, Rajasthan",
+      "permanent_address": "45, Jain Colony, Jaipur - 302001",
+      "course": "B.Tech",
+      "institution": "IIT Delhi",
       "year": "2nd Year"
     },
     {
       "id": "STU003",
       "user_id": "u6",
-      "name": "Neha Shah",
-      "mobile": "+919876543216",
-      "email": "neha.shah@email.com",
+      "name": "Priya Sharma",
+      "mobile": "9876543215",
+      "email": "priya.sharma@email.com",
       "vertical": "Girls Ashram",
       "room": "201",
-      "joiningDate": "2026-01-05",
+      "block": "B",
+      "bed": "A",
+      "joiningDate": "2024-07-01",
       "currentPeriod": "SEMESTER_2",
-      "academicYear": "2025-26",
+      "academicYear": "2024-25",
       "status": "CHECKED_IN",
-      "renewalStatus": "PENDING",
-      "renewalDueDate": "2026-07-05",
-      "parentName": "Prakash Shah",
-      "parentMobile": "9876543220",
+      "renewalStatus": "APPROVED",
+      "renewalDueDate": "2026-07-01",
+      "father_name": "Rajesh Sharma",
+      "father_mobile": "9876543221",
+      "mother_name": "Meera Sharma",
+      "mother_mobile": "9876543232",
+      "date_of_birth": "2004-07-10",
+      "gender": "Female",
+      "aadhar_number": "XXXX-XXXX-3456",
+      "native_place": "Ahmedabad, Gujarat",
+      "permanent_address": "78, Satellite Road, Ahmedabad - 380015",
       "course": "B.Sc",
       "institution": "Gujarat University",
+      "year": "2nd Year"
+    },
+    {
+      "id": "STU004",
+      "user_id": "u7",
+      "name": "Rahul Verma",
+      "mobile": "9876543216",
+      "email": "rahul.verma@email.com",
+      "vertical": "Boys Hostel",
+      "room": "103",
+      "block": "A",
+      "bed": "A",
+      "joiningDate": "2024-08-01",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "COMPLETED",
+      "renewalDueDate": "2026-08-01",
+      "father_name": "Anil Verma",
+      "father_mobile": "9876543233",
+      "mother_name": "Sushila Verma",
+      "mother_mobile": "9876543234",
+      "date_of_birth": "2003-11-25",
+      "gender": "Male",
+      "aadhar_number": "XXXX-XXXX-4567",
+      "native_place": "Pune, Maharashtra",
+      "permanent_address": "56, Koregaon Park, Pune - 411001",
+      "course": "BBA",
+      "institution": "Pune University",
+      "year": "3rd Year"
+    },
+    {
+      "id": "STU005",
+      "user_id": "u8",
+      "name": "Neha Gupta",
+      "mobile": "9876543217",
+      "email": "neha.gupta@email.com",
+      "vertical": "Girls Ashram",
+      "room": "202",
+      "block": "B",
+      "bed": "A",
+      "joiningDate": "2024-08-15",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-08-15",
+      "father_name": "Vinod Gupta",
+      "father_mobile": "9876543235",
+      "mother_name": "Kavita Gupta",
+      "mother_mobile": "9876543236",
+      "date_of_birth": "2005-02-14",
+      "gender": "Female",
+      "aadhar_number": "XXXX-XXXX-5678",
+      "native_place": "Surat, Gujarat",
+      "permanent_address": "23, Ring Road, Surat - 395002",
+      "course": "B.Tech",
+      "institution": "SVNIT Surat",
       "year": "1st Year"
+    },
+    {
+      "id": "STU006",
+      "user_id": "u11",
+      "name": "Vikram Singh",
+      "mobile": "9876543222",
+      "email": "vikram.singh@email.com",
+      "vertical": "Boys Hostel",
+      "room": "104",
+      "block": "A",
+      "bed": "A",
+      "joiningDate": "2024-09-01",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-09-01",
+      "father_name": "Mahendra Singh",
+      "father_mobile": "9876543237",
+      "mother_name": "Geeta Singh",
+      "mother_mobile": "9876543238",
+      "date_of_birth": "2004-08-30",
+      "gender": "Male",
+      "aadhar_number": "XXXX-XXXX-6789",
+      "native_place": "Udaipur, Rajasthan",
+      "permanent_address": "89, Lake View Colony, Udaipur - 313001",
+      "course": "B.Com",
+      "institution": "Rajasthan University",
+      "year": "2nd Year"
+    },
+    {
+      "id": "STU007",
+      "user_id": "u12",
+      "name": "Anjali Patel",
+      "mobile": "9876543223",
+      "email": "anjali.patel@email.com",
+      "vertical": "Girls Ashram",
+      "room": "203",
+      "block": "B",
+      "bed": "A",
+      "joiningDate": "2024-09-15",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-09-15",
+      "father_name": "Ramesh Patel",
+      "father_mobile": "9876543239",
+      "mother_name": "Bharti Patel",
+      "mother_mobile": "9876543240",
+      "date_of_birth": "2003-04-18",
+      "gender": "Female",
+      "aadhar_number": "XXXX-XXXX-7890",
+      "native_place": "Vadodara, Gujarat",
+      "permanent_address": "34, Alkapuri, Vadodara - 390007",
+      "course": "B.Sc",
+      "institution": "MS University Vadodara",
+      "year": "3rd Year"
+    },
+    {
+      "id": "STU008",
+      "user_id": "u13",
+      "name": "Karan Mehta",
+      "mobile": "9876543224",
+      "email": "karan.mehta@email.com",
+      "vertical": "Boys Hostel",
+      "room": "105",
+      "block": "A",
+      "bed": "A",
+      "joiningDate": "2024-10-01",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-10-01",
+      "father_name": "Prakash Mehta",
+      "father_mobile": "9876543241",
+      "mother_name": "Nirmala Mehta",
+      "mother_mobile": "9876543242",
+      "date_of_birth": "2002-12-05",
+      "gender": "Male",
+      "aadhar_number": "XXXX-XXXX-8901",
+      "native_place": "Indore, Madhya Pradesh",
+      "permanent_address": "67, Vijay Nagar, Indore - 452010",
+      "course": "BBA",
+      "institution": "IIM Indore",
+      "year": "Final Year"
+    },
+    {
+      "id": "STU009",
+      "user_id": "u14",
+      "name": "Sneha Reddy",
+      "mobile": "9876543225",
+      "email": "sneha.reddy@email.com",
+      "vertical": "Girls Ashram",
+      "room": "204",
+      "block": "B",
+      "bed": "A",
+      "joiningDate": "2024-10-15",
+      "currentPeriod": "SEMESTER_2",
+      "academicYear": "2024-25",
+      "status": "CHECKED_IN",
+      "renewalStatus": "PENDING",
+      "renewalDueDate": "2026-10-15",
+      "father_name": "Venkat Reddy",
+      "father_mobile": "9876543243",
+      "mother_name": "Lakshmi Reddy",
+      "mother_mobile": "9876543244",
+      "date_of_birth": "2004-06-22",
+      "gender": "Female",
+      "aadhar_number": "XXXX-XXXX-9012",
+      "native_place": "Hyderabad, Telangana",
+      "permanent_address": "12, Banjara Hills, Hyderabad - 500034",
+      "course": "B.Com",
+      "institution": "Osmania University",
+      "year": "2nd Year"
     }
   ],
   "applications": [
     {
-      "id": "app2",
-      "tracking_number": "GA-2024-00002",
-      "trackingNumber": "GA-2024-00002",
+      "id": "app1",
+      "tracking_number": "BH-2025-00001",
+      "trackingNumber": "BH-2025-00001",
       "type": "NEW",
       "parent_application_id": null,
-      "applicant_mobile": "+919876543214",
+      "applicant_mobile": "+919988776655",
       "student_user_id": null,
-      "current_status": "APPROVED",
-      "status": "APPROVED",
+      "current_status": "SUBMITTED",
+      "status": "SUBMITTED",
+      "vertical": "BOYS_HOSTEL",
+      "data": {
+        "personal_info": {
+          "full_name": "Rohan Desai",
+          "age": 19,
+          "date_of_birth": "2005-04-12",
+          "gender": "Male",
+          "native_place": "Nashik, Maharashtra",
+          "mobile": "+919988776655",
+          "email": "rohan.desai@email.com",
+          "aadhar_number": "XXXX-XXXX-1111"
+        },
+        "guardian_info": {
+          "father_name": "Sunil Desai",
+          "father_mobile": "+919988776656",
+          "mother_name": "Rekha Desai",
+          "mother_mobile": "+919988776657"
+        },
+        "education": {
+          "institution": "Mumbai University",
+          "course": "B.Com",
+          "year": "1st Year"
+        },
+        "documents_uploaded": true
+      },
+      "submitted_at": "2026-01-10T10:00:00Z",
+      "created_at": "2026-01-09T14:00:00Z",
+      "updatedAt": "2026-01-10T10:00:00Z"
+    },
+    {
+      "id": "app2",
+      "tracking_number": "BH-2025-00002",
+      "trackingNumber": "BH-2025-00002",
+      "type": "NEW",
+      "parent_application_id": null,
+      "applicant_mobile": "+919988776660",
+      "student_user_id": null,
+      "current_status": "SUBMITTED",
+      "status": "SUBMITTED",
+      "vertical": "BOYS_HOSTEL",
+      "data": {
+        "personal_info": {
+          "full_name": "Aditya Sharma",
+          "age": 20,
+          "date_of_birth": "2004-08-22",
+          "gender": "Male",
+          "native_place": "Jodhpur, Rajasthan",
+          "mobile": "+919988776660",
+          "email": "aditya.sharma@email.com",
+          "aadhar_number": "XXXX-XXXX-2222"
+        },
+        "guardian_info": {
+          "father_name": "Rakesh Sharma",
+          "father_mobile": "+919988776661",
+          "mother_name": "Anita Sharma",
+          "mother_mobile": "+919988776662"
+        },
+        "education": {
+          "institution": "BITS Pilani",
+          "course": "B.Tech",
+          "year": "2nd Year"
+        },
+        "documents_uploaded": true
+      },
+      "submitted_at": "2026-01-11T09:00:00Z",
+      "created_at": "2026-01-10T16:00:00Z",
+      "updatedAt": "2026-01-11T09:00:00Z"
+    },
+    {
+      "id": "app3",
+      "tracking_number": "GA-2025-00001",
+      "trackingNumber": "GA-2025-00001",
+      "type": "NEW",
+      "parent_application_id": null,
+      "applicant_mobile": "+919988776665",
+      "student_user_id": null,
+      "current_status": "SUBMITTED",
+      "status": "SUBMITTED",
       "vertical": "GIRLS_ASHRAM",
       "data": {
         "personal_info": {
-          "full_name": "Priya Patel",
-          "age": 20,
+          "full_name": "Kavya Patel",
+          "age": 19,
+          "date_of_birth": "2005-11-08",
+          "gender": "Female",
           "native_place": "Rajkot, Gujarat",
-          "mobile": "+919876543214"
+          "mobile": "+919988776665",
+          "email": "kavya.patel@email.com",
+          "aadhar_number": "XXXX-XXXX-3333"
         },
         "guardian_info": {
-          "father_name": "Ramesh Patel",
-          "father_mobile": "+919876543221"
+          "father_name": "Hitesh Patel",
+          "father_mobile": "+919988776666",
+          "mother_name": "Bhavna Patel",
+          "mother_mobile": "+919988776667"
         },
         "education": {
           "institution": "Gujarat University",
           "course": "B.Sc",
           "year": "1st Year"
-        }
+        },
+        "documents_uploaded": true
       },
-      "submitted_at": "2024-12-18T10:00:00Z",
-      "created_at": "2024-12-17T14:00:00Z",
-      "updatedAt": "2024-12-20T11:30:00Z",
-      "interview_evaluation": {
-        "academicScore": 3,
-        "academicComments": "Good academic performance",
-        "communicationScore": 4,
-        "communicationComments": "Clear communication skills",
-        "disciplineScore": 4,
-        "disciplineComments": "Good discipline",
-        "motivationScore": 4,
-        "motivationComments": "Clear goals",
-        "overallScore": 15,
-        "overallObservations": "Suitable candidate",
-        "recommendation": "APPROVE"
+      "submitted_at": "2026-01-11T11:00:00Z",
+      "created_at": "2026-01-10T18:00:00Z",
+      "updatedAt": "2026-01-11T11:00:00Z"
+    },
+    {
+      "id": "app4",
+      "tracking_number": "BH-2025-00003",
+      "trackingNumber": "BH-2025-00003",
+      "type": "NEW",
+      "parent_application_id": null,
+      "applicant_mobile": "+919988776670",
+      "student_user_id": null,
+      "current_status": "REVIEW",
+      "status": "REVIEW",
+      "vertical": "BOYS_HOSTEL",
+      "data": {
+        "personal_info": {
+          "full_name": "Sanjay Gupta",
+          "age": 21,
+          "date_of_birth": "2003-06-15",
+          "gender": "Male",
+          "native_place": "Bhopal, Madhya Pradesh",
+          "mobile": "+919988776670",
+          "email": "sanjay.gupta@email.com",
+          "aadhar_number": "XXXX-XXXX-4444"
+        },
+        "guardian_info": {
+          "father_name": "Manoj Gupta",
+          "father_mobile": "+919988776671",
+          "mother_name": "Sunita Gupta",
+          "mother_mobile": "+919988776672"
+        },
+        "education": {
+          "institution": "MANIT Bhopal",
+          "course": "B.Tech",
+          "year": "3rd Year"
+        },
+        "documents_uploaded": true
       },
-      "forwardedBy": {
-        "superIntendentId": "USR004",
-        "superIntendentName": "Girls Superintendent",
-        "forwardedOn": "2024-12-19T10:00:00Z",
-        "recommendation": "RECOMMEND",
-        "remarks": "Good academic background and clean record"
+      "submitted_at": "2026-01-08T10:00:00Z",
+      "created_at": "2026-01-07T14:00:00Z",
+      "updatedAt": "2026-01-09T15:00:00Z",
+      "reviewedBy": {
+        "superIntendentId": "u2",
+        "superIntendentName": "Boys Hostel Superintendent",
+        "reviewedOn": "2026-01-09T15:00:00Z",
+        "remarks": "Documents verified. Application under review."
       }
     },
     {
-      "id": "app3",
-      "tracking_number": "GA-2024-00003",
-      "trackingNumber": "GA-2024-00003",
+      "id": "app5",
+      "tracking_number": "GA-2025-00002",
+      "trackingNumber": "GA-2025-00002",
       "type": "NEW",
       "parent_application_id": null,
-      "applicant_mobile": "+919876543215",
+      "applicant_mobile": "+919988776675",
       "student_user_id": null,
       "current_status": "INTERVIEW_SCHEDULED",
       "status": "INTERVIEW_SCHEDULED",
@@ -281,122 +647,360 @@
         "personal_info": {
           "full_name": "Ananya Desai",
           "age": 19,
+          "date_of_birth": "2005-03-25",
+          "gender": "Female",
           "native_place": "Surat, Gujarat",
-          "mobile": "+919876543215"
+          "mobile": "+919988776675",
+          "email": "ananya.desai@email.com",
+          "aadhar_number": "XXXX-XXXX-5555"
         },
         "guardian_info": {
           "father_name": "Suresh Desai",
-          "father_mobile": "+919876543222"
+          "father_mobile": "+919988776676",
+          "mother_name": "Pramila Desai",
+          "mother_mobile": "+919988776677"
         },
         "education": {
           "institution": "Mumbai University",
           "course": "B.A",
           "year": "1st Year"
-        }
+        },
+        "documents_uploaded": true
       },
-      "submitted_at": "2024-12-20T09:00:00Z",
-      "created_at": "2024-12-19T11:00:00Z",
+      "submitted_at": "2026-01-05T09:00:00Z",
+      "created_at": "2026-01-04T11:00:00Z",
+      "updatedAt": "2026-01-08T10:00:00Z",
       "interview": {
-        "id": "int-2",
-        "scheduledDate": "2024-12-28",
-        "scheduledTime": "11:00 AM",
+        "id": "int-1",
+        "scheduledDate": "2026-01-15",
+        "scheduledTime": "10:00 AM",
         "mode": "ONLINE",
-        "status": "SCHEDULED"
+        "status": "SCHEDULED",
+        "meetingLink": "https://meet.google.com/abc-defg-hij"
       },
-      "updatedAt": "2024-12-21T10:00:00Z"
+      "forwardedBy": {
+        "superIntendentId": "u9",
+        "superIntendentName": "Girls Ashram Superintendent",
+        "forwardedOn": "2026-01-06T10:00:00Z",
+        "recommendation": "RECOMMEND",
+        "remarks": "Good academic background and clean record"
+      }
+    },
+    {
+      "id": "app6",
+      "tracking_number": "BH-2025-00004",
+      "trackingNumber": "BH-2025-00004",
+      "type": "NEW",
+      "parent_application_id": null,
+      "applicant_mobile": "+919988776680",
+      "student_user_id": null,
+      "current_status": "APPROVED",
+      "status": "APPROVED",
+      "vertical": "BOYS_HOSTEL",
+      "data": {
+        "personal_info": {
+          "full_name": "Vijay Kumar",
+          "age": 20,
+          "date_of_birth": "2004-02-14",
+          "gender": "Male",
+          "native_place": "Nagpur, Maharashtra",
+          "mobile": "+919988776680",
+          "email": "vijay.kumar@email.com",
+          "aadhar_number": "XXXX-XXXX-6666"
+        },
+        "guardian_info": {
+          "father_name": "Ramesh Kumar",
+          "father_mobile": "+919988776681",
+          "mother_name": "Seema Kumar",
+          "mother_mobile": "+919988776682"
+        },
+        "education": {
+          "institution": "VNIT Nagpur",
+          "course": "B.Tech",
+          "year": "2nd Year"
+        },
+        "documents_uploaded": true
+      },
+      "submitted_at": "2026-01-02T10:00:00Z",
+      "created_at": "2026-01-01T14:00:00Z",
+      "updatedAt": "2026-01-07T16:00:00Z",
+      "interview_evaluation": {
+        "academicScore": 4,
+        "academicComments": "Excellent academic record",
+        "communicationScore": 4,
+        "communicationComments": "Clear communication skills",
+        "disciplineScore": 4,
+        "disciplineComments": "Good discipline",
+        "motivationScore": 5,
+        "motivationComments": "Very motivated",
+        "overallScore": 17,
+        "overallObservations": "Highly recommended candidate",
+        "recommendation": "APPROVE"
+      },
+      "forwardedBy": {
+        "superIntendentId": "u2",
+        "superIntendentName": "Boys Hostel Superintendent",
+        "forwardedOn": "2026-01-03T10:00:00Z",
+        "recommendation": "RECOMMEND",
+        "remarks": "Documents verified. Recommended for interview."
+      },
+      "approvedBy": {
+        "trusteeId": "u3",
+        "trusteeName": "Trustee",
+        "approvedOn": "2026-01-07T16:00:00Z",
+        "remarks": "Approved for admission"
+      }
+    },
+    {
+      "id": "app7",
+      "tracking_number": "BH-2025-00005",
+      "trackingNumber": "BH-2025-00005",
+      "type": "NEW",
+      "parent_application_id": null,
+      "applicant_mobile": "+919988776685",
+      "student_user_id": null,
+      "current_status": "REJECTED",
+      "status": "REJECTED",
+      "vertical": "BOYS_HOSTEL",
+      "data": {
+        "personal_info": {
+          "full_name": "Ravi Tiwari",
+          "age": 22,
+          "date_of_birth": "2002-09-30",
+          "gender": "Male",
+          "native_place": "Lucknow, Uttar Pradesh",
+          "mobile": "+919988776685",
+          "email": "ravi.tiwari@email.com",
+          "aadhar_number": "XXXX-XXXX-7777"
+        },
+        "guardian_info": {
+          "father_name": "Ashok Tiwari",
+          "father_mobile": "+919988776686",
+          "mother_name": "Maya Tiwari",
+          "mother_mobile": "+919988776687"
+        },
+        "education": {
+          "institution": "Lucknow University",
+          "course": "B.A",
+          "year": "Final Year"
+        },
+        "documents_uploaded": true
+      },
+      "submitted_at": "2025-12-28T10:00:00Z",
+      "created_at": "2025-12-27T14:00:00Z",
+      "updatedAt": "2026-01-05T11:00:00Z",
+      "rejectedBy": {
+        "trusteeId": "u3",
+        "trusteeName": "Trustee",
+        "rejectedOn": "2026-01-05T11:00:00Z",
+        "reason": "Age criteria not met for new admission"
+      }
+    },
+    {
+      "id": "app8",
+      "tracking_number": "DH-2025-00001",
+      "trackingNumber": "DH-2025-00001",
+      "type": "NEW",
+      "parent_application_id": null,
+      "applicant_mobile": "+919988776690",
+      "student_user_id": null,
+      "current_status": "DRAFT",
+      "status": "DRAFT",
+      "vertical": "DHARAMSHALA",
+      "data": {
+        "personal_info": {
+          "full_name": "Mahesh Joshi",
+          "age": 55,
+          "date_of_birth": "1969-05-20",
+          "gender": "Male",
+          "native_place": "Ujjain, Madhya Pradesh",
+          "mobile": "+919988776690",
+          "email": "mahesh.joshi@email.com"
+        },
+        "purpose": "Pilgrimage visit",
+        "expected_duration": "3 days"
+      },
+      "submitted_at": null,
+      "created_at": "2026-01-12T08:00:00Z",
+      "updatedAt": "2026-01-12T08:00:00Z"
     }
   ],
   "documents": [
     {
       "id": "doc1",
       "student_id": "u1",
+      "application_id": null,
       "document_type": "AADHAR_CARD",
+      "category": "Identity",
+      "name": "Aadhar Card",
       "s3_key": "documents/u1/aadhar.pdf",
+      "file_url": "/documents/aadhar-rahul.pdf",
       "uploaded_at": "2024-01-15T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "verification_status": "VERIFIED",
+      "verified_by": "u2",
+      "verified_at": "2024-01-16T10:00:00Z"
     },
     {
       "id": "doc2",
       "student_id": "u1",
+      "application_id": null,
       "document_type": "PHOTO",
+      "category": "Identity",
+      "name": "Passport Photo",
       "s3_key": "documents/u1/photo.jpg",
+      "file_url": "/documents/photo-rahul.jpg",
       "uploaded_at": "2024-01-15T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "verification_status": "VERIFIED",
+      "verified_by": "u2",
+      "verified_at": "2024-01-16T10:00:00Z"
     },
     {
       "id": "doc3",
       "student_id": "u1",
+      "application_id": null,
       "document_type": "MARKSHEET",
+      "category": "Academic",
+      "name": "12th Marksheet",
       "s3_key": "documents/u1/marksheet.pdf",
+      "file_url": "/documents/marksheet-rahul.pdf",
       "uploaded_at": "2024-01-15T10:00:00Z",
-      "verification_status": "PENDING"
+      "verification_status": "VERIFIED",
+      "verified_by": "u2",
+      "verified_at": "2024-01-16T10:00:00Z"
     },
     {
       "id": "doc4",
       "student_id": "u1",
+      "application_id": null,
       "document_type": "ANTI_RAGGING",
+      "category": "Admission",
+      "name": "Anti-Ragging Undertaking",
       "s3_key": "documents/u1/anti_ragging.pdf",
+      "file_url": "/documents/anti-ragging-rahul.pdf",
       "uploaded_at": "2024-01-15T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "verification_status": "VERIFIED",
+      "verified_by": "u2",
+      "verified_at": "2024-01-16T10:00:00Z"
     },
     {
       "id": "doc5",
       "student_id": "u1",
+      "application_id": null,
       "document_type": "HOSTEL_RULES",
+      "category": "Admission",
+      "name": "Hostel Rules Acknowledgment",
       "s3_key": "documents/u1/hostel_rules.pdf",
+      "file_url": "/documents/hostel-rules-rahul.pdf",
       "uploaded_at": "2024-01-15T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "verification_status": "VERIFIED",
+      "verified_by": "u2",
+      "verified_at": "2024-01-16T10:00:00Z"
     },
     {
       "id": "doc6",
       "student_id": "u1",
+      "application_id": null,
       "document_type": "FEE_RECEIPT",
+      "category": "Receipts",
+      "name": "Admission Fee Receipt",
       "s3_key": "documents/u1/fee_receipt.pdf",
-      "uploaded_at": "2024-06-25T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "file_url": "/documents/fee-receipt-rahul.pdf",
+      "uploaded_at": "2024-01-20T10:00:00Z",
+      "verification_status": "VERIFIED",
+      "verified_by": "u4",
+      "verified_at": "2024-01-20T11:00:00Z"
     },
     {
       "id": "doc7",
       "student_id": "u5",
+      "application_id": null,
       "document_type": "AADHAR_CARD",
+      "category": "Identity",
+      "name": "Aadhar Card",
       "s3_key": "documents/u5/aadhar.pdf",
-      "uploaded_at": "2026-01-10T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "file_url": "/documents/aadhar-amit.pdf",
+      "uploaded_at": "2024-06-15T10:00:00Z",
+      "verification_status": "VERIFIED",
+      "verified_by": "u2",
+      "verified_at": "2024-06-16T10:00:00Z"
     },
     {
       "id": "doc8",
       "student_id": "u6",
+      "application_id": null,
       "document_type": "AADHAR_CARD",
+      "category": "Identity",
+      "name": "Aadhar Card",
       "s3_key": "documents/u6/aadhar.pdf",
-      "uploaded_at": "2026-01-05T10:00:00Z",
-      "verification_status": "VERIFIED"
+      "file_url": "/documents/aadhar-priya.pdf",
+      "uploaded_at": "2024-07-01T10:00:00Z",
+      "verification_status": "VERIFIED",
+      "verified_by": "u9",
+      "verified_at": "2024-07-02T10:00:00Z"
     }
   ],
   "interviews": [
     {
       "id": "int-1",
-      "application_id": "app1",
-      "scheduledDate": "2024-12-20",
+      "application_id": "app5",
+      "scheduledDate": "2026-01-15",
       "scheduledTime": "10:00 AM",
+      "schedule_time": "2026-01-15T10:00:00Z",
       "mode": "ONLINE",
-      "status": "COMPLETED",
-      "meetingLink": "https://meet.example.com/abc123",
-      "superintendentId": "USR003",
+      "status": "SCHEDULED",
+      "meetingLink": "https://meet.google.com/abc-defg-hij",
+      "superintendentId": "u9",
       "trusteeId": "u3",
-      "notes": "Candidate appeared for interview",
-      "created_at": "2024-12-18T10:00:00Z"
+      "notes": "Interview scheduled for Girls Ashram admission",
+      "created_at": "2026-01-08T10:00:00Z"
     },
     {
       "id": "int-2",
-      "application_id": "app3",
-      "scheduledDate": "2024-12-28",
+      "application_id": "app6",
+      "scheduledDate": "2026-01-05",
       "scheduledTime": "11:00 AM",
+      "schedule_time": "2026-01-05T11:00:00Z",
+      "mode": "IN_PERSON",
+      "status": "COMPLETED",
+      "meetingLink": null,
+      "superintendentId": "u2",
+      "trusteeId": "u3",
+      "notes": "Interview completed successfully",
+      "final_score": 85,
+      "internal_remarks": "Excellent candidate with strong academic background",
+      "created_at": "2026-01-03T10:00:00Z",
+      "completed_at": "2026-01-05T12:00:00Z"
+    },
+    {
+      "id": "int-3",
+      "application_id": "app7",
+      "scheduledDate": "2026-01-04",
+      "scheduledTime": "02:00 PM",
+      "schedule_time": "2026-01-04T14:00:00Z",
+      "mode": "ONLINE",
+      "status": "COMPLETED",
+      "meetingLink": "https://meet.google.com/xyz-uvwx-rst",
+      "superintendentId": "u2",
+      "trusteeId": "u3",
+      "notes": "Interview completed - not recommended",
+      "final_score": 45,
+      "internal_remarks": "Does not meet age criteria for new admission",
+      "created_at": "2026-01-02T10:00:00Z",
+      "completed_at": "2026-01-04T15:00:00Z"
+    },
+    {
+      "id": "int-4",
+      "application_id": "app4",
+      "scheduledDate": "2026-01-18",
+      "scheduledTime": "03:00 PM",
+      "schedule_time": "2026-01-18T15:00:00Z",
       "mode": "ONLINE",
       "status": "SCHEDULED",
-      "meetingLink": "https://meet.example.com/def456",
-      "superintendentId": "USR004",
-      "notes": "Interview scheduled",
-      "created_at": "2024-12-21T10:00:00Z"
+      "meetingLink": "https://meet.google.com/pqr-stuv-wxy",
+      "superintendentId": "u2",
+      "trusteeId": "u3",
+      "notes": "Interview scheduled after document review",
+      "created_at": "2026-01-10T10:00:00Z"
     }
   ],
   "rooms": [
@@ -404,45 +1008,157 @@
       "id": "r1",
       "room_number": "101",
       "vertical": "BOYS_HOSTEL",
-      "capacity": 2,
+      "block": "A",
       "floor": 1,
+      "capacity": 2,
+      "current_occupancy": 1,
       "status": "OCCUPIED",
+      "amenities": ["AC", "Attached Bathroom", "Study Table", "Wardrobe"],
       "created_at": "2024-01-01T00:00:00Z"
     },
     {
       "id": "r2",
       "room_number": "102",
       "vertical": "BOYS_HOSTEL",
-      "capacity": 2,
+      "block": "A",
       "floor": 1,
+      "capacity": 2,
+      "current_occupancy": 1,
       "status": "OCCUPIED",
+      "amenities": ["AC", "Attached Bathroom", "Study Table", "Wardrobe"],
       "created_at": "2024-01-01T00:00:00Z"
     },
     {
       "id": "r3",
       "room_number": "103",
       "vertical": "BOYS_HOSTEL",
-      "capacity": 2,
+      "block": "A",
       "floor": 1,
-      "status": "AVAILABLE",
+      "capacity": 2,
+      "current_occupancy": 1,
+      "status": "OCCUPIED",
+      "amenities": ["AC", "Attached Bathroom", "Study Table", "Wardrobe"],
       "created_at": "2024-01-01T00:00:00Z"
     },
     {
       "id": "r4",
-      "room_number": "201",
-      "vertical": "GIRLS_ASHRAM",
+      "room_number": "104",
+      "vertical": "BOYS_HOSTEL",
+      "block": "A",
+      "floor": 1,
       "capacity": 2,
-      "floor": 2,
+      "current_occupancy": 1,
       "status": "OCCUPIED",
+      "amenities": ["Fan", "Common Bathroom", "Study Table", "Wardrobe"],
       "created_at": "2024-01-01T00:00:00Z"
     },
     {
       "id": "r5",
+      "room_number": "105",
+      "vertical": "BOYS_HOSTEL",
+      "block": "A",
+      "floor": 1,
+      "capacity": 2,
+      "current_occupancy": 1,
+      "status": "OCCUPIED",
+      "amenities": ["Fan", "Common Bathroom", "Study Table", "Wardrobe"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r6",
+      "room_number": "106",
+      "vertical": "BOYS_HOSTEL",
+      "block": "A",
+      "floor": 1,
+      "capacity": 2,
+      "current_occupancy": 0,
+      "status": "AVAILABLE",
+      "amenities": ["Fan", "Common Bathroom", "Study Table", "Wardrobe"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r7",
+      "room_number": "201",
+      "vertical": "GIRLS_ASHRAM",
+      "block": "B",
+      "floor": 2,
+      "capacity": 2,
+      "current_occupancy": 1,
+      "status": "OCCUPIED",
+      "amenities": ["AC", "Attached Bathroom", "Study Table", "Wardrobe"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r8",
       "room_number": "202",
       "vertical": "GIRLS_ASHRAM",
-      "capacity": 2,
+      "block": "B",
       "floor": 2,
+      "capacity": 2,
+      "current_occupancy": 1,
+      "status": "OCCUPIED",
+      "amenities": ["AC", "Attached Bathroom", "Study Table", "Wardrobe"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r9",
+      "room_number": "203",
+      "vertical": "GIRLS_ASHRAM",
+      "block": "B",
+      "floor": 2,
+      "capacity": 2,
+      "current_occupancy": 1,
+      "status": "OCCUPIED",
+      "amenities": ["Fan", "Common Bathroom", "Study Table", "Wardrobe"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r10",
+      "room_number": "204",
+      "vertical": "GIRLS_ASHRAM",
+      "block": "B",
+      "floor": 2,
+      "capacity": 2,
+      "current_occupancy": 0,
       "status": "AVAILABLE",
+      "amenities": ["Fan", "Common Bathroom", "Study Table", "Wardrobe"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r11",
+      "room_number": "301",
+      "vertical": "DHARAMSHALA",
+      "block": "C",
+      "floor": 3,
+      "capacity": 4,
+      "current_occupancy": 0,
+      "status": "AVAILABLE",
+      "amenities": ["Fan", "Common Bathroom"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r12",
+      "room_number": "302",
+      "vertical": "DHARAMSHALA",
+      "block": "C",
+      "floor": 3,
+      "capacity": 4,
+      "current_occupancy": 0,
+      "status": "AVAILABLE",
+      "amenities": ["Fan", "Common Bathroom"],
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "r13",
+      "room_number": "107",
+      "vertical": "BOYS_HOSTEL",
+      "block": "A",
+      "floor": 1,
+      "capacity": 2,
+      "current_occupancy": 0,
+      "status": "MAINTENANCE",
+      "amenities": ["AC", "Attached Bathroom", "Study Table", "Wardrobe"],
+      "maintenance_note": "AC repair in progress",
       "created_at": "2024-01-01T00:00:00Z"
     }
   ],
@@ -451,41 +1167,97 @@
       "id": "alloc1",
       "student_id": "u1",
       "room_id": "r1",
+      "allocated_at": "2024-01-15T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-01-16T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
+    },
+    {
+      "id": "alloc2",
+      "student_id": "u5",
+      "room_id": "r2",
+      "allocated_at": "2024-06-15T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-06-16T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
+    },
+    {
+      "id": "alloc3",
+      "student_id": "u6",
+      "room_id": "r7",
+      "allocated_at": "2024-07-01T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-07-02T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
+    },
+    {
+      "id": "alloc4",
+      "student_id": "u7",
+      "room_id": "r3",
+      "allocated_at": "2024-08-01T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-08-02T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
+    },
+    {
+      "id": "alloc5",
+      "student_id": "u8",
+      "room_id": "r8",
       "allocated_at": "2024-08-15T10:00:00Z",
       "vacated_at": null,
       "status": "ACTIVE",
       "check_in_confirmed": true,
-      "check_in_confirmed_at": "2025-12-31T16:29:05.179Z"
+      "check_in_confirmed_at": "2024-08-16T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
     },
     {
-      "id": "alloc2",
-      "student_id": "u4",
-      "room_id": "r1",
-      "allocated_at": "2024-01-20T00:00:00Z",
-      "vacated_at": null,
-      "status": "ACTIVE",
-      "check_in_confirmed": true,
-      "check_in_confirmed_at": "2024-01-21T10:00:00Z"
-    },
-    {
-      "id": "alloc3",
-      "student_id": "u5",
-      "room_id": "r2",
-      "allocated_at": "2026-01-10T10:00:00Z",
-      "vacated_at": null,
-      "status": "ACTIVE",
-      "check_in_confirmed": true,
-      "check_in_confirmed_at": "2026-01-10T11:00:00Z"
-    },
-    {
-      "id": "alloc4",
-      "student_id": "u6",
+      "id": "alloc6",
+      "student_id": "u11",
       "room_id": "r4",
-      "allocated_at": "2026-01-05T10:00:00Z",
+      "allocated_at": "2024-09-01T10:00:00Z",
       "vacated_at": null,
       "status": "ACTIVE",
       "check_in_confirmed": true,
-      "check_in_confirmed_at": "2026-01-05T11:00:00Z"
+      "check_in_confirmed_at": "2024-09-02T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
+    },
+    {
+      "id": "alloc7",
+      "student_id": "u12",
+      "room_id": "r9",
+      "allocated_at": "2024-09-15T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-09-16T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
+    },
+    {
+      "id": "alloc8",
+      "student_id": "u13",
+      "room_id": "r5",
+      "allocated_at": "2024-10-01T10:00:00Z",
+      "vacated_at": null,
+      "status": "ACTIVE",
+      "check_in_confirmed": true,
+      "check_in_confirmed_at": "2024-10-02T10:00:00Z",
+      "inventory_acknowledged": true,
+      "notes": "Room allocated on admission"
     }
   ],
   "leaves": [
@@ -493,43 +1265,55 @@
       "id": "leave1",
       "student_id": "u1",
       "type": "HOME_VISIT",
-      "start_time": "2024-12-25T00:00:00Z",
-      "end_time": "2024-12-27T23:59:59Z",
-      "reason": "Family function",
+      "start_time": "2025-12-25T00:00:00Z",
+      "end_time": "2025-12-27T23:59:59Z",
+      "reason": "Family function - Diwali celebration",
+      "destination": "Mumbai, Maharashtra",
       "status": "APPROVED",
-      "parent_notified_at": "2024-12-20T10:00:00Z",
-      "created_at": "2024-12-18T09:00:00Z"
+      "approved_by": "u2",
+      "approved_at": "2025-12-20T10:00:00Z",
+      "parent_notified_at": "2025-12-20T10:30:00Z",
+      "created_at": "2025-12-18T09:00:00Z"
     },
     {
       "id": "leave2",
       "student_id": "u1",
       "type": "SHORT_LEAVE",
-      "start_time": "2026-01-10T14:00:00Z",
-      "end_time": "2026-01-10T18:00:00Z",
-      "reason": "Medical appointment",
+      "start_time": "2026-01-15T14:00:00Z",
+      "end_time": "2026-01-15T18:00:00Z",
+      "reason": "Medical appointment at city hospital",
+      "destination": null,
       "status": "PENDING",
+      "approved_by": null,
+      "approved_at": null,
       "parent_notified_at": null,
-      "created_at": "2026-01-08T09:00:00Z"
+      "created_at": "2026-01-12T09:00:00Z"
     },
     {
       "id": "leave3",
       "student_id": "u1",
       "type": "NIGHT_OUT",
-      "start_time": "2026-01-15T18:00:00Z",
-      "end_time": "2026-01-15T22:00:00Z",
-      "reason": "Dinner with family friends",
+      "start_time": "2026-01-20T18:00:00Z",
+      "end_time": "2026-01-20T22:00:00Z",
+      "reason": "Dinner with family friends visiting the city",
+      "destination": null,
       "status": "APPROVED",
-      "parent_notified_at": "2026-01-14T10:00:00Z",
-      "created_at": "2026-01-14T09:00:00Z"
+      "approved_by": "u2",
+      "approved_at": "2026-01-18T10:00:00Z",
+      "parent_notified_at": "2026-01-18T10:30:00Z",
+      "created_at": "2026-01-17T09:00:00Z"
     },
     {
       "id": "leave4",
       "student_id": "u5",
       "type": "SHORT_LEAVE",
-      "start_time": "2026-01-12T14:00:00Z",
-      "end_time": "2026-01-12T17:00:00Z",
+      "start_time": "2026-01-14T14:00:00Z",
+      "end_time": "2026-01-14T17:00:00Z",
       "reason": "Visit to library for project work",
+      "destination": null,
       "status": "PENDING",
+      "approved_by": null,
+      "approved_at": null,
       "parent_notified_at": null,
       "created_at": "2026-01-11T10:00:00Z"
     },
@@ -537,21 +1321,27 @@
       "id": "leave5",
       "student_id": "u5",
       "type": "HOME_VISIT",
-      "start_time": "2026-01-20T00:00:00Z",
-      "end_time": "2026-01-23T23:59:59Z",
-      "reason": "Family wedding in Ahmedabad",
+      "start_time": "2026-01-25T00:00:00Z",
+      "end_time": "2026-01-28T23:59:59Z",
+      "reason": "Family wedding in hometown",
+      "destination": "Jaipur, Rajasthan",
       "status": "APPROVED",
-      "parent_notified_at": "2026-01-17T10:00:00Z",
-      "created_at": "2026-01-15T09:00:00Z"
+      "approved_by": "u2",
+      "approved_at": "2026-01-20T10:00:00Z",
+      "parent_notified_at": "2026-01-20T10:30:00Z",
+      "created_at": "2026-01-18T09:00:00Z"
     },
     {
       "id": "leave6",
       "student_id": "u6",
       "type": "SHORT_LEAVE",
-      "start_time": "2026-01-11T15:00:00Z",
-      "end_time": "2026-01-11T18:30:00Z",
+      "start_time": "2026-01-13T15:00:00Z",
+      "end_time": "2026-01-13T18:30:00Z",
       "reason": "Medical checkup",
+      "destination": null,
       "status": "PENDING",
+      "approved_by": null,
+      "approved_at": null,
       "parent_notified_at": null,
       "created_at": "2026-01-10T14:00:00Z"
     },
@@ -559,161 +1349,335 @@
       "id": "leave7",
       "student_id": "u6",
       "type": "MULTI_DAY",
-      "start_time": "2026-01-25T08:00:00Z",
-      "end_time": "2026-01-28T18:00:00Z",
+      "start_time": "2026-02-01T08:00:00Z",
+      "end_time": "2026-02-05T18:00:00Z",
       "reason": "Home visit during semester break",
-      "destination": "Rajkot, Gujarat",
+      "destination": "Ahmedabad, Gujarat",
       "status": "PENDING",
+      "approved_by": null,
+      "approved_at": null,
       "parent_notified_at": null,
-      "created_at": "2026-01-18T09:00:00Z"
+      "created_at": "2026-01-22T09:00:00Z"
+    },
+    {
+      "id": "leave8",
+      "student_id": "u7",
+      "type": "SHORT_LEAVE",
+      "start_time": "2026-01-16T10:00:00Z",
+      "end_time": "2026-01-16T14:00:00Z",
+      "reason": "Bank work and documentation",
+      "destination": null,
+      "status": "APPROVED",
+      "approved_by": "u2",
+      "approved_at": "2026-01-14T11:00:00Z",
+      "parent_notified_at": "2026-01-14T11:30:00Z",
+      "created_at": "2026-01-13T09:00:00Z"
+    },
+    {
+      "id": "leave9",
+      "student_id": "u11",
+      "type": "NIGHT_OUT",
+      "start_time": "2026-01-17T17:00:00Z",
+      "end_time": "2026-01-17T21:00:00Z",
+      "reason": "Attending a friend's birthday party",
+      "destination": null,
+      "status": "REJECTED",
+      "approved_by": "u2",
+      "approved_at": null,
+      "rejected_at": "2026-01-15T10:00:00Z",
+      "rejection_reason": "Previous leave violation on record",
+      "parent_notified_at": "2026-01-15T10:30:00Z",
+      "created_at": "2026-01-14T09:00:00Z"
     }
   ],
   "fees": [
     {
       "id": "fee1",
       "student_id": "u1",
-      "head": "HOSTEL_FEES",
-      "amount": 5000,
-      "due_date": "2024-07-01",
+      "head": "PROCESSING_FEE",
+      "name": "Processing Fee",
+      "description": "One-time application processing fee",
+      "amount": 500,
+      "due_date": "2024-01-15",
       "status": "PAID",
-      "paid_at": "2024-06-25T10:00:00Z"
+      "paid_at": "2024-01-15T14:00:00Z",
+      "receipt_number": "RCP-2024-00001"
     },
     {
       "id": "fee2",
       "student_id": "u1",
       "head": "SECURITY_DEPOSIT",
+      "name": "Security Deposit",
+      "description": "Refundable security deposit",
       "amount": 10000,
       "due_date": "2024-01-15",
       "status": "PAID",
-      "paid_at": "2024-01-15T14:00:00Z"
+      "paid_at": "2024-01-15T14:30:00Z",
+      "receipt_number": "RCP-2024-00002"
     },
     {
       "id": "fee3",
       "student_id": "u1",
-      "head": "PROCESSING_FEE",
-      "amount": 500,
-      "due_date": "2024-01-15",
+      "head": "HOSTEL_FEES",
+      "name": "Hostel Fees (Semester 1)",
+      "description": "6-month hostel accommodation fee",
+      "amount": 60000,
+      "due_date": "2024-01-20",
       "status": "PAID",
-      "paid_at": "2024-01-15T14:00:00Z"
+      "paid_at": "2024-01-18T10:00:00Z",
+      "receipt_number": "RCP-2024-00003"
     },
     {
       "id": "fee4",
       "student_id": "u1",
       "head": "MESS_FEES",
+      "name": "Mess Fees (Jan 2024)",
+      "description": "Monthly mess/food charges",
       "amount": 3000,
-      "due_date": "2026-01-15",
-      "status": "PENDING",
-      "paid_at": null
+      "due_date": "2024-01-25",
+      "status": "PAID",
+      "paid_at": "2024-01-24T10:00:00Z",
+      "receipt_number": "RCP-2024-00004"
     },
     {
       "id": "fee5",
       "student_id": "u1",
-      "head": "RENEWAL_FEES",
+      "head": "HOSTEL_FEES",
+      "name": "Hostel Fees (Semester 2)",
+      "description": "6-month hostel accommodation fee - Renewal",
       "amount": 60000,
-      "due_date": "2026-02-15",
-      "status": "PENDING",
-      "paid_at": null
+      "due_date": "2024-07-15",
+      "status": "PAID",
+      "paid_at": "2024-07-10T10:00:00Z",
+      "receipt_number": "RCP-2024-00050"
     },
     {
       "id": "fee6",
-      "student_id": "u5",
-      "head": "PROCESSING_FEE",
-      "amount": 500,
-      "due_date": "2026-01-10",
-      "status": "PAID",
-      "paid_at": "2026-01-09T10:00:00Z"
+      "student_id": "u1",
+      "head": "MESS_FEES",
+      "name": "Mess Fees (Jan 2026)",
+      "description": "Monthly mess/food charges",
+      "amount": 3000,
+      "due_date": "2026-01-25",
+      "status": "PENDING",
+      "paid_at": null,
+      "receipt_number": null
     },
     {
       "id": "fee7",
-      "student_id": "u5",
-      "head": "SECURITY_DEPOSIT",
-      "amount": 10000,
-      "due_date": "2026-01-10",
-      "status": "PAID",
-      "paid_at": "2026-01-09T10:00:00Z"
+      "student_id": "u1",
+      "head": "RENEWAL_FEES",
+      "name": "Hostel Fees (Semester 3 - Renewal)",
+      "description": "6-month hostel accommodation fee - Renewal",
+      "amount": 60000,
+      "due_date": "2026-07-15",
+      "status": "PENDING",
+      "paid_at": null,
+      "receipt_number": null
     },
     {
       "id": "fee8",
       "student_id": "u5",
-      "head": "HOSTEL_FEES",
-      "amount": 60000,
-      "due_date": "2026-01-15",
-      "status": "PENDING",
-      "paid_at": null
+      "head": "PROCESSING_FEE",
+      "name": "Processing Fee",
+      "description": "One-time application processing fee",
+      "amount": 500,
+      "due_date": "2024-06-15",
+      "status": "PAID",
+      "paid_at": "2024-06-14T10:00:00Z",
+      "receipt_number": "RCP-2024-00100"
     },
     {
       "id": "fee9",
       "student_id": "u5",
-      "head": "MESS_FEES",
-      "amount": 3000,
-      "due_date": "2026-01-15",
-      "status": "PENDING",
-      "paid_at": null
+      "head": "SECURITY_DEPOSIT",
+      "name": "Security Deposit",
+      "description": "Refundable security deposit",
+      "amount": 10000,
+      "due_date": "2024-06-15",
+      "status": "PAID",
+      "paid_at": "2024-06-14T10:30:00Z",
+      "receipt_number": "RCP-2024-00101"
     },
     {
       "id": "fee10",
-      "student_id": "u6",
-      "head": "PROCESSING_FEE",
-      "amount": 500,
-      "due_date": "2026-01-05",
+      "student_id": "u5",
+      "head": "HOSTEL_FEES",
+      "name": "Hostel Fees (Semester 1)",
+      "description": "6-month hostel accommodation fee",
+      "amount": 60000,
+      "due_date": "2024-06-20",
       "status": "PAID",
-      "paid_at": "2026-01-04T10:00:00Z"
+      "paid_at": "2024-06-18T10:00:00Z",
+      "receipt_number": "RCP-2024-00102"
     },
     {
       "id": "fee11",
-      "student_id": "u6",
-      "head": "SECURITY_DEPOSIT",
-      "amount": 10000,
-      "due_date": "2026-01-05",
-      "status": "PAID",
-      "paid_at": "2026-01-04T10:00:00Z"
+      "student_id": "u5",
+      "head": "MESS_FEES",
+      "name": "Mess Fees (Jan 2026)",
+      "description": "Monthly mess/food charges",
+      "amount": 3000,
+      "due_date": "2026-01-25",
+      "status": "PENDING",
+      "paid_at": null,
+      "receipt_number": null
     },
     {
       "id": "fee12",
       "student_id": "u6",
-      "head": "HOSTEL_FEES",
-      "amount": 55000,
-      "due_date": "2026-01-10",
-      "status": "PENDING",
-      "paid_at": null
+      "head": "PROCESSING_FEE",
+      "name": "Processing Fee",
+      "description": "One-time application processing fee",
+      "amount": 500,
+      "due_date": "2024-07-01",
+      "status": "PAID",
+      "paid_at": "2024-06-30T10:00:00Z",
+      "receipt_number": "RCP-2024-00150"
     },
     {
       "id": "fee13",
       "student_id": "u6",
+      "head": "SECURITY_DEPOSIT",
+      "name": "Security Deposit",
+      "description": "Refundable security deposit",
+      "amount": 10000,
+      "due_date": "2024-07-01",
+      "status": "PAID",
+      "paid_at": "2024-06-30T10:30:00Z",
+      "receipt_number": "RCP-2024-00151"
+    },
+    {
+      "id": "fee14",
+      "student_id": "u6",
+      "head": "HOSTEL_FEES",
+      "name": "Hostel Fees (Semester 1)",
+      "description": "6-month hostel accommodation fee - Girls Ashram",
+      "amount": 55000,
+      "due_date": "2024-07-05",
+      "status": "PAID",
+      "paid_at": "2024-07-03T10:00:00Z",
+      "receipt_number": "RCP-2024-00152"
+    },
+    {
+      "id": "fee15",
+      "student_id": "u6",
       "head": "MESS_FEES",
+      "name": "Mess Fees (Jan 2026)",
+      "description": "Monthly mess/food charges",
       "amount": 3000,
-      "due_date": "2026-01-10",
+      "due_date": "2026-01-25",
+      "status": "OVERDUE",
+      "paid_at": null,
+      "receipt_number": null
+    },
+    {
+      "id": "fee16",
+      "student_id": "u7",
+      "head": "HOSTEL_FEES",
+      "name": "Hostel Fees (Semester 2)",
+      "description": "6-month hostel accommodation fee",
+      "amount": 60000,
+      "due_date": "2026-02-01",
       "status": "PENDING",
-      "paid_at": null
+      "paid_at": null,
+      "receipt_number": null
+    },
+    {
+      "id": "fee17",
+      "student_id": "u8",
+      "head": "HOSTEL_FEES",
+      "name": "Hostel Fees (Semester 2)",
+      "description": "6-month hostel accommodation fee - Girls Ashram",
+      "amount": 55000,
+      "due_date": "2026-02-15",
+      "status": "PENDING",
+      "paid_at": null,
+      "receipt_number": null
     }
   ],
   "transactions": [
     {
       "id": "txn1",
       "fee_id": "fee1",
-      "amount": 5000,
+      "student_id": "u1",
+      "amount": 500,
       "payment_method": "UPI",
-      "transaction_id": "UPI123456789",
+      "transaction_id": "UPI202401150001",
+      "gateway_reference": "RZP_UPI_001",
       "status": "SUCCESS",
-      "created_at": "2024-06-25T10:00:00Z"
+      "created_at": "2024-01-15T14:00:00Z",
+      "completed_at": "2024-01-15T14:00:30Z"
     },
     {
       "id": "txn2",
       "fee_id": "fee2",
+      "student_id": "u1",
       "amount": 10000,
       "payment_method": "BANK_TRANSFER",
-      "transaction_id": "NEFT987654321",
+      "transaction_id": "NEFT202401150001",
+      "gateway_reference": null,
       "status": "SUCCESS",
-      "created_at": "2024-01-15T14:00:00Z"
+      "created_at": "2024-01-15T14:30:00Z",
+      "completed_at": "2024-01-15T14:35:00Z"
+    },
+    {
+      "id": "txn3",
+      "fee_id": "fee3",
+      "student_id": "u1",
+      "amount": 60000,
+      "payment_method": "NETBANKING",
+      "transaction_id": "NB202401180001",
+      "gateway_reference": "RZP_NB_001",
+      "status": "SUCCESS",
+      "created_at": "2024-01-18T10:00:00Z",
+      "completed_at": "2024-01-18T10:02:00Z"
+    },
+    {
+      "id": "txn4",
+      "fee_id": "fee4",
+      "student_id": "u1",
+      "amount": 3000,
+      "payment_method": "UPI",
+      "transaction_id": "UPI202401240001",
+      "gateway_reference": "RZP_UPI_002",
+      "status": "SUCCESS",
+      "created_at": "2024-01-24T10:00:00Z",
+      "completed_at": "2024-01-24T10:00:30Z"
+    },
+    {
+      "id": "txn5",
+      "fee_id": "fee5",
+      "student_id": "u1",
+      "amount": 60000,
+      "payment_method": "NETBANKING",
+      "transaction_id": "NB202407100001",
+      "gateway_reference": "RZP_NB_050",
+      "status": "SUCCESS",
+      "created_at": "2024-07-10T10:00:00Z",
+      "completed_at": "2024-07-10T10:02:00Z"
+    },
+    {
+      "id": "txn6",
+      "fee_id": "fee8",
+      "student_id": "u5",
+      "amount": 500,
+      "payment_method": "UPI",
+      "transaction_id": "UPI202406140001",
+      "gateway_reference": "RZP_UPI_100",
+      "status": "SUCCESS",
+      "created_at": "2024-06-14T10:00:00Z",
+      "completed_at": "2024-06-14T10:00:30Z"
     }
   ],
   "renewals": [
     {
       "id": "REN001",
       "studentId": "u1",
+      "student_id": "u1",
       "type": "RENEWAL",
       "status": "PENDING",
-      "academicYear": "2025-26",
+      "academicYear": "2026-27",
       "period": "SEMESTER_1",
       "currentHostelFees": 60000,
       "currentSecurityDeposit": 10000,
@@ -724,9 +1688,143 @@
         "Parent ID proof",
         "Hostel clearance certificate"
       ],
+      "documentsSubmitted": [],
       "submittedAt": null,
       "reviewedAt": null,
-      "created_at": "2024-12-01T10:00:00Z"
+      "reviewedBy": null,
+      "remarks": null,
+      "created_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "REN002",
+      "studentId": "u5",
+      "student_id": "u5",
+      "type": "RENEWAL",
+      "status": "PENDING",
+      "academicYear": "2026-27",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 60000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 60000,
+      "feePaid": 0,
+      "documentsRequired": [
+        "Latest marksheet",
+        "Parent ID proof",
+        "Hostel clearance certificate"
+      ],
+      "documentsSubmitted": [],
+      "submittedAt": null,
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "remarks": null,
+      "created_at": "2026-01-01T10:00:00Z"
+    },
+    {
+      "id": "REN003",
+      "studentId": "u6",
+      "student_id": "u6",
+      "type": "RENEWAL",
+      "status": "APPROVED",
+      "academicYear": "2026-27",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 55000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 5000,
+      "feePaid": 5000,
+      "documentsRequired": [
+        "Latest marksheet",
+        "Parent ID proof",
+        "Hostel clearance certificate"
+      ],
+      "documentsSubmitted": [
+        "Latest marksheet",
+        "Parent ID proof",
+        "Hostel clearance certificate"
+      ],
+      "submittedAt": "2025-12-20T10:00:00Z",
+      "reviewedAt": "2025-12-25T10:00:00Z",
+      "reviewedBy": "u9",
+      "approvedAt": "2025-12-28T10:00:00Z",
+      "approvedBy": "u3",
+      "remarks": "All documents verified. Renewal approved.",
+      "created_at": "2025-12-15T10:00:00Z"
+    },
+    {
+      "id": "REN004",
+      "studentId": "u7",
+      "student_id": "u7",
+      "type": "RENEWAL",
+      "status": "SUBMITTED",
+      "academicYear": "2026-27",
+      "period": "SEMESTER_1",
+      "currentHostelFees": 60000,
+      "currentSecurityDeposit": 10000,
+      "feeTopupRequired": 0,
+      "feePaid": 0,
+      "documentsRequired": [
+        "Latest marksheet",
+        "Parent ID proof",
+        "Hostel clearance certificate"
+      ],
+      "documentsSubmitted": [
+        "Latest marksheet",
+        "Parent ID proof"
+      ],
+      "submittedAt": "2026-01-10T10:00:00Z",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "remarks": null,
+      "created_at": "2026-01-05T10:00:00Z"
+    }
+  ],
+  "exitRequests": [
+    {
+      "id": "exit1",
+      "student_id": "u14",
+      "student_name": "Sneha Reddy",
+      "reason": "Course completion and relocation",
+      "expectedExitDate": "2026-02-28",
+      "requestedDate": "2026-01-10",
+      "forwardingAddress": "12, Banjara Hills, Hyderabad - 500034",
+      "bankDetails": {
+        "accountHolder": "Sneha Reddy",
+        "accountNumber": "1234567890",
+        "ifscCode": "HDFC0001234",
+        "bankName": "HDFC Bank"
+      },
+      "status": "CLEARANCE_PENDING",
+      "clearance": {
+        "room": "PENDING",
+        "library": "CLEARED",
+        "mess": "PENDING",
+        "accounts": "PENDING"
+      },
+      "created_at": "2026-01-10T09:00:00Z",
+      "updated_at": "2026-01-11T10:00:00Z"
+    },
+    {
+      "id": "exit2",
+      "student_id": "u1",
+      "student_name": "Rahul Kumar",
+      "reason": "Transfer to different city for internship",
+      "expectedExitDate": "2026-03-31",
+      "requestedDate": "2026-01-12",
+      "forwardingAddress": "456, MG Road, Bangalore - 560001",
+      "bankDetails": {
+        "accountHolder": "Rahul Kumar",
+        "accountNumber": "9876543210",
+        "ifscCode": "SBIN0001234",
+        "bankName": "State Bank of India"
+      },
+      "status": "DRAFT",
+      "clearance": {
+        "room": "PENDING",
+        "library": "PENDING",
+        "mess": "PENDING",
+        "accounts": "PENDING"
+      },
+      "created_at": "2026-01-12T09:00:00Z",
+      "updated_at": "2026-01-12T09:00:00Z"
     }
   ],
   "auditLogs": [
@@ -738,7 +1836,7 @@
       "old_value": null,
       "new_value": "DRAFT",
       "performed_by": "applicant",
-      "performed_at": "2024-12-14T10:00:00Z",
+      "performed_at": "2026-01-09T14:00:00Z",
       "metadata": {
         "ip_address": "192.168.1.1",
         "user_agent": "Mozilla/5.0"
@@ -752,34 +1850,405 @@
       "old_value": "DRAFT",
       "new_value": "SUBMITTED",
       "performed_by": "applicant",
-      "performed_at": "2024-12-15T14:30:00Z",
+      "performed_at": "2026-01-10T10:00:00Z",
       "metadata": {
         "ip_address": "192.168.1.1"
       }
+    },
+    {
+      "id": "audit3",
+      "entity_type": "APPLICATION",
+      "entity_id": "app6",
+      "action": "STATUS_CHANGE",
+      "old_value": "INTERVIEW_SCHEDULED",
+      "new_value": "APPROVED",
+      "performed_by": "u3",
+      "performed_at": "2026-01-07T16:00:00Z",
+      "metadata": {
+        "trustee_name": "Trustee",
+        "remarks": "Approved for admission"
+      }
+    },
+    {
+      "id": "audit4",
+      "entity_type": "LEAVE",
+      "entity_id": "leave1",
+      "action": "APPROVE",
+      "old_value": "PENDING",
+      "new_value": "APPROVED",
+      "performed_by": "u2",
+      "performed_at": "2025-12-20T10:00:00Z",
+      "metadata": {
+        "superintendent_name": "Boys Hostel Superintendent"
+      }
+    },
+    {
+      "id": "audit5",
+      "entity_type": "PAYMENT",
+      "entity_id": "txn3",
+      "action": "COMPLETE",
+      "old_value": "PENDING",
+      "new_value": "SUCCESS",
+      "performed_by": "u1",
+      "performed_at": "2024-01-18T10:02:00Z",
+      "metadata": {
+        "amount": 60000,
+        "payment_method": "NETBANKING"
+      }
+    },
+    {
+      "id": "audit6",
+      "entity_type": "RENEWAL",
+      "entity_id": "REN003",
+      "action": "APPROVE",
+      "old_value": "SUBMITTED",
+      "new_value": "APPROVED",
+      "performed_by": "u3",
+      "performed_at": "2025-12-28T10:00:00Z",
+      "metadata": {
+        "trustee_name": "Trustee",
+        "remarks": "All documents verified. Renewal approved."
+      }
+    },
+    {
+      "id": "audit7",
+      "entity_type": "LEAVE",
+      "entity_id": "leave9",
+      "action": "REJECT",
+      "old_value": "PENDING",
+      "new_value": "REJECTED",
+      "performed_by": "u2",
+      "performed_at": "2026-01-15T10:00:00Z",
+      "metadata": {
+        "superintendent_name": "Boys Hostel Superintendent",
+        "reason": "Previous leave violation on record"
+      }
+    },
+    {
+      "id": "audit8",
+      "entity_type": "APPLICATION",
+      "entity_id": "app7",
+      "action": "REJECT",
+      "old_value": "INTERVIEW_SCHEDULED",
+      "new_value": "REJECTED",
+      "performed_by": "u3",
+      "performed_at": "2026-01-05T11:00:00Z",
+      "metadata": {
+        "trustee_name": "Trustee",
+        "reason": "Age criteria not met for new admission"
+      }
     }
   ],
-  "exitRequests": [
+  "communications": [
     {
-      "id": "exit1",
-      "student_id": "u1",
-      "reason": "Completed studies",
-      "requestedDate": "2024-12-20",
+      "id": "comm1",
+      "type": "SMS",
+      "recipient_id": "u1",
+      "recipient_name": "Rahul Kumar",
+      "recipient_mobile": "9876543210",
+      "template": "LEAVE_APPROVED",
+      "message": "Your leave request for Dec 25-27 has been approved. Have a safe journey!",
+      "status": "DELIVERED",
+      "sent_at": "2025-12-20T10:30:00Z",
+      "delivered_at": "2025-12-20T10:30:15Z"
+    },
+    {
+      "id": "comm2",
+      "type": "EMAIL",
+      "recipient_id": "parent1",
+      "recipient_name": "Rajesh Kumar",
+      "recipient_email": "parent@example.com",
+      "template": "PARENT_LEAVE_NOTIFICATION",
+      "subject": "Leave Approved - Rahul Kumar",
+      "message": "Your ward Rahul Kumar's leave request for Dec 25-27 has been approved.",
+      "status": "DELIVERED",
+      "sent_at": "2025-12-20T10:30:00Z",
+      "delivered_at": "2025-12-20T10:31:00Z"
+    },
+    {
+      "id": "comm3",
+      "type": "WHATSAPP",
+      "recipient_id": "u5",
+      "recipient_name": "Amit Kumar Jain",
+      "recipient_mobile": "9876543214",
+      "template": "FEE_REMINDER",
+      "message": "Reminder: Your mess fees of Rs. 3000 is due on Jan 25, 2026. Please pay to avoid late fees.",
+      "status": "DELIVERED",
+      "sent_at": "2026-01-10T09:00:00Z",
+      "delivered_at": "2026-01-10T09:00:30Z"
+    },
+    {
+      "id": "comm4",
+      "type": "SMS",
+      "recipient_id": "app1_applicant",
+      "recipient_name": "Rohan Desai",
+      "recipient_mobile": "9988776655",
+      "template": "APPLICATION_RECEIVED",
+      "message": "Your application BH-2025-00001 has been received. Track status at https://hostel.jain.org/track",
+      "status": "DELIVERED",
+      "sent_at": "2026-01-10T10:05:00Z",
+      "delivered_at": "2026-01-10T10:05:15Z"
+    },
+    {
+      "id": "comm5",
+      "type": "EMAIL",
+      "recipient_id": "u6",
+      "recipient_name": "Priya Sharma",
+      "recipient_email": "priya.sharma@email.com",
+      "template": "RENEWAL_APPROVED",
+      "subject": "Renewal Application Approved",
+      "message": "Congratulations! Your renewal application for academic year 2026-27 has been approved.",
+      "status": "DELIVERED",
+      "sent_at": "2025-12-28T10:05:00Z",
+      "delivered_at": "2025-12-28T10:06:00Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif1",
+      "user_id": "u1",
+      "type": "FEE_REMINDER",
+      "title": "Fee Payment Due",
+      "message": "Your mess fees of Rs. 3000 is due on Jan 25, 2026.",
+      "read": false,
+      "created_at": "2026-01-10T09:00:00Z"
+    },
+    {
+      "id": "notif2",
+      "user_id": "u1",
+      "type": "LEAVE_APPROVED",
+      "title": "Leave Approved",
+      "message": "Your leave request for Jan 20 (Night Out) has been approved.",
+      "read": true,
+      "created_at": "2026-01-18T10:00:00Z"
+    },
+    {
+      "id": "notif3",
+      "user_id": "u1",
+      "type": "RENEWAL_REMINDER",
+      "title": "Renewal Due Soon",
+      "message": "Your hostel renewal is due on Jul 15, 2026. Please start the renewal process.",
+      "read": false,
+      "created_at": "2026-01-01T09:00:00Z"
+    },
+    {
+      "id": "notif4",
+      "user_id": "u5",
+      "type": "FEE_REMINDER",
+      "title": "Fee Payment Due",
+      "message": "Your mess fees of Rs. 3000 is due on Jan 25, 2026.",
+      "read": false,
+      "created_at": "2026-01-10T09:00:00Z"
+    },
+    {
+      "id": "notif5",
+      "user_id": "u6",
+      "type": "FEE_OVERDUE",
+      "title": "Fee Payment Overdue",
+      "message": "Your mess fees of Rs. 3000 was due on Jan 25, 2026. Please pay immediately.",
+      "read": false,
+      "created_at": "2026-01-26T09:00:00Z"
+    },
+    {
+      "id": "notif6",
+      "user_id": "u2",
+      "type": "NEW_APPLICATION",
+      "title": "New Application Received",
+      "message": "New application BH-2025-00001 received. Please review.",
+      "read": false,
+      "created_at": "2026-01-10T10:00:00Z"
+    },
+    {
+      "id": "notif7",
+      "user_id": "u2",
+      "type": "LEAVE_REQUEST",
+      "title": "New Leave Request",
+      "message": "Rahul Kumar has requested short leave for Jan 15, 2026.",
+      "read": false,
+      "created_at": "2026-01-12T09:00:00Z"
+    },
+    {
+      "id": "notif8",
+      "user_id": "u3",
+      "type": "INTERVIEW_SCHEDULED",
+      "title": "Interview Scheduled",
+      "message": "Interview scheduled for Ananya Desai on Jan 15, 2026 at 10:00 AM.",
+      "read": true,
+      "created_at": "2026-01-08T10:00:00Z"
+    }
+  ],
+  "receivables": [
+    {
+      "id": "recv1",
+      "studentId": "STU001",
+      "studentName": "Rahul Kumar",
+      "vertical": "Boys Hostel",
+      "room": "101",
+      "totalDue": 63000,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-07-10",
+      "contactPhone": "9876543210",
+      "contactEmail": "student@example.com",
+      "feeBreakdown": [
+        { "head": "Mess Fees", "amount": 3000, "dueDate": "2026-01-25" },
+        { "head": "Renewal Fees", "amount": 60000, "dueDate": "2026-07-15" }
+      ]
+    },
+    {
+      "id": "recv2",
+      "studentId": "STU002",
+      "studentName": "Amit Kumar Jain",
+      "vertical": "Boys Hostel",
+      "room": "102",
+      "totalDue": 3000,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-06-18",
+      "contactPhone": "9876543214",
+      "contactEmail": "amit.kumar@email.com",
+      "feeBreakdown": [
+        { "head": "Mess Fees", "amount": 3000, "dueDate": "2026-01-25" }
+      ]
+    },
+    {
+      "id": "recv3",
+      "studentId": "STU003",
+      "studentName": "Priya Sharma",
+      "vertical": "Girls Ashram",
+      "room": "201",
+      "totalDue": 3000,
+      "overdueDays": 5,
+      "lastPaymentDate": "2024-07-03",
+      "contactPhone": "9876543215",
+      "contactEmail": "priya.sharma@email.com",
+      "feeBreakdown": [
+        { "head": "Mess Fees", "amount": 3000, "dueDate": "2026-01-25", "status": "OVERDUE" }
+      ]
+    },
+    {
+      "id": "recv4",
+      "studentId": "STU004",
+      "studentName": "Rahul Verma",
+      "vertical": "Boys Hostel",
+      "room": "103",
+      "totalDue": 60000,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-08-15",
+      "contactPhone": "9876543216",
+      "contactEmail": "rahul.verma@email.com",
+      "feeBreakdown": [
+        { "head": "Hostel Fees (Semester 2)", "amount": 60000, "dueDate": "2026-02-01" }
+      ]
+    },
+    {
+      "id": "recv5",
+      "studentId": "STU005",
+      "studentName": "Neha Gupta",
+      "vertical": "Girls Ashram",
+      "room": "202",
+      "totalDue": 55000,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-08-20",
+      "contactPhone": "9876543217",
+      "contactEmail": "neha.gupta@email.com",
+      "feeBreakdown": [
+        { "head": "Hostel Fees (Semester 2)", "amount": 55000, "dueDate": "2026-02-15" }
+      ]
+    },
+    {
+      "id": "recv6",
+      "studentId": "STU006",
+      "studentName": "Vikram Singh",
+      "vertical": "Boys Hostel",
+      "room": "104",
+      "totalDue": 0,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-12-15",
+      "contactPhone": "9876543222",
+      "contactEmail": "vikram.singh@email.com",
+      "feeBreakdown": []
+    },
+    {
+      "id": "recv7",
+      "studentId": "STU007",
+      "studentName": "Anjali Patel",
+      "vertical": "Girls Ashram",
+      "room": "203",
+      "totalDue": 0,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-12-20",
+      "contactPhone": "9876543223",
+      "contactEmail": "anjali.patel@email.com",
+      "feeBreakdown": []
+    },
+    {
+      "id": "recv8",
+      "studentId": "STU008",
+      "studentName": "Karan Mehta",
+      "vertical": "Boys Hostel",
+      "room": "105",
+      "totalDue": 0,
+      "overdueDays": 0,
+      "lastPaymentDate": "2024-12-25",
+      "contactPhone": "9876543224",
+      "contactEmail": "karan.mehta@email.com",
+      "feeBreakdown": []
+    }
+  ],
+  "clearanceItems": [
+    {
+      "id": "clr1",
+      "exit_request_id": "exit1",
+      "department": "Room",
+      "description": "Room inventory and key return",
       "status": "PENDING",
-      "clearance": {
-        "room": "PENDING",
-        "library": "PENDING",
-        "mess": "PENDING",
-        "accounts": "PENDING"
-      },
-      "created_at": "2024-12-18T09:00:00Z"
+      "verified_by": null,
+      "verified_at": null,
+      "remarks": null
+    },
+    {
+      "id": "clr2",
+      "exit_request_id": "exit1",
+      "department": "Library",
+      "description": "No pending books or fines",
+      "status": "CLEARED",
+      "verified_by": "u2",
+      "verified_at": "2026-01-11T10:00:00Z",
+      "remarks": "All books returned"
+    },
+    {
+      "id": "clr3",
+      "exit_request_id": "exit1",
+      "department": "Mess",
+      "description": "Mess dues clearance",
+      "status": "PENDING",
+      "verified_by": null,
+      "verified_at": null,
+      "remarks": null
+    },
+    {
+      "id": "clr4",
+      "exit_request_id": "exit1",
+      "department": "Accounts",
+      "description": "All dues cleared and deposit refund processed",
+      "status": "PENDING",
+      "verified_by": null,
+      "verified_at": null,
+      "remarks": null
     }
   ],
   "config": {
     "hostelName": "Seth Hirachand Gumanji Jain Hostel",
+    "trustName": "Hirachand Gumanji Family Charitable Trust",
+    "address": "123 Hostel Road, Mumbai, Maharashtra - 400001",
+    "contactPhone": "022-12345678",
+    "contactEmail": "info@jain-hostel.org",
     "verticals": [
       {
         "id": "BOYS_HOSTEL",
         "name": "Boys Hostel",
+        "shortCode": "BH",
+        "description": "Accommodation for male students",
+        "capacity": 200,
         "fees": {
           "hostelFees": 60000,
           "securityDeposit": 10000,
@@ -790,6 +2259,9 @@
       {
         "id": "GIRLS_ASHRAM",
         "name": "Girls Ashram",
+        "shortCode": "GA",
+        "description": "Accommodation for female students",
+        "capacity": 150,
         "fees": {
           "hostelFees": 55000,
           "securityDeposit": 10000,
@@ -800,6 +2272,9 @@
       {
         "id": "DHARAMSHALA",
         "name": "Dharamshala",
+        "shortCode": "DH",
+        "description": "Short-stay accommodation for pilgrims and visitors",
+        "capacity": 50,
         "fees": {
           "hostelFees": 500,
           "securityDeposit": 0,
@@ -809,32 +2284,104 @@
       }
     ],
     "leaveRules": {
-      "short": {
-        "maxDays": 2,
-        "noticeHours": 24,
-        "monthlyLimit": 2
+      "SHORT_LEAVE": {
+        "maxDurationHours": 6,
+        "noticeHoursRequired": 24,
+        "monthlyLimit": 4,
+        "parentNotificationRequired": false,
+        "description": "For brief outings within the city"
       },
-      "night_out": {
+      "NIGHT_OUT": {
         "maxTimesPerWeek": 2,
         "returnBy": "22:00",
-        "noticeHours": 24
+        "noticeHoursRequired": 24,
+        "parentNotificationRequired": true,
+        "description": "Evening outings with late return"
       },
-      "multi_day": {
+      "HOME_VISIT": {
         "maxDays": 7,
-        "noticeDays": 3,
+        "noticeDaysRequired": 3,
         "semesterLimit": 14,
-        "parentConsentRequired": true
+        "parentNotificationRequired": true,
+        "description": "Visit to hometown/family"
+      },
+      "MULTI_DAY": {
+        "maxDays": 7,
+        "noticeDaysRequired": 3,
+        "semesterLimit": 14,
+        "parentConsentRequired": true,
+        "destinationRequired": true,
+        "description": "Extended leave for special purposes"
       }
     },
     "renewal": {
-      "提前通知天数": 30,
+      "advanceNoticeDays": 30,
       "documentsRequired": [
-        "最新成绩单",
-        "家长身份证明",
-        "宿舍清退证明"
-      ]
+        "Latest marksheet",
+        "Parent ID proof",
+        "Hostel clearance certificate"
+      ],
+      "periodMonths": 6
     },
-    "academicYear": "2024-25",
-    "currentPeriod": "SEMESTER_2"
+    "academicYear": "2025-26",
+    "currentPeriod": "SEMESTER_2",
+    "feeHeads": [
+      {
+        "id": "PROCESSING_FEE",
+        "name": "Processing Fee",
+        "description": "One-time application processing fee",
+        "isOneTime": true
+      },
+      {
+        "id": "SECURITY_DEPOSIT",
+        "name": "Security Deposit",
+        "description": "Refundable security deposit",
+        "isRefundable": true
+      },
+      {
+        "id": "HOSTEL_FEES",
+        "name": "Hostel Fees",
+        "description": "6-month hostel accommodation fee",
+        "isRecurring": true
+      },
+      {
+        "id": "MESS_FEES",
+        "name": "Mess Fees",
+        "description": "Monthly mess/food charges",
+        "isRecurring": true
+      },
+      {
+        "id": "RENEWAL_FEES",
+        "name": "Renewal Fees",
+        "description": "6-month renewal fee",
+        "isRecurring": true
+      }
+    ],
+    "paymentMethods": [
+      {
+        "id": "UPI",
+        "name": "UPI",
+        "description": "Pay using UPI apps like GPay, PhonePe, Paytm",
+        "enabled": true
+      },
+      {
+        "id": "NETBANKING",
+        "name": "Net Banking",
+        "description": "Pay using internet banking",
+        "enabled": true
+      },
+      {
+        "id": "BANK_TRANSFER",
+        "name": "Bank Transfer / NEFT",
+        "description": "Direct bank transfer",
+        "enabled": true
+      },
+      {
+        "id": "QR_CODE",
+        "name": "QR Code",
+        "description": "Scan QR code to pay",
+        "enabled": true
+      }
+    ]
   }
 }

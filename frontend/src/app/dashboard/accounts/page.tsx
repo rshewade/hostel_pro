@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
@@ -83,289 +83,82 @@ export default function AccountsDashboard() {
     { value: 'TRUSTEE', label: 'Trustee' }
   ];
 
-  const mockReceivables: Receivable[] = [
-    {
-      id: '1',
-      studentName: 'Rahul Sharma',
-      studentId: 'STU-2024-001',
-      vertical: 'BOYS',
-      amount: 45000,
-      dueDate: '2024-12-25',
-      status: 'OVERDUE',
-      feeComponent: 'HOSTEL_FEES',
-      contact: {
-        phone: '+91 9876543210',
-        email: 'rahul.sharma@example.com',
-        parentPhone: '+91 9876543211'
-      },
-      audit: {
-        createdBy: 'admin@jainhostel.com',
-        createdByRole: 'ADMIN',
-        createdAt: '2024-12-01T10:30:00Z'
-      },
-      communicationLogs: 3
-    },
-    {
-      id: '2',
-      studentName: 'Priya Patel',
-      studentId: 'STU-2024-002',
-      vertical: 'GIRLS',
-      amount: 42000,
-      dueDate: '2025-01-15',
-      status: 'PENDING',
-      feeComponent: 'PROCESSING_FEE',
-      contact: {
-        phone: '+91 9876543220',
-        email: 'priya.patel@example.com',
-        parentPhone: '+91 9876543221'
-      },
-      audit: {
-        createdBy: 'superintendent.girls@jainhostel.com',
-        createdByRole: 'SUPERINTENDENT',
-        createdAt: '2024-12-05T14:20:00Z'
-      },
-      communicationLogs: 1
-    },
-    {
-      id: '3',
-      studentName: 'Amit Kumar',
-      studentId: 'STU-2024-003',
-      vertical: 'BOYS',
-      amount: 48000,
-      dueDate: '2025-01-10',
-      status: 'PAID',
-      feeComponent: 'HOSTEL_FEES',
-      contact: {
-        phone: '+91 9876543230',
-        email: 'amit.kumar@example.com'
-      },
-      audit: {
-        createdBy: 'accounts@jainhostel.com',
-        createdByRole: 'ACCOUNTS',
-        createdAt: '2024-11-20T09:15:00Z',
-        modifiedBy: 'accounts@jainhostel.com',
-        modifiedAt: '2024-12-10T16:45:00Z'
-      },
-      communicationLogs: 0
-    },
-    {
-      id: '4',
-      studentName: 'Sneha Reddy',
-      studentId: 'STU-2024-004',
-      vertical: 'DHARAMSHALA',
-      amount: 38000,
-      dueDate: '2024-12-28',
-      status: 'PARTIAL',
-      feeComponent: 'PARTIAL_PAYMENT',
-      contact: {
-        phone: '+91 9876543240',
-        email: 'sneha.reddy@example.com',
-        parentPhone: '+91 9876543241'
-      },
-      audit: {
-        createdBy: 'superintendent.dharamshala@jainhostel.com',
-        createdByRole: 'SUPERINTENDENT',
-        createdAt: '2024-11-25T11:00:00Z',
-        modifiedBy: 'accounts@jainhostel.com',
-        modifiedAt: '2024-12-15T13:30:00Z'
-      },
-      communicationLogs: 2
-    },
-    {
-      id: '5',
-      studentName: 'Vijay Singh',
-      studentId: 'STU-2024-005',
-      vertical: 'GIRLS',
-      amount: 52000,
-      dueDate: '2025-01-20',
-      status: 'PENDING',
-      feeComponent: 'SECURITY_DEPOSIT',
-      contact: {
-        phone: '+91 9876543250',
-        email: 'vijay.singh@example.com',
-        parentPhone: '+91 9876543251'
-      },
-      audit: {
-        createdBy: 'admin@jainhostel.com',
-        createdByRole: 'ADMIN',
-        createdAt: '2024-12-08T08:45:00Z'
-      },
-      communicationLogs: 0
-    },
-    {
-      id: '6',
-      studentName: 'Neha Gupta',
-      studentId: 'STU-2024-006',
-      vertical: 'BOYS',
-      amount: 45000,
-      dueDate: '2025-01-25',
-      status: 'PENDING',
-      feeComponent: 'HOSTEL_FEES',
-      contact: {
-        phone: '+91 9876543260',
-        email: 'neha.gupta@example.com',
-        parentPhone: '+91 9876543261'
-      },
-      audit: {
-        createdBy: 'superintendent.boys@jainhostel.com',
-        createdByRole: 'SUPERINTENDENT',
-        createdAt: '2024-12-10T12:00:00Z'
-      },
-      communicationLogs: 1
-    },
-    {
-      id: '7',
-      studentName: 'Rajesh Kumar',
-      studentId: 'STU-2024-007',
-      vertical: 'DHARAMSHALA',
-      amount: 38000,
-      dueDate: '2024-12-30',
-      status: 'OVERDUE',
-      feeComponent: 'HOSTEL_FEES',
-      contact: {
-        phone: '+91 9876543270',
-        email: 'rajesh.kumar@example.com'
-      },
-      audit: {
-        createdBy: 'superintendent.dharamshala@jainhostel.com',
-        createdByRole: 'SUPERINTENDENT',
-        createdAt: '2024-11-28T15:20:00Z'
-      },
-      communicationLogs: 4
-    },
-    {
-      id: '8',
-      studentName: 'Anita Desai',
-      studentId: 'STU-2024-008',
-      vertical: 'GIRLS',
-      amount: 50000,
-      dueDate: '2025-01-05',
-      status: 'PAID',
-      feeComponent: 'KEY_DEPOSIT',
-      contact: {
-        phone: '+91 9876543280',
-        email: 'anita.desai@example.com',
-        parentPhone: '+91 9876543281'
-      },
-      audit: {
-        createdBy: 'accounts@jainhostel.com',
-        createdByRole: 'ACCOUNTS',
-        createdAt: '2024-12-01T10:00:00Z',
-        modifiedBy: 'trustee@jainhostel.com',
-        modifiedAt: '2024-12-05T14:00:00Z'
-      },
-      communicationLogs: 0
-    },
-    {
-      id: '9',
-      studentName: 'Suresh Patil',
-      studentId: 'STU-2024-009',
-      vertical: 'BOYS',
-      amount: 46000,
-      dueDate: '2025-01-12',
-      status: 'PENDING',
-      feeComponent: 'HOSTEL_FEES',
-      contact: {
-        phone: '+91 9876543290',
-        email: 'suresh.patil@example.com'
-      },
-      audit: {
-        createdBy: 'admin@jainhostel.com',
-        createdByRole: 'ADMIN',
-        createdAt: '2024-12-12T09:30:00Z'
-      },
-      communicationLogs: 1
-    },
-    {
-      id: '10',
-      studentName: 'Kavita Mehta',
-      studentId: 'STU-2024-010',
-      vertical: 'DHARAMSHALA',
-      amount: 39000,
-      dueDate: '2025-01-18',
-      status: 'PARTIAL',
-      feeComponent: 'PARTIAL_PAYMENT',
-      contact: {
-        phone: '+91 9876543300',
-        email: 'kavita.mehta@example.com',
-        parentPhone: '+91 9876543301'
-      },
-      audit: {
-        createdBy: 'superintendent.dharamshala@jainhostel.com',
-        createdByRole: 'SUPERINTENDENT',
-        createdAt: '2024-12-15T11:45:00Z',
-        modifiedBy: 'accounts@jainhostel.com',
-        modifiedAt: '2024-12-20T10:00:00Z'
-      },
-      communicationLogs: 2
-    }
-  ];
+  const [receivables, setReceivables] = useState<Receivable[]>([]);
+  const [paymentLogs, setPaymentLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mockPaymentLogs = [
-    {
-      id: '1',
-      transactionId: 'TXN-2024-12-30-001',
-      studentName: 'Rahul Sharma',
-      studentId: 'STU-2024-001',
-      amount: 45000,
-      paymentDate: '2024-12-20',
-      method: 'UPI',
-      status: 'SUCCESS',
-      feeHead: 'Hostel Fees',
-      vertical: 'BOYS'
-    },
-    {
-      id: '2',
-      transactionId: 'TXN-2024-12-28-002',
-      studentName: 'Priya Patel',
-      studentId: 'STU-2024-002',
-      amount: 42000,
-      paymentDate: '2024-12-15',
-      method: 'QR Code',
-      status: 'SUCCESS',
-      feeHead: 'Processing Fee',
-      vertical: 'GIRLS'
-    },
-    {
-      id: '3',
-      transactionId: 'TXN-2024-12-25-003',
-      studentName: 'Amit Kumar',
-      studentId: 'STU-2024-003',
-      amount: 48000,
-      paymentDate: '2024-12-10',
-      method: 'UPI',
-      status: 'FAILED',
-      feeHead: 'Hostel Fees',
-      vertical: 'BOYS'
-    },
-    {
-      id: '4',
-      transactionId: 'TXN-2024-12-22-004',
-      studentName: 'Anita Desai',
-      studentId: 'STU-2024-008',
-      amount: 50000,
-      paymentDate: '2024-12-05',
-      method: 'NEFT',
-      status: 'SUCCESS',
-      feeHead: 'Hostel Fees',
-      vertical: 'GIRLS'
-    },
-    {
-      id: '5',
-      transactionId: 'TXN-2024-12-20-005',
-      studentName: 'Sneha Reddy',
-      studentId: 'STU-2024-004',
-      amount: 20000,
-      paymentDate: '2024-12-01',
-      method: 'UPI',
-      status: 'SUCCESS',
-      feeHead: 'Partial Payment',
-      vertical: 'DHARAMSHALA'
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [receivablesRes, transactionsRes] = await Promise.all([
+          fetch('/api/receivables'),
+          fetch('/api/transactions')
+        ]);
+
+        if (!receivablesRes.ok || !transactionsRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const receivablesData = await receivablesRes.json();
+        const transactionsData = await transactionsRes.json();
+
+        // Transform receivables data to match the expected format
+        const transformedReceivables: Receivable[] = receivablesData.map((rec: any) => ({
+          id: rec.id,
+          studentName: rec.student_name,
+          studentId: rec.student_id,
+          vertical: rec.vertical,
+          amount: rec.amount,
+          dueDate: rec.due_date,
+          status: rec.status,
+          feeComponent: rec.fee_component,
+          contact: {
+            phone: rec.contact_phone || '',
+            email: rec.contact_email || '',
+            parentPhone: rec.parent_phone
+          },
+          audit: {
+            createdBy: rec.created_by || 'system',
+            createdByRole: rec.created_by_role || 'ADMIN',
+            createdAt: rec.created_at,
+            modifiedBy: rec.modified_by,
+            modifiedAt: rec.modified_at
+          },
+          communicationLogs: rec.communication_logs || 0
+        }));
+
+        // Transform transactions data to payment logs format
+        const transformedPaymentLogs = transactionsData.map((txn: any) => ({
+          id: txn.id,
+          transactionId: txn.transaction_id,
+          studentName: txn.student_name,
+          studentId: txn.student_id,
+          amount: txn.amount,
+          paymentDate: txn.payment_date,
+          method: txn.method,
+          status: txn.status,
+          feeHead: txn.fee_head,
+          vertical: txn.vertical
+        }));
+
+        setReceivables(transformedReceivables);
+        setPaymentLogs(transformedPaymentLogs);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching accounts data:', err);
+        setError('Failed to load data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const filteredReceivables = useMemo(() => {
-    return mockReceivables.filter(rec => {
+    return receivables.filter(rec => {
       const matchesVertical = selectedVertical === 'ALL' || rec.vertical === selectedVertical;
       const matchesStatus = statusFilter === 'ALL' || rec.status === statusFilter;
       const matchesFeeComponent = feeComponentFilter === 'ALL' || rec.feeComponent === feeComponentFilter;
@@ -373,14 +166,14 @@ export default function AccountsDashboard() {
       const matchesDateRange = (!dateRange.from || rec.dueDate >= dateRange.from) && (!dateRange.to || rec.dueDate <= dateRange.to);
       return matchesVertical && matchesStatus && matchesFeeComponent && matchesUserRole && matchesDateRange;
     });
-  }, [selectedVertical, statusFilter, feeComponentFilter, userRoleFilter, dateRange]);
+  }, [receivables, selectedVertical, statusFilter, feeComponentFilter, userRoleFilter, dateRange]);
 
   const filteredPaymentLogs = useMemo(() => {
-    return mockPaymentLogs.filter(log => {
+    return paymentLogs.filter(log => {
       const matchesVertical = selectedVertical === 'ALL' || log.vertical === selectedVertical;
       return matchesVertical;
     });
-  }, [selectedVertical]);
+  }, [paymentLogs, selectedVertical]);
 
   const kpis = calculateKPIs();
   const kpiData = [
@@ -391,15 +184,15 @@ export default function AccountsDashboard() {
   ];
 
   function calculateKPIs() {
-    const totalReceivables = mockReceivables.reduce((sum, rec) => sum + rec.amount, 0);
-    const collected = mockReceivables
+    const totalReceivables = receivables.reduce((sum, rec) => sum + rec.amount, 0);
+    const collected = receivables
       .filter(rec => rec.status === 'PAID')
       .reduce((sum, rec) => sum + rec.amount, 0);
-    const overdue = mockReceivables
+    const overdue = receivables
       .filter(rec => rec.status === 'OVERDUE')
       .reduce((sum, rec) => sum + rec.amount, 0);
 
-    const upcomingThisMonth = mockReceivables
+    const upcomingThisMonth = receivables
       .filter(rec => {
         const dueDate = new Date(rec.dueDate);
         const now = new Date();

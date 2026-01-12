@@ -49,41 +49,65 @@ interface TrackingPageProps {
 export const TrackingPage = ({ trackingId }: TrackingPageProps) => {
   const [trackingData, setTrackingData] = React.useState<TrackingData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      const mockData: TrackingData = {
-        trackingNumber: trackingId.toUpperCase(),
-        applicantName: 'Rahul Kumar Sharma',
-        vertical: 'BOYS_HOSTEL',
-        appliedDate: '2024-12-15',
-        currentStatus: 'UNDER_REVIEW',
-        interviewDetails: {
-          mode: 'ONLINE',
-          date: '2025-01-10',
-          time: '10:00 AM',
-          venue: 'Google Meet - https://meet.google.com/xyz-abc123',
-          meetingLink: 'https://meet.google.com/xyz-abc123',
-          status: 'UPCOMING',
-          countdown: {
-            days: 2,
-            hours: 14,
-            minutes: 30
+    const fetchTrackingData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch(`/api/applications/track/${trackingId}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            setTrackingData(null);
+          } else {
+            throw new Error('Failed to fetch tracking data');
           }
-        },
-        documentsRequired: true,
-        actions: {
-          canReupload: true,
-          canConfirmInterview: true,
-          canDownloadLetter: false
+          setIsLoading(false);
+          return;
         }
-      };
 
-      setTrackingData(mockData);
-      setIsLoading(false);
-    }, 1000);
+        const data = await response.json();
 
-    return () => clearTimeout(timer);
+        // Transform API data to match TrackingData interface
+        const transformedData: TrackingData = {
+          trackingNumber: data.tracking_number || trackingId.toUpperCase(),
+          applicantName: data.applicant_name,
+          vertical: data.vertical,
+          appliedDate: data.applied_date,
+          currentStatus: data.current_status,
+          interviewDetails: data.interview_details ? {
+            mode: data.interview_details.mode,
+            date: data.interview_details.date,
+            time: data.interview_details.time,
+            venue: data.interview_details.venue,
+            meetingLink: data.interview_details.meeting_link,
+            status: data.interview_details.status,
+            countdown: data.interview_details.countdown
+          } : undefined,
+          documentsRequired: data.documents_required,
+          actions: data.actions ? {
+            canReupload: data.actions.can_reupload,
+            canConfirmInterview: data.actions.can_confirm_interview,
+            canDownloadLetter: data.actions.can_download_letter,
+            canWithdraw: data.actions.can_withdraw
+          } : undefined
+        };
+
+        setTrackingData(transformedData);
+      } catch (err) {
+        console.error('Error fetching tracking data:', err);
+        setError('Failed to load tracking information. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (trackingId) {
+      fetchTrackingData();
+    }
   }, [trackingId]);
 
   const getInterviewStatusBadge = (status: string): string => {
@@ -99,6 +123,23 @@ export const TrackingPage = ({ trackingId }: TrackingPageProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-200"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="card max-w-md w-full">
+          <div className="text-center p-8">
+            <div className="text-red-600 text-lg mb-4">⚠️ Error</div>
+            <p className="text-gray-600">{error}</p>
+            <div className="flex gap-2 justify-center mt-4">
+              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Button variant="secondary" onClick={() => window.history.back()}>Go Back</Button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

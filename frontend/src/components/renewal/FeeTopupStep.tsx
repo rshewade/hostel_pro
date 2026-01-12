@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -38,33 +38,6 @@ interface FeeBreakdown {
   status: 'PAID' | 'PENDING' | 'OVERDUE';
 }
 
-const SAMPLE_FEE_BREAKDOWN: FeeBreakdown[] = [
-  {
-    id: 'hostel_fee',
-    name: 'Hostel Fee (Next 6 Months)',
-    description: 'Accommodation charges for Jan - Jun 2025',
-    amount: 60000,
-    paidAmount: 0,
-    status: 'PENDING',
-  },
-  {
-    id: 'security_deposit',
-    name: 'Security Deposit (Top-up)',
-    description: 'Additional security deposit if required',
-    amount: 5000,
-    paidAmount: 0,
-    status: 'PENDING',
-  },
-  {
-    id: 'mess_advance',
-    name: 'Mess Advance',
-    description: 'Advance payment for mess services',
-    amount: 5000,
-    paidAmount: 0,
-    status: 'PENDING',
-  },
-];
-
 export const FeeTopupStep: React.FC<FeeTopupStepProps> = ({
   data,
   onChange,
@@ -74,7 +47,44 @@ export const FeeTopupStep: React.FC<FeeTopupStepProps> = ({
   setIsValid,
   saving,
 }) => {
-  const [feeBreakdown] = useState<FeeBreakdown[]>(SAMPLE_FEE_BREAKDOWN);
+  const [feeBreakdown, setFeeBreakdown] = useState<FeeBreakdown[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRenewalFees = async () => {
+      try {
+        setLoading(true);
+        const studentId = data.studentId || 'STU001';
+        const response = await fetch(`/api/fees?student_id=${studentId}&type=renewal`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch renewal fees');
+        }
+
+        const feesData = await response.json();
+
+        const transformedFees: FeeBreakdown[] = feesData.map((fee: any) => ({
+          id: fee.id,
+          name: fee.name,
+          description: fee.description || `${fee.name} for renewal period`,
+          amount: fee.amount,
+          paidAmount: fee.paid_amount || 0,
+          status: fee.status,
+        }));
+
+        setFeeBreakdown(transformedFees);
+        setFetchError(null);
+      } catch (err) {
+        console.error('Error fetching renewal fees:', err);
+        setFetchError('Failed to load fee information.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRenewalFees();
+  }, [data.studentId]);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [paymentComplete, setPaymentComplete] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -195,6 +205,35 @@ export const FeeTopupStep: React.FC<FeeTopupStepProps> = ({
                 You can also download it from the Documents section.
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading fee information...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <p className="text-red-500 mb-2">{fetchError}</p>
+            <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
           </div>
         </div>
       </div>

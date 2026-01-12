@@ -95,9 +95,15 @@ export async function POST(request: NextRequest) {
     // Get user's vertical (if student)
     let vertical: Vertical | undefined;
     if (user.role === UserRole.STUDENT) {
-      const profile = await findOne('profiles', (p: any) => p.user_id === user.id);
-      if (profile?.details?.vertical) {
-        vertical = profile.details.vertical;
+      const student = await findOne('students', (s: any) => s.user_id === user.id);
+      if (student?.vertical) {
+        // Map vertical names to enum values
+        const verticalMap: Record<string, Vertical> = {
+          'Boys Hostel': Vertical.BOYS_HOSTEL,
+          'Girls Ashram': Vertical.GIRLS_ASHRAM,
+          'Dharamshala': Vertical.DHARAMSHALA,
+        };
+        vertical = verticalMap[student.vertical] || student.vertical;
       }
     }
 

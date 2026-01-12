@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
     const tokenData = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
     const studentId = tokenData.userId;
 
-    // Get student profile
-    const profile = await findOne('profiles', (p: any) => p.user_id === studentId);
+    // Get student record
+    const student = await findOne('students', (s: any) => s.user_id === studentId);
 
     // Get room allocation
     const allocation = await findOne(
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     const dashboardData: DashboardAPI.StudentDashboard = {
       profile: {
-        name: profile?.full_name || user?.email || 'Student',
+        name: student?.name || user?.full_name || user?.email || 'Student',
         vertical: vertical as any,
         room: roomNumber,
         joining_date: allocation?.allocated_at || 'N/A',
