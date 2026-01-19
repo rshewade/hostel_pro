@@ -47,27 +47,27 @@ This guide provides step-by-step instructions to manually validate the functiona
 
 ### 1.1 Landing Page
 
-- [x] `TC-PUB-001` Open the home page.
-- [x] `TC-PUB-002` Verify the "Hirachand Gumanji Family Charitable Trust" branding is visible.
-- [x] `TC-PUB-003` Check that "Boys Hostel", "Girls Ashram", and "Dharamshala" cards are displayed.
-- [x] `TC-PUB-004` Click "Apply Now" on any vertical.
+- [ ] `TC-PUB-001` Open the home page.
+- [ ] `TC-PUB-002` Verify the "Hirachand Gumanji Family Charitable Trust" branding is visible.
+- [ ] `TC-PUB-003` Check that "Boys Hostel", "Girls Ashram", and "Dharamshala" cards are displayed.
+- [ ] `TC-PUB-004` Click "Apply Now" on any vertical.
 
 ### 1.2 Application Process (New Admission)
 
-- [x] `TC-PUB-005` **Step 1:** Select "Boys Hostel" > "Apply Now".
-- [x] `TC-PUB-006` **Step 2 (OTP):** Enter a mobile number (e.g., `9988776655`). Click "Send OTP".
-- [x] `TC-PUB-007` **Step 3:** Enter mock OTP `123456`. Verify redirection to the application form.
-- [] `TC-PUB-008` **Step 4 (Form):** Fill in Personal Details, Guardian Info, and Academic details.
-- [] `TC-PUB-009` **Step 5 (Uploads):** Upload dummy files for Aadhar/Photo.
-- [] `TC-PUB-010` **Step 6:** Submit the application.
-- [] `TC-PUB-011` **Result:** You should see a "Success" screen with a **Tracking Number** (e.g., `BH-2025-00001`). Note this number.
+- [ ] `TC-PUB-005` **Step 1:** Select "Boys Hostel" > "Apply Now".
+- [ ] `TC-PUB-006` **Step 2 (OTP):** Enter a mobile number (e.g., `9988776655`). Click "Send OTP".
+- [ ] `TC-PUB-007` **Step 3:** Enter mock OTP `123456`. Verify redirection to the application form.
+- [ ] `TC-PUB-008` **Step 4 (Form):** Fill in Personal Details, Guardian Info, and Academic details.
+- [ ] `TC-PUB-009` **Step 5 (Uploads):** Upload dummy files for Aadhar/Photo.
+- [ ] `TC-PUB-010` **Step 6:** Submit the application.
+- [ ] `TC-PUB-011` **Result:** You should see a "Success" screen with a **Tracking Number** (e.g., `BH-2025-00001`). Note this number.
 
 ### 1.3 Track Application
 
-- [x] `TC-PUB-012` Go to `/track`.
-- [x] `TC-PUB-013` Enter the Tracking Number from the previous step.
-- [x] `TC-PUB-014` Click "Track".
-- [x] `TC-PUB-015` **Result:** You should see the application status (e.g., "SUBMITTED").
+- [ ] `TC-PUB-012` Go to `/track`.
+- [ ] `TC-PUB-013` Enter the Tracking Number from the previous step.
+- [ ] `TC-PUB-014` Click "Track".
+- [ ] `TC-PUB-015` **Result:** You should see the application status (e.g., "SUBMITTED").
 
 ---
 
@@ -215,12 +215,12 @@ This section validates the complete admission cycle from application to approval
 
 ### 5.1 Login
 
-- [x] `TC-PAR-001` Enter Mobile Number `9876543210`.
-- [x] `TC-PAR-002` Enter OTP `123456`.
+- [ ] `TC-PAR-001` Enter Mobile Number `9876543210`.
+- [ ] `TC-PAR-002` Enter OTP `123456`.
 
 ### 5.2 Dashboard View
 
-- [x] `TC-PAR-003` Verify Student Name and Photo.
+- [ ] `TC-PAR-003` Verify Student Name and Photo.
 - [ ] `TC-PAR-004` **Fees:** Check that Fee Status matches the student's payment history.
 - [ ] `TC-PAR-005` **Leaves:** Check that recent leave requests are visible.
 - [ ] `TC-PAR-006` **Banner:** Confirm "View-Only Access" banner is displayed.
@@ -233,9 +233,9 @@ This section validates the complete admission cycle from application to approval
 
 ### 6.1 Approvals
 
-- [x] `TC-TRU-001` Check "Pending Approvals" list.
-- [x] `TC-TRU-002` Find applications forwarded by Superintendent.
-- [x] `TC-TRU-003` **Action:** Schedule Interview or Final Approve.
+- [ ] `TC-TRU-001` Check "Pending Approvals" list.
+- [ ] `TC-TRU-002` Find applications forwarded by Superintendent.
+- [ ] `TC-TRU-003` **Action:** Schedule Interview or Final Approve.
 
 ---
 

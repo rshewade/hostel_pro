@@ -1,38 +1,56 @@
 ---
-description: "Commit and Push"
+description: Create well-formatted git commits with conventional messages and emojis
+parameters:
+  - name: message
+    description: "Optional custom commit message (if not provided, will generate automatically)"
+    required: false
+    type: string
 ---
 
-You are an AI agent that helps create well-formatted git commits with conventional commit messages and emoji icons, follow these instructions exactly. Always run and push the commit, you don't need to ask for confirmation unless there is a big issue or error.
+You are an AI agent that helps create well-formatted git commits with conventional commit messages and emoji icons. Follow these instructions exactly. Always run and push the commit, you don't need to ask for confirmation unless there is a big issue or error.
 
 ## Instructions for Agent
 
-When the user runs this command, execute the following workflow:
+When user runs this command, execute the following workflow:
+
+### If User Provides Custom Message ($ARGUMENTS):
+
+1. **Skip analysis**: Use the provided message directly
+2. **Validate format**: Check if message follows conventional format
+3. **Generate commit**: Use provided message as-is
+4. **Proceed to step 6** (Execute commit)
+
+### If No Message Provided (Default Behavior):
 
 1. **Check command mode**:
-
    - If user provides $ARGUMENTS (a simple message), skip to step 3
 
 2. **Run pre-commit validation**:
-   - Execute `npm lint` and report any issues
-   - Execute `npm build` and ensure it succeeds
+   - Execute `npm run lint` and report any issues
+   - Execute `npm run build` and ensure it succeeds
    - If either fails, ask user if they want to proceed anyway or fix issues first
+
 3. **Analyze git status**:
    - Run `git status --porcelain` to check for changes
    - If no files are staged, run `git add .` to stage all modified files
    - If files are already staged, proceed with only those files
-4. **Analyze the changes**:
+
+4. **Analyze changes**:
    - Run `git diff --cached` to see what will be committed
-   - Analyze the diff to determine the primary change type (feat, fix, docs, etc.)
-   - Identify the main scope and purpose of the changes
+   - Analyze diff to determine primary change type (feat, fix, docs, etc.)
+   - Identify main scope and purpose of changes
+
 5. **Generate commit message**:
-   - Choose appropriate emoji and type from the reference below
+   - Choose appropriate emoji and type from reference below
    - Create message following format: `<emoji> <type>: <description>`
    - Keep description concise, clear, and in imperative mood
-   - Show the proposed message to user for confirmation
-6. **Execute the commit**:
+   - Show proposed message to user for confirmation
+
+6. **Execute commit**:
    - Run `git commit -m "<generated message>"`
    - Display the commit hash and confirm success
    - Provide brief summary of what was committed
+   - Run `git push` to push to remote
 
 ## Commit Message Guidelines
 
@@ -50,8 +68,6 @@ When generating commit messages, follow these rules:
   - `perf`: Performance improvements
   - `test`: Adding or fixing tests
   - `chore`: Changes to the build process, tools, etc.
-- **Present tense, imperative mood**: Write commit messages as commands (e.g., "add feature" not "added feature")
-- **Concise first line**: Keep the first line under 72 characters
 - **Emoji**: Each commit type is paired with an appropriate emoji:
   - ✨ `feat`: New feature
   - 🐛 `fix`: Bug fix
@@ -65,8 +81,8 @@ When generating commit messages, follow these rules:
   - 🗑️ `revert`: Reverting changes
   - 🧪 `test`: Add a failing test
   - 🚨 `fix`: Fix compiler/linter warnings
-  - 🔒️ `fix`: Fix security issues
-  - 👥 `chore`: Add or update contributors
+  - 🔒 `fix`: Fix security issues
+  - 🥚 `chore`: Add or update contributors
   - 🚚 `refactor`: Move or rename resources
   - 🏗️ `refactor`: Make architectural changes
   - 🔀 `chore`: Merge branches
@@ -97,7 +113,7 @@ When generating commit messages, follow these rules:
   - 👷 `ci`: Add or update CI build system
   - 📈 `feat`: Add or update analytics or tracking code
   - ✏️ `fix`: Fix typos
-  - ⏪️ `revert`: Revert changes
+  - 📪️ `revert`: Revert changes
   - 📄 `chore`: Add or update license
   - 💥 `feat`: Introduce breaking changes
   - 🍱 `assets`: Add or update assets
@@ -135,7 +151,7 @@ Use these as examples when generating commit messages:
 - 🦺 feat: add input validation for user registration form
 - 💚 fix: resolve failing CI pipeline tests
 - 📈 feat: implement analytics tracking for user engagement
-- 🔒️ fix: strengthen authentication password requirements
+- 🔒 fix: strengthen authentication password requirements
 - ♿️ feat: improve form accessibility for screen readers
 
 Example commit sequence:
@@ -152,6 +168,20 @@ Example commit sequence:
 - **Error handling**: If validation fails, give user option to proceed or fix issues first
 - **Auto-staging**: If no files are staged, automatically stage all changes with `git add .`
 - **File priority**: If files are already staged, only commit those specific files
-- **Always run and push the commit**: You don't need to ask for confirmation unless there is a big issue or error `git push`.
+- **Always run and push**: You don't need to ask for confirmation unless there is a big issue or error
 - **Message quality**: Ensure commit messages are clear, concise, and follow conventional format
 - **Success feedback**: After successful commit, show commit hash and brief summary
+- **Auto-push**: After successful commit, automatically run `git push` to push to remote
+
+## Usage Examples
+
+```bash
+# Usage with auto-generated message
+/commit
+
+# Usage with custom message
+/commit "fix authentication issue"
+
+# Usage with custom conventional message
+/commit "✨ feat: add user profile page"
+```

@@ -204,6 +204,19 @@
       "requires_password_change": false,
       "dpdp_consent": true,
       "created_at": "2024-10-15T10:00:00Z"
+    },
+    {
+      "id": "u15",
+      "email": "vijay.kumar@email.com",
+      "password_hash": "password123",
+      "role": "student",
+      "mobile_no": "9988776680",
+      "full_name": "Vijay Kumar",
+      "photo_url": null,
+      "status": "ACTIVE",
+      "requires_password_change": true,
+      "dpdp_consent": true,
+      "created_at": "2026-01-07T16:00:00Z"
     }
   ],
   "students": [
@@ -467,6 +480,35 @@
       "course": "B.Com",
       "institution": "Osmania University",
       "year": "2nd Year"
+    },
+    {
+      "id": "STU010",
+      "user_id": "u15",
+      "name": "Vijay Kumar",
+      "mobile": "9988776680",
+      "email": "vijay.kumar@email.com",
+      "vertical": "Boys Hostel",
+      "room": null,
+      "block": null,
+      "bed": null,
+      "joiningDate": "2026-01-07",
+      "currentPeriod": "SEMESTER_1",
+      "academicYear": "2025-26",
+      "status": "APPROVED",
+      "renewalStatus": null,
+      "renewalDueDate": null,
+      "father_name": "Ramesh Kumar",
+      "father_mobile": "9988776681",
+      "mother_name": "Seema Kumar",
+      "mother_mobile": "9988776682",
+      "date_of_birth": "2004-02-14",
+      "gender": "Male",
+      "aadhar_number": "XXXX-XXXX-6666",
+      "native_place": "Nagpur, Maharashtra",
+      "permanent_address": "Nagpur, Maharashtra",
+      "course": "B.Tech",
+      "institution": "VNIT Nagpur",
+      "year": "2nd Year"
     }
   ],
   "applications": [
@@ -693,7 +735,7 @@
       "type": "NEW",
       "parent_application_id": null,
       "applicant_mobile": "+919988776680",
-      "student_user_id": null,
+      "student_user_id": "u15",
       "current_status": "APPROVED",
       "status": "APPROVED",
       "vertical": "BOYS_HOSTEL",
@@ -1766,10 +1808,7 @@
         "Parent ID proof",
         "Hostel clearance certificate"
       ],
-      "documentsSubmitted": [
-        "Latest marksheet",
-        "Parent ID proof"
-      ],
+      "documentsSubmitted": ["Latest marksheet", "Parent ID proof"],
       "submittedAt": "2026-01-10T10:00:00Z",
       "reviewedAt": null,
       "reviewedBy": null,
@@ -2121,7 +2160,12 @@
       "contactPhone": "9876543215",
       "contactEmail": "priya.sharma@email.com",
       "feeBreakdown": [
-        { "head": "Mess Fees", "amount": 3000, "dueDate": "2026-01-25", "status": "OVERDUE" }
+        {
+          "head": "Mess Fees",
+          "amount": 3000,
+          "dueDate": "2026-01-25",
+          "status": "OVERDUE"
+        }
       ]
     },
     {
@@ -2136,7 +2180,11 @@
       "contactPhone": "9876543216",
       "contactEmail": "rahul.verma@email.com",
       "feeBreakdown": [
-        { "head": "Hostel Fees (Semester 2)", "amount": 60000, "dueDate": "2026-02-01" }
+        {
+          "head": "Hostel Fees (Semester 2)",
+          "amount": 60000,
+          "dueDate": "2026-02-01"
+        }
       ]
     },
     {
@@ -2151,7 +2199,11 @@
       "contactPhone": "9876543217",
       "contactEmail": "neha.gupta@email.com",
       "feeBreakdown": [
-        { "head": "Hostel Fees (Semester 2)", "amount": 55000, "dueDate": "2026-02-15" }
+        {
+          "head": "Hostel Fees (Semester 2)",
+          "amount": 55000,
+          "dueDate": "2026-02-15"
+        }
       ]
     },
     {
@@ -2383,5 +2435,103 @@
         "enabled": true
       }
     ]
-  }
+  },
+  "leave_rules": [
+    {
+      "id": "lr1",
+      "type": "SHORT_LEAVE",
+      "name": "Short Leave",
+      "max_duration_hours": 6,
+      "max_duration_days": null,
+      "notice_hours_required": 24,
+      "monthly_limit": 4,
+      "semester_limit": null,
+      "parent_notification_required": false,
+      "parent_consent_required": false,
+      "destination_required": false,
+      "description": "For brief outings within the city",
+      "vertical": "ALL",
+      "active": true
+    },
+    {
+      "id": "lr2",
+      "type": "NIGHT_OUT",
+      "name": "Night Out",
+      "max_duration_hours": null,
+      "max_duration_days": 1,
+      "max_times_per_week": 2,
+      "return_by": "22:00",
+      "notice_hours_required": 24,
+      "monthly_limit": 8,
+      "semester_limit": null,
+      "parent_notification_required": true,
+      "parent_consent_required": false,
+      "destination_required": false,
+      "description": "Evening outings with late return",
+      "vertical": "ALL",
+      "active": true
+    },
+    {
+      "id": "lr3",
+      "type": "HOME_VISIT",
+      "name": "Home Visit",
+      "max_duration_hours": null,
+      "max_duration_days": 7,
+      "notice_days_required": 3,
+      "monthly_limit": null,
+      "semester_limit": 14,
+      "parent_notification_required": true,
+      "parent_consent_required": true,
+      "destination_required": true,
+      "description": "Visit to hometown/family",
+      "vertical": "ALL",
+      "active": true
+    },
+    {
+      "id": "lr4",
+      "type": "MULTI_DAY",
+      "name": "Multi-Day Leave",
+      "max_duration_hours": null,
+      "max_duration_days": 7,
+      "notice_days_required": 3,
+      "monthly_limit": null,
+      "semester_limit": 14,
+      "parent_notification_required": true,
+      "parent_consent_required": true,
+      "destination_required": true,
+      "description": "Extended leave for special purposes",
+      "vertical": "ALL",
+      "active": true
+    }
+  ],
+  "clearances": [
+    {
+      "id": "clearance1",
+      "exit_request_id": "exit1",
+      "student_id": "u14",
+      "student_name": "Sneha Reddy",
+      "status": "IN_PROGRESS",
+      "initiated_date": "2026-01-10T09:00:00Z",
+      "expected_completion": "2026-02-25T00:00:00Z",
+      "room_cleared": false,
+      "library_cleared": true,
+      "mess_cleared": false,
+      "accounts_cleared": false,
+      "remarks": "Clearance process initiated for course completion exit"
+    },
+    {
+      "id": "clearance2",
+      "exit_request_id": "exit2",
+      "student_id": "u1",
+      "student_name": "Rahul Kumar",
+      "status": "NOT_STARTED",
+      "initiated_date": "2026-01-12T09:00:00Z",
+      "expected_completion": "2026-03-28T00:00:00Z",
+      "room_cleared": false,
+      "library_cleared": false,
+      "mess_cleared": false,
+      "accounts_cleared": false,
+      "remarks": "Exit request pending approval"
+    }
+  ]
 }
