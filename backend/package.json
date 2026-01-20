@@ -13,7 +13,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migrate:validate": "ts-node src/migration/cli.ts validate",
+    "migrate:run": "ts-node src/migration/cli.ts migrate",
+    "migrate:verify": "ts-node src/migration/cli.ts verify",
+    "migrate:full": "ts-node src/migration/cli.ts full"
   },
   "keywords": [],
   "author": "",
