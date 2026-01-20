@@ -32,7 +32,7 @@ When user runs this command, execute the following workflow:
 
 3. **Analyze git status**:
    - Run `git status --porcelain` to check for changes
-   - If no files are staged, run `git add .` to stage all modified files
+   - If no files are staged, run `git add .` to stage all modified filesCrea
    - If files are already staged, proceed with only those files
 
 4. **Analyze changes**:

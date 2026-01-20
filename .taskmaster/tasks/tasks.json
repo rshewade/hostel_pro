@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Define design system foundation (colors, typography, spacing)",
         "description": "Build the core design system foundations aligned with hostel branding and accessibility guidelines.",
         "details": "• Technology: Next.js 14+ with React, TypeScript, and Tailwind CSS for color, typography, spacing, and radii.\n• Import or rebuild the official hostel logo and extract a **blue + brownish-yellow** primary palette; define neutral grayscale for backgrounds and borders.\n• Set light **white & blue** interface theme tokens (backgrounds, surfaces, text, borders, focus states) using Tailwind theme tokens and CSS variables.\n• Establish typography scale with high readability (e.g., Inter, Roboto, or system-safe Sans) and map to heading, subheading, body, caption, and button styles.\n• Define 4–8px-based spacing scale (4, 8, 12, 16, 24, 32, 40, 64) and border radius tokens (0, 4, 8) with institutional, non-playful look.\n• Include elevation tokens (shadows) for modals, dropdowns, and sticky elements but keep them subtle to maintain a clean institutional feel.\n• Ensure minimum contrast ratios target WCAG AA (4.5:1 for body text, 3:1 for large text) using axe DevTools, WAVE, or similar accessibility tools.\n• Create design foundations that can be exported or mirrored into React components with Tailwind (name tokens with dev-friendly naming like `color.bg.surface`, `font.size.sm`).",
@@ -85,7 +85,7 @@
         "updatedAt": "2025-12-20T05:42:26.132Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Define reusable base UI components library",
         "description": "Implement atomic and composite UI components (buttons, inputs, tables, badges, modals) as a React component library.",
         "details": "• Technology: React components, props and conditional styles, Flexbox and CSS Grid, variables for states.\n• Create atomic components: buttons (primary, secondary, ghost, destructive), text fields, textareas, dropdowns, date/time pickers, radio/checkbox, toggles, chips, tags.\n• Create data components: tables with sortable headers, pagination, filter chips; cards; lists; tabs; accordions; steppers (for multi-step forms); status badges (Paid, Pending, Failed, Overdue, Approved, Rejected, Under Review, New, Verified, etc.).\n• Include UI patterns: confirmation modals, side panels, toast notifications, banners (e.g., DPDP consent banners), empty states, error states.\n• Add props and conditional styles for sizes (desktop, mobile), states (default, hover, focus, disabled, error, success), and icons where necessary.\n• Implement print-optimized containers (A4 width grids, simplified color, high contrast, printer-friendly) for letters, receipts, undertakings.\n• Use Flexbox/Grid and responsive CSS so components are responsive and easily dropped into React/Next.js layouts.\n• Document usage guidance in a dedicated “Design System → Components” page with naming consistent with common libraries (e.g., MUI, Ant Design) for easier dev mapping.",
@@ -224,7 +224,7 @@
         "updatedAt": "2025-12-21T10:31:39.303Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Define role-based navigation structure and information architecture",
         "description": "Implement the global IA and navigation patterns for all roles: Applicant, Resident, Superintendent, Trustee, Accounts, Parent/Guardian.",
         "details": "• Create a sitemap listing all sections per role: Applicant (Application, Status), Resident (Dashboard, Fees, Leave, Room, Documents, Renewal, Exit), Superintendent (Applications, Leaves, Rooms, Communication, Config), Trustees (Applications forwarded, Interviews, Approvals), Accounts (Receivables, Logs, Exports), Parents (Dashboard, Fees view, Leave view).\n• Define navigation patterns: top nav vs side nav, breadcrumbs for deep sections, role-based nav items that only show relevant sections.\n• Map login entry points: Landing → Apply / Check Status / Login; then login-based redirection rules for each role.\n• Use user flow diagrams to show navigation paths between major states and access restrictions.\n• Ensure vertical selection (Boys Hostel / Girls Ashram / Dharamshala) affects content filters and labels across dashboards.\n• Consider scalability for future modules (Biometric, Visitor, Mess) with placeholder nav items baked into IA but visually disabled.\n• Provide a clear guidelines note so devs can implement role-based routing using front-end routing (e.g., React Router / Vue Router) with guard hooks.",
@@ -327,7 +327,7 @@
         "updatedAt": "2025-12-21T15:19:43.034Z"
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Implement responsive landing page with vertical selection",
         "description": "Build the completed landing page implement emphasizing hostel overview, facilities, vertical selection, and CTAs.",
         "details": "• Use desktop and mobile pages/components with Flexbox/Grid to ensure responsiveness.\n• Sections: hero with hostel overview and values, discipline and safety highlights, amenities showcase, vertical selection cards (Boys Hostel, Girls Ashram, Dharamshala), visual step-by-step admission process timeline, announcements & notices, footer.\n• Vertical selection cards show short descriptions and lead into Applicant flow or login context; ensure card-style with relevant iconography but minimal visuals.\n• Admission process: implement a horizontal or vertical timeline with labeled steps (Apply → Verification → Interview → Approval → Payment → Room Allocation → Check-in).\n• CTAs: clearly styled buttons for **Apply Now**, **Check Application Status**, **Login**; align button hierarchy with color tokens from the design system.\n• Include notices section using reusable announcement cards with date, type, and priority tags.\n• Consider SEO and accessibility best practices (clear headings, limited text blocks) in layout guidance for developers.\n• Use responsive responsive CSS in to adapt layout for tablets and mobiles (stack sections, reflow timeline to vertical).",
@@ -386,7 +386,7 @@
         "updatedAt": "2025-12-21T16:56:16.347Z"
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "Implement applicant registration & OTP verification flow",
         "description": "Implement the pre-approval applicant journey including vertical selection, OTP verification, and initial application access.",
         "details": "• Map flow: Landing → Select Vertical → Enter Mobile/Email → OTP Input → Verified → Application Wizard.\n• OTP screen: implement masked input, resend timer, error handling for invalid/expired codes, alternate contact if needed.\n• Ensure no persistent dashboard UI for applicants; show only minimal progress header and form navigation.\n• Add institutional messaging about data use and DPDP consent at first contact (short banner plus link to detailed policy).\n• Provide guidance text: explain that account will only be created post final approval, and tracking number will be shared.\n• For mobile, optimize OTP screen with single-field segmented inputs and auto-advance behavior (document expected behavior for devs).\n• Embed pseudo-code guidance for devs:\n  - POST /otp/send { phone/email, vertical }\n  - POST /otp/verify { code, token }\n  - On success, issue short-lived session token just for application submission.\n• Specify error states and retry limits to prevent abuse while maintaining usability.",
@@ -444,7 +444,7 @@
         "updatedAt": "2025-12-21T17:27:33.128Z"
       },
       {
-        "id": 6,
+        "id": "6",
         "title": "Implement application tracking page and flow",
         "description": "Build the public Application Tracking screen with timeline, status display, interview info, and document re-upload actions.",
         "details": "• Access flow: from Landing \"Check Application Status\" CTA or link from SMS/Email → Tracking page.\n• Inputs: tracking number + OTP to registered mobile/email; implement a combined identity verification flow aligned with OTP patterns from Task 5.\n• Tracking screen sections:\n  - Applicant summary (name, vertical, applied date).\n  - Visual status timeline (e.g., Submitted → Under Review → Interview Scheduled → Provisionally Approved → Final Approved / Rejected).\n  - Interview details: mode, date/time, venue/meeting link, countdown, status (upcoming, in-progress, completed).\n  - Action prompts (e.g., Re-upload documents, Confirm interview slot, Download provisional letter).\n• Use status badges and contextual alerts (e.g., \"Pending document re-upload\") with clear primary actions.\n• Allow download buttons for provisional letters in print-optimized format (integrate with print view components).\n• Include explanatory copy assuring privacy and DPDP-compliant data usage.\n• Ensure that students cannot see internal remarks; only high-level outcomes and necessary instructions.",
@@ -530,7 +530,7 @@
         "updatedAt": "2025-12-24T14:45:04.795Z"
       },
       {
-        "id": 7,
+        "id": "7",
         "title": "Implement student login, first-time setup, and role-based redirection",
         "description": "Create post-approval student login experience, first login password change, and redirection into Student Dashboard.",
         "details": "• Flow: Receive credentials via Email/SMS → Login screen → First-time password change → Security confirmation → Student Dashboard.\n• Implement login page consistent with institution branding; include subtle note about institutional usage rules.\n• First-time login: implement forced password change form with strength indicator, confirm password, and DPDP consent checkbox/log reference.\n• After first login, persist session and redirect resident to Student Dashboard; for incorrect role or expired account, show clear error state.\n• Provide UI affordance to indicate vertical (Boys/Girls/Dharamshala) on login success (e.g., a label in top bar).\n• Implement forgot password flow that uses OTP/email reset without creating new accounts.\n• Document recommended dev behavior: backend issues JWT/session, front-end uses role-based routes; do not store passwords in front-end.\n• Ensure login screen is generic and can redirect to other roles (Superintendent, Trustee, Accounts) based on account type or separate login entry points.",
@@ -588,7 +588,7 @@
         "updatedAt": "2025-12-24T15:50:20.871Z"
       },
       {
-        "id": 8,
+        "id": "8",
         "title": "Implement parent/guardian OTP-based view-only login",
         "description": "Create a dedicated parent/local guardian login and restricted dashboard with view-only access.",
         "details": "• Flow: Select Parent/Guardian Login → Enter registered mobile → OTP verification → Parent Dashboard.\n• Parent Dashboard sections:\n  - Student overview (photo optional, name, vertical, room, joining date).\n  - Fee status (Paid / Pending / Overdue, upcoming dues, download receipts).\n  - Leave summary and statuses (upcoming, approved, rejected, past leaves).\n  - Notifications center showing recent communications affecting their ward.\n• Ensure all primary actions are view-only: no edit, no approval; only acknowledgements where required.\n• Provide clear labels and tooltips explaining permissions and responsibilities of parents.\n• Reuse OTP component patterns and status badges from design system.\n• Add DPDP informational content highlighting what data parents can see and how it is protected.\n• Outline dev guidance: enforce role scopes on API (e.g., parents can only see associated student IDs; read-only endpoints).",
@@ -658,7 +658,7 @@
         "updatedAt": "2025-12-30T10:57:14.235Z"
       },
       {
-        "id": 9,
+        "id": "9",
         "title": "Implement Student Dashboard (approved residents)",
         "description": "Build the main resident dashboard with status tracker, quick actions, and notifications.",
         "details": "• Layout: hero status area, quick action cards, notifications panel, and key summaries.\n• Resident journey tracker: visual indicator with stages `Checked-in → Renewal Due → Renewed → Exited` using timeline or segmented progress bar.\n• Quick action cards: **Pay Fees**, **Download Letters**, **Apply for Leave**, **View Room Details**, **View Documents**, **Renewal** when due.\n• Notifications: list of fee reminders, renewal due alerts, leave decisions, communication logs relevant to student.\n• Include vertical context (Boys/Girls/Dharamshala) and current academic period.\n• Ensure implement is responsive and uses reusable card and badge components.\n• Keep tone student-friendly yet disciplined: integrate short helper text explaining next steps.\n• Provide dev hints for conditional visibility: e.g., show Renewal card only within configured renewal window, Exit card only when allowed.\n• Integrate subtle DPDP consent renewal alert when renewal cycle approaches.",
@@ -738,7 +738,7 @@
         "updatedAt": "2025-12-24T18:34:45.232Z"
       },
       {
-        "id": 10,
+        "id": "10",
         "title": "Implement multi-step admission application form wizard",
         "description": "Build the complete multi-step admission form wizard with validation, drafts, and vertical-based routing.",
         "details": "• Steps: 1) Personal Details, 2) Academic & Course Info, 3) Hostel Preferences, 4) References (including ex-student references), 5) Document Upload, 6) Review & Submit.\n• Top or side stepper showing progress and current step; allow navigation back without losing data.\n• Personal details: name, DOB, contact, permanent address, parent/guardian info, local guardian details, emergency contacts.\n• Academic: institution, course, year/semester, marks, certificates upload references.\n• Hostel preferences: vertical (pre-selected), room type preferences, duration, special considerations.\n• References: fields for ex-student references with contact details.\n• Document upload: drag-and-drop + file picker; accept **PDF/JPG** with file size guidelines; show previews and replace/delete options.\n• Include \"Save as Draft\" CTA on every step; visually indicate saved state.\n• Show inline validation messages and helper text; highlight required fields clearly.\n• Routing logic note for devs: submit final application to respective Superintendent queue based on selected vertical.\n• Ensure robust error and connectivity messaging (e.g., “draft saved locally/remote”).",
@@ -840,7 +840,7 @@
         "updatedAt": "2025-12-26T15:12:36.642Z"
       },
       {
-        "id": 11,
+        "id": "11",
         "title": "Implement documents, undertakings, and sign-offs experience",
         "description": "Create UI for uploading required declarations at application time and digital acknowledgements post-admission.",
         "details": "• At application time: separate section/cards for Student declaration, Parent consent, Local guardian undertaking, acceptance of hostel rules, admission terms & conditions.\n• Provide scan/upload option for signed documents (PDF/JPG) and clear instructions for signatures.\n• Implement preview modal or side panel for documents before submission with zoom and scroll.\n• Use status indicators: **Pending / Uploaded / Verified** for each document; display verification done by admin roles.\n• For post-admission undertakings, implement in-app acknowledgement dialogs or forms with checkboxes and digital signature/typed name fields.\n• Ensure all documents and undertakings have **print-optimized layouts** using the print component styles (margins, letterhead, logo, sign blocks).\n• Provide download buttons for each document version (submitted, approved, generated letters).\n• Include DPDP consent logging elements: timestamp of consent, short text referencing policy.\n• Note dev integration: store metadata like `uploadedBy`, `uploadTime`, `verifiedBy`, `verifyTime`, `status` for audit.\n",
@@ -942,7 +942,7 @@
         "updatedAt": "2025-12-27T18:46:02.793Z"
       },
       {
-        "id": 12,
+        "id": "12",
         "title": "Implement Superintendent application review and configuration panels",
         "description": "Create superintendent-facing interface for managing applications, leave rules, and parent notification rules.",
         "details": "• Application list: table view with filters for **New, Under Review, Approved, Rejected** plus search and vertical filter.\n• Columns: applicant name, date, vertical, current status, payment status, interview scheduled?, flags.\n• Detailed view: all application details, uploaded documents with preview, payments summary, internal notes, and action buttons.\n• Actions: **Approve**, **Reject**, **Forward to Trustees**; each with confirmation modals capturing required remarks.\n• Configuration screens:\n  - Leave approval rules: define which leave types require approval, thresholds, blackout dates.\n  - Parent notification rules: timing (on request, on approval, on rejection), channels (SMS, WhatsApp, Email).\n• Use tabbed layout or separate subpages for Applications, Leaves, Communication, Settings.\n• Ensure UI clearly indicates vertical context (Boys/Girls/Dharamshala) to avoid cross-mix errors.\n• Include embedded \"Send Message\" buttons in application detail view for ad-hoc communication.\n• Dev hints: ensure data tables support server-side paging and filters for scalability; implement filter chips accordingly.",
@@ -998,7 +998,7 @@
         "updatedAt": "2025-12-28T07:21:44.274Z"
       },
       {
-        "id": 13,
+        "id": "13",
         "title": "Implement Trustee panel for provisional approvals and interviews",
         "description": "Create Trustee-facing interface for provisional approval/rejection, interview scheduling, remarks, and final decisions.",
         "details": "• Trustee dashboard: list of applications forwarded from Superintendents with key metadata (applicant, vertical, recommendation, flags).\n• Application detail view: summary of application, documents, superintendent notes, previous decisions.\n• Provisional approval / rejection UI with decision modals describing implications.\n• Interview scheduling section:\n  - Fields: Mode (Online Zoom/Google Meet or Physical), Date, Time, Location or Meeting link.\n  - Integration placeholders for link entry (document label that devs can integrate with calendar/meeting APIs later).\n  - Auto-reminder configuration (checkbox for auto-reminder 24 hours before).\n• Interview remarks form: structured notes (ratings, observations) but clearly flagged as **internal**.\n• Final selection / rejection CTA, with clear copy about outcomes and downstream effects (account creation, refusal).\n• Ensure students only see high-level result; implement a derived \"Outcome Summary\" card that excludes internal remarks.\n• Embed \"Send Message\" options to trigger communications to student/parent regarding interview and decision.\n",
@@ -1054,7 +1054,7 @@
         "updatedAt": "2025-12-28T13:29:08.389Z"
       },
       {
-        "id": 14,
+        "id": "14",
         "title": "Implement embedded communication patterns (WhatsApp, SMS, Email)",
         "description": "Create contextual communication UI elements embedded in key workflows with templates and schedule options.",
         "details": "• Identify touchpoints: interview scheduling, selection/rejection, fee reminders, leave approval/rejection, renewal, exit notifications.\n• At each touchpoint, implement a **Send Message** button opening a side panel or modal with:\n  - Channel toggles (WhatsApp, SMS, Email).\n  - Template dropdowns with editable message body.\n  - Recipient list (student, parent, local guardian, superintendent copy).\n• Include schedule options for some flows (e.g., auto-reminders 24 hours pre-interview, fee reminder cadence T-15, T-7, T-3, due date).\n• Show preview of final message including dynamic placeholders ({{name}}, {{date}}, {{amount}}) and highlight to devs that these will be auto-populated.\n• Provide implement for an escalation feature: when fees overdue, UI shows \"Escalate\" with auto-selection of parents + superintendent consolidated report.\n• Ensure all communication triggers are logged via a consistent pattern: show a small \"Log will be stored\" info line.\n• Note to devs: actual sending will use APIs (e.g., Twilio, WhatsApp Business API, transactional email), but implement must be service-agnostic.\n",
@@ -1111,7 +1111,7 @@
         "updatedAt": "2025-12-30T11:39:02.029Z"
       },
       {
-        "id": 15,
+        "id": "15",
         "title": "Implement fee payment and student-side payment experience",
         "description": "Create student-facing payment UI including fee breakup, payment methods, statuses, and receipts.",
         "details": "• Student payments page: show fee breakup components: processing fee, hostel fees, security deposit, key deposit.\n• Clearly label amounts due, paid, outstanding, and due dates; use status badges (**Paid, Pending, Failed, Overdue**).\n• Payment methods section: UI for UPI and QR Code flows with placeholders for integration; show payment instructions and security notes.\n• Use primary CTA **Pay Now** which opens payment details modal/page with method selection.\n• Upon successful payment, show confirmation screen with receipt download button (print-optimized receipt layout) and summary.\n• Implement failure and pending screens with retry and contact support options.\n• Provide receipt template incorporating logo, payment breakdown, transaction ID, date/time, payer details.\n• Pseudo-code guidance for integration:\n  - Front-end posts to `/payments/create` and receives payment link/QR.\n  - Poll `/payments/status` until success/failure and then update UI state.\n• Ensure DPDP and financial privacy disclaimers are visible where relevant.",
@@ -1167,7 +1167,7 @@
         "updatedAt": "2025-12-28T14:26:46.280Z"
       },
       {
-        "id": 16,
+        "id": "16",
         "title": "Implement Accounts / Accounting Team dashboards",
         "description": "Create accounting-facing views for receivables, logs, receipts generation, and export-ready layouts for Tally integration.",
         "details": "• Accounts dashboard: KPIs for total receivables, collected, overdue, upcoming due this month; filter by vertical and period.\n• Receivables list: table with student, amount, due date, status, contact summary.\n• Payment logs: chronological record of transactions with filters (status, method, date range) and quick export actions.\n• Receipt management: ability to generate and view receipts under multiple heads; implement for searching by student, receipt number.\n• Export-ready layout for Tally: a simplified, columnar view with only necessary accounting fields; explicit note to devs about CSV/XLS export.\n• Show audit filters: by hostel vertical, by fee component, by user role initiating adjustments.\n• Incorporate communication log links for invoices and reminders.\n• Ensure the dense data interface remains readable with alternating row backgrounds and frozen headers on long tables.",
@@ -1224,7 +1224,7 @@
         "updatedAt": "2025-12-30T14:34:25.167Z"
       },
       {
-        "id": 17,
+        "id": "17",
         "title": "Implement room allocation and check-in interfaces",
         "description": "Create admin and student views for room allocation, occupancy matrix, and check-in confirmation.",
         "details": "• Admin room matrix: grid view by floor/wing with rooms as cards or cells, showing capacity, occupied count, and gender/vertical labels.\n• Filters: by vertical (Boys/Girls/Dharamshala), occupancy status (empty, partial, full), room type.\n• Room detail side panel: list of current occupants, capacity, allocation/change actions, history of allocations.\n• Allocation flow: select student(s) → choose room → confirm allocation with confirmation modal and optional notes.\n• Student view: simple room details page with room number, sharing details (roommates names, beds), joining date, and house rules.\n• Check-in confirmation: implement a one-time confirmation step where student acknowledges room condition/inventory and hostel rules.\n• Use status badges to represent occupancy (Available, Partially Occupied, Full, Blocked).\n• Provide guidance for dev data model: rooms table, occupancy records, and link to student profile.\n",
@@ -1281,7 +1281,7 @@
         "updatedAt": "2025-12-29T09:32:04.817Z"
       },
       {
-        "id": 18,
+        "id": "18",
         "title": "Implement leave management module (student, superintendent, parent views)",
         "description": "Create strict-governance leave request and approval interfaces for all roles.",
         "details": "• Student leave UI: option cards for Short leave, Night-out, Multi-day leave; each opens a tailored form with dates, reason, destination, contact.\n• Show rules and policies prominently (e.g., minimum notice period, curfew).\n• Leave history list with statuses and remarks.\n• Superintendent leave dashboard: table of pending and past leaves with filters by type, status, date, and student.\n• Approve/Reject actions with required remarks, plus an embedded Send Message panel to inform students/parents.\n• Admin-configurable rules (from Task 12) surface as read-only summary on approval screen.\n• Parent view: read-only list of leaves for their ward, with status, dates, and notifications; optional confirmation that they were notified.\n• Clearly mark all dates and times; use calendar and time pickers from the design system.\n• Ensure audit log references (who approved, when) are visible to authorized staff.\n",
@@ -1339,7 +1339,7 @@
         "updatedAt": "2025-12-30T17:02:35.056Z"
       },
       {
-        "id": 19,
+        "id": "19",
         "title": "Implement 6-month renewal module",
         "description": "Create renewal journey screens for reminders, document re-uploads, fee top-up, consent renewal, and simplified approvals.",
         "details": "• Student renewal entry: card on dashboard and dedicated page when renewal window is open; show remaining days and benefits of timely renewal.\n• Renewal steps: 1) Review personal/academic info, 2) Re-upload updated certificates/marksheets, 3) Fee top-up, 4) Renewal consent, 5) Submit.\n• Integrate payment UI for top-up (reuse patterns from Task 15).\n• Include DPDP consent renewal prompt with explicit text and checkboxes.\n• Show renewal status tracker (Not started → In Progress → Under Review → Approved → Rejected).\n• Superintendent/Trustee renewal list: simplified view vs original admission with quick decisions.\n• Notifications: implement subtle banners/alerts for upcoming renewal (e.g., at 30/15/7 days) in dashboards.\n• Ensure that after successful renewal, status on Student Dashboard updates to \"Renewed\" with new end date.\n",
@@ -1475,7 +1475,7 @@
         "updatedAt": "2025-12-31T05:12:42.025Z"
       },
       {
-        "id": 20,
+        "id": "20",
         "title": "Implement exit and alumni module",
         "description": "Create UI for exit requests, clearance checklist, exit approval, exit certificate, and migration to alumni state.",
         "details": "• Student: Exit request form detailing desired exit date, reason, and forwarding address; show conditions and implications (fees, deposits).\n• Clearance checklist: items like room inventory check, key return, ID card return, accounts clearance; show statuses (Pending/Completed) for each.\n• Superintendent/Accounts: clearance dashboard summarizing pending tasks per exiting student and actions to mark them completed.\n• Exit approval screen: once all checklist items are cleared, allow final approval with remarks.\n• Exit certificate: implement print-ready certificate including name, vertical, stay period, conduct (if applicable), and signatures.\n• Alumni migration: on approval, update student status to Alumni; implement a simple alumni profile view with contact and history summary.\n• Add links to communication history and financial settlement in admin views.\n",
@@ -1574,7 +1574,7 @@
         "updatedAt": "2025-12-31T10:55:08.394Z"
       },
       {
-        "id": 21,
+        "id": "21",
         "title": "Implement audit, logs, and compliance screens",
         "description": "Create comprehensive audit interfaces for communication logs, approvals, consent tracking, and DPDP compliance elements.",
         "details": "• Communication logs: table listing WhatsApp/SMS/Email communications with columns for date/time, sender role, recipient(s), channel, status (sent, failed), and context (fee, interview, leave).\n• Approval history: show records per application/leave/payment/renewal with authority, decision, date/time, and remarks.\n• Consent & undertaking logs: dedicated view listing each consent type (hostel rules, DPDP, parent consent, etc.) with timestamps and method (digital/physical upload).\n• DPDP compliance UI elements:\n  - Persistent but unobtrusive banners/links to data policy.\n  - Data retention information page.\n  - Consent renewal prompts surfaced in renewal module and first logins.\n• Filtering options by date range, vertical, role, channel, and entity type.\n• Emphasize read-only nature of logs; no destructive edits through UI.\n• Provide dev notes: logs tables expected to be large; suggest server-side pagination and export options in guidelines.\n",
@@ -1633,7 +1633,7 @@
         "updatedAt": "2025-12-31T09:37:35.455Z"
       },
       {
-        "id": 22,
+        "id": "22",
         "title": "Implement future-proofing placeholders for biometric, visitor, and mess management",
         "description": "Create visual placeholders for future modules without functional logic but aligned with IA and branding.",
         "details": "• Add navigation items or dashboard cards labeled **Biometric Attendance**, **Visitor Management**, **Mess Management** in relevant admin and student views, styled as \"Coming Soon\".\n• Implement simple placeholder screens with iconography and short description of planned functions, ensuring they do not confuse users into expecting current functionality.\n• Use consistent pattern (e.g., greyed-out cards, lock icons) and tooltips to indicate non-availability.\n• Clearly indicate in style guide how devs should treat these placeholders (hidden behind feature flags or static informational pages).\n• Ensure placeholders do not interfere with primary workflows or clutter navigation excessively.\n",
@@ -1690,7 +1690,7 @@
         "updatedAt": "2025-12-30T17:03:04.707Z"
       },
       {
-        "id": 23,
+        "id": "23",
         "title": "Implement accessibility, help, and error handling patterns",
         "description": "Create consistent UX for tooltips, inline help, progress indicators, confirmation modals, and error states aligned with WCAG.",
         "details": "• Define standard patterns for:\n  - Tooltips (icon, hover/focus behavior).\n  - Inline help text below form fields.\n  - Visual progress indicators (steppers, loaders, skeletons) for long operations.\n  - Confirmation modals for irreversible actions (reject, final approval, exit, delete documents).\n  - Error banners and inline field errors.\n• Ensure color use and focus states meet WCAG 2.1 AA; include keyboard navigation guidance in implement notes.\n• Add a compact help center pattern: small \"?\" icon linking to contextual help or FAQ per page.\n• Document guidelines for error messaging tone: formal, clear, non-technical.\n• Provide pseudo-code for devs on focus management:\n  - Move focus to error summary on form submission failure.\n  - Return focus to triggering element on modal close.\n• Include patterns for empty states that instruct users how to proceed.\n",
@@ -1747,7 +1747,7 @@
         "updatedAt": "2025-12-30T17:22:08.754Z"
       },
       {
-        "id": 24,
+        "id": "24",
         "title": "Define responsive layout grids and breakpoints for all screen types",
         "description": "Standardize grid systems and breakpoints for desktop, tablet, and mobile layouts to ensure consistency.",
         "details": "• Define breakpoint strategy (e.g., Desktop ≥ 1200px, Tablet 768–1199px, Mobile ≤ 767px) and document it in the design system.\n• For each breakpoint, set column grids (e.g., 12-col for desktop, 8 for tablet, 4 for mobile) with defined gutters and margins.\n• Apply grids consistently to key screen templates: dashboards, tables, forms, modals, print views.\n• Use layout grids and responsive CSS to make components responsive; test resizing behavior.\n• Provide implementation notes for devs mapping grids to CSS componentworks (e.g., CSS Grid/Flexbox, or libraries like MUI/Bootstrap if used).\n• Document maximum content width for readability (e.g., ~1200px) and behavior on very wide monitors.\n",
@@ -1826,7 +1826,7 @@
         "updatedAt": "2025-12-31T10:50:29.338Z"
       },
       {
-        "id": 25,
+        "id": "25",
         "title": "Create functional end-to-end working application for primary user journeys",
         "description": "Link key screens in into an interactive working application covering major flows for each role.",
         "details": "• Journeys to include:\n  - Applicant: Landing → OTP → Application Wizard → Tracking.\n  - Student: Login → Dashboard → Pay Fees → Apply for Leave → Check Room → Renewal → Exit.\n  - Superintendent: Login → Application Review → Approve/Forward → Leave Approval → Config.\n  - Trustee: Review forwarded app → Schedule Interview → Final Decision.\n  - Accounts: View receivables → Export.\n  - Parent: OTP Login → View fees and leaves.\n• Use working application connections with smooth transitions where suitable for smooth transitions.\n• Add hotspot hints and annotations on a separate overlay component or page for stakeholders to understand flows.\n• Ensure props and conditional styles and component states (hover, focused, error) are demonstrated where relevant.\n• Configure starting points for each persona for easy testing in user sessions.\n",
@@ -1929,7 +1929,7 @@
         "updatedAt": "2025-12-31T17:09:19.461Z"
       },
       {
-        "id": 26,
+        "id": "26",
         "title": "Prepare developer handoff specifications and annotations",
         "description": "Document component specs, behaviors, and integration notes for developers consuming the designs.",
         "details": "• For each core component and template screen, add measurement specs (spacing, typography, colors) using Inspect-friendly naming.\n• Document interaction behaviors (hover, focus, active, disabled, loading) and transitions directly on component examples.\n• Add pseudo-code snippets and API shape hints where relevant (e.g., status enums, routing logic, OTP flows), while keeping stack-agnostic but React/Next.js-friendly.\n• Define accessibility requirements and keyboard behavior per component.\n• Group these notes in a dedicated \"Dev Specs\" page with links to relevant designs.\n• Encourage use of Figma’s Dev Mode for direct asset export of icons and images; mark exportable elements.\n• Include guidance on mapping roles and permissions into the front-end (e.g., route guards, conditional rendering).\n",
@@ -2021,7 +2021,7 @@
         "expansionPrompt": "Split Task 26 into: (1) Component-level specs (tokens, measurements, states) using Figma Dev Mode conventions; (2) Screen- and flow-level interaction specs (behaviors, edge cases, routing and role logic); (3) Accessibility and keyboard interaction requirements per component/flow; (4) API shape and pseudo-code hints for critical flows (OTP, payments, approvals) while staying stack-agnostic; (5) Organization of a dedicated \"Dev Specs\" section with navigation guidance; (6) Handoff validation sessions and iteration based on dev feedback. For each, define concrete documentation artifacts needed."
       },
       {
-        "id": 27,
+        "id": "27",
         "title": "Set up library organization and versioning strategy",
         "description": "Organize files into libraries and define a versioning workflow for sustainable collaboration.",
         "details": "• Structure: one main Design System library file, and separate product files for Public (Landing/Applicant), Student, Admin (Superintendent/Trustee/Accounts), Parents/Alumni.\n• Enable npm package publishing or shared components for components and styles; define naming conventions and categories.\n• Establish a versioning practice: tag major milestones (v1.0 Admission MVP, v1.1 Renewal & Exit, etc.) with file versions.\n• Set up branching or duplicate files for experimentation without disturbing the main library.\n• Document contribution guidelines for designers (how to add components, update tokens, deprecate components).\n• Provide notes for devs on how to subscribe to libraries and track breaking changes.\n",
@@ -2102,7 +2102,7 @@
         "expansionPrompt": "Decompose Task 27 into: (1) File and library structure design (system vs product files) and naming conventions; (2) Library publishing setup, component/style categorization, and permissions; (3) Versioning and branching strategy (milestone tags, experimentation approach); (4) Contribution guidelines for designers and process for deprecations/changes; (5) Developer consumption guidelines, including how to track updates and avoid breaking changes. For each, define the concrete Figma operations and documentation to create."
       },
       {
-        "id": 28,
+        "id": "28",
         "title": "Implement notifications and in-app alerts system",
         "description": "Create consistent UI for in-app notifications, banners, and reminder alerts across modules.",
         "details": "• Notification center: bell icon with dropdown showing latest notifications (fees, renewal, leaves, interviews), with type icons and timestamps.\n• In-page banners for critical alerts (e.g., overdue fees, renewal due, interview today) using color-coded statuses.\n• Badge counts on main nav items (e.g., new applications, pending approvals).\n• Notification detail page listing full history with filters by type and date.\n• Use consistent language and tone across all alerts.\n• Provide dev notes on polling or push patterns conceptually (while leaving implementation details to tech stack), and on marking notifications as read.\n• Ensure notifications are accessible (screen-reader announcements guidance in notes, non-color-only distinctions).\n",
@@ -2156,7 +2156,7 @@
         "expansionPrompt": "Break down this task with a focus on design notifications and in-app alerts system."
       },
       {
-        "id": 29,
+        "id": "29",
         "title": "Implement print-optimized templates for forms, letters, undertakings, and receipts",
         "description": "Create dedicated A4-friendly designs for all printable artifacts required for audit and physical submission.",
         "details": "• Templates to include:\n  - Application summary form.\n  - Provisional and final admission letters.\n  - Undertakings and consent forms (student, parent, local guardian).\n  - Fee receipts.\n  - Exit certificates.\n• Use A4-sized pages/components with defined margins (~20–25mm), mono/duo-color scheme to reduce ink usage, and legible fonts at print sizes.\n• Include institutional header (logo, name, address), reference numbers, dates, and signature blocks.\n• Keep layouts simple and use table structures for data where appropriate.\n• Add small footers with DPDP/data usage disclaimers where relevant.\n• Ensure the content aligns with on-screen information to avoid discrepancies.\n• Provide guidance in notes on mapping these templates to PDF generation in the application layer.\n",
@@ -2210,7 +2210,7 @@
         "expansionPrompt": "Break down this task with a focus on design print-optimized templates for forms, letters, undertakings, and receipts."
       },
       {
-        "id": 30,
+        "id": "30",
         "title": "Conduct usability review and iterate on critical flows",
         "description": "Run internal usability checks on critical flows and refine designs based on findings.",
         "details": "• Focus flows: admission application, login and dashboard, payment, leave request, renewal, exit.\n• Prepare small test scenarios and tasks for representative users or internal testers.\n• Use prototype, observe navigation paths, error recovery behavior, and comprehension of labels.\n• Collect prioritized list of issues (e.g., confusing labels, hidden CTAs, dense tables) and update designs accordingly.\n• Pay special attention to multi-role clarity (ensuring users always know which role and vertical context they are in).\n• Document key changes and rationale in a short changelog within the project.\n",
@@ -2264,42 +2264,266 @@
         "id": "31",
         "title": "Implement Supabase Auth & Role-Based Session Management in NestJS",
         "description": "Replace all mock OTP, student, and parent authentication with Supabase Auth using JWT, roles, and secure session handling integrated into the NestJS backend.",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "Tech & setup:\n- Use NestJS v11+ with TypeScript 5+, Node 20 LTS.\n- Use official supabase-js v2 (@supabase/supabase-js) as the primary client in the backend.\n- Store Supabase project URL, anon/service keys, JWT secret, and Twilio/MSG91 credentials in environment variables, injected via NestJS ConfigModule.\n- Use NestJS modules: @nestjs/jwt for custom JWT where required, @nestjs/throttler for rate limiting, @nestjs/passport + passport-jwt for guard integration.\n\nSupabase Auth configuration:\n- Configure Supabase Auth for phone OTP and email/password in the Supabase dashboard.\n- Enable phone auth; configure external SMS provider (Twilio/MSG91) via Edge Functions or Supabase hooks.\n- Define JWT custom claims for role and vertical using Supabase Auth hooks or by writing to the auth.users / public.users mapping and using a JWT enrichment function.\n\nNestJS Auth module design:\n- Create AuthModule with:\n  - AuthController for /api/auth/* endpoints.\n  - AuthService wrapping supabase-js auth methods.\n  - JwtStrategy & JwtAuthGuard reading Supabase-issued JWTs from Authorization: Bearer header.\n  - ThrottlerGuard for OTP endpoints.\n\nEndpoints (core pseudocode):\n- POST /api/auth/otp/send\n  - Validate phone format.\n  - Apply rate limit (max 3 per 5 minutes per phone+IP) using Throttler and custom in-memory/Redis key.\n  - Call supabase.auth.signInWithOtp({ phone }) with appropriate options.\n  - Log event to audit_logs via a service.\n\n- POST /api/auth/otp/verify\n  - Receive phone + OTP.\n  - Call supabase.auth.verifyOtp({ phone, token: otp, type: 'sms' }).\n  - On success, map user to public.users row; ensure role and vertical set.\n  - Return access_token and refresh_token from Supabase; set secure, HTTP-only cookies if using cookie-based auth.\n\n- POST /api/auth/login\n  - For student password login: supabase.auth.signInWithPassword({ email/phone, password }).\n  - On first login, if password not set (metadata.first_login === true), return flag to frontend for password creation.\n\n- POST /api/auth/refresh\n  - Use refresh_token from cookie/body: supabase.auth.refreshSession({ refresh_token }).\n  - Return new access_token/refresh_token.\n\n- POST /api/auth/logout\n  - Invalidate refresh token in client (delete cookie); optionally call supabase.auth.signOut().\n\nStudent & parent flows:\n- Students: maintain mapping between auth.users.id and public.users.id (student role); enforce role: STUDENT and vertical claims in JWT by reading public.users and embedding via a JWT hook function.\n- Parents: phone-based OTP login; store linked student_user_ids in users.metadata or a separate parent_child_links table; ensure JWT contains role: PARENT and parent metadata for lookup.\n\nSecurity enhancements:\n- Device fingerprinting: accept device_id and user-agent from client; store in a device_sessions table keyed by user_id; mark suspicious if new device or geo-IP; add additional verification path.\n- IP allowlisting for admin roles: maintain allowed_ips table; in a global guard, if role in (TRUSTEE, ACCOUNTS) and request.ip not in allowed_ips, deny.\n- MFA for Trustee/Accounts: integrate TOTP (e.g., speakeasy) or SMS-based second factor; store MFA secret in encrypted form; add /api/auth/mfa/verify before issuing full-privilege JWT.\n\nAudit logging:\n- On each auth-related action (OTP send/verify, login, refresh, logout, MFA, failed attempts), insert audit_logs row with entity_type='AUTH', action, actor_id if known, ip and user_agent.\n\nSample guard pseudocode:\n```ts\n@Injectable()\nexport class SupabaseJwtAuthGuard extends AuthGuard('jwt') {\n  canActivate(ctx: ExecutionContext) {\n    const req = ctx.switchToHttp().getRequest();\n    const token = extractBearerToken(req.headers.authorization);\n    // Verify with NestJS JWT using Supabase JWT secret\n    const payload = this.jwtService.verify(token);\n    req.user = payload; // { sub, role, vertical, phone, ... }\n    return true;\n  }\n}\n```\n",
         "testStrategy": "- Unit-test AuthService methods with mocked supabase-js client for:\n  - OTP send / verify, login, refresh, logout success and failure paths.\n- Integration tests using Supertest against NestJS:\n  - OTP send respects rate limiting (4th request within 5 min receives 429).\n  - OTP verify issues JWT with correct role and vertical claims for students and parents.\n  - Student login, first-time password setup, and password reset flows.\n  - Parent login with multiple children correctly populates accessible students.\n- Security tests:\n  - Attempt login for Trustee/Accounts from disallowed IP, expect 403.\n  - Simulate suspicious device fingerprint and verify additional checks.\n  - Verify MFA is required and enforced for privileged roles.\n- Session tests:\n  - Token refresh before and after expiry; ensure expired tokens rejected.\n  - Cross-device login behavior: ability to revoke sessions if required.\n- Verify audit_logs entries created for each auth event and contain correct metadata.",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure NestJS Environment and Supabase Client Provider",
+            "description": "Install necessary dependencies and configure the Supabase client within the NestJS dependency injection system using environment variables.",
+            "dependencies": [],
+            "details": "1. Install `@supabase/supabase-js`, `@nestjs/passport`, `passport-jwt`, `@nestjs/jwt`, and `@nestjs/throttler`.\n2. Update `.env.example` and validation schema to include `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_JWT_SECRET`.\n3. Create a `SupabaseModule` (or a Global Provider in `CommonModule`) that initializes the Supabase client using these configuration values and exports it for use in other modules.",
+            "status": "done",
+            "testStrategy": "Verify that the Supabase client can be injected into a test service and successfully connect (e.g., list a table row) without errors.",
+            "updatedAt": "2026-01-19T13:30:22.754Z",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement AuthModule Core with JWT Strategy and Guards",
+            "description": "Set up the AuthModule structure, including the JWT strategy to validate Supabase-issued tokens and standard authentication guards.",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Generate `AuthModule`, `AuthService`, and `AuthController`.\n2. Implement `JwtStrategy` extending `PassportStrategy(Strategy)`. Configure it to extract the Bearer token and verify it using `SUPABASE_JWT_SECRET`.\n3. Implement `SupabaseJwtAuthGuard` to protect routes.\n4. Ensure the validated payload (containing `sub`, `email`, `role`, `app_metadata`) is correctly attached to `req.user`.",
+            "status": "done",
+            "testStrategy": "Unit test the strategy with a signed mock JWT to ensure it decodes correctly. Integration test a protected route to confirm 401 Unauthorized for invalid tokens and 200 for valid ones.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-19T16:29:12.569Z"
+          },
+          {
+            "id": 3,
+            "title": "Develop OTP and Password Login Endpoints with Rate Limiting",
+            "description": "Implement the specific endpoints for sending/verifying OTPs and handling password logins, incorporating throttling for security.",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Implement `POST /api/auth/otp/send`: Apply `ThrottlerGuard` (limit 3 requests per 5 mins). Call `supabase.auth.signInWithOtp`.\n2. Implement `POST /api/auth/otp/verify`: Call `supabase.auth.verifyOtp`. Return the session/token on success.\n3. Implement `POST /api/auth/login`: Handle email/phone + password login using `supabase.auth.signInWithPassword`.\n4. Ensure appropriate HTTP error handling (mapping Supabase errors to NestJS exceptions).",
+            "status": "done",
+            "testStrategy": "Integration tests using Supertest: 1. Trigger rate limits by hitting the OTP send endpoint multiple times. 2. Verify successful OTP login flow using mocked Supabase responses.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-19T16:35:01.074Z"
+          },
+          {
+            "id": 4,
+            "title": "Implement Session Refresh and User Role Mapping Logic",
+            "description": "Handle session refreshing and map Supabase Auth identities to local user records to enforce role-based access control.",
+            "dependencies": [
+              3
+            ],
+            "details": "1. Implement `POST /api/auth/refresh`: Accept `refresh_token` and call `supabase.auth.refreshSession`.\n2. In `AuthService`, upon successful login/verify, query `public.users` using `auth.users.id` to retrieve internal user details (Student vs Parent).\n3. Ensure the returned response includes the local `user_id`, `role` (STUDENT/PARENT), and `vertical`.\n4. Implement logic to flag `first_login` if password is not set.",
+            "status": "done",
+            "testStrategy": "Test the refresh flow with an expired access token and valid refresh token. Test that the login response structure contains the correct local user role and ID mapped from the mock database.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-19T16:43:05.345Z"
+          },
+          {
+            "id": 5,
+            "title": "Implement Logout, Audit Logging, and Device Security",
+            "description": "Finalize the auth lifecycle with logout functionality, secure audit logging for all auth events, and device fingerprinting placeholders.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "1. Implement `POST /api/auth/logout`: Invalidate session client-side and optionally notify Supabase.\n2. Create an internal method/service to insert rows into `audit_logs` (entity_type='AUTH') for every login, failed attempt, and logout.\n3. Capture `user-agent` and `ip` from the request headers during login/verify and store them in `audit_logs`.\n4. (Optional) Setup basic structure for `device_sessions` table for future fingerprinting.",
+            "status": "done",
+            "testStrategy": "Verify that every login and logout action creates a corresponding record in the `audit_logs` table with the correct timestamp, IP, and action type.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-19T16:50:40.828Z"
+          }
+        ],
+        "updatedAt": "2026-01-19T16:50:40.828Z"
       },
       {
-        "id": 32,
+        "id": "32",
         "title": "Integrate Supabase Storage for Document Management & Migration Support",
         "description": "Use Supabase Storage buckets with signed URLs and NestJS APIs to handle document uploads, access control, previews, and migration tooling.",
         "details": "Tech & setup:\n- Use supabase-js v2 storage client from backend with service role key for server-side operations.\n- Configure four buckets: applications-documents, student-documents, undertakings, system-generated (in Supabase dashboard or via SQL). Enable RLS or use storage policies in line with auth JWT claims.\n\nNestJS Storage module:\n- Create DocumentsModule with DocumentsController and DocumentsService.\n- Endpoints:\n  - POST /api/documents/upload\n  - GET /api/documents/:id/url\n  - PATCH /api/documents/:id/verify\n  - GET /api/documents\n\nUpload flow pseudocode:\n```ts\n@Post('upload')\n@UseInterceptors(FileInterceptor('file'))\nasync uploadDoc(@UploadedFile() file, @Body() dto: UploadDto, @Req() req) {\n  // Validate file type, size\n  this.validationService.validateFile(file, ['pdf','jpg','jpeg','png'], 10 * 1024 * 1024);\n  // Optional virus scan: send buffer to ClamAV over TCP or to a scanning API\n  await this.virusScanService.scan(file.buffer);\n\n  const bucket = this.getBucketForCategory(dto.category);\n  const storagePath = `${dto.studentUserId}/${dto.applicationId ?? 'general'}/${Date.now()}_${file.originalname}`;\n\n  const { data, error } = await this.supabase.storage\n    .from(bucket)\n    .upload(storagePath, file.buffer, { contentType: file.mimetype, upsert: false });\n\n  if (error) throw new InternalServerErrorException(error.message);\n\n  await this.prismaOrKnex('documents').insert({\n    application_id: dto.applicationId,\n    student_user_id: dto.studentUserId,\n    document_type: dto.documentType,\n    storage_url: data.path,\n    status: 'UPLOADED',\n    uploaded_by: req.user.sub,\n    metadata: { bucket, originalName: file.originalname },\n  });\n}\n```\n\nSigned URL generation:\n- GET /api/documents/:id/url\n  - Verify caller is authorized to access this document via role and vertical rules.\n  - Generate signed URL via `supabase.storage.from(bucket).createSignedUrl(path, 3600)`.\n  - Return URL and expiry timestamp.\n\nRLS/Access policies:\n- Implement storage policies per bucket using JWT role & vertical similar to documents table policies:\n  - Students: read/write only own paths (student_user_id == auth.uid()).\n  - Superintendents: access students in their vertical (via join with users).\n  - Trustees: wide access.\n  - Accounts: restricted to payment receipts in system-generated.\n\nDocument preview & watermarking:\n- For PDFs and images, use a server-side processing library in NestJS workers:\n  - PDFs: pdf-lib or pdfkit for rendering first page to PNG thumbnail and adding watermarks.\n  - Images: sharp for thumbnailing and watermark overlay.\n- Store thumbnails in a separate path (e.g., thumbnails/...) within same bucket.\n\nBulk download & PDF merging:\n- Implement /api/documents/bulk-download with filters (vertical, status, date range).\n- Fetch signed URLs server-side using service role, stream files, and zip them (archiver package) or merge PDFs:\n  - Use pdf-lib to merge multiple PDFs into a single admission packet.\n- Upload the merged packet into system-generated bucket and return signed URL.\n\nMigration script support:\n- Provide a NestJS Command or standalone Node script that:\n  - Reads existing file paths from db.json or filesystem.\n  - Uploads to appropriate bucket/path.\n  - Updates documents.storage_url and metadata accordingly.\n- Implement idempotency by checking if storage_url already points to Supabase path.\n\nLogging & compliance:\n- On each access of signed URL (GET /api/documents/:id/url), insert an audit_logs row with entity_type='DOCUMENT', action='ACCESS_URL', actor_id and role.\n",
         "testStrategy": "- Unit tests:\n  - Validate bucket selection logic by category.\n  - Validate file validation rules for allowed types and size limits.\n- Integration tests with mocked Supabase client:\n  - Successful upload creates storage object and DB record with status=UPLOADED.\n  - Invalid file type/size returns 400.\n  - Signed URL generation returns valid URL and enforces role-based access (students only for own docs, parents for linked children, etc.).\n- Security tests:\n  - Attempt to access another student's document; expect 403.\n  - Verify signed URLs expire after configured TTL and cannot be reused.\n- Migration dry-run tests:\n  - Run script on sample dataset; verify counts of uploaded files and updated DB rows.\n  - Simulate failure mid-way and verify rollback or resumability.\n- Visual tests:\n  - Verify thumbnail generation for PDFs and images visually or via file metadata (dimensions, watermark text exists).\n  - Verify bulk download and merged PDFs open correctly and contain expected pages.",
         "priority": "high",
         "dependencies": [
-          "31"
+          "31",
+          "33"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Supabase Storage Buckets and RLS Policies",
+            "description": "Initialize required storage buckets and apply Row Level Security policies to control access based on user roles.",
+            "dependencies": [],
+            "details": "1. Create a Supabase migration file (SQL) to insert storage buckets: 'applications-documents', 'student-documents', 'undertakings', 'system-generated'.\n2. Define RLS policies for `storage.objects` table:\n   - `student-documents`: INSERT/SELECT for auth.uid() = owner, SELECT for role in ['superintendent', 'trustee'].\n   - `applications-documents`: INSERT public (during app), SELECT for staff.\n   - `system-generated`: READ-only for students (receipts), WRITE for service_role.\n3. Execute migration to apply configuration.\n<info added on 2026-01-19T17:14:02.988Z>\n**Completion Report:**\n\n1. **Artifacts Created:**\n   - `backend/migrations/001_create_storage_buckets_and_rls.sql`: Comprehensive SQL file setting up 4 buckets, RLS policies, indexes, and helper functions.\n   - `backend/migrations/run-migration.mjs`: Script to attempt migration via API or fallback to manual instructions.\n   - `backend/migrations/verify-storage.mjs`: Script to verify bucket existence and RLS policy status.\n   - `backend/migrations/README.md`: Detailed documentation and manual execution guide.\n\n2. **Storage Configuration Implemented:**\n   - **applications-documents**: 10MB limit (PDF/JPG/PNG); Public insert, restricted read.\n   - **student-documents**: 10MB limit (PDF/JPG/PNG); Owner read/write, staff read.\n   - **undertakings**: 10MB limit (PDF only); Role-based read-only.\n   - **system-generated**: 20MB limit (PDF/ZIP); Service-role write, recipient read.\n\n3. **Access Control:**\n   - Implemented helper functions: `storage.is_staff()`, `storage.is_owner()`, `storage.is_parent_of_student()`, etc.\n   - Policies defined for detailed role-based access (Student, Parent, Superintendent, Trustee).\n\n4. **Pending Action:**\n   - Migration SQL requires manual execution in the Supabase SQL Editor (due to Management API limitations).\n   - Once executed, run `node backend/migrations/verify-storage.mjs` to confirm setup.\n</info added on 2026-01-19T17:14:02.988Z>",
+            "status": "done",
+            "testStrategy": "Verify policies by attempting to access buckets using Supabase clients authenticated with different role tokens (Student vs Superintendent vs Anon).",
+            "updatedAt": "2026-01-19T17:14:08.806Z",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Scaffold DocumentsModule and Implement Upload Endpoint",
+            "description": "Create the NestJS Documents module with a controller and service to handle file uploads, validation, and database tracking.",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Generate `DocumentsModule`, `DocumentsController`, and `DocumentsService`.\n2. Implement `POST /api/documents/upload` using `@UseInterceptors(FileInterceptor('file'))`.\n3. In Service:\n   - Validate MIME type (pdf, jpg, png) and size (max 10MB).\n   - Construct path: `{studentId}/{category}/{timestamp}_{filename}`.\n   - Upload file using `supabase.storage.from(bucket).upload()`.\n   - Insert record into Prisma `documents` table with `storage_url`, `status='UPLOADED'`, and metadata.",
+            "status": "done",
+            "testStrategy": "Unit test service upload method with mocked file buffer. Integration test uploading a valid file and verifying the DB record exists.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T06:30:58.696Z"
+          },
+          {
+            "id": 3,
+            "title": "Implement Signed URL Generation with Access Control",
+            "description": "Create an endpoint to securely generate time-limited signed URLs for document access, including permission checks.",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Implement `GET /api/documents/:id/url`.\n2. Fetch document metadata from DB to get the bucket and path.\n3. Implement Access Control:\n   - Students can only access their own docs.\n   - Superintendents can access docs within their vertical.\n4. Call `supabase.storage.from(bucket).createSignedUrl(path, 3600)`.\n5. Log the access event to the `audit_logs` table.\n6. Return the signed URL.",
+            "status": "done",
+            "testStrategy": "Test accessing a document ID belonging to another student (should fail 403). Test successful generation returns a valid URL string.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T06:35:11.916Z"
+          },
+          {
+            "id": 4,
+            "title": "Develop Document Verification and Listing APIs",
+            "description": "Add endpoints for staff to list documents with filters and mark them as verified.",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Implement `GET /api/documents` with query params (studentId, status, type).\n   - Use Prisma filters to return paginated results.\n2. Implement `PATCH /api/documents/:id/verify`.\n   - Restrict to Staff roles.\n   - Update `status` to 'VERIFIED' and set `verified_at`/`verified_by` fields.\n   - Trigger notification event (if applicable).",
+            "status": "done",
+            "testStrategy": "Unit test filtering logic in service. Integration test the verify flow ensuring status updates correctly in the database.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T06:35:22.460Z"
+          },
+          {
+            "id": 5,
+            "title": "Implement Server-Side Document Processing Service",
+            "description": "Create a service to generate thumbnails and apply watermarks to uploaded documents for preview purposes.",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Install `sharp` (images) and `pdf-lib` (PDFs).\n2. Create a background processor (or interceptor hook) that runs after successful upload:\n   - For Images: Resize to thumbnail dimensions using `sharp`.\n   - For PDFs: Render first page as image or create a watermarked copy using `pdf-lib`.\n3. Upload processed artifacts to a `thumbnails/` path in the same bucket.\n4. Update `documents` metadata with `thumbnail_url`.",
+            "status": "done",
+            "testStrategy": "Upload a test PDF and Image. Verify that corresponding thumbnail files appear in Supabase storage.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T06:38:09.598Z"
+          },
+          {
+            "id": 6,
+            "title": "Build Bulk Download and Merging Functionality",
+            "description": "Implement functionality to aggregate multiple documents into a single ZIP or merged PDF for bulk retrieval.",
+            "dependencies": [
+              3,
+              5
+            ],
+            "details": "1. Implement `GET /api/documents/bulk-download`.\n2. Fetch requested document paths based on filters.\n3. Stream files from Supabase using service role.\n4. Use `archiver` to create a ZIP or `pdf-lib` to merge PDFs into a single file.\n5. Upload the result to `system-generated` bucket.\n6. Return a signed URL to the generated archive.",
+            "status": "done",
+            "testStrategy": "Test bulk download with 3 mock documents. Verify the returned URL points to a valid ZIP/PDF containing the expected files.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T06:40:59.818Z"
+          }
+        ],
+        "updatedAt": "2026-01-20T06:40:59.818Z"
       },
       {
-        "id": 33,
+        "id": "33",
         "title": "Implement Production PostgreSQL Schema, Triggers, and DB Migrations",
         "description": "Create the normalized Supabase PostgreSQL schema, indexes, and triggers replacing the json-server structure, managed via proper migration tooling.",
         "details": "Tooling & environment:\n- Use Supabase CLI migrations (`supabase migration new ...`) as the single source of truth for schema changes.[3][6]\n- Maintain separate environments (local, staging, prod) using Supabase projects and the CLI env configuration.[7]\n- Store SQL from PRD (users, applications, documents, payments, rooms, room_allocations, leave_requests, audit_logs) in versioned migration files.\n\nSchema implementation steps:\n1) Initial core tables migration:\n- Create migration 001 with all CREATE TABLE statements given in PRD.\n- Ensure `uuid-ossp` extension enabled for uuid_generate_v4().\n- Add NOT NULL / DEFAULT constraints as specified.\n\n2) Indexes migration:\n- Create a separate migration for performance indexes:\n```sql\nCREATE INDEX IF NOT EXISTS idx_applications_tracking ON applications(tracking_number);\nCREATE INDEX IF NOT EXISTS idx_applications_status ON applications(current_status);\nCREATE INDEX IF NOT EXISTS idx_applications_student ON applications(student_user_id);\nCREATE INDEX IF NOT EXISTS idx_documents_application ON documents(application_id);\nCREATE INDEX IF NOT EXISTS idx_payments_student ON payments(student_user_id);\nCREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);\nCREATE INDEX IF NOT EXISTS idx_room_allocations_student ON room_allocations(student_user_id);\nCREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);\nCREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);\n```\n\n3) updated_at triggers:\n```sql\nCREATE OR REPLACE FUNCTION set_timestamp()\nRETURNS TRIGGER AS $$\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER set_users_timestamp\nBEFORE UPDATE ON users\nFOR EACH ROW EXECUTE FUNCTION set_timestamp();\n\nCREATE TRIGGER set_applications_timestamp\nBEFORE UPDATE ON applications\nFOR EACH ROW EXECUTE FUNCTION set_timestamp();\n-- Repeat for tables having updated_at.\n```\n\n4) Business logic triggers:\n- Status transition validation (applications.current_status):\n```sql\nCREATE OR REPLACE FUNCTION validate_application_status()\nRETURNS TRIGGER AS $$\nDECLARE\n  allowed_transitions JSONB := '{\"DRAFT\":[\"SUBMITTED\"],\"SUBMITTED\":[\"UNDER_REVIEW\",\"REJECTED\"],\"UNDER_REVIEW\":[\"APPROVED\",\"REJECTED\"],\"APPROVED\":[\"ACTIVE\"],\"ACTIVE\":[\"CLOSED\"]}'::jsonb;\n  from_status TEXT := OLD.current_status;\n  to_status TEXT := NEW.current_status;\nBEGIN\n  IF from_status = to_status THEN\n    RETURN NEW;\n  END IF;\n  IF NOT (to_status = ANY (SELECT jsonb_array_elements_text(allowed_transitions->from_status))) THEN\n    RAISE EXCEPTION 'Invalid status transition from % to %', from_status, to_status;\n  END IF;\n  RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER applications_status_guard\nBEFORE UPDATE ON applications\nFOR EACH ROW EXECUTE FUNCTION validate_application_status();\n```\n\n- Room occupied_count management:\n```sql\nCREATE OR REPLACE FUNCTION update_room_occupancy()\nRETURNS TRIGGER AS $$\nBEGIN\n  IF TG_OP = 'INSERT' THEN\n    UPDATE rooms\n      SET occupied_count = occupied_count + 1,\n          status = CASE WHEN occupied_count + 1 >= capacity THEN 'OCCUPIED' ELSE status END\n      WHERE id = NEW.room_id;\n  ELSIF TG_OP = 'UPDATE' AND OLD.status != NEW.status THEN\n    -- handle transfers/checkouts\n    IF NEW.status = 'CHECKED_OUT' THEN\n      UPDATE rooms SET occupied_count = occupied_count - 1,\n        status = CASE WHEN occupied_count - 1 = 0 THEN 'AVAILABLE' ELSE status END\n      WHERE id = NEW.room_id;\n    END IF;\n  ELSIF TG_OP = 'DELETE' THEN\n    UPDATE rooms SET occupied_count = GREATEST(0, occupied_count - 1)\n      WHERE id = OLD.room_id;\n  END IF;\n  RETURN COALESCE(NEW, OLD);\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER room_allocations_occupancy\nAFTER INSERT OR UPDATE OR DELETE ON room_allocations\nFOR EACH ROW EXECUTE FUNCTION update_room_occupancy();\n```\n\n5) Audit trigger wiring:\n- Reference the audit logging function from Migration Task 7 (log_audit_entry) and attach AFTER triggers for INSERT/UPDATE/DELETE on key tables: users, applications, documents, payments, rooms, room_allocations, leave_requests.\n\n6) Migration workflow:\n- Use Supabase CLI to apply migrations locally, then staging, then prod following Git-based promotion.[3][5]\n- For large datasets, test index performance using EXPLAIN ANALYZE on typical queries.\n\nConcurrency considerations:\n- Use appropriate FK ON DELETE semantics (as defined) and validate that cascades behave as desired under concurrent operations.\n- For hot tables (applications, payments), test row-level locking behavior.\n",
         "testStrategy": "- Automated migration tests:\n  - Apply migrations in a fresh Supabase project (CI) and ensure no errors.\n- Schema validation tests:\n  - Insert records with invalid FKs and expect failure.\n  - Delete parent rows and verify cascading behavior (e.g., deleting applications removes documents if ON DELETE CASCADE).\n  - Verify CHECK constraints by attempting invalid enum values.\n- Performance tests:\n  - Seed 100k+ sample rows for applications, documents, payments, room_allocations.\n  - Run EXPLAIN ANALYZE on typical queries (by tracking_number, by student_user_id, by status) and confirm indexes are used and latency stays within targets (<50ms DB time in staging).\n- Trigger tests:\n  - Verify updated_at changes on UPDATE but not on INSERT (unless default NOW()).\n  - Simulate status transitions and confirm invalid transitions raise exceptions.\n  - Allocate and checkout rooms, verifying occupied_count and status updated correctly.\n- Regression tests:\n  - Ensure Phase 1 UI-required data fields map correctly to new schema via API tests in Task 35.",
         "priority": "high",
         "dependencies": [
-          "31",
-          "32"
+          "31"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Core Tables Migration",
+            "description": "Create the initial Supabase migration file defining all core tables with constraints and foreign keys.",
+            "dependencies": [],
+            "details": "Run `supabase migration new create_core_tables`. In the generated file, enable `uuid-ossp`. Create tables: `users`, `applications`, `documents`, `payments`, `rooms`, `room_allocations`, `leave_requests`, `audit_logs`. Define columns with strict types, `NOT NULL` constraints, `DEFAULT` values (e.g., `now()` for timestamps), and foreign key relationships (e.g., `applications.student_user_id` references `users.id` with `ON DELETE CASCADE` or `SET NULL` as appropriate).",
+            "status": "done",
+            "testStrategy": "Run `supabase db reset` locally. Verify all tables exist and constraints prevent invalid insertions (e.g., insert record with missing required field).",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T02:43:29.539Z"
+          },
+          {
+            "id": 2,
+            "title": "Add Performance Indexes Migration",
+            "description": "Create a migration to add performance indexes for frequently queried columns across the schema.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a new migration file `add_indexes`. Add `CREATE INDEX IF NOT EXISTS` statements for: `applications` (tracking_number, current_status, student_user_id), `documents` (application_id), `payments` (student_user_id, status), `room_allocations` (student_user_id), and `audit_logs` (entity_type, entity_id, created_at DESC). Validate syntax with `supabase db reset`.",
+            "status": "done",
+            "testStrategy": "Use `EXPLAIN ANALYZE` on sample queries (e.g., `SELECT * FROM applications WHERE student_user_id = ...`) to confirm the optimizer uses the new indexes.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T02:43:29.545Z"
+          },
+          {
+            "id": 3,
+            "title": "Implement updated_at Trigger System",
+            "description": "Create the set_timestamp function and attach triggers to automatically update the updated_at column.",
+            "dependencies": [
+              1
+            ],
+            "details": "In a migration file, define `CREATE OR REPLACE FUNCTION set_timestamp() ...`. Apply `BEFORE UPDATE` triggers calling this function to: `users`, `applications`, `documents`, `payments`, `rooms`, `room_allocations`, and `leave_requests`. Ensure the function checks if `updated_at` exists on the row.",
+            "status": "done",
+            "testStrategy": "Insert a row, wait 1 second, update the row, and verify that the `updated_at` timestamp has changed to the current time.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T02:43:29.549Z"
+          },
+          {
+            "id": 4,
+            "title": "Implement Application Status Transition Validation",
+            "description": "Enforce valid state transitions for applications using a database trigger to prevent illegal workflow jumps.",
+            "dependencies": [
+              1
+            ],
+            "details": "Define `validate_application_status()` function in a migration. Implement logic: DRAFT->SUBMITTED->UNDER_REVIEW->APPROVED->ACTIVE->CLOSED, with REJECTED allowed from SUBMITTED/UNDER_REVIEW. Create trigger `applications_status_guard` BEFORE UPDATE on `applications`. Raise exception on invalid transitions.",
+            "status": "done",
+            "testStrategy": "Attempt to update an application directly from DRAFT to ACTIVE; expect a database error. Verify valid transition DRAFT -> SUBMITTED succeeds.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T02:43:29.554Z"
+          },
+          {
+            "id": 5,
+            "title": "Implement Room Occupancy Management Trigger",
+            "description": "Automate room occupancy counts and status updates based on changes in the room_allocations table.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create `update_room_occupancy()` function. Handle `INSERT`: increment `rooms.occupied_count`, set status OCCUPIED if full. Handle `UPDATE`: if status becomes CHECKED_OUT, decrement count. Handle `DELETE`: decrement count. Attach as `AFTER INSERT OR UPDATE OR DELETE` trigger on `room_allocations`.",
+            "status": "done",
+            "testStrategy": "Insert a room allocation and verify `rooms.occupied_count` increases. 'Check out' the allocation and verify count decreases and room status updates if empty.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T02:43:29.557Z"
+          },
+          {
+            "id": 6,
+            "title": "Wire Audit Logging Triggers to Business Tables",
+            "description": "Attach audit triggers to core tables to automatically record INSERT, UPDATE, and DELETE operations.",
+            "dependencies": [
+              1,
+              3
+            ],
+            "details": "Create or ensure existence of `log_audit_entry()` function (captures `auth.uid()`, `TG_TABLE_NAME`, `OLD`/`NEW` values). Attach `AFTER INSERT OR UPDATE OR DELETE` triggers to: `users`, `applications`, `documents`, `payments`, `rooms`, `room_allocations`, `leave_requests`. Ensure sensitive fields are handled if necessary.",
+            "status": "done",
+            "testStrategy": "Perform CRUD operations on `applications` and `payments`. Query `audit_logs` to confirm entries were created with correct `entity_type`, `entity_id`, and `changes` payload.",
+            "parentId": "undefined",
+            "updatedAt": "2026-01-20T02:43:29.561Z"
+          }
+        ],
+        "updatedAt": "2026-01-20T02:43:29.561Z"
       },
       {
-        "id": 34,
+        "id": "34",
         "title": "Define and Enforce Row Level Security (RLS) Policies Across All Tables",
         "description": "Implement RLS with default-deny semantics using Supabase’s Postgres RLS capabilities, enforcing role- and vertical-based access as per JWT claims.",
         "details": "RLS setup:\n- Enable RLS on all business tables: users, applications, documents, payments, rooms, room_allocations, leave_requests, audit_logs, consent_logs, etc.\n```sql\nALTER TABLE users ENABLE ROW LEVEL SECURITY;\nALTER TABLE applications ENABLE ROW LEVEL SECURITY;\nALTER TABLE documents ENABLE ROW LEVEL SECURITY;\nALTER TABLE payments ENABLE ROW LEVEL SECURITY;\nALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;\n-- Repeat for others.\n```\n\nPolicy implementation based on PRD:\n- Ensure JWT from Supabase includes role, vertical, phone, and other identity signals.\n\nUsers table policies (example):\n```sql\nCREATE POLICY student_own_record ON users\n  FOR SELECT USING (auth.uid() = id AND auth.jwt()->>'role' = 'STUDENT');\n\nCREATE POLICY student_update_own ON users\n  FOR UPDATE USING (auth.uid() = id AND auth.jwt()->>'role' = 'STUDENT');\n\nCREATE POLICY superintendent_vertical_users ON users\n  FOR SELECT USING (\n    auth.jwt()->>'role' = 'SUPERINTENDENT' AND\n    vertical = auth.jwt()->>'vertical'\n  );\n\nCREATE POLICY trustee_all_users ON users\n  FOR SELECT USING (auth.jwt()->>'role' = 'TRUSTEE');\n```\n\nApplications table policies per PRD (applicant_mobile, student, superintendent, trustee):\n- Add applicant_own_application (FOR ALL USING applicant_mobile = auth.jwt()->>'phone').\n- Student_own_application, superintendent_vertical_apps, superintendent_update_apps, trustee_all_apps, as given.\n\nDocuments table policies:\n- Implement student_own_documents, student_upload_documents, superintendent_vertical_docs, trustee_all_docs from PRD.\n- Add parent read-only policy based on metadata link:\n```sql\nCREATE POLICY parent_child_documents ON documents\n  FOR SELECT USING (\n    auth.jwt()->>'role' = 'PARENT' AND\n    EXISTS (\n      SELECT 1 FROM users parent\n      JOIN LATERAL jsonb_array_elements_text(parent.metadata->'children_ids') AS child_id ON TRUE\n      WHERE parent.id = auth.uid()::uuid\n        AND child_id::uuid = documents.student_user_id\n    )\n  );\n```\n\nPayments table policies:\n- student_own_payments, accounts_all_payments, superintendent_vertical_payments (with EXISTS join to users) as in PRD.\n\nAudit logs policies:\n```sql\nCREATE POLICY all_can_insert_audit ON audit_logs\n  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);\n\nCREATE POLICY admin_view_audit ON audit_logs\n  FOR SELECT USING (\n    auth.jwt()->>'role' IN ('TRUSTEE', 'ACCOUNTS', 'SUPERINTENDENT')\n  );\n```\n\nDefault deny:\n- Ensure no permissive built-in policies (e.g., authenticated = true) on public schema; drop any auto-generated public policies.\n\nPerformance and maintenance:\n- Use SECURITY DEFINER stable helper functions for repeated logic (e.g., checking vertical membership) to keep policies maintainable.\n- Periodically review policies using `pg_policies` view.\n",
@@ -2309,11 +2533,12 @@
           "33",
           "31"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2026-01-20T07:02:08.061Z"
       },
       {
-        "id": 35,
+        "id": "35",
         "title": "Migrate json-server Calls to NestJS API with Supabase Integration",
         "description": "Replace all frontend usage of json-server with a production NestJS API layer backed by Supabase for authentication, applications, students, documents, payments, rooms, and leaves.",
         "details": "Backend NestJS API:\n- Structure modules matching domains: AuthModule, ApplicationsModule, StudentsModule, DocumentsModule, PaymentsModule, RoomsModule, LeavesModule.\n- Use class-validator + class-transformer for DTO validation and OpenAPI via @nestjs/swagger.\n- Implement global exception filter to standardize error responses and a logging interceptor (or use pino-http) for request logs.\n- Add @nestjs/throttler-based rate limiting (100 req/min per IP), excluding some internal webhooks.\n\nExample DTO & controller snippet (Applications):\n```ts\nexport class CreateApplicationDto {\n  @IsEnum(['NEW','RENEWAL'])\n  type: string;\n\n  @IsEnum(['BOYS','GIRLS','DHARAMSHALA'])\n  vertical: string;\n\n  @IsPhoneNumber('IN')\n  applicantMobile: string;\n\n  @IsObject()\n  data: Record<string, any>;\n}\n\n@Post()\n@UseGuards(SupabaseJwtAuthGuard)\nasync createApp(@Body() dto: CreateApplicationDto, @Req() req) {\n  const trackingNumber = this.appService.generateTrackingNumber();\n  const { data, error } = await this.supabase\n    .from('applications')\n    .insert({\n      tracking_number: trackingNumber,\n      type: dto.type,\n      vertical: dto.vertical,\n      applicant_mobile: dto.applicantMobile,\n      student_user_id: req.user.sub ?? null,\n      data: dto.data,\n    })\n    .select()\n    .single();\n  if (error) throw new BadRequestException(error.message);\n  return data;\n}\n```\n\nOther endpoints:\n- Auth endpoints from Task 31.\n- Student dashboard/profile fetching aggregated data from multiple tables.\n- Documents endpoints from Task 32.\n- Payments endpoints integrating with Supabase payments table and Razorpay orchestration from Task 36.\n- Rooms endpoints using rooms and room_allocations with appropriate RLS and business rules.\n- Leave endpoints CRUD + approve paths restricted to superintendent role.\n\nFrontend migration:\n- Create a typed API client layer (e.g., using Axios or fetch wrapper) at /src/api/index.ts.\n- Replace all hard-coded json-server URLs (localhost:3001/...) with /api/* endpoints via environment configuration.\n- Implement standardized error handling: intercept 401/403, redirect to login or show permission errors; show toast/snackbar messages for 4xx/5xx.\n- Implement retry with exponential backoff for idempotent GETs (e.g., applications list) but avoid retrying non-idempotent POST/PUT by default.\n- Ensure loading and empty state management for each screen when calling new endpoints.\n\nLogging & monitoring:\n- Enable NestJS Swagger UI at /api/docs for development and staging.\n- Log structured entries (method, path, userId, role, latency, status) for all requests.\n",
@@ -2329,7 +2554,7 @@
         "subtasks": []
       },
       {
-        "id": 36,
+        "id": "36",
         "title": "Implement Production Payment Gateway Integration with Razorpay & Supabase",
         "description": "Replace mock payment logic with real Razorpay (and fallback PhonePe) integration, wired to the payments table, webhooks, refunds, and reconciliation processes.",
         "details": "Gateway selection & setup:\n- Primary: Razorpay (Node SDK: razorpay v2+). Configure API key/secret via env vars.\n- Fallback: prepare abstraction to allow alternate provider (e.g., PhonePe) but keep initial implementation focused on Razorpay.\n- Ensure backend never handles raw card data directly; use Razorpay checkout/payment flows (PCI-DSS alignment).\n\nNestJS PaymentsModule:\n- Services:\n  - PaymentsService handling supabase DB operations and Razorpay SDK calls.\n- Endpoints:\n  - POST /api/payments/initiate\n  - GET /api/payments/:id/status\n  - POST /api/payments/webhook\n  - POST /api/payments/:id/refund\n\nInitiate payment (pseudocode):\n```ts\n@Post('initiate')\n@UseGuards(SupabaseJwtAuthGuard)\nasync initiate(@Body() dto: InitiatePaymentDto, @Req() req) {\n  const application = await this.getAndAuthorizeApplication(dto.applicationId, req.user);\n  const order = await this.razorpay.orders.create({\n    amount: dto.amount * 100,\n    currency: 'INR',\n    receipt: `receipt_${dto.applicationId}`,\n    notes: { applicationId: dto.applicationId, vertical: application.vertical, studentId: application.student_user_id }\n  });\n\n  const { data, error } = await this.supabase\n    .from('payments')\n    .insert({\n      application_id: dto.applicationId,\n      student_user_id: application.student_user_id,\n      amount: dto.amount,\n      fee_breakdown: dto.feeBreakdown,\n      payment_method: 'UPI',\n      transaction_id: order.id,\n      status: 'PENDING',\n    })\n    .select()\n    .single();\n\n  return { orderId: order.id, paymentUrl: this.buildPaymentUrl(order), qrCodeUrl: order.qr, expiresAt: order.expire_by };\n}\n```\n\nVerification & webhook:\n- Verify payment signatures on client callback and again server-side if needed using crypto.createHmac('sha256', razorpaySecret).\n- Webhook endpoint:\n  - Accept raw body (disable body parsing or use raw middleware for signature verification).\n  - Verify x-razorpay-signature header.\n  - On payment.captured: update payments row to SUCCESS, set paid_at NOW(), store gateway_response.\n  - On payment.failed: set status=FAILED, log failure.\n  - On refund.created: set status=REFUNDED as appropriate.\n\nRefunds:\n```ts\n@Post(':id/refund')\n@UseGuards(RoleGuard('ACCOUNTS','TRUSTEE'))\nasync refund(@Param('id') id: string, @Body() dto: RefundDto, @Req() req) {\n  const payment = await this.getPayment(id);\n  const amountPaise = (dto.amount ?? payment.amount) * 100;\n  const refund = await this.razorpay.payments.refund(payment.transaction_id, { amount: amountPaise, notes: { reason: dto.reason, processedBy: req.user.sub } });\n  await this.supabase.from('payments').update({ status: 'REFUNDED', gateway_response: refund }).eq('id', id);\n  return { refundId: refund.id, status: refund.status, processedAt: new Date().toISOString() };\n}\n```\n\nReceipt generation & storage:\n- After successful payment, generate a PDF receipt using pdfkit or pdfmake:\n  - Include institute letterhead, transaction details, breakdown, date/time.\n- Upload PDF to Supabase Storage (system-generated bucket) and store reference in payments.fee_breakdown or a dedicated receipts table.\n- Send receipt by email/SMS via transactional provider (e.g., SendGrid, AWS SES + SMS via Twilio/MSG91), using asynchronous job queue.\n\nReconciliation job:\n- Create a scheduled job (e.g., via NestJS @Cron or external scheduler hitting an admin endpoint):\n  - Daily fetch Razorpay settlements for the previous day (using Razorpay APIs).\n  - Compare totals and transaction IDs against payments table.\n  - Mark reconciliation status in a reconciliation_logs table; flag discrepancies.\n\nIdempotency & safety:\n- Use idempotency keys for initiate calls from frontend (e.g., hash of applicationId+amount) to avoid duplicate payments.\n- Ensure webhooks are idempotent (check current status before applying updates).\n",
@@ -2343,7 +2568,7 @@
         "subtasks": []
       },
       {
-        "id": 37,
+        "id": "37",
         "title": "Implement Audit Logging, Consent, Encryption, and Data Retention for Compliance",
         "description": "Build immutable audit logs, DPDP-compliant consent tracking, PII encryption, data archival, and reporting capabilities.",
         "details": "Audit logging:\n- Implement the log_audit_entry() function from PRD and attach to core tables (applications, documents, payments, rooms, room_allocations, leave_requests, users as appropriate).\n- Ensure app.current_user_id and app.current_user_role are set from NestJS per-request using `SET LOCAL` statements via a DB wrapper service before write operations.\n\nConsent management:\n- Create consent_logs table per PRD.\n- Add service methods:\n  - recordConsent(userId, type, version, text, ip, deviceInfo, expiresAt?)\n  - revokeConsent(consentId, revokedAt)\n  - checkConsentRenewal(userId, type) using six-month logic in PRD.\n- Hook into login or critical flows requiring up-to-date consent; block operation until consent captured.\n\nPII encryption:\n- Identify sensitive fields (e.g., phone, address, guardian contacts) that require encryption at application level.\n- Use Node crypto with AES-256-GCM as in PRD snippet; store key in secure secret manager (e.g., environment variable loaded from Vault/SSM).\n- Create helper:\n```ts\nclass CryptoService {\n  encrypt(text: string): string { /* PRD snippet logic */ }\n  decrypt(payload: string): string { /* reverse with auth tag */ }\n}\n```\n- Apply encryption transparently in repositories/services before persisting and after reading PII.\n\nData retention & archival:\n- Create applications_archive table with reduced PII footprint (no phone, only high-level stats).\n- Implement weekly Cron job via @nestjs/schedule (@Cron('0 0 * * 0')) as in PRD.\n  - Find REJECTED applications older than 1 year.\n  - Strip PII via a method stripPII() and insert into archive.\n  - Delete originals, ensuring audit_log entries are generated.\n\nAudit reports:\n- Implement scheduled monthly job generating audit reports:\n  - Aggregate counts: total applications, payments, document verifications, consent renewals, failed logins, unusual access.\n  - Generate PDF report (pdfkit) and store in Supabase Storage (system-generated bucket) tagged by month.\n  - Notify Trustees via email with link to report.\n\nDPDP-specific measures:\n- Ensure access to PII is minimized and logged (via audit_logs and RLS).\n- Provide APIs for data subject rights (export and delete requests) if required later; at minimum, log such operations clearly when done manually.\n",
@@ -2358,7 +2583,7 @@
         "subtasks": []
       },
       {
-        "id": 38,
+        "id": "38",
         "title": "Data Migration from db.json to Supabase and Production Cutover",
         "description": "Migrate prototype data from db.json into Supabase, verify integrity, and execute a controlled production cutover with rollback capability.",
         "details": "Migration tooling:\n- Implement migration scripts as Node/NestJS CLI commands (e.g., using NestJS CommandRunner or standalone TS script compiled to Node) that:\n  - Load db.json.\n  - Validate data using the ValidationReport structure from PRD.\n  - Insert into Supabase via supabase-js with service role key.\n\nMigration process implementation:\n- Validation step:\n  - Implement validateData(dbJson) per PRD with additional checks for referential integrity (user ids referenced in applications, etc.).\n  - Fail fast on invalidRecords > 0 and output JSON report.\n\n- Migration step:\n  - Implement migrateData() as in PRD, extended to cover all tables (users, applications, documents, payments, rooms, room_allocations, leave_requests).\n  - Use batched inserts (e.g., chunk size 500) for performance.\n  - For document migration, integrate with Supabase Storage (Task 32), reading legacy file paths, uploading, and writing storage_url.\n  - Use database functions begin_migration, commit_migration, rollback_migration to manage transactional state (or emulate transaction markers if cross-service with Storage).\n\n- Verification step:\n  - Implement verifyMigration(dbJson) from PRD, expanding to all tables and comparing expected vs actual counts.\n  - Optionally spot-check hashes: compute hash of key fields for first N records and compare.\n\nCutover orchestration:\n- Implement scripts / runbooks for:\n  - Pre-cutover (T-24h): freeze writes to db.json, backup, run test migration on staging, run smoke tests.\n  - Cutover (T-0): enable maintenance mode (e.g., env flag consumed by frontend/backend), run migration on prod Supabase, run verification script, switch frontend to NestJS API URLs, deploy, remove maintenance mode.\n  - Post-cutover (T+24h): continuous monitoring, error tracking (Sentry/Elastic), DB performance dashboards, payment gateway monitoring.\n\nRollback procedure:\n- Implement a simple switch to redirect frontend back to db.json-backed environment (e.g., environment toggle and redeploy) as in PRD.\n- Document manual steps clearly in a runbook.\n- Ensure db.json backup retained for at least 7 days and versioned.\n\nMonitoring & observability:\n- Configure Supabase monitoring dashboards (query performance, errors, CPU, storage) and app logs.\n- Ensure alerts for high error rates, slow queries, or high DB CPU during and after migration.\n",
@@ -2377,7 +2602,7 @@
         "subtasks": []
       },
       {
-        "id": 39,
+        "id": "39",
         "title": "Set up db.json prototyping environment with json-server and concurrently",
         "description": "Install json-server and concurrently packages, create a realistic db.json with mock data for all Phase 1 domains, configure concurrent dev scripts, and verify API endpoints for frontend prototyping.",
         "details": "1. Install development dependencies: `npm install --save-dev json-server concurrently` (local installation preferred over global for project reproducibility)[1][2][5].\n2. Create `db.json` in project root with nested structure matching Phase 1 domains: applications (with status, vertical, payments), students (profile, room, leaves), documents, payments, rooms (occupancy, allocations), leaves (status, approver notes), users (for auth prototyping), notifications. Populate with 20-50 realistic sample records per resource, including edge cases (overdue payments, pending leaves, multi-status applications)[1][3]. Use realistic Indian student names, hostel verticals (Boys/Girls/Dharamshala), fee structures (hostel+security deposit), and dates.\n3. Configure `package.json` scripts for concurrent execution: `\"dev\": \"concurrently \\\"npm run json-server\\\" \\\"npm run frontend\\\"`, `\"json-server\": \"json-server --watch db.json --port 4000 --delay 500 --host 0.0.0.0 --cors\", `\"frontend\": \"vite\"` (adjust for actual frontend runner). The `--delay 500` simulates realistic network latency; `--cors` enables frontend requests; port 4000 avoids conflicts[5][7].\n4. Optional: Add `public` folder for static assets if needed (`--static ./public`), and middleware script for basic auth simulation (e.g., lowdb filters for user roles) if prototyping requires it[1].\n5. Document API base URL (`http://localhost:4000`) and key endpoints in README.md with curl examples for GET/POST/PUT/DELETE on each resource.\n6. Ensure db.json is gitignored or use .gitignore patterns for sensitive mock data, but commit a minimal example.db.json.",
@@ -2389,7 +2614,7 @@
         "updatedAt": "2025-12-21T15:24:27.995Z"
       },
       {
-        "id": 40,
+        "id": "40",
         "title": "Complete API Route Implementation for Hostel Management System",
         "description": "Implement all missing API routes required for the hostel management application to support authentication, application management, payments, room allocation, leave management, renewals, and dashboard functionality. This includes creating Next.js API routes that integrate with db.json for the prototyping phase.",
         "details": "",
@@ -2471,12 +2696,12 @@
         "updatedAt": "2025-12-29T08:40:55.210Z"
       },
       {
-        "id": 41,
+        "id": "41",
         "title": "Fix Test Suite Failures and Stabilize CI Pipeline",
         "description": "Systematically resolve syntax errors, configuration issues, and assertion failures across unit, integration, and end-to-end tests to ensure a passing test suite.",
         "details": "1. **Analyze and Configure**: \n   - Review `jest.config.js` and `package.json` test scripts to ensure correct path mappings for Next.js (`@/*` alias support) and environment variables.\n   - Ensure `setupTests.ts` (or equivalent) is correctly importing `jest-dom` and configuring global mocks (e.g., `next/router`, `next/navigation`).\n\n2. **Fix Syntax and Compilation Errors**: \n   - Run `npm run lint` and `tsc --noEmit` to identify and fix static type errors in test files (`*.test.ts`, `*.spec.tsx`).\n   - Address any TypeScript mismatches between mock data (from `db.json` types) and actual component props.\n\n3. **Resolve Unit Test Failures**: \n   - Focus on component tests using React Testing Library. Fix broken selectors caused by UI changes.\n   - Update snapshot tests if UI changes were intentional: `npm test -- -u`.\n   - Mock API calls properly using `msw` or Jest mocks to decouple from the live/json-server backend during unit tests.\n\n4. **Fix Integration/API Tests**: \n   - Ensure API route tests (testing `/pages/api` or `/app/api`) properly simulate requests/responses using `node-mocks-http` or `supertest`.\n   - Verify that tests expecting data match the structure defined in `db.json` (from Task 39) or the Supabase schema.\n\n5. **End-to-End (E2E) Stabilization**: \n   - If Cypress or Playwright is used, update selectors to be resilient (use `data-testid` attributes instead of class names).\n   - Ensure the `json-server` (port 4000) is running before E2E tests start, possibly using `start-server-and-test` utility in `package.json`.\n\n6. **CI/CD Prep**: \n   - Verify all tests pass with `npm run test:all` (or equivalent) to block regressions.",
         "testStrategy": "1. **Incremental Verification**: Fix tests by category: Utilities -> Components -> API Routes -> Pages.\n2. **Coverage Check**: Run `npm test -- --coverage` to ensure critical paths (Authentication, Application Submission) have >80% coverage.\n3. **Clean Run**: execute `npm run clean && npm install && npm test` to ensure no stale cache artifacts cause false positives.\n4. **E2E Validation**: Run the full E2E suite against the local `json-server` environment to confirm critical user flows (Login -> Dashboard -> Apply) work as expected.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           "39",
           "40"
@@ -2567,10 +2792,10 @@
               1
             ],
             "details": "Fix `Task14-CommunicationPatterns.test.tsx` and `Task14.4-CommunicationIntegration.test.tsx` by mocking notification services. Update `Task15-PaymentExperience.test.tsx` to handle Razorpay mock objects (window.Razorpay) correctly to prevent 'Razorpay is not defined' errors.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Run payment tests to confirm success/failure callbacks are triggered appropriately.",
             "parentId": "undefined",
-            "updatedAt": "2026-01-02T16:14:27.149Z"
+            "updatedAt": "2026-01-20T06:46:05.689Z"
           },
           {
             "id": 8,
@@ -2648,19 +2873,17 @@
             "updatedAt": "2026-01-02T16:18:56.072Z"
           }
         ],
-        "updatedAt": "2026-01-02T19:20:10.928Z"
+        "updatedAt": "2026-01-20T06:46:05.689Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-01-02T19:20:10.930Z",
+      "lastModified": "2026-01-20T07:02:08.062Z",
       "taskCount": 41,
-      "completedCount": 27,
+      "completedCount": 32,
       "tags": [
         "master"
-      ],
-      "created": "2026-01-02T19:27:13.015Z",
-      "description": "Tasks for master context"
+      ]
     }
   }
 }

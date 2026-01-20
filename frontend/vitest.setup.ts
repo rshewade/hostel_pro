@@ -149,12 +149,44 @@ const mockApiResponses: Record<string, any> = {
   '/api/leaves': [
     { id: '1', studentId: '1', type: 'SHORT_LEAVE', startDate: '2026-01-10', status: 'PENDING' },
   ],
-  '/api/fees': {
-    structure: [
-      { id: '1', name: 'Hostel Fee', amount: 25000, frequency: 'SEMESTER' },
-      { id: '2', name: 'Mess Fee', amount: 15000, frequency: 'MONTHLY' },
-    ],
-  },
+  '/api/fees': [
+    {
+      id: '1',
+      name: 'Processing Fee',
+      description: 'One-time processing fee',
+      amount: 5000,
+      paid_amount: 5000,
+      status: 'PAID',
+      due_date: '2024-01-15',
+    },
+    {
+      id: '2',
+      name: 'Hostel Fees',
+      description: 'Hostel accommodation fees',
+      amount: 60000,
+      paid_amount: 30000,
+      status: 'PENDING',
+      due_date: '2024-02-01',
+    },
+    {
+      id: '3',
+      name: 'Security Deposit',
+      description: 'Refundable security deposit',
+      amount: 10000,
+      paid_amount: 0,
+      status: 'PENDING',
+      due_date: '2024-02-15',
+    },
+    {
+      id: '4',
+      name: 'Key Deposit',
+      description: 'Refundable key deposit',
+      amount: 2000,
+      paid_amount: 0,
+      status: 'PENDING',
+      due_date: '2024-02-15',
+    },
+  ],
   '/api/payments': [
     { id: '1', studentId: '1', amount: 25000, status: 'SUCCESS', date: new Date().toISOString() },
   ],

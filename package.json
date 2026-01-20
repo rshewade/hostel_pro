@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"npm run json-server\" \"npm --prefix frontend run dev\"",
+    "dev:backend": "npm --prefix backend run start:dev",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm --prefix frontend run dev\"",
     "json-server": "json-server --watch db.json --port 4001 --host 0.0.0.0",
     "build": "npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
     "start": "npm --prefix frontend run start"
   },
   "devDependencies": {

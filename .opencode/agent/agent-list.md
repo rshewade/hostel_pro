@@ -33,12 +33,19 @@
 - **Stack**: Next.js (App Router), TypeScript, Tailwind CSS, React Query
 - **Specializes**: Multi-role dashboards, guest-first workflows, performance optimization
 
-### **testing-agent.md** (NEW)
+### **testing-agent.md**
 - **Role**: Quality Assurance & Testing Specialist
 - **Model**: zhipuai/glm-4.6
 - **Purpose**: Comprehensive testing strategies, quality assurance, compliance validation
 - **Stack**: Jest, React Testing Library, Playwright, Lighthouse, Axe-core
 - **Specializes**: Multi-role testing, DPDP compliance, accessibility testing, security testing
+
+### **supabase.md** (NEW)
+- **Role**: Supabase & PostgreSQL Backend Specialist
+- **Model**: zhipuai-coding-plan/glm-4.7
+- **Purpose**: Database design, authentication, Row Level Security, real-time features
+- **Stack**: PostgreSQL, Supabase Auth, RLS policies, Edge Functions, Storage, MCP
+- **Specializes**: Schema design, migrations, audit logging, DPDP compliance, performance optimization
 
 ## Usage Instructions
 
@@ -58,21 +65,33 @@
 - Integrating with backend APIs
 - Implementing responsive design
 
+### **When to Use supabase**
+- Designing database schemas and table structures
+- Creating Row Level Security (RLS) policies
+- Writing and managing database migrations
+- Configuring Supabase Auth (OTP, JWT, roles)
+- Setting up Supabase Storage with secure policies
+- Creating database functions and triggers
+- Implementing audit logging for compliance
+- Optimizing query performance
+
 ### **Agent Coordination**
 
 - **task_tracker** (primary agent) - Manages tasks and project coordination
 - **orchestrator** - Coordinates all subagents
 - **ui-ux-developer** - Handles design system and user experience
 - **nextjs-developer** - Implements technical frontend solutions
+- **supabase** - Handles database design, RLS, and Supabase backend
 - **testing-agent** - Ensures quality, compliance, and comprehensive testing
 
 ### **Development Workflow**
 
 1. Requirements Analysis by **orchestrator**
-2. UX Design by **ui-ux-developer**
-3. Technical Implementation by **nextjs-developer**
-4. Quality Assurance & Testing by **testing-agent**
-5. Final Integration and Validation by all agents
+2. Database & Backend Design by **supabase**
+3. UX Design by **ui-ux-developer**
+4. Technical Implementation by **nextjs-developer**
+5. Quality Assurance & Testing by **testing-agent**
+6. Final Integration and Validation by all agents
 
 ## Configuration
 

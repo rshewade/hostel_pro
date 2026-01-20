@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import StudentFeesPage from '@/app/dashboard/student/fees/page';
 import { PaymentReceipt } from '@/components/fees/PaymentReceipt';
@@ -20,8 +20,12 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
    * Category 1: Fee Overview Page (Task 15.1)
    */
   describe('15.1 - Fee Overview Page', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       render(<StudentFeesPage />);
+      // Wait for data to load (fee items appear after fetch)
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
     });
 
     it('should render fees page with correct title', () => {
@@ -40,7 +44,7 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
       const totalAmountElements = screen.getAllByText('Total Amount');
       expect(totalAmountElements.length).toBeGreaterThan(0);
       // Find the one in fee overview section
-      const overviewSection = totalAmountElements.find(el => 
+      const overviewSection = totalAmountElements.find(el =>
         el.closest('.mb-8')?.textContent?.includes('Fee Overview')
       );
       expect(overviewSection).toBeInTheDocument();
@@ -54,7 +58,7 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
       const outstandingElements = screen.getAllByText('Outstanding');
       expect(outstandingElements.length).toBeGreaterThan(0);
       // Find one in fee overview section
-      const overviewSection = outstandingElements.find(el => 
+      const overviewSection = outstandingElements.find(el =>
         el.closest('.mb-8')?.textContent?.includes('Fee Overview')
       );
       expect(overviewSection).toBeInTheDocument();
@@ -64,7 +68,7 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
       const nextDueDateElements = screen.getAllByText('Next Due Date');
       expect(nextDueDateElements.length).toBeGreaterThan(0);
       // Find one in fee overview section
-      const overviewSection = nextDueDateElements.find(el => 
+      const overviewSection = nextDueDateElements.find(el =>
         el.closest('.mb-8')?.textContent?.includes('Fee Overview')
       );
       expect(overviewSection).toBeInTheDocument();
@@ -124,8 +128,12 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
    * Category 2: Payment History (Task 15.3)
    */
   describe('15.3 - Payment History', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       render(<StudentFeesPage />);
+      // Wait for data to load
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
     });
 
     it('should display payment history section', () => {
@@ -360,8 +368,11 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
    * Category 4: Accessibility and Responsive Design
    */
   describe('Accessibility and Responsive Design', () => {
-    it('should have proper heading hierarchy', () => {
+    it('should have proper heading hierarchy', async () => {
       render(<StudentFeesPage />);
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
 
       // Check for heading elements
       const allHeadings = document.querySelectorAll('h1, h2, h3, h4');
@@ -372,22 +383,31 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
       expect(h1Elements.length).toBeGreaterThan(0);
     });
 
-    it('should have accessible buttons', () => {
+    it('should have accessible buttons', async () => {
       render(<StudentFeesPage />);
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
 
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
 
-    it('should be responsive with grid layout', () => {
+    it('should be responsive with grid layout', async () => {
       render(<StudentFeesPage />);
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
 
       const gridElements = document.querySelectorAll('.grid');
       expect(gridElements.length).toBeGreaterThan(0);
     });
 
-    it('should have proper table structure', () => {
+    it('should have proper table structure', async () => {
       render(<StudentFeesPage />);
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
 
       // Check for table element (may not have role=table)
       const tableElement = document.querySelector('table');
@@ -405,8 +425,11 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
    * Category 5: DPDP Compliance
    */
   describe('DPDP Compliance', () => {
-    it('should display DPDP notice on fees page', () => {
+    it('should display DPDP notice on fees page', async () => {
       render(<StudentFeesPage />);
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
 
       expect(screen.getByText(/Data Protection and Financial Privacy Notice/i)).toBeInTheDocument();
       // Check for DPDP in the DPDP notice section
@@ -447,8 +470,11 @@ describe('Task 15: Fee Payment and Student Payment Experience', () => {
       expect(screen.getByText(/Data Protection & Privacy \(DPDP\)/i)).toBeInTheDocument();
     });
 
-    it('should show contact information for support', () => {
+    it('should show contact information for support', async () => {
       render(<StudentFeesPage />);
+      await waitFor(() => {
+        expect(screen.getByText('Processing Fee')).toBeInTheDocument();
+      });
 
       expect(screen.getByText(/accounts@jainhostel.edu/i)).toBeInTheDocument();
       // Phone number with optional space after +91

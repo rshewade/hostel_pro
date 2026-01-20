@@ -23,7 +23,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres",
-        "postgresql://postgres:[mvSu1eoHcmd8U46a]@db.fteqtsoifrqigegdvqhx.supabase.co:5432/postgres"
+        "postgresql://postgres:Raju987.@db.fteqtsoifrqigegdvqhx.supabase.co:5432/postgres"
       ],
       "env": {}
     }
