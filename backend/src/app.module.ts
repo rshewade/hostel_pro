@@ -8,6 +8,10 @@ import { UsersModule } from './users/users.module';
 import { AuditModule } from './audit/audit.module';
 import { DevicesModule } from './devices/devices.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ApplicationsModule } from './applications/applications.module';
+import { PaymentsModule } from './payments/payments.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { LeavesModule } from './leaves/leaves.module';
 
 @Module({
   imports: [
@@ -18,7 +22,7 @@ import { DocumentsModule } from './documents/documents.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 60 seconds
-        limit: 10, // 10 requests per ttl
+        limit: 100, // 100 requests per minute per IP
       },
     ]),
     SupabaseModule,
@@ -28,6 +32,10 @@ import { DocumentsModule } from './documents/documents.module';
     AuditModule,
     DevicesModule,
     DocumentsModule,
+    ApplicationsModule,
+    PaymentsModule,
+    RoomsModule,
+    LeavesModule,
   ],
 })
 export class AppModule {}

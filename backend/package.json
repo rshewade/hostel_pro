@@ -26,6 +26,8 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.12",
+    "@nestjs/schedule": "^6.1.0",
+    "@nestjs/swagger": "^11.2.5",
     "@nestjs/throttler": "^6.5.0",
     "@supabase/supabase-js": "^2.90.1",
     "@types/jsonwebtoken": "^9.0.10",
@@ -38,9 +40,12 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.17.2",
+    "razorpay": "^2.9.6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
@@ -50,6 +55,7 @@
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.9",
+    "@types/pdfkit": "^0.17.4",
     "@types/sharp": "^0.31.1",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6",
