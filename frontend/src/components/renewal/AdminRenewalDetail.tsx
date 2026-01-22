@@ -15,7 +15,7 @@ import {
   XCircle,
   Clock,
   FileText,
-  DollarSign,
+  IndianRupee,
   Shield,
   User,
   MapPin,
@@ -214,7 +214,7 @@ export const AdminRenewalDetail: React.FC<RenewalDetailProps> = ({
 
           <Card padding="md" shadow="sm">
             <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-              <DollarSign className="w-5 h-5" />
+              <IndianRupee className="w-5 h-5" />
               Payment Status
             </h3>
             <div className="grid grid-cols-3 gap-4 mb-4">

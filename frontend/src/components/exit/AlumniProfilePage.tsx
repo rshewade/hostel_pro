@@ -7,7 +7,7 @@ import {
   User,
   Calendar,
   Award,
-  DollarSign,
+  IndianRupee,
   MessageSquare,
   FileText,
   Download,
@@ -186,7 +186,7 @@ export const AlumniProfilePage: React.FC<AlumniProfilePageProps> = ({
           className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
         >
           <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-            <DollarSign className="w-6 h-6 text-purple-600" />
+            <IndianRupee className="w-6 h-6 text-purple-600" />
           </div>
           <div>
             <div className="text-sm font-semibold text-gray-900">Financial Records</div>

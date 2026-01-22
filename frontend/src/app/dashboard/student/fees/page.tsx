@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/data/Card';
 import { Badge } from '@/components/ui/Badge';
-import { DollarSignIcon } from '@/components/ui/IconDollarSign';
+import { IndianRupeeIcon } from '@/components/ui/IconIndianRupee';
 import { CreditCardIcon } from '@/components/ui/IconCreditCard';
 import { FileTextIcon } from '@/components/ui/IconFileText';
 import { PaymentFlowModal } from '@/components/fees/PaymentFlowModal';
@@ -180,7 +180,7 @@ export default function StudentFeesPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSignIcon className="w-5 h-5" color="var(--color-blue-600)" />
+                  <IndianRupeeIcon className="w-5 h-5" color="var(--color-blue-600)" />
                   <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Total Amount</span>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -200,7 +200,7 @@ export default function StudentFeesPage() {
 
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSignIcon className="w-5 h-5" color="var(--color-gold-600)" />
+                  <IndianRupeeIcon className="w-5 h-5" color="var(--color-gold-600)" />
                   <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Outstanding</span>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: 'var(--color-gold-600)' }}>

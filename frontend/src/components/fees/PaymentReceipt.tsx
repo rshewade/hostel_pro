@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { Button } from '@/components/ui/Button';
-import { DollarSignIcon } from '@/components/ui/IconDollarSign';
+import { IndianRupeeIcon } from '@/components/ui/IconIndianRupee';
 import { FileTextIcon } from '@/components/ui/IconFileText';
 import { CreditCardIcon } from '@/components/ui/IconCreditCard';
 
@@ -123,7 +123,7 @@ export function PaymentReceipt({ receipt, onDownload }: PaymentReceiptProps) {
         {/* Payment Details */}
         <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--bg-page)' }}>
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-            <DollarSignIcon className="w-5 h-5" />
+            <IndianRupeeIcon className="w-5 h-5" />
             Payment Details
           </h3>
 

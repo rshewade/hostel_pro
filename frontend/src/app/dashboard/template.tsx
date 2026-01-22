@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Container, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
-import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen, BarChart3 } from 'lucide-react';
 import { cn } from '@/components/utils';
 
 interface DashboardTemplateProps {
@@ -62,7 +62,10 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
     } else if (path.startsWith('/dashboard/trustee')) {
       return [
         { label: 'Overview', href: '/dashboard/trustee', icon: <LayoutDashboard className="w-4 h-4" /> },
-        { label: 'Renewals', href: '/dashboard/trustee/renewal', icon: <FileText className="w-4 h-4" /> },
+        { label: 'Applications', href: '/dashboard/trustee/applications', icon: <FileText className="w-4 h-4" /> },
+        { label: 'Interviews', href: '/dashboard/trustee/interviews', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: 'Allocations', href: '/dashboard/trustee/allocations', icon: <BedDouble className="w-4 h-4" /> },
+        { label: 'Reports', href: '/dashboard/trustee/reports', icon: <BarChart3 className="w-4 h-4" /> },
       ];
     } else if (path.startsWith('/dashboard/accounts')) {
       return [

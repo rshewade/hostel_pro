@@ -5,7 +5,7 @@ import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { Select } from '@/components/forms/Select';
-import { Download, Search, Calendar, FileText, DollarSign, RefreshCw } from 'lucide-react';
+import { Download, Search, Calendar, FileText, IndianRupee, RefreshCw } from 'lucide-react';
 
 export type ApprovalEntityType = 'APPLICATION' | 'LEAVE' | 'PAYMENT' | 'RENEWAL';
 export type ApprovalDecision = 'APPROVED' | 'REJECTED' | 'RETURNED' | 'PENDING';
@@ -72,7 +72,7 @@ export const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({
       case 'LEAVE':
         return <Calendar className="w-4 h-4 text-blue-600" />;
       case 'PAYMENT':
-        return <DollarSign className="w-4 h-4 text-green-600" />;
+        return <IndianRupee className="w-4 h-4 text-green-600" />;
       case 'RENEWAL':
         return <RefreshCw className="w-4 h-4 text-amber-600" />;
       default:

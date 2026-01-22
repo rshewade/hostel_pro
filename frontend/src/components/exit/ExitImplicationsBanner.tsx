@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, DollarSign, Calendar, Home, Info } from 'lucide-react';
+import { AlertCircle, IndianRupee, Calendar, Home, Info } from 'lucide-react';
 import { cn } from '../utils';
 
 interface ExitImplicationsBannerProps {
@@ -11,7 +11,7 @@ interface ExitImplicationsBannerProps {
 export const ExitImplicationsBanner: React.FC<ExitImplicationsBannerProps> = ({ className }) => {
   const implications = [
     {
-      icon: <DollarSign className="w-5 h-5" />,
+      icon: <IndianRupee className="w-5 h-5" />,
       title: 'Deposit & Fees',
       description: 'Security deposit will be refunded after clearance. Fees are non-refundable and will be prorated based on your stay period.',
     },

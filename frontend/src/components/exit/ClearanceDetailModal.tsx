@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, User, Home, Calendar, Mail, Phone, MessageSquare, DollarSign } from 'lucide-react';
+import { X, User, Home, Calendar, Mail, Phone, MessageSquare, IndianRupee } from 'lucide-react';
 import { cn } from '../utils';
 import { Button } from '../ui/Button';
 import { ClearanceChecklist } from './ClearanceChecklist';
@@ -152,7 +152,7 @@ export const ClearanceDetailModal: React.FC<ClearanceDetailModalProps> = ({
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               )}
             >
-              <DollarSign className="w-4 h-4 inline mr-1" />
+              <IndianRupee className="w-4 h-4 inline mr-1" />
               Financial Settlement
             </button>
           </div>
@@ -248,7 +248,7 @@ export const ClearanceDetailModal: React.FC<ClearanceDetailModalProps> = ({
 
                   {/* Placeholder for financial information */}
                   <div className="card p-8 text-center">
-                    <DollarSign className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <IndianRupee className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                     <h4 className="text-base font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                       Financial Settlement Summary
                     </h4>

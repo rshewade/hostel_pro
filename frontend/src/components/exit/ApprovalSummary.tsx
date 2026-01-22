@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  DollarSign,
+  IndianRupee,
   FileText,
 } from 'lucide-react';
 import { cn } from '../utils';
@@ -284,7 +284,7 @@ const FinancialSummaryCard: React.FC<{ financialSummary: FinancialSummary }> = (
   return (
     <div className="card p-6">
       <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-        <DollarSign className="w-5 h-5 inline mr-2" />
+        <IndianRupee className="w-5 h-5 inline mr-2" />
         Financial Summary
       </h3>
 

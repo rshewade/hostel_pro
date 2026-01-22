@@ -11,7 +11,7 @@ import { FeeTopupStep } from '@/components/renewal/FeeTopupStep';
 import { ConsentStep } from '@/components/renewal/ConsentStep';
 import { RenewalBanner } from '@/components/renewal/RenewalBanner';
 import { FormWizard } from '@/components/forms/FormWizard';
-import { ArrowLeft, ArrowRight, CheckCircle, FileText, DollarSign, Shield } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, FileText, IndianRupee, Shield } from 'lucide-react';
 
 const STEPS = [
   {
@@ -32,7 +32,7 @@ const STEPS = [
     id: 'payment',
     title: 'Payment',
     description: 'Complete fee top-up',
-    icon: <DollarSign className="w-5 h-5" />,
+    icon: <IndianRupee className="w-5 h-5" />,
     component: FeeTopupStep,
   },
   {

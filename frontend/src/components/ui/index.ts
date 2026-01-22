@@ -6,5 +6,5 @@ export { Tag } from './Tag';
 export { HomeIcon } from './IconHome';
 export { UserIcon } from './IconUser';
 export { FileTextIcon } from './IconFileText';
-export { DollarSignIcon } from './IconDollarSign';
+export { IndianRupeeIcon } from './IconIndianRupee';
 export { CreditCardIcon } from './IconCreditCard';
