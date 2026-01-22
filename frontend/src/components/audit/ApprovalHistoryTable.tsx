@@ -5,7 +5,7 @@ import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { Select } from '@/components/forms/Select';
-import { Download, Search, Calendar, User, FileText, DollarSign, RefreshCw } from 'lucide-react';
+import { Download, Search, Calendar, FileText, DollarSign, RefreshCw } from 'lucide-react';
 
 export type ApprovalEntityType = 'APPLICATION' | 'LEAVE' | 'PAYMENT' | 'RENEWAL';
 export type ApprovalDecision = 'APPROVED' | 'REJECTED' | 'RETURNED' | 'PENDING';
@@ -18,7 +18,7 @@ export interface ApprovalHistoryEntry {
   entityTitle: string;
   studentId: string;
   studentName: string;
-  authority: {
+  authority?: {
     id: string;
     name: string;
     role: string;
@@ -101,7 +101,7 @@ export const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({
       const matchesSearch =
         searchQuery === '' ||
         entry.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.authority.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.authority?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.entityId.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesEntity = entityFilter === 'ALL' || entry.entityType === entityFilter;
       const matchesDecision = decisionFilter === 'ALL' || entry.decision === decisionFilter;
@@ -238,8 +238,8 @@ export const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <div>
-                      <p className="font-medium text-gray-900">{entry.authority.name}</p>
-                      <p className="text-xs text-gray-500">{entry.authority.role}</p>
+                      <p className="font-medium text-gray-900">{entry.authority?.name || '-'}</p>
+                      <p className="text-xs text-gray-500">{entry.authority?.role || '-'}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm">

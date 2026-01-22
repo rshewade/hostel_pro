@@ -175,8 +175,10 @@ export default function CheckInPage() {
         body: JSON.stringify({
           check_in_confirmed: true,
           check_in_confirmed_at: new Date().toISOString(),
-          check_in_inventory: inventory,
-          check_in_notes: additionalNotes,
+          inventory_acknowledged: true,
+          inventory_acknowledged_at: new Date().toISOString(),
+          notes: additionalNotes,
+          metadata: { check_in_inventory: inventory },
         }),
       });
 

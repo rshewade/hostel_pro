@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/forms/Input';
 import { DatePicker } from '@/components/forms/DatePicker';
 import { Select, type SelectOption } from '@/components/forms/Select';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Chip } from '@/components/ui/Chip';
 import { Modal } from '@/components/feedback/Modal';
+import { Spinner } from '@/components/feedback/Spinner';
 import { cn } from '@/components/utils';
 
 // Types
@@ -53,109 +54,235 @@ export default function SuperintendentConfig() {
   const [selectedTab, setSelectedTab] = useState<'leave' | 'notification'>('leave');
   const [selectedVertical] = useState<Vertical | 'ALL'>('ALL');
 
-  // Leave Configuration State
-  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([
-    {
-      id: '1',
-      name: 'Sick Leave',
-      maxDaysPerMonth: 3,
-      maxDaysPerSemester: 10,
-      requiresApproval: false,
-      allowedVerticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      active: true
-    },
-    {
-      id: '2',
-      name: 'Casual Leave',
-      maxDaysPerMonth: 2,
-      maxDaysPerSemester: 8,
-      requiresApproval: true,
-      allowedVerticals: ['BOYS', 'GIRLS'],
-      active: true
-    },
-    {
-      id: '3',
-      name: 'Emergency Leave',
-      maxDaysPerMonth: 5,
-      maxDaysPerSemester: 15,
-      requiresApproval: true,
-      allowedVerticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      active: true
-    },
-    {
-      id: '4',
-      name: 'Home Visit',
-      maxDaysPerMonth: 4,
-      maxDaysPerSemester: 12,
-      requiresApproval: true,
-      allowedVerticals: ['BOYS', 'GIRLS'],
-      active: true
-    }
-  ]);
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [blackoutDates, setBlackoutDates] = useState<BlackoutDate[]>([
-    {
-      id: '1',
-      name: 'Exam Period - Semester 2',
-      startDate: '2025-04-15',
-      endDate: '2025-05-15',
-      verticals: ['BOYS', 'GIRLS'],
-      reason: 'Final examinations'
-    },
-    {
-      id: '2',
-      name: 'Festival Season - Diwali',
-      startDate: '2025-10-18',
-      endDate: '2025-10-25',
-      verticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      reason: 'Festival period'
-    }
-  ]);
-
-  // Notification Configuration State
-  const [notificationRules, setNotificationRules] = useState<NotificationRule[]>([
-    {
-      id: '1',
-      eventType: 'LEAVE_APPLICATION',
-      timing: 'IMMEDIATE',
-      channels: { sms: true, whatsapp: true, email: false },
-      verticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      template: 'Your child {{student_name}} has applied for leave from {{start_date}} to {{end_date}}.',
-      active: true
-    },
-    {
-      id: '2',
-      eventType: 'LEAVE_APPROVAL',
-      timing: 'IMMEDIATE',
-      channels: { sms: true, whatsapp: true, email: true },
-      verticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      template: 'Leave application for {{student_name}} from {{start_date}} to {{end_date}} has been APPROVED.',
-      active: true
-    },
-    {
-      id: '3',
-      eventType: 'LEAVE_REJECTION',
-      timing: 'IMMEDIATE',
-      channels: { sms: true, whatsapp: true, email: true },
-      verticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      template: 'Leave application for {{student_name}} from {{start_date}} to {{end_date}} has been REJECTED. Reason: {{reason}}.',
-      active: true
-    },
-    {
-      id: '4',
-      eventType: 'EMERGENCY',
-      timing: 'IMMEDIATE',
-      channels: { sms: true, whatsapp: true, email: true },
-      verticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-      template: 'URGENT: {{student_name}} - {{emergency_type}}. Contact Superintendent immediately.',
-      active: true
-    }
-  ]);
+  // Data states
+  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
+  const [blackoutDates, setBlackoutDates] = useState<BlackoutDate[]>([]);
+  const [notificationRules, setNotificationRules] = useState<NotificationRule[]>([]);
 
   // Modal states
   const [editingLeaveType, setEditingLeaveType] = useState<LeaveType | null>(null);
-  const [addingBlackoutDate, setAddingBlackoutDate] = useState(false);
+  const [editingBlackoutDate, setEditingBlackoutDate] = useState<BlackoutDate | null>(null);
   const [editingNotificationRule, setEditingNotificationRule] = useState<NotificationRule | null>(null);
+
+  // Fetch all configuration data
+  const fetchConfigData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const [leaveTypesRes, blackoutDatesRes, notificationRulesRes] = await Promise.all([
+        fetch('/api/config/leave-types'),
+        fetch('/api/config/blackout-dates'),
+        fetch('/api/config/notification-rules'),
+      ]);
+
+      if (!leaveTypesRes.ok || !blackoutDatesRes.ok || !notificationRulesRes.ok) {
+        throw new Error('Failed to fetch configuration data');
+      }
+
+      const [leaveTypesData, blackoutDatesData, notificationRulesData] = await Promise.all([
+        leaveTypesRes.json(),
+        blackoutDatesRes.json(),
+        notificationRulesRes.json(),
+      ]);
+
+      setLeaveTypes(leaveTypesData.data || leaveTypesData || []);
+      setBlackoutDates(blackoutDatesData.data || blackoutDatesData || []);
+      setNotificationRules(notificationRulesData.data || notificationRulesData || []);
+    } catch (err: any) {
+      console.error('Error fetching config data:', err);
+      setError(err.message || 'Failed to load configuration');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchConfigData();
+  }, [fetchConfigData]);
+
+  // Save leave type
+  const saveLeaveType = async () => {
+    if (!editingLeaveType) return;
+
+    try {
+      setIsSaving(true);
+      const isNew = !editingLeaveType.id;
+      const method = isNew ? 'POST' : 'PUT';
+
+      const response = await fetch('/api/config/leave-types', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingLeaveType),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save leave type');
+      }
+
+      const result = await response.json();
+      const savedLeaveType = result.data || result;
+
+      if (isNew) {
+        setLeaveTypes([...leaveTypes, savedLeaveType]);
+      } else {
+        setLeaveTypes(leaveTypes.map(lt => lt.id === savedLeaveType.id ? savedLeaveType : lt));
+      }
+
+      setEditingLeaveType(null);
+    } catch (err: any) {
+      console.error('Error saving leave type:', err);
+      alert(err.message || 'Failed to save leave type');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Toggle leave type active status
+  const toggleLeaveTypeActive = async (leaveType: LeaveType) => {
+    try {
+      const response = await fetch('/api/config/leave-types', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: leaveType.id, active: !leaveType.active }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update leave type');
+      }
+
+      setLeaveTypes(leaveTypes.map(lt =>
+        lt.id === leaveType.id ? { ...lt, active: !lt.active } : lt
+      ));
+    } catch (err: any) {
+      console.error('Error toggling leave type:', err);
+      alert(err.message || 'Failed to update leave type');
+    }
+  };
+
+  // Save blackout date
+  const saveBlackoutDate = async () => {
+    if (!editingBlackoutDate) return;
+
+    try {
+      setIsSaving(true);
+      const isNew = !editingBlackoutDate.id;
+      const method = isNew ? 'POST' : 'PUT';
+
+      const response = await fetch('/api/config/blackout-dates', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingBlackoutDate),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save blackout date');
+      }
+
+      const result = await response.json();
+      const savedBlackoutDate = result.data || result;
+
+      if (isNew) {
+        setBlackoutDates([...blackoutDates, savedBlackoutDate]);
+      } else {
+        setBlackoutDates(blackoutDates.map(bd => bd.id === savedBlackoutDate.id ? savedBlackoutDate : bd));
+      }
+
+      setEditingBlackoutDate(null);
+    } catch (err: any) {
+      console.error('Error saving blackout date:', err);
+      alert(err.message || 'Failed to save blackout date');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Delete blackout date
+  const deleteBlackoutDate = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this blackout period?')) return;
+
+    try {
+      const response = await fetch(`/api/config/blackout-dates?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete blackout date');
+      }
+
+      setBlackoutDates(blackoutDates.filter(bd => bd.id !== id));
+    } catch (err: any) {
+      console.error('Error deleting blackout date:', err);
+      alert(err.message || 'Failed to delete blackout date');
+    }
+  };
+
+  // Save notification rule
+  const saveNotificationRule = async () => {
+    if (!editingNotificationRule) return;
+
+    try {
+      setIsSaving(true);
+      const isNew = !editingNotificationRule.id;
+      const method = isNew ? 'POST' : 'PUT';
+
+      const response = await fetch('/api/config/notification-rules', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingNotificationRule),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save notification rule');
+      }
+
+      const result = await response.json();
+      const savedRule = result.data || result;
+
+      if (isNew) {
+        setNotificationRules([...notificationRules, savedRule]);
+      } else {
+        setNotificationRules(notificationRules.map(nr => nr.id === savedRule.id ? savedRule : nr));
+      }
+
+      setEditingNotificationRule(null);
+    } catch (err: any) {
+      console.error('Error saving notification rule:', err);
+      alert(err.message || 'Failed to save notification rule');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Toggle notification rule active status
+  const toggleNotificationRuleActive = async (rule: NotificationRule) => {
+    try {
+      const response = await fetch('/api/config/notification-rules', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: rule.id, active: !rule.active }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update notification rule');
+      }
+
+      setNotificationRules(notificationRules.map(nr =>
+        nr.id === rule.id ? { ...nr, active: !nr.active } : nr
+      ));
+    } catch (err: any) {
+      console.error('Error toggling notification rule:', err);
+      alert(err.message || 'Failed to update notification rule');
+    }
+  };
 
   // Event type options
   const eventTypeOptions: SelectOption[] = [
@@ -175,11 +302,29 @@ export default function SuperintendentConfig() {
     { value: 'DAILY', label: 'Daily Summary' }
   ];
 
-  const verticalOptions: SelectOption[] = [
-    { value: 'BOYS', label: 'Boys Hostel' },
-    { value: 'GIRLS', label: 'Girls Ashram' },
-    { value: 'DHARAMSHALA', label: 'Dharamshala' }
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Spinner size="lg" />
+          <p className="mt-4 text-gray-500">Loading configuration...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">{error}</p>
+          <Button variant="secondary" onClick={fetchConfigData}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -267,87 +412,87 @@ export default function SuperintendentConfig() {
               </div>
 
               <div className="grid gap-4">
-                {leaveTypes.map((leaveType) => (
-                  <div
-                    key={leaveType.id}
-                    className="p-4 rounded border"
-                    style={{
-                      borderColor: 'var(--border-gray-200)',
-                      background: 'var(--bg-page)',
-                      opacity: leaveType.active ? 1 : 0.5
-                    }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {leaveType.name}
-                          </h3>
-                          {!leaveType.active && (
-                            <Badge variant="warning" size="sm">Inactive</Badge>
-                          )}
-                          {leaveType.requiresApproval && (
-                            <Badge variant="info" size="sm">Requires Approval</Badge>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                          <div>
-                            <label className="text-gray-600">Max Days/Month</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {leaveType.maxDaysPerMonth}
-                            </p>
+                {leaveTypes.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No leave types configured yet.</p>
+                ) : (
+                  leaveTypes.map((leaveType) => (
+                    <div
+                      key={leaveType.id}
+                      className="p-4 rounded border"
+                      style={{
+                        borderColor: 'var(--border-gray-200)',
+                        background: 'var(--bg-page)',
+                        opacity: leaveType.active ? 1 : 0.5
+                      }}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                              {leaveType.name}
+                            </h3>
+                            {!leaveType.active && (
+                              <Badge variant="warning" size="sm">Inactive</Badge>
+                            )}
+                            {leaveType.requiresApproval && (
+                              <Badge variant="info" size="sm">Requires Approval</Badge>
+                            )}
                           </div>
-                          <div>
-                            <label className="text-gray-600">Max Days/Semester</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {leaveType.maxDaysPerSemester}
-                            </p>
-                          </div>
-                          <div>
-                            <label className="text-gray-600">Approval Required</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {leaveType.requiresApproval ? 'Yes' : 'No'}
-                            </p>
-                          </div>
-                          <div>
-                            <label className="text-gray-600">Allowed Verticals</label>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {leaveType.allowedVerticals.map((v) => (
-                                <Chip
-                                  key={v}
-                                  variant="default"
-                                  size="sm"
-                                >
-                                  {v}
-                                </Chip>
-                              ))}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                            <div>
+                              <label className="text-gray-600">Max Days/Month</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {leaveType.maxDaysPerMonth}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Max Days/Semester</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {leaveType.maxDaysPerSemester}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Approval Required</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {leaveType.requiresApproval ? 'Yes' : 'No'}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Allowed Verticals</label>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {leaveType.allowedVerticals.map((v) => (
+                                  <Chip
+                                    key={v}
+                                    variant="default"
+                                    size="sm"
+                                  >
+                                    {v}
+                                  </Chip>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => setEditingLeaveType(leaveType)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setLeaveTypes(leaveTypes.map(lt =>
-                              lt.id === leaveType.id ? { ...lt, active: !lt.active } : lt
-                            ));
-                          }}
-                        >
-                          {leaveType.active ? 'Disable' : 'Enable'}
-                        </Button>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setEditingLeaveType(leaveType)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => toggleLeaveTypeActive(leaveType)}
+                          >
+                            {leaveType.active ? 'Disable' : 'Enable'}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -365,85 +510,92 @@ export default function SuperintendentConfig() {
                 <Button
                   variant="primary"
                   size="md"
-                  onClick={() => setAddingBlackoutDate(true)}
+                  onClick={() => setEditingBlackoutDate({
+                    id: '',
+                    name: '',
+                    startDate: '',
+                    endDate: '',
+                    verticals: ['BOYS', 'GIRLS', 'DHARAMSHALA'],
+                    reason: ''
+                  })}
                 >
                   Add Blackout Period
                 </Button>
               </div>
 
               <div className="grid gap-4">
-                {blackoutDates.map((blackoutDate) => (
-                  <div
-                    key={blackoutDate.id}
-                    className="p-4 rounded border"
-                    style={{
-                      borderColor: 'var(--border-gray-200)',
-                      background: 'var(--bg-page)'
-                    }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-                          {blackoutDate.name}
-                        </h3>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                          <div>
-                            <label className="text-gray-600">Start Date</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {blackoutDate.startDate}
-                            </p>
-                          </div>
-                          <div>
-                            <label className="text-gray-600">End Date</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {blackoutDate.endDate}
-                            </p>
-                          </div>
-                          <div>
-                            <label className="text-gray-600">Applies To</label>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {blackoutDate.verticals.map((v) => (
-                                <Chip
-                                  key={v}
-                                  variant="default"
-                                  size="sm"
-                                >
-                                  {v}
-                                </Chip>
-                              ))}
+                {blackoutDates.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No blackout dates configured yet.</p>
+                ) : (
+                  blackoutDates.map((blackoutDate) => (
+                    <div
+                      key={blackoutDate.id}
+                      className="p-4 rounded border"
+                      style={{
+                        borderColor: 'var(--border-gray-200)',
+                        background: 'var(--bg-page)'
+                      }}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                            {blackoutDate.name}
+                          </h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                            <div>
+                              <label className="text-gray-600">Start Date</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {blackoutDate.startDate}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">End Date</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {blackoutDate.endDate}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Applies To</label>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {blackoutDate.verticals.map((v) => (
+                                  <Chip
+                                    key={v}
+                                    variant="default"
+                                    size="sm"
+                                  >
+                                    {v}
+                                  </Chip>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Reason</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {blackoutDate.reason}
+                              </p>
                             </div>
                           </div>
-                          <div>
-                            <label className="text-gray-600">Reason</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {blackoutDate.reason}
-                            </p>
-                          </div>
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setEditingBlackoutDate(blackoutDate)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => deleteBlackoutDate(blackoutDate.id)}
+                          >
+                            Delete
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            // Edit functionality
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setBlackoutDates(blackoutDates.filter(bd => bd.id !== blackoutDate.id));
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -480,102 +632,102 @@ export default function SuperintendentConfig() {
               </div>
 
               <div className="grid gap-4">
-                {notificationRules.map((rule) => (
-                  <div
-                    key={rule.id}
-                    className="p-4 rounded border"
-                    style={{
-                      borderColor: 'var(--border-gray-200)',
-                      background: 'var(--bg-page)',
-                      opacity: rule.active ? 1 : 0.5
-                    }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {eventTypeOptions.find(opt => opt.value === rule.eventType)?.label || rule.eventType}
-                          </h3>
-                          {!rule.active && (
-                            <Badge variant="warning" size="sm">Inactive</Badge>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
-                          <div>
-                            <label className="text-gray-600">Timing</label>
-                            <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                              {timingOptions.find(opt => opt.value === rule.timing)?.label || rule.timing}
-                            </p>
+                {notificationRules.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No notification rules configured yet.</p>
+                ) : (
+                  notificationRules.map((rule) => (
+                    <div
+                      key={rule.id}
+                      className="p-4 rounded border"
+                      style={{
+                        borderColor: 'var(--border-gray-200)',
+                        background: 'var(--bg-page)',
+                        opacity: rule.active ? 1 : 0.5
+                      }}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                              {eventTypeOptions.find(opt => opt.value === rule.eventType)?.label || rule.eventType}
+                            </h3>
+                            {!rule.active && (
+                              <Badge variant="warning" size="sm">Inactive</Badge>
+                            )}
                           </div>
-                          <div>
-                            <label className="text-gray-600">Channels</label>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {rule.channels.sms && <Chip variant="success" size="sm">SMS</Chip>}
-                              {rule.channels.whatsapp && <Chip variant="success" size="sm">WhatsApp</Chip>}
-                              {rule.channels.email && <Chip variant="success" size="sm">Email</Chip>}
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
+                            <div>
+                              <label className="text-gray-600">Timing</label>
+                              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {timingOptions.find(opt => opt.value === rule.timing)?.label || rule.timing}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Channels</label>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {rule.channels.sms && <Chip variant="success" size="sm">SMS</Chip>}
+                                {rule.channels.whatsapp && <Chip variant="success" size="sm">WhatsApp</Chip>}
+                                {rule.channels.email && <Chip variant="success" size="sm">Email</Chip>}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Applies To</label>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {rule.verticals.map((v) => (
+                                  <Chip
+                                    key={v}
+                                    variant="default"
+                                    size="sm"
+                                  >
+                                    {v}
+                                  </Chip>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-gray-600">Status</label>
+                              <Badge
+                                variant={rule.active ? 'success' : 'warning'}
+                                size="sm"
+                                className="mt-1"
+                              >
+                                {rule.active ? 'Active' : 'Inactive'}
+                              </Badge>
                             </div>
                           </div>
+
                           <div>
-                            <label className="text-gray-600">Applies To</label>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {rule.verticals.map((v) => (
-                                <Chip
-                                  key={v}
-                                  variant="default"
-                                  size="sm"
-                                >
-                                  {v}
-                                </Chip>
-                              ))}
+                            <label className="text-sm text-gray-600">Message Template</label>
+                            <div className="p-3 rounded mt-1 text-sm font-mono" style={{
+                              background: 'var(--bg-page)',
+                              color: 'var(--text-primary)'
+                            }}>
+                              {rule.template}
                             </div>
                           </div>
-                          <div>
-                            <label className="text-gray-600">Status</label>
-                            <Badge
-                              variant={rule.active ? 'success' : 'warning'}
-                              size="sm"
-                              className="mt-1"
-                            >
-                              {rule.active ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-sm text-gray-600">Message Template</label>
-                          <div className="p-3 rounded mt-1 text-sm font-mono" style={{
-                            background: 'var(--bg-page)',
-                            color: 'var(--text-primary)'
-                          }}>
-                            {rule.template}
-                          </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setEditingNotificationRule(rule)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => toggleNotificationRuleActive(rule)}
+                          >
+                            {rule.active ? 'Disable' : 'Enable'}
+                          </Button>
                         </div>
-                      </div>
-
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => setEditingNotificationRule(rule)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setNotificationRules(notificationRules.map(nr =>
-                              nr.id === rule.id ? { ...nr, active: !nr.active } : nr
-                            ));
-                          }}
-                        >
-                          {rule.active ? 'Disable' : 'Enable'}
-                        </Button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -588,11 +740,8 @@ export default function SuperintendentConfig() {
         onClose={() => setEditingLeaveType(null)}
         title={editingLeaveType?.id ? 'Edit Leave Type' : 'Add Leave Type'}
         size="lg"
-        onConfirm={() => {
-          // Save logic here
-          setEditingLeaveType(null);
-        }}
-        confirmText="Save"
+        onConfirm={saveLeaveType}
+        confirmText={isSaving ? 'Saving...' : 'Save'}
       >
         {editingLeaveType && (
           <div className="space-y-4">
@@ -652,52 +801,66 @@ export default function SuperintendentConfig() {
 
       {/* Blackout Date Modal */}
       <Modal
-        isOpen={addingBlackoutDate}
-        onClose={() => setAddingBlackoutDate(false)}
-        title="Add Blackout Period"
+        isOpen={editingBlackoutDate !== null}
+        onClose={() => setEditingBlackoutDate(null)}
+        title={editingBlackoutDate?.id ? 'Edit Blackout Period' : 'Add Blackout Period'}
         size="lg"
-        onConfirm={() => {
-          setAddingBlackoutDate(false);
-        }}
-        confirmText="Add"
+        onConfirm={saveBlackoutDate}
+        confirmText={isSaving ? 'Saving...' : 'Save'}
       >
-        <div className="space-y-4">
-          <Input
-            label="Period Name"
-            placeholder="e.g., Exam Period - Semester 2"
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <DatePicker
-              label="Start Date"
+        {editingBlackoutDate && (
+          <div className="space-y-4">
+            <Input
+              label="Period Name"
+              value={editingBlackoutDate.name}
+              onChange={(e) => setEditingBlackoutDate({ ...editingBlackoutDate, name: e.target.value })}
+              placeholder="e.g., Exam Period - Semester 2"
               required
             />
-            <DatePicker
-              label="End Date"
-              required
-            />
-          </div>
 
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Applies To Verticals</label>
-            <div className="flex gap-6">
-              {(['BOYS', 'GIRLS', 'DHARAMSHALA'] as Vertical[]).map((vertical) => (
-                <Checkbox
-                  key={vertical}
-                  label={vertical}
-                  defaultChecked={true}
-                />
-              ))}
+            <div className="grid grid-cols-2 gap-4">
+              <DatePicker
+                label="Start Date"
+                value={editingBlackoutDate.startDate}
+                onChange={(e) => setEditingBlackoutDate({ ...editingBlackoutDate, startDate: e.target.value })}
+                required
+              />
+              <DatePicker
+                label="End Date"
+                value={editingBlackoutDate.endDate}
+                onChange={(e) => setEditingBlackoutDate({ ...editingBlackoutDate, endDate: e.target.value })}
+                required
+              />
             </div>
-          </div>
 
-          <Textarea
-            label="Reason"
-            placeholder="e.g., Final examinations, festival period, etc."
-            required
-          />
-        </div>
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Applies To Verticals</label>
+              <div className="flex gap-6">
+                {(['BOYS', 'GIRLS', 'DHARAMSHALA'] as Vertical[]).map((vertical) => (
+                  <Checkbox
+                    key={vertical}
+                    label={vertical}
+                    checked={editingBlackoutDate.verticals.includes(vertical)}
+                    onChange={(checked) => {
+                      const updatedVerticals = checked
+                        ? [...editingBlackoutDate.verticals, vertical]
+                        : editingBlackoutDate.verticals.filter(v => v !== vertical);
+                      setEditingBlackoutDate({ ...editingBlackoutDate, verticals: updatedVerticals });
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <Textarea
+              label="Reason"
+              value={editingBlackoutDate.reason}
+              onChange={(e) => setEditingBlackoutDate({ ...editingBlackoutDate, reason: e.target.value })}
+              placeholder="e.g., Final examinations, festival period, etc."
+              required
+            />
+          </div>
+        )}
       </Modal>
 
       {/* Notification Rule Modal */}
@@ -706,11 +869,8 @@ export default function SuperintendentConfig() {
         onClose={() => setEditingNotificationRule(null)}
         title={editingNotificationRule?.id ? 'Edit Notification Rule' : 'Add Notification Rule'}
         size="xl"
-        onConfirm={() => {
-          // Save logic here
-          setEditingNotificationRule(null);
-        }}
-        confirmText="Save"
+        onConfirm={saveNotificationRule}
+        confirmText={isSaving ? 'Saving...' : 'Save'}
       >
         {editingNotificationRule && (
           <div className="space-y-4">
