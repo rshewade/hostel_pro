@@ -16,7 +16,7 @@ type Room = {
   vertical: string;
   floor: number;
   capacity: number;
-  current_occupancy: number;
+  occupied_count: number;
 };
 
 type AllocationModalProps = {
@@ -112,7 +112,7 @@ export default function AllocationModal({ room, onClose, onSuccess }: Allocation
   });
 
   const selectedStudentData = students.find((s) => s.id === selectedStudent);
-  const availableBeds = room.capacity - room.current_occupancy;
+  const availableBeds = room.capacity - room.occupied_count;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0, 0, 0, 0.5)' }}>
@@ -250,7 +250,7 @@ export default function AllocationModal({ room, onClose, onSuccess }: Allocation
               <strong style={{ color: 'var(--text-primary)' }}>Room {room.room_number}</strong> (Floor {room.floor})
             </div>
             <div className="text-body-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-              After allocation: {room.current_occupancy + 1} / {room.capacity} beds occupied
+              After allocation: {room.occupied_count + 1} / {room.capacity} beds occupied
             </div>
           </div>
         )}

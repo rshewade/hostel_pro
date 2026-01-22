@@ -64,9 +64,10 @@ export const AdminRenewalList: React.FC<AdminRenewalListProps> = ({
           throw new Error('Failed to fetch renewals');
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = result.data || result || [];
 
-        const transformedRenewals: RenewalApplication[] = data.map((renewal: any) => ({
+        const transformedRenewals: RenewalApplication[] = (Array.isArray(data) ? data : []).map((renewal: any) => ({
           id: renewal.id,
           studentId: renewal.student_id,
           studentName: renewal.student_name,

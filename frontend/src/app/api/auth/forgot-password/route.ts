@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   badRequestResponse,
@@ -20,6 +20,7 @@ import { AuthAPI } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: AuthAPI.ForgotPasswordRequest = await request.json();
     const { contact } = body;
 
@@ -42,13 +43,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email or mobile
-    const user = await findOne('users', (u: any) => {
-      const normalizedContact = contact.toLowerCase().trim();
-      return (
-        u.email?.toLowerCase() === normalizedContact ||
-        u.mobile_no?.replace(/\s/g, '') === contact.replace(/\s/g, '')
-      );
-    });
+    const normalizedContact = contact.toLowerCase().trim();
+    const normalizedMobile = contact.replace(/\s/g, '');
+
+    // Query users and filter by email or mobile
+    const { data: users, error: userError } = await supabase
+      .from('users')
+      .select('*');
+
+    if (userError) {
+      console.error('Supabase error:', userError);
+    }
+
+    const user = (users || []).find((u: any) =>
+      u.email?.toLowerCase() === normalizedContact ||
+      u.mobile_no?.replace(/\s/g, '') === normalizedMobile
+    );
 
     // For security, don't reveal if user exists or not
     // Always return success even if user not found
@@ -88,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     // Mock OTP sending (in production, send via SMS/Email)
     console.log('\n========================================');
-    console.log('🔐 PASSWORD RESET OTP GENERATED');
+    console.log('PASSWORD RESET OTP GENERATED');
     console.log('========================================');
     console.log('User ID:', user.id);
     console.log('Contact:', user.email || user.mobile_no);

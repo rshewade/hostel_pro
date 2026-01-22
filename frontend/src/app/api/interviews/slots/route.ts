@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   badRequestResponse,
@@ -13,6 +13,7 @@ import { InterviewAPI } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date');
     const trusteeId = searchParams.get('trustee_id');
@@ -27,13 +28,24 @@ export async function GET(request: NextRequest) {
       return badRequestResponse('Invalid date format');
     }
 
-    // Get all interviews for the date (and optionally specific trustee)
-    const interviews = await find('interviews', (interview: any) => {
+    // Get all interviews for the date
+    const { data: allInterviews, error } = await supabase
+      .from('interviews')
+      .select('*')
+      .neq('status', 'CANCELLED');
+
+    if (error) {
+      console.error('Supabase error fetching interviews:', error);
+      return serverErrorResponse('Failed to fetch interviews', error);
+    }
+
+    // Filter interviews for the specific date and optionally by trustee
+    const interviews = (allInterviews || []).filter((interview: any) => {
       const scheduleDate = new Date(interview.schedule_time).toISOString().split('T')[0];
       const matchesDate = scheduleDate === date;
       const matchesTrustee = !trusteeId || interview.trustee_id === trusteeId;
 
-      return matchesDate && matchesTrustee && interview.status !== 'CANCELLED';
+      return matchesDate && matchesTrustee;
     });
 
     // Generate time slots (9 AM - 5 PM, hourly)

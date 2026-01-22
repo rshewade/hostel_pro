@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne, find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   unauthorizedResponse,
@@ -13,6 +13,8 @@ import { DashboardAPI } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
+
     // Get parent's associated student ID from query or token
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('student_id');
@@ -22,30 +24,55 @@ export async function GET(request: NextRequest) {
     }
 
     // Get student record
-    const student = await findOne('students', (s: any) => s.user_id === studentId);
+    const { data: student, error: studentError } = await supabase
+      .from('students')
+      .select('*')
+      .eq('user_id', studentId)
+      .single();
 
     // Get room allocation
-    const allocation = await findOne(
-      'allocations',
-      (a: any) => a.student_id === studentId && a.status === 'ACTIVE'
-    );
+    const { data: allocation, error: allocError } = await supabase
+      .from('room_allocations')
+      .select('*')
+      .eq('student_user_id', studentId)
+      .eq('status', 'ACTIVE')
+      .single();
 
     let roomNumber = 'Not Allocated';
     let vertical = 'N/A';
 
-    if (allocation) {
-      const room = await findOne('rooms', (r: any) => r.id === allocation.room_id);
-      if (room) {
+    if (allocation && !allocError) {
+      const { data: room, error: roomError } = await supabase
+        .from('rooms')
+        .select('*')
+        .eq('id', allocation.room_id)
+        .single();
+
+      if (room && !roomError) {
         roomNumber = room.room_number;
         vertical = room.vertical;
       }
     }
 
     // Get student fees
-    const fees = await find('fees', (f: any) => f.student_id === studentId);
+    const { data: fees, error: feesError } = await supabase
+      .from('fees')
+      .select('*')
+      .eq('student_user_id', studentId);
+
+    if (feesError) {
+      console.error('Supabase error fetching fees:', feesError);
+    }
 
     // Get student leaves
-    const leaves = await find('leaves', (l: any) => l.student_id === studentId);
+    const { data: leaves, error: leavesError } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('student_user_id', studentId);
+
+    if (leavesError) {
+      console.error('Supabase error fetching leaves:', leavesError);
+    }
 
     // Get notifications (mock - parent-specific notifications)
     const notifications = [
@@ -56,7 +83,12 @@ export async function GET(request: NextRequest) {
       },
     ];
 
-    const user = await findOne('users', (u: any) => u.id === studentId);
+    // Get user details
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', studentId)
+      .single();
 
     const dashboardData: DashboardAPI.ParentDashboard = {
       student: {
@@ -65,8 +97,8 @@ export async function GET(request: NextRequest) {
         room: roomNumber,
         joining_date: allocation?.allocated_at || 'N/A',
       },
-      fees,
-      leaves,
+      fees: fees || [],
+      leaves: leaves || [],
       notifications,
     };
 

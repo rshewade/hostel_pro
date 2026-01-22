@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getCollection, insert, findById, updateById, generateId } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   createdResponse,
@@ -15,12 +15,17 @@ import { AllocationAPI, AllocationStatus } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
-    const allocations = await getCollection('allocations');
+    const supabase = createServerClient();
 
-    // Sort by allocation date (descending)
-    allocations.sort((a: any, b: any) => {
-      return new Date(b.allocated_at).getTime() - new Date(a.allocated_at).getTime();
-    });
+    const { data: allocations, error } = await supabase
+      .from('room_allocations')
+      .select('*, rooms(*), users!student_user_id(*)')
+      .order('allocated_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return serverErrorResponse('Failed to fetch allocations', error);
+    }
 
     return successResponse(allocations);
   } catch (error: any) {
@@ -35,6 +40,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: AllocationAPI.CreateRequest = await request.json();
     const { student_id, room_id } = body;
 
@@ -57,53 +63,62 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify room exists and has capacity
-    const room = await findById('rooms', room_id);
-    if (!room) {
+    const { data: room, error: roomError } = await supabase
+      .from('rooms')
+      .select('*')
+      .eq('id', room_id)
+      .single();
+
+    if (roomError || !room) {
       return badRequestResponse('Room not found');
     }
 
-    if (room.current_occupancy >= room.capacity) {
+    if (room.occupied_count >= room.capacity) {
       return badRequestResponse('Room is at full capacity');
     }
 
     // Check if student already has an active allocation
-    const allocations = await getCollection('allocations');
-    const existingAllocation = allocations.find(
-      (a: any) => a.student_id === student_id && a.status === AllocationStatus.ACTIVE
-    );
+    const { data: existingAllocation } = await supabase
+      .from('room_allocations')
+      .select('id')
+      .eq('student_user_id', student_id)
+      .eq('status', 'ACTIVE')
+      .single();
 
     if (existingAllocation) {
       return badRequestResponse('Student already has an active room allocation');
     }
 
     // Create allocation
-    const newAllocation = {
-      id: generateId('alloc'),
-      student_id,
-      room_id,
-      allocated_at: new Date().toISOString(),
-      vacated_at: null,
-      status: AllocationStatus.ACTIVE,
-    };
+    const { data: newAllocation, error: insertError } = await supabase
+      .from('room_allocations')
+      .insert({
+        student_user_id: student_id,
+        room_id,
+        status: 'ACTIVE',
+      })
+      .select()
+      .single();
 
-    await insert('allocations', newAllocation);
+    if (insertError) {
+      console.error('Supabase insert error:', insertError);
+      return serverErrorResponse('Failed to create allocation', insertError);
+    }
 
     // Update room occupancy
-    await updateById('rooms', room_id, {
-      current_occupancy: room.current_occupancy + 1,
-      status: room.current_occupancy + 1 >= room.capacity ? 'FULL' : 'AVAILABLE',
-    });
+    await supabase
+      .from('rooms')
+      .update({
+        occupied_count: room.occupied_count + 1,
+        status: room.occupied_count + 1 >= room.capacity ? 'OCCUPIED' : 'AVAILABLE',
+      })
+      .eq('id', room_id);
 
     // Log allocation
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
-      entity_type: 'ALLOCATION',
+    await supabase.from('audit_logs').insert({
+      entity_type: 'ROOM_ALLOCATION',
       entity_id: newAllocation.id,
       action: 'CREATE',
-      old_value: null,
-      new_value: AllocationStatus.ACTIVE,
-      performed_by: null,
-      performed_at: new Date().toISOString(),
       metadata: {
         student_id,
         room_id,

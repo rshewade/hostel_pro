@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   unauthorizedResponse,
@@ -20,6 +20,7 @@ import { AuthAPI } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: AuthAPI.ResetPasswordRequest = await request.json();
     const { token, otp, newPassword } = body;
 
@@ -111,9 +112,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
-    const user = await findOne('users', (u: any) => u.id === tokenData.userId);
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', tokenData.userId)
+      .single();
 
-    if (!user) {
+    if (userError || !user) {
       return unauthorizedResponse('User not found');
     }
 
@@ -122,20 +127,27 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(newPassword);
 
     // Update user password
-    await updateById('users', user.id, {
-      password_hash: hashedPassword,
-      password_changed_at: new Date().toISOString(),
-    });
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        password_hash: hashedPassword,
+        password_changed_at: new Date().toISOString(),
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to reset password', updateError);
+    }
 
     // Log password reset
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
+    await supabase.from('audit_logs').insert({
       entity_type: 'USER',
       entity_id: user.id,
       action: 'PASSWORD_RESET',
       old_value: null,
       new_value: 'RESET',
-      performed_by: user.id,
+      actor_id: user.id,
       performed_at: new Date().toISOString(),
       metadata: {
         reset_method: 'OTP',
@@ -145,7 +157,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('\n========================================');
-    console.log('✅ PASSWORD RESET SUCCESSFUL');
+    console.log('PASSWORD RESET SUCCESSFUL');
     console.log('========================================');
     console.log('User ID:', user.id);
     console.log('Email:', user.email);

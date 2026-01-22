@@ -157,8 +157,10 @@ export default function SuperintendentLeaveManagement() {
     const matchesFilter = selectedFilter === 'all' || leave.status === 'PENDING';
     const matchesType = selectedLeaveType === 'ALL' || leave.leaveType === selectedLeaveType;
     const matchesStatus = selectedStatus === 'ALL' || leave.status === selectedStatus;
-    const matchesSearch = leave.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                       leave.studentRoom.toLowerCase().includes(searchQuery.toLowerCase());
+    const studentName = leave.studentName || '';
+    const studentRoom = leave.studentRoom || '';
+    const matchesSearch = studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                       studentRoom.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesType && matchesStatus && matchesSearch;
   });
 
@@ -236,24 +238,20 @@ export default function SuperintendentLeaveManagement() {
   ];
 
   return (
-    <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      {/* Header */}
-      <header className="px-6 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 style={{ color: 'var(--text-primary)' }} className="text-xl font-semibold">
-              Leave Management
-            </h1>
-            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-              Boys Hostel
-            </span>
-          </div>
+    <div className="mx-auto max-w-7xl">
+      {/* Page Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+            Leave Management
+          </h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Review and manage student leave requests
+          </p>
         </div>
-      </header>
+      </div>
 
-      {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-6 py-8">
-        {/* Filter Tabs */}
+      {/* Filter Tabs */}
         <div className="mb-6">
           <div className="flex gap-4">
             <button
@@ -446,7 +444,6 @@ export default function SuperintendentLeaveManagement() {
             </div>
           )}
         </div>
-      </main>
 
       {/* Leave Detail/Review Modal */}
       <Modal

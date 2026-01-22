@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
@@ -12,19 +12,21 @@ import { ApplicationAPI } from '@/types/api';
  * Track application status by tracking number
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ trackingNumber: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const { trackingNumber } = await params;
 
     // Find application by tracking number
-    const application = await findOne(
-      'applications',
-      (app: any) => app.tracking_number === trackingNumber
-    );
+    const { data: application, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('tracking_number', trackingNumber)
+      .single();
 
-    if (!application) {
+    if (error || !application) {
       return notFoundResponse(
         `No application found with tracking number: ${trackingNumber}`
       );

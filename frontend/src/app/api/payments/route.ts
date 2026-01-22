@@ -1,14 +1,13 @@
 import { NextRequest } from 'next/server';
-import { findById, insert, updateById, generateId } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
-  successResponse,
   createdResponse,
   badRequestResponse,
   notFoundResponse,
   serverErrorResponse,
   validateFields,
 } from '@/lib/api/responses';
-import { PaymentAPI, FeeStatus, TransactionStatus } from '@/types/api';
+import { PaymentAPI } from '@/types/api';
 
 /**
  * POST /api/payments
@@ -16,6 +15,7 @@ import { PaymentAPI, FeeStatus, TransactionStatus } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: PaymentAPI.InitiateRequest = await request.json();
     const { fee_id, payment_method, amount } = body;
 
@@ -50,67 +50,85 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify fee exists
-    const fee = await findById('fees', fee_id);
-    if (!fee) {
+    const { data: fee, error: feeError } = await supabase
+      .from('fees')
+      .select('*')
+      .eq('id', fee_id)
+      .single();
+
+    if (feeError || !fee) {
       return notFoundResponse('Fee not found');
     }
 
     // Check if fee is already paid
-    if (fee.status === FeeStatus.PAID) {
+    if (fee.status === 'PAID') {
       return badRequestResponse('Fee has already been paid');
     }
 
     // Verify amount matches fee
-    if (amount !== fee.amount) {
+    const feeAmount = parseFloat(fee.amount);
+    if (amount !== feeAmount) {
       return badRequestResponse(
-        `Payment amount (${amount}) does not match fee amount (${fee.amount})`
+        `Payment amount (${amount}) does not match fee amount (${feeAmount})`
       );
     }
 
-    // Create transaction
-    const transactionId = generateId('txn');
-    const transaction = {
-      id: transactionId,
-      fee_id,
-      amount,
-      payment_method,
-      transaction_id: `TXN${Date.now()}`,
-      status: TransactionStatus.PENDING,
-      created_at: new Date().toISOString(),
-    };
+    // Create payment record
+    const transactionId = `TXN${Date.now()}`;
+    const { data: payment, error: insertError } = await supabase
+      .from('payments')
+      .insert({
+        fee_id,
+        student_user_id: fee.student_user_id,
+        amount,
+        payment_method: payment_method.toUpperCase(),
+        transaction_id: transactionId,
+        status: 'PENDING',
+      })
+      .select()
+      .single();
 
-    await insert('transactions', transaction);
+    if (insertError) {
+      console.error('Supabase insert error:', insertError);
+      return serverErrorResponse('Failed to create payment', insertError);
+    }
 
-    // For mock implementation, immediately mark as success
-    // In production, this would return payment gateway URL
+    // For mock implementation in development, immediately mark as success
     if (process.env.NODE_ENV === 'development') {
       // Auto-complete payment in development
-      await updateById('transactions', transactionId, {
-        status: TransactionStatus.SUCCESS,
-      });
+      await supabase
+        .from('payments')
+        .update({
+          status: 'PAID',
+          paid_at: new Date().toISOString(),
+        })
+        .eq('id', payment.id);
 
       // Update fee status
-      await updateById('fees', fee_id, {
-        status: FeeStatus.PAID,
-        paid_at: new Date().toISOString(),
-      });
+      await supabase
+        .from('fees')
+        .update({
+          status: 'PAID',
+          paid_at: new Date().toISOString(),
+        })
+        .eq('id', fee_id);
     }
 
     console.log('\n========================================');
     console.log('💰 PAYMENT INITIATED');
     console.log('========================================');
-    console.log('Transaction ID:', transaction.transaction_id);
+    console.log('Transaction ID:', transactionId);
     console.log('Fee ID:', fee_id);
     console.log('Amount:', amount);
     console.log('Payment Method:', payment_method);
-    console.log('Status:', transaction.status);
+    console.log('Status:', payment.status);
     console.log('========================================\n');
 
     const response: PaymentAPI.InitiateResponse = {
       success: true,
-      transaction_id: transaction.transaction_id,
+      transaction_id: transactionId,
       ...(payment_method === 'UPI' && {
-        payment_url: `upi://pay?pa=hostel@bank&pn=Hostel&am=${amount}&tn=${transaction.transaction_id}`,
+        payment_url: `upi://pay?pa=hostel@bank&pn=Hostel&am=${amount}&tn=${transactionId}`,
       }),
     };
 

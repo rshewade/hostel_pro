@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   unauthorizedResponse,
@@ -21,6 +21,7 @@ import { AuthAPI, UserRole } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: AuthAPI.FirstTimeSetupRequest = await request.json();
     const { token, newPassword, dpdpConsent } = body;
 
@@ -88,9 +89,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
-    const user = await findOne('users', (u: any) => u.id === tokenData.userId);
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', tokenData.userId)
+      .single();
 
-    if (!user) {
+    if (userError || !user) {
       return unauthorizedResponse('User not found');
     }
 
@@ -98,47 +103,54 @@ export async function POST(request: NextRequest) {
     // In production, use: bcrypt.hash(newPassword, 10)
     const hashedPassword = await hashPassword(newPassword);
 
-    // Update user password
-    await updateById('users', user.id, {
-      password_hash: hashedPassword,
-      password_changed_at: new Date().toISOString(),
-      first_login_completed: true,
-    });
+    // Update user - set requires_password_change to false and store password in metadata
+    // Note: In production, password should be managed by Supabase Auth, not stored in users table
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        requires_password_change: false,
+        metadata: {
+          ...(user.metadata || {}),
+          password_hash: hashedPassword, // Mock storage for development
+          password_changed_at: new Date().toISOString(),
+          dpdp_consent: true,
+          dpdp_consent_at: new Date().toISOString(),
+        },
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to update password', updateError);
+    }
 
     // Log DPDP consent
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
+    await supabase.from('audit_logs').insert({
       entity_type: 'USER',
       entity_id: user.id,
       action: 'DPDP_CONSENT',
-      old_value: null,
-      new_value: 'ACCEPTED',
-      performed_by: user.id,
-      performed_at: new Date().toISOString(),
+      actor_id: user.id,
       metadata: {
         consent_type: 'first_login_setup',
+        consent_value: 'ACCEPTED',
         ip_address: request.headers.get('x-forwarded-for') || 'unknown',
         user_agent: request.headers.get('user-agent') || 'unknown',
       },
     });
 
     // Log password change
-    await insert('auditLogs', {
-      id: `audit${Date.now() + 1}`,
+    await supabase.from('audit_logs').insert({
       entity_type: 'USER',
       entity_id: user.id,
       action: 'PASSWORD_CHANGE',
-      old_value: null,
-      new_value: 'CHANGED',
-      performed_by: user.id,
-      performed_at: new Date().toISOString(),
+      actor_id: user.id,
       metadata: {
         change_type: 'first_time_setup',
       },
     });
 
     console.log('\n========================================');
-    console.log('✅ FIRST-TIME SETUP COMPLETED');
+    console.log('FIRST-TIME SETUP COMPLETED');
     console.log('========================================');
     console.log('User ID:', user.id);
     console.log('Role:', user.role);

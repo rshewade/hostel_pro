@@ -60,13 +60,29 @@ export default function CheckInPage() {
   const [roomConditionOk, setRoomConditionOk] = useState(false);
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState('');
-
-  // Mock student ID - in production, get from auth session
-  const studentId = 'u1';
+  const [studentId, setStudentId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAllocationData();
+    // Get student ID from auth token in localStorage
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const tokenData = JSON.parse(atob(token));
+        setStudentId(tokenData.userId);
+      } catch (e) {
+        console.error('Error decoding token:', e);
+        setError('Authentication error. Please login again.');
+      }
+    } else {
+      setError('Please login to complete check-in.');
+    }
   }, []);
+
+  useEffect(() => {
+    if (studentId) {
+      fetchAllocationData();
+    }
+  }, [studentId]);
 
   const fetchAllocationData = async () => {
     try {
@@ -74,11 +90,12 @@ export default function CheckInPage() {
       setError(null);
 
       // Fetch student's allocation
-      const allocationsResponse = await fetch('/api/allocations');
-      const allocationsData = await allocationsResponse.json();
+      const allocationsResponse = await fetch(`/api/allocations?student_id=${studentId}`);
+      const allocationsResult = await allocationsResponse.json();
+      const allocationsData = allocationsResult.data || allocationsResult || [];
 
-      const studentAllocation = (allocationsData.data || []).find(
-        (a: Allocation) => a.student_id === studentId && a.status === 'ACTIVE'
+      const studentAllocation = (Array.isArray(allocationsData) ? allocationsData : []).find(
+        (a: any) => (a.student_user_id === studentId || a.student_id === studentId) && a.status === 'ACTIVE'
       );
 
       if (!studentAllocation) {
@@ -97,8 +114,9 @@ export default function CheckInPage() {
 
       // Fetch room details
       const roomsResponse = await fetch('/api/rooms');
-      const roomsData = await roomsResponse.json();
-      const roomData = (roomsData.data || []).find((r: Room) => r.id === studentAllocation.room_id);
+      const roomsResult = await roomsResponse.json();
+      const roomsList = roomsResult.data || roomsResult || [];
+      const roomData = (Array.isArray(roomsList) ? roomsList : []).find((r: Room) => r.id === studentAllocation.room_id);
 
       if (roomData) {
         setRoom(roomData);

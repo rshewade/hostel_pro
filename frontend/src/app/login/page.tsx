@@ -36,7 +36,14 @@ export default function LoginPage() {
 
       if (response.ok) {
         const { data } = responseBody;
-        
+
+        // Store auth token in localStorage for API calls
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('userId', data.userId);
+        }
+
         // Check if first-time login
         if (data.requiresPasswordChange) {
           router.push(`/login/first-time-setup?token=${data.token}`);
@@ -56,16 +63,16 @@ export default function LoginPage() {
   };
 
   const getRoleRedirectPath = (role: string): string => {
-    switch (role) {
-      case 'student':
+    switch (role.toUpperCase()) {
+      case 'STUDENT':
         return '/dashboard/student';
-      case 'superintendent':
+      case 'SUPERINTENDENT':
         return '/dashboard/superintendent';
-      case 'trustee':
+      case 'TRUSTEE':
         return '/dashboard/trustee';
-      case 'accounts':
+      case 'ACCOUNTS':
         return '/dashboard/accounts';
-      case 'parent':
+      case 'PARENT':
         return '/dashboard/parent';
       default:
         return '/';

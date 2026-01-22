@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Container, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/ui/Button';
-import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ClipboardCheck, ShieldAlert, History, BookOpen } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen } from 'lucide-react';
 import { cn } from '@/components/utils';
 
 interface DashboardTemplateProps {
@@ -52,10 +52,12 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
     } else if (path.startsWith('/dashboard/superintendent')) {
       return [
         { label: 'Applications', href: '/dashboard/superintendent', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: 'Rooms', href: '/dashboard/superintendent/rooms', icon: <BedDouble className="w-4 h-4" /> },
         { label: 'Leaves', href: '/dashboard/superintendent/leaves', icon: <CalendarDays className="w-4 h-4" /> },
         { label: 'Clearance', href: '/dashboard/superintendent/clearance', icon: <FileCheck className="w-4 h-4" /> },
-        { label: 'Configuration', href: '/dashboard/superintendent/config', icon: <Settings className="w-4 h-4" /> },
-        { label: 'Manual', href: '/dashboard/superintendent/manual', icon: <BookOpen className="w-4 h-4" /> },
+        { label: 'Renewal', href: '/dashboard/superintendent/renewal', icon: <History className="w-4 h-4" /> },
+        { label: 'Audit', href: '/dashboard/superintendent/audit', icon: <ShieldAlert className="w-4 h-4" /> },
+        { label: 'Settings', href: '/dashboard/superintendent/config', icon: <Settings className="w-4 h-4" /> },
       ];
     } else if (path.startsWith('/dashboard/trustee')) {
       return [
@@ -71,44 +73,26 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
         { label: 'Overview', href: '/dashboard/parent', icon: <LayoutDashboard className="w-4 h-4" /> },
         { label: 'Leave', href: '/dashboard/parent/leave', icon: <CalendarDays className="w-4 h-4" /> },
       ];
-    } else if (path.startsWith('/dashboard/admin')) {
-      return [
-        { label: 'Room Allocation', href: '/dashboard/admin/room-allocation', icon: <BedDouble className="w-4 h-4" /> },
-        { label: 'Renewal', href: '/dashboard/admin/renewal', icon: <FileText className="w-4 h-4" /> },
-        { label: 'Audit Logs', href: '/dashboard/admin/audit/logs', icon: <ShieldAlert className="w-4 h-4" /> },
-        { label: 'Clearance', href: '/dashboard/admin/clearance', icon: <ClipboardCheck className="w-4 h-4" /> },
-        { label: 'Exit Approval', href: '/dashboard/admin/exit-approval', icon: <LogOut className="w-4 h-4" /> },
-      ];
     }
     return [];
   };
 
   const navItems = getNavigationItems(pathname);
 
-  // Determine role label for header
-  const getRoleLabel = (path: string) => {
-    if (path.includes('/student')) return 'Student';
-    if (path.includes('/superintendent')) return 'Superintendent';
-    if (path.includes('/trustee')) return 'Trustee';
-    if (path.includes('/accounts')) return 'Accounts';
-    if (path.includes('/parent')) return 'Parent';
-    if (path.includes('/admin')) return 'Admin';
-    return 'Guest';
-  };
-
   const sidebar = (
     <Card padding="md" className="h-full">
       <nav className="space-y-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href ||
+            (item.href.split('/').length > 2 && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 "w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-colors",
-                isActive 
-                  ? "bg-navy-50 text-navy-900 border-l-4 border-navy-900" 
+                isActive
+                  ? "bg-navy-50 text-navy-900 border-l-4 border-navy-900"
                   : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               )}
               onClick={() => isMobile && setSidebarOpen(false)}
@@ -122,7 +106,7 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
     </Card>
   );
 
-  const isTopNavRole = pathname.includes('/student') || pathname.includes('/superintendent') || pathname.includes('/trustee') || pathname.includes('/parent');
+  const isTopNavRole = pathname.includes('/student') || pathname.includes('/superintendent') || pathname.includes('/trustee') || pathname.includes('/parent') || pathname.includes('/accounts');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -170,18 +154,22 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
             {/* Desktop Navigation */}
             {isTopNavRole && isDesktop && (
               <nav className="hidden md:flex items-center gap-6">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "text-sm font-medium transition-colors hover:text-navy-900",
-                      pathname === item.href ? "text-navy-900 font-bold" : "text-gray-600"
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href ||
+                    (item.href !== '/dashboard/superintendent' && pathname.startsWith(item.href));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "text-sm font-medium transition-colors hover:text-navy-900",
+                        isActive ? "text-navy-900 font-bold" : "text-gray-600"
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
               </nav>
             )}
 

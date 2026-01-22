@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   unauthorizedResponse,
@@ -12,12 +12,10 @@ import { AuthAPI } from '@/types/api';
  *
  * Terminate user session and invalidate token.
  * Logs the logout action for audit purposes.
- *
- * @see Task 7 - Student Login
- * @see .docs/api-routes-audit.md
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: AuthAPI.LogoutRequest = await request.json();
     const { token } = body;
 
@@ -33,15 +31,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Log logout action
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
+    await supabase.from('audit_logs').insert({
       entity_type: 'USER',
       entity_id: tokenData.userId,
       action: 'LOGOUT',
-      old_value: 'LOGGED_IN',
-      new_value: 'LOGGED_OUT',
-      performed_by: tokenData.userId,
-      performed_at: new Date().toISOString(),
+      actor_id: tokenData.userId,
       metadata: {
         ip_address: request.headers.get('x-forwarded-for') || 'unknown',
         user_agent: request.headers.get('user-agent') || 'unknown',
@@ -55,9 +49,6 @@ export async function POST(request: NextRequest) {
     console.log('Role:', tokenData.role);
     console.log('Timestamp:', new Date().toISOString());
     console.log('========================================\n');
-
-    // In production, invalidate token in Redis/database
-    // For prototyping, client-side token removal is sufficient
 
     const response: AuthAPI.LogoutResponse = {
       success: true,
@@ -77,20 +68,18 @@ export async function POST(request: NextRequest) {
 
 /**
  * Verify and decode mock JWT token
- * In production, use: jwt.verify(token, SECRET_KEY)
  */
 function verifyMockToken(token: string): any {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
     const tokenData = JSON.parse(decoded);
 
-    // Check expiration
     if (tokenData.exp && tokenData.exp < Date.now()) {
       return null;
     }
 
     return tokenData;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

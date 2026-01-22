@@ -10,11 +10,10 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest --coverage",
-    "json-server": "json-server --watch ../db.json --port 4001 --host 0.0.0.0",
-    "dev:all": "concurrently \"npm run json-server\" \"npm run dev\""
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.91.0",
     "autoprefixer": "^10.4.23",
     "lucide-react": "^0.562.0",
     "next": "16.1.0",
@@ -32,12 +31,10 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",
     "clsx": "^2.1.1",
-    "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
     "happy-dom": "^20.0.11",
     "jsdom": "^27.4.0",
-    "json-server": "^0.17.4",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
     "typescript": "5.9.3",

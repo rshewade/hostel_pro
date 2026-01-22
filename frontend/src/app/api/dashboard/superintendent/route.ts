@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getCollection, find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   serverErrorResponse,
@@ -12,8 +12,17 @@ import { DashboardAPI, ApplicationStatus } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
+
     // Get all applications
-    const applications = await getCollection('applications');
+    const { data: applications, error: appError } = await supabase
+      .from('applications')
+      .select('*');
+
+    if (appError) {
+      console.error('Supabase error fetching applications:', appError);
+      return serverErrorResponse('Failed to fetch applications', appError);
+    }
 
     // Count by status
     const byStatus: Record<ApplicationStatus, number> = {
@@ -31,7 +40,7 @@ export async function GET(request: NextRequest) {
     const currentYear = new Date().getFullYear();
     let totalThisMonth = 0;
 
-    applications.forEach((app: any) => {
+    (applications || []).forEach((app: any) => {
       byStatus[app.current_status as ApplicationStatus]++;
 
       if (app.current_status === 'SUBMITTED' || app.current_status === 'REVIEW') {
@@ -48,21 +57,29 @@ export async function GET(request: NextRequest) {
     });
 
     // Get occupancy stats
-    const rooms = await getCollection('rooms');
+    const { data: rooms, error: roomError } = await supabase
+      .from('rooms')
+      .select('*');
+
+    if (roomError) {
+      console.error('Supabase error fetching rooms:', roomError);
+      return serverErrorResponse('Failed to fetch rooms', roomError);
+    }
+
     let totalCapacity = 0;
     let currentOccupancy = 0;
 
-    rooms.forEach((room: any) => {
+    (rooms || []).forEach((room: any) => {
       totalCapacity += room.capacity;
-      currentOccupancy += room.current_occupancy;
+      currentOccupancy += room.occupied_count || 0;
     });
 
     const occupancyPercentage = totalCapacity > 0
       ? Math.round((currentOccupancy / totalCapacity) * 100)
       : 0;
 
-    // Get recent applications
-    const recentApplications = applications
+    // Get recent applications (excluding DRAFT and ARCHIVED)
+    const recentApplications = (applications || [])
       .filter((app: any) => app.current_status !== 'DRAFT' && app.current_status !== 'ARCHIVED')
       .sort((a: any, b: any) => {
         return new Date(b.submitted_at || b.created_at).getTime() -

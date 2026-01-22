@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-import { find, insert, generateId } from '@/lib/api/db';
-import { paginate } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   createdResponse,
@@ -16,32 +15,95 @@ import { LeaveAPI, LeaveStatus } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('student_id');
     const status = searchParams.get('status') as LeaveStatus | null;
+    const vertical = searchParams.get('vertical');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const offset = (page - 1) * limit;
 
-    const leaves = await find('leaves', (leave: any) => {
-      const matchesStudent = !studentId || leave.student_id === studentId;
-      const matchesStatus = !status || leave.status === status;
+    // Build query with joins to get student info and room
+    let query = supabase
+      .from('leave_requests')
+      .select(`
+        *,
+        student:users!student_user_id(id, full_name, email, mobile, vertical)
+      `, { count: 'exact' });
 
-      return matchesStudent && matchesStatus;
-    });
+    if (studentId) {
+      query = query.eq('student_user_id', studentId);
+    }
+    if (status) {
+      query = query.eq('status', status);
+    }
 
-    // Sort by creation date (descending)
-    leaves.sort((a: any, b: any) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+    const { data: leaves, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    // Paginate
-    const paginatedResult = paginate(leaves, page, limit);
+    if (error) {
+      console.error('Supabase error:', error);
+      return serverErrorResponse('Failed to fetch leaves', error);
+    }
 
-    return successResponse({
-      success: true,
-      data: paginatedResult.data,
-      pagination: paginatedResult.pagination,
-    } as LeaveAPI.ListResponse);
+    // Get room allocations for all students in the leave requests
+    const studentIds = leaves?.map(l => l.student_user_id).filter(Boolean) || [];
+    let roomMap: Record<string, string> = {};
+
+    if (studentIds.length > 0) {
+      const { data: allocations } = await supabase
+        .from('room_allocations')
+        .select('student_user_id, rooms(room_number)')
+        .in('student_user_id', studentIds)
+        .eq('status', 'ACTIVE');
+
+      if (allocations) {
+        for (const alloc of allocations) {
+          const roomNumber = (alloc.rooms as any)?.room_number;
+          if (roomNumber) {
+            roomMap[alloc.student_user_id] = `Room ${roomNumber}`;
+          }
+        }
+      }
+    }
+
+    // Map leave type from database to frontend format
+    const leaveTypeMap: Record<string, string> = {
+      'SHORT_LEAVE': 'short',
+      'NIGHT_OUT': 'night-out',
+      'HOME_VISIT': 'multi-day',
+      'MEDICAL': 'multi-day',
+      'EMERGENCY': 'multi-day',
+    };
+
+    // Transform data to match frontend expectations
+    const transformedLeaves = leaves?.map(leave => ({
+      id: leave.id,
+      studentId: leave.student_user_id,
+      studentName: (leave.student as any)?.full_name || 'Unknown',
+      studentRoom: roomMap[leave.student_user_id] || 'Not Allocated',
+      vertical: (leave.student as any)?.vertical || 'BOYS_HOSTEL',
+      leaveType: leaveTypeMap[leave.type] || 'short',
+      fromDate: leave.start_time?.split('T')[0] || '',
+      toDate: leave.end_time?.split('T')[0] || '',
+      fromTime: leave.start_time?.split('T')[1]?.substring(0, 5) || '',
+      toTime: leave.end_time?.split('T')[1]?.substring(0, 5) || '',
+      reason: leave.reason || '',
+      destination: leave.destination || '',
+      contactNumber: leave.emergency_contact || '',
+      status: leave.status,
+      appliedDate: leave.created_at?.split('T')[0] || '',
+      remarks: leave.rejection_reason || '',
+      approvedBy: leave.approved_by || '',
+      approvedAt: leave.approved_at || '',
+      parentContacted: leave.parent_notified || false,
+    })) || [];
+
+    const total = count || 0;
+
+    return successResponse(transformedLeaves);
   } catch (error: any) {
     console.error('Error in GET /api/leaves:', error);
     return serverErrorResponse('Failed to fetch leaves', error);
@@ -54,6 +116,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: LeaveAPI.CreateRequest = await request.json();
     const { student_id, type, start_time, end_time, reason } = body;
 
@@ -106,30 +169,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Create leave request
-    const newLeave = {
-      id: generateId('leave'),
-      student_id,
-      type,
-      start_time,
-      end_time,
-      reason,
-      status: LeaveStatus.PENDING,
-      parent_notified_at: null,
-      created_at: new Date().toISOString(),
-    };
+    const { data: newLeave, error: insertError } = await supabase
+      .from('leave_requests')
+      .insert({
+        student_user_id: student_id,
+        type,
+        start_time,
+        end_time,
+        reason,
+        status: 'PENDING',
+        parent_notified: false,
+      })
+      .select()
+      .single();
 
-    await insert('leaves', newLeave);
+    if (insertError) {
+      console.error('Supabase insert error:', insertError);
+      return serverErrorResponse('Failed to create leave request', insertError);
+    }
 
-    // Log leave creation
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
-      entity_type: 'LEAVE',
+    // Log leave creation in audit_logs
+    await supabase.from('audit_logs').insert({
+      entity_type: 'LEAVE_REQUEST',
       entity_id: newLeave.id,
       action: 'CREATE',
-      old_value: null,
-      new_value: LeaveStatus.PENDING,
-      performed_by: student_id,
-      performed_at: new Date().toISOString(),
+      actor_id: student_id,
       metadata: {
         type,
         duration: `${start_time} to ${end_time}`,

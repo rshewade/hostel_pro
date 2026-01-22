@@ -33,6 +33,7 @@ export default function StudentFeesPage() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedFee, setSelectedFee] = useState<{ id: string; name: string; amount: number } | null>(null);
   const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,17 +41,29 @@ export default function StudentFeesPage() {
     const fetchFees = async () => {
       try {
         setLoading(true);
-        // Get current student ID from session/auth - for demo, using STU001
-        const studentId = 'STU001';
+        // Get current student ID from auth token in localStorage
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setError('Please login to view fees');
+          setLoading(false);
+          return;
+        }
+
+        // Decode token to get user ID
+        const tokenData = JSON.parse(atob(token));
+        const studentId = tokenData.userId;
+
         const response = await fetch(`/api/fees?student_id=${studentId}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch fees');
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        // API returns { success: true, data: { data: [...], summary: {...} } }
+        const feesData = result.data?.data || result.data || [];
 
-        const transformedFees: FeeItem[] = data.map((fee: any) => ({
+        const transformedFees: FeeItem[] = (Array.isArray(feesData) ? feesData : []).map((fee: any) => ({
           id: fee.id,
           name: fee.name,
           description: fee.description || `${fee.name} for current period`,
@@ -61,6 +74,20 @@ export default function StudentFeesPage() {
         }));
 
         setFeeItems(transformedFees);
+
+        // Also fetch payment history
+        try {
+          const paymentsResponse = await fetch(`/api/payments?student_id=${studentId}`);
+          if (paymentsResponse.ok) {
+            const paymentsResult = await paymentsResponse.json();
+            const paymentsData = paymentsResult.data?.data || paymentsResult.data || [];
+            setPaymentHistory(Array.isArray(paymentsData) ? paymentsData : []);
+          }
+        } catch (paymentErr) {
+          console.error('Error fetching payments:', paymentErr);
+          // Don't fail the whole page if payments fail
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching fees:', err);
@@ -353,87 +380,47 @@ export default function StudentFeesPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr style={{ borderBottom: '1px solid var(--border-primary)' }}>
-                      <td className="py-3 px-4">
-                        <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
-                          TXN-1735448000000
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Processing Fee
-                      </td>
-                      <td className="py-3 px-4 font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        ₹5,000
-                      </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
-                        UPI
-                      </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
-                        15 Jan 2024, 10:30 AM
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant="success" size="sm">Paid</Badge>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <Button variant="ghost" size="xs" onClick={() => {}}>
-                          Download
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid var(--border-primary)' }}>
-                      <td className="py-3 px-4">
-                        <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
-                          TXN-1735448000001
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Hostel Fees (Partial)
-                      </td>
-                      <td className="py-3 px-4 font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        ₹30,000
-                      </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
-                        QR Code
-                      </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
-                        20 Jan 2024, 2:15 PM
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant="success" size="sm">Paid</Badge>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <Button variant="ghost" size="xs" onClick={() => {}}>
-                          Download
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 px-4">
-                        <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
-                          TXN-1735448000002
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Hostel Fees (Partial)
-                      </td>
-                      <td className="py-3 px-4 font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        ₹30,000
-                      </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
-                        UPI
-                      </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
-                        25 Jan 2024, 11:45 AM
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant="warning" size="sm">Pending</Badge>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <Button variant="ghost" size="xs" disabled onClick={() => {}}>
-                          Pending
-                        </Button>
-                      </td>
-                    </tr>
+                    {paymentHistory.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
+                          No payment history found
+                        </td>
+                      </tr>
+                    ) : (
+                      paymentHistory.slice(0, 3).map((payment: any, index: number) => (
+                        <tr key={payment.id || index} style={{ borderBottom: index < paymentHistory.length - 1 ? '1px solid var(--border-primary)' : undefined }}>
+                          <td className="py-3 px-4">
+                            <span className="font-mono" style={{ color: 'var(--text-primary)' }}>
+                              {payment.transaction_id || `TXN-${payment.id?.slice(0, 8)}`}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
+                            {payment.notes || 'Fee Payment'}
+                          </td>
+                          <td className="py-3 px-4 font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            ₹{Number(payment.amount || 0).toLocaleString('en-IN')}
+                          </td>
+                          <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
+                            {payment.payment_method || 'N/A'}
+                          </td>
+                          <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>
+                            {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('en-IN', {
+                              day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            }) : 'Pending'}
+                          </td>
+                          <td className="py-3 px-4">
+                            <Badge variant={payment.status === 'PAID' ? 'success' : payment.status === 'PENDING' ? 'warning' : 'error'} size="sm">
+                              {payment.status || 'Unknown'}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <Button variant="ghost" size="xs" disabled={payment.status !== 'PAID'} onClick={() => {}}>
+                              {payment.status === 'PAID' ? 'Download' : 'Pending'}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

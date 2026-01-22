@@ -182,20 +182,21 @@ export default function SuperintendentConfig() {
   ];
 
   return (
-    <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      {/* Header */}
-      <header className="px-6 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Superintendent Configuration
-            </h1>
-            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-              {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
-            </span>
-          </div>
+    <div className="mx-auto max-w-7xl">
+      {/* Page Header */}
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+            Settings
+          </h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Configure leave policies, notifications, and blackout dates
+          </p>
         </div>
-      </header>
+        <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
+          {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
+        </span>
+      </div>
 
       {/* Tabs */}
       <nav className="mx-auto max-w-7xl border-b" style={{ borderColor: 'var(--border-gray-200)' }}>

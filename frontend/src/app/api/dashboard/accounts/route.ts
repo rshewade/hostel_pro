@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getCollection } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   serverErrorResponse,
@@ -12,15 +12,25 @@ import { DashboardAPI, TransactionStatus, FeeStatus } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Get current month transactions
-    const transactions = await getCollection('transactions');
+    const supabase = createServerClient();
+
+    // Get all payments (transactions)
+    const { data: transactions, error: txnError } = await supabase
+      .from('payments')
+      .select('*');
+
+    if (txnError) {
+      console.error('Supabase error fetching payments:', txnError);
+      return serverErrorResponse('Failed to fetch payments', txnError);
+    }
+
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
     let collectedThisMonth = 0;
 
-    transactions.forEach((txn: any) => {
-      if (txn.status === TransactionStatus.SUCCESS) {
+    (transactions || []).forEach((txn: any) => {
+      if (txn.status === TransactionStatus.SUCCESS || txn.status === 'PAID') {
         const txnDate = new Date(txn.created_at);
         if (
           txnDate.getMonth() === currentMonth &&
@@ -32,12 +42,20 @@ export async function GET(request: NextRequest) {
     });
 
     // Get fee summary
-    const fees = await getCollection('fees');
+    const { data: fees, error: feeError } = await supabase
+      .from('fees')
+      .select('*');
+
+    if (feeError) {
+      console.error('Supabase error fetching fees:', feeError);
+      return serverErrorResponse('Failed to fetch fees', feeError);
+    }
+
     let pendingAmount = 0;
     let overdueAmount = 0;
 
-    fees.forEach((fee: any) => {
-      if (fee.status === FeeStatus.PENDING) {
+    (fees || []).forEach((fee: any) => {
+      if (fee.status === FeeStatus.PENDING || fee.status === 'PENDING') {
         const dueDate = new Date(fee.due_date);
         const isOverdue = dueDate < new Date();
 
@@ -49,9 +67,9 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Get recent transactions
-    const recentTransactions = transactions
-      .filter((txn: any) => txn.status === TransactionStatus.SUCCESS)
+    // Get recent transactions (successful ones)
+    const recentTransactions = (transactions || [])
+      .filter((txn: any) => txn.status === TransactionStatus.SUCCESS || txn.status === 'PAID')
       .sort((a: any, b: any) => {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       })

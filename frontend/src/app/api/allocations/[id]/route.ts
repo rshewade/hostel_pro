@@ -1,17 +1,10 @@
 import { NextRequest } from 'next/server';
-import { findById, updateById } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
   serverErrorResponse,
-  badRequestResponse,
 } from '@/lib/api/responses';
-
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
 
 /**
  * GET /api/allocations/[id]
@@ -22,14 +15,19 @@ export async function GET(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const params = await props.params;
     const { id } = params;
-    
-    console.log(`GET /api/allocations/${id}`); // Debug
 
-    const allocation = await findById('allocations', id);
+    console.log(`GET /api/allocations/${id}`);
 
-    if (!allocation) {
+    const { data: allocation, error } = await supabase
+      .from('room_allocations')
+      .select('*, rooms(*), users!student_user_id(*)')
+      .eq('id', id)
+      .single();
+
+    if (error || !allocation) {
       return notFoundResponse('Allocation not found');
     }
 
@@ -49,23 +47,35 @@ export async function PUT(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const params = await props.params;
     const { id } = params;
     const body = await request.json();
 
-    console.log(`PUT /api/allocations/${id}`, body); // Debug
+    console.log(`PUT /api/allocations/${id}`, body);
 
-    const existingAllocation = await findById('allocations', id);
+    // Check if allocation exists
+    const { data: existingAllocation, error: fetchError } = await supabase
+      .from('room_allocations')
+      .select('id')
+      .eq('id', id)
+      .single();
 
-    if (!existingAllocation) {
+    if (fetchError || !existingAllocation) {
       return notFoundResponse('Allocation not found');
     }
 
     // Perform update
-    const updatedAllocation = await updateById('allocations', id, body);
+    const { data: updatedAllocation, error: updateError } = await supabase
+      .from('room_allocations')
+      .update(body)
+      .eq('id', id)
+      .select()
+      .single();
 
-    if (!updatedAllocation) {
-      return serverErrorResponse('Failed to update allocation');
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to update allocation', updateError);
     }
 
     return successResponse(updatedAllocation);

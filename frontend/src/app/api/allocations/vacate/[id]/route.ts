@@ -1,65 +1,80 @@
 import { NextRequest } from 'next/server';
-import { findById, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
   badRequestResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
-import { AllocationAPI, AllocationStatus } from '@/types/api';
+import { AllocationAPI } from '@/types/api';
 
 /**
  * PUT /api/allocations/vacate/[id]
  * Vacate a room allocation
  */
 export async function PUT(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const { id } = await params;
 
-    const allocation = await findById('allocations', id);
+    // Get allocation with room info
+    const { data: allocation, error: fetchError } = await supabase
+      .from('room_allocations')
+      .select('*, rooms(*)')
+      .eq('id', id)
+      .single();
 
-    if (!allocation) {
+    if (fetchError || !allocation) {
       return notFoundResponse('Allocation not found');
     }
 
-    if (allocation.status === AllocationStatus.VACATED) {
+    if (allocation.status === 'CHECKED_OUT') {
       return badRequestResponse('Room has already been vacated');
     }
 
-    // Get room info
-    const room = await findById('rooms', allocation.room_id);
+    const room = allocation.rooms;
 
     // Update allocation
-    const updatedAllocation = await updateById('allocations', id, {
-      vacated_at: new Date().toISOString(),
-      status: AllocationStatus.VACATED,
-    });
+    const { data: updatedAllocation, error: updateError } = await supabase
+      .from('room_allocations')
+      .update({
+        vacated_at: new Date().toISOString(),
+        status: 'CHECKED_OUT',
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to vacate room', updateError);
+    }
 
     // Update room occupancy
     if (room) {
-      await updateById('rooms', allocation.room_id, {
-        current_occupancy: Math.max(0, room.current_occupancy - 1),
-        status: room.current_occupancy - 1 < room.capacity ? 'AVAILABLE' : 'FULL',
-      });
+      await supabase
+        .from('rooms')
+        .update({
+          occupied_count: Math.max(0, room.occupied_count - 1),
+          status: room.occupied_count - 1 < room.capacity ? 'AVAILABLE' : 'OCCUPIED',
+        })
+        .eq('id', allocation.room_id);
     }
 
     // Log vacate action
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
-      entity_type: 'ALLOCATION',
+    await supabase.from('audit_logs').insert({
+      entity_type: 'ROOM_ALLOCATION',
       entity_id: id,
       action: 'VACATE',
-      old_value: AllocationStatus.ACTIVE,
-      new_value: AllocationStatus.VACATED,
-      performed_by: null,
-      performed_at: new Date().toISOString(),
       metadata: {
-        student_id: allocation.student_id,
+        student_id: allocation.student_user_id,
         room_id: allocation.room_id,
         room_number: room?.room_number,
+        old_status: allocation.status,
+        new_status: 'CHECKED_OUT',
       },
     });
 
@@ -67,7 +82,7 @@ export async function PUT(
     console.log('👋 ROOM VACATED');
     console.log('========================================');
     console.log('Allocation ID:', id);
-    console.log('Student ID:', allocation.student_id);
+    console.log('Student ID:', allocation.student_user_id);
     console.log('Room:', room?.room_number);
     console.log('========================================\n');
 

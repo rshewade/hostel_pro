@@ -447,25 +447,23 @@ export default function SuperintendentDashboard() {
   ];
 
   return (
-    <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
-      {/* Header */}
-      <header className="px-6 py-4 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Superintendent Dashboard
-            </h1>
-            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-              {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
-            </span>
-          </div>
-          <Button variant="ghost" size="sm">
-            Logout
-          </Button>
+    <div className="mx-auto max-w-7xl">
+      {/* Page Title */}
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+            Applications
+          </h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Review and manage hostel admission applications
+          </p>
         </div>
-      </header>
+        <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
+          {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
+        </span>
+      </div>
 
-      {/* Tabs */}
+      {/* Secondary Tabs (for internal navigation within Applications) */}
       <nav className="mx-auto max-w-7xl border-b" style={{ borderColor: 'var(--border-gray-200)' }}>
         <div className="flex gap-8 px-6">
           <button

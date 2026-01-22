@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findById, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
@@ -13,20 +13,26 @@ import { ApplicationAPI, ApplicationStatus } from '@/types/api';
  * Submit an application for review
  */
 export async function POST(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const { id } = await params;
 
-    const application = await findById('applications', id);
+    // Get application
+    const { data: application, error: fetchError } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!application) {
+    if (fetchError || !application) {
       return notFoundResponse('Application not found');
     }
 
     // Check if application is in DRAFT status
-    if (application.current_status !== ApplicationStatus.DRAFT) {
+    if (application.current_status !== 'DRAFT') {
       return badRequestResponse(
         `Application has already been submitted (Status: ${application.current_status})`
       );
@@ -41,29 +47,33 @@ export async function POST(
     }
 
     // Update status to SUBMITTED
-    const updatedApplication = await updateById('applications', id, {
-      current_status: ApplicationStatus.SUBMITTED,
-      submitted_at: new Date().toISOString(),
-    });
+    const { data: updatedApplication, error: updateError } = await supabase
+      .from('applications')
+      .update({
+        current_status: 'SUBMITTED',
+        submitted_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
 
-    if (!updatedApplication) {
-      return serverErrorResponse('Failed to update application status');
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to update application status', updateError);
     }
 
     // Log submission
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
+    await supabase.from('audit_logs').insert({
       entity_type: 'APPLICATION',
       entity_id: id,
       action: 'SUBMIT',
-      old_value: ApplicationStatus.DRAFT,
-      new_value: ApplicationStatus.SUBMITTED,
-      performed_by: application.student_user_id || null,
-      performed_at: new Date().toISOString(),
+      actor_id: application.student_user_id,
       metadata: {
         tracking_number: application.tracking_number,
         vertical: application.vertical,
         applicant_mobile: application.applicant_mobile,
+        old_status: ApplicationStatus.DRAFT,
+        new_status: ApplicationStatus.SUBMITTED,
       },
     });
 
@@ -73,7 +83,7 @@ export async function POST(
     console.log('Application ID:', id);
     console.log('Tracking Number:', application.tracking_number);
     console.log('Vertical:', application.vertical);
-    console.log('Submitted At:', updatedApplication.submitted_at);
+    console.log('Submitted At:', updatedApplication?.submitted_at);
     console.log('========================================\n');
 
     return successResponse({
@@ -100,24 +110,24 @@ function validateApplicationData(data: any): {
   const missingFields: string[] = [];
 
   // Check required fields based on application type
-  if (!data.personal_info?.full_name) {
+  if (!data?.personal_info?.full_name) {
     missingFields.push('personal_info.full_name');
   }
 
-  if (!data.personal_info?.age) {
+  if (!data?.personal_info?.age) {
     missingFields.push('personal_info.age');
   }
 
-  if (!data.personal_info?.native_place) {
+  if (!data?.personal_info?.native_place) {
     missingFields.push('personal_info.native_place');
   }
 
-  if (!data.guardian_info?.father_name) {
+  if (!data?.guardian_info?.father_name) {
     missingFields.push('guardian_info.father_name');
   }
 
   // For students (not dharamshala), require education details
-  if (data.education) {
+  if (data?.education) {
     if (!data.education.institution) {
       missingFields.push('education.institution');
     }
@@ -127,7 +137,7 @@ function validateApplicationData(data: any): {
   }
 
   // For dharamshala, require stay duration
-  if (data.stay_duration) {
+  if (data?.stay_duration) {
     if (!data.stay_duration.from || !data.stay_duration.to) {
       missingFields.push('stay_duration');
     }

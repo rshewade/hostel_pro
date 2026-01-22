@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findOne, find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/parent/leave
@@ -8,6 +8,7 @@ import { findOne, find } from '@/lib/api/db';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const sessionToken = searchParams.get('sessionToken');
 
@@ -57,27 +58,42 @@ export async function GET(request: NextRequest) {
 
     if (selectedStudentId) {
       // Parent has selected a specific ward - use that student's user_id
-      const student = await findOne('students', (s: any) => s.id === selectedStudentId);
-      if (student) {
+      const { data: student, error: studErr } = await supabase
+        .from('students')
+        .select('*')
+        .eq('id', selectedStudentId)
+        .single();
+
+      if (student && !studErr) {
         studentUserId = student.user_id;
         console.log('\n========================================');
-        console.log('📋 PARENT LEAVE DATA ACCESS (Selected Ward)');
+        console.log('PARENT LEAVE DATA ACCESS (Selected Ward)');
         console.log('========================================');
         console.log('Selected Ward ID:', selectedStudentId);
         console.log('Ward User ID:', studentUserId);
       }
     } else {
       // No selection - fall back to first student in parent's linked_student_ids
-      const parentUser = await findOne('users', (u: any) =>
-        u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
+      const { data: parentUsers, error: parentErr } = await supabase
+        .from('users')
+        .select('*')
+        .eq('role', 'parent');
+
+      const parentUser = (parentUsers || []).find((u: any) =>
+        normalizePhone(u.mobile_no) === normalizedParentMobile
       );
 
       if (parentUser?.linked_student_ids && parentUser.linked_student_ids.length > 0) {
         const defaultStudentId = parentUser.linked_student_ids[0];
-        const student = await findOne('students', (s: any) => s.id === defaultStudentId);
+        const { data: student, error: studErr } = await supabase
+          .from('students')
+          .select('*')
+          .eq('id', defaultStudentId)
+          .single();
+
         studentUserId = student?.user_id;
         console.log('\n========================================');
-        console.log('📋 PARENT LEAVE DATA ACCESS (Default Ward)');
+        console.log('PARENT LEAVE DATA ACCESS (Default Ward)');
         console.log('========================================');
         console.log('Default Ward ID:', defaultStudentId);
         console.log('Ward User ID:', studentUserId);
@@ -85,14 +101,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch leave requests for the student
-    let leaves = [];
+    let leaves: any[] = [];
     if (studentUserId) {
-      leaves = await find('leaves', (l: any) => l.student_id === studentUserId);
+      const { data: leaveData, error: leaveErr } = await supabase
+        .from('leave_requests')
+        .select('*')
+        .eq('student_user_id', studentUserId);
+
+      leaves = leaveData || [];
       console.log('Leaves Found:', leaves.length);
       console.log('========================================\n');
     } else {
       console.log('\n========================================');
-      console.log('📋 PARENT LEAVE DATA ACCESS');
+      console.log('PARENT LEAVE DATA ACCESS');
       console.log('========================================');
       console.log('No student found for parent');
       console.log('========================================\n');

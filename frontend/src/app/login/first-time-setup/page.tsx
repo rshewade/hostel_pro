@@ -78,17 +78,32 @@ function FirstTimeSetupContent() {
         }),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
-      if (response.ok) {
+      if (response.ok && result.success) {
         setSuccess(true);
+        // Store auth token in localStorage for API calls
+        // The token is available from URL params
+        if (token) {
+          localStorage.setItem('authToken', token);
+          // Decode token to get user info
+          try {
+            const tokenData = JSON.parse(atob(token));
+            localStorage.setItem('userRole', tokenData.role || '');
+            localStorage.setItem('userId', tokenData.userId || '');
+          } catch (e) {
+            console.error('Error decoding token:', e);
+          }
+        }
         // Auto-redirect after 2 seconds
+        // API returns { success: true, data: { role: '...' } }
+        const role = result.data?.role || result.role;
         setTimeout(() => {
-          const redirectPath = getRoleRedirectPath(data.role);
+          const redirectPath = getRoleRedirectPath(role);
           router.push(redirectPath);
         }, 2000);
       } else {
-        setError(data.error || 'Failed to update password. Please try again.');
+        setError(result.error || result.message || 'Failed to update password. Please try again.');
       }
     } catch (err) {
       setError('Unable to connect. Please try again later.');
@@ -97,17 +112,18 @@ function FirstTimeSetupContent() {
     }
   };
 
-  const getRoleRedirectPath = (role: string): string => {
-    switch (role) {
-      case 'student':
+  const getRoleRedirectPath = (role: string | undefined): string => {
+    if (!role) return '/dashboard/student'; // Default fallback
+    switch (role.toUpperCase()) {
+      case 'STUDENT':
         return '/dashboard/student';
-      case 'superintendent':
+      case 'SUPERINTENDENT':
         return '/dashboard/superintendent';
-      case 'trustee':
+      case 'TRUSTEE':
         return '/dashboard/trustee';
-      case 'accounts':
+      case 'ACCOUNTS':
         return '/dashboard/accounts';
-      case 'parent':
+      case 'PARENT':
         return '/dashboard/parent';
       default:
         return '/';

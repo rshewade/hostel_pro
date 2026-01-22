@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
-import { find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
-import { RoomAPI, Vertical, RoomStatus } from '@/types/api';
+import { Vertical, RoomStatus } from '@/types/api';
 
 /**
  * GET /api/rooms
@@ -12,21 +12,30 @@ import { RoomAPI, Vertical, RoomStatus } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const vertical = searchParams.get('vertical') as Vertical | null;
     const floor = searchParams.get('floor');
     const status = searchParams.get('status') as RoomStatus | null;
 
-    const rooms = await find('rooms', (room: any) => {
-      const matchesVertical = !vertical || room.vertical === vertical;
-      const matchesFloor = !floor || room.floor === parseInt(floor);
-      const matchesStatus = !status || room.status === status;
+    let query = supabase.from('rooms').select('*');
 
-      return matchesVertical && matchesFloor && matchesStatus;
-    });
+    if (vertical) {
+      query = query.eq('vertical', vertical);
+    }
+    if (floor) {
+      query = query.eq('floor', parseInt(floor));
+    }
+    if (status) {
+      query = query.eq('status', status);
+    }
 
-    // Sort by room number
-    rooms.sort((a: any, b: any) => a.room_number.localeCompare(b.room_number));
+    const { data: rooms, error } = await query.order('room_number');
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return serverErrorResponse('Failed to fetch rooms', error);
+    }
 
     return successResponse(rooms);
   } catch (error: any) {

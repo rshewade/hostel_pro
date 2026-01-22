@@ -1,19 +1,124 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components';
 import { ComingSoonPlaceholder } from '@/components/future/ComingSoonPlaceholder';
 import { DPDPComplianceBanner } from '@/components/audit/DPDPComplianceBanner';
 
+interface StudentProfile {
+  id: string;
+  full_name: string;
+  vertical: string;
+  room_number?: string;
+  joining_date?: string;
+  check_in_confirmed?: boolean;
+}
+
 export default function StudentDashboard() {
   const router = useRouter();
-  const [vertical] = useState('Boys Hostel');
-  const [status] = useState('CHECKED_IN');
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [vertical, setVertical] = useState('Boys Hostel');
+  const [status, setStatus] = useState('CHECKED_IN');
+  const [roomNumber, setRoomNumber] = useState<string | null>(null);
+  const [joiningDate, setJoiningDate] = useState<string | null>(null);
   const [academicYear] = useState('2024-25');
   const [currentPeriod] = useState('SEMESTER_2');
   const [renewalDaysRemaining] = useState(30);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        const tokenData = JSON.parse(atob(token));
+        const userId = tokenData.userId;
+
+        // Fetch user profile
+        const profileResponse = await fetch(`/api/users/profile?user_id=${userId}`);
+        if (profileResponse.ok) {
+          const profileResult = await profileResponse.json();
+          const userData = profileResult.data || profileResult;
+          setProfile(userData);
+
+          // Set vertical display name
+          const verticalMap: Record<string, string> = {
+            'BOYS': 'Boys Hostel',
+            'GIRLS': 'Girls Ashram',
+            'DHARAMSHALA': 'Dharamshala',
+          };
+          setVertical(verticalMap[userData.vertical] || userData.vertical || 'Boys Hostel');
+        }
+
+        // Fetch room allocation
+        const allocationsResponse = await fetch(`/api/allocations?student_id=${userId}`);
+        if (allocationsResponse.ok) {
+          const allocationsResult = await allocationsResponse.json();
+          const allocationsData = allocationsResult.data || allocationsResult || [];
+          const activeAllocation = (Array.isArray(allocationsData) ? allocationsData : []).find(
+            (a: any) => (a.student_user_id === userId || a.student_id === userId) && a.status === 'ACTIVE'
+          );
+
+          if (activeAllocation) {
+            setStatus(activeAllocation.check_in_confirmed ? 'CHECKED_IN' : 'ALLOCATED');
+            setJoiningDate(activeAllocation.allocated_at);
+
+            // Fetch room details
+            const roomsResponse = await fetch('/api/rooms');
+            if (roomsResponse.ok) {
+              const roomsResult = await roomsResponse.json();
+              const roomsList = roomsResult.data || roomsResult || [];
+              const room = (Array.isArray(roomsList) ? roomsList : []).find(
+                (r: any) => r.id === activeAllocation.room_id
+              );
+              if (room) {
+                setRoomNumber(room.room_number);
+              }
+            }
+          } else {
+            setStatus('NOT_ALLOCATED');
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching profile data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [router]);
+
+  const getStatusDisplay = () => {
+    switch (status) {
+      case 'CHECKED_IN':
+        return { label: 'Checked-in', color: 'var(--color-green-600)' };
+      case 'ALLOCATED':
+        return { label: 'Room Allocated', color: 'var(--color-blue-600)' };
+      case 'NOT_ALLOCATED':
+        return { label: 'Pending Allocation', color: 'var(--color-gold-600)' };
+      default:
+        return { label: status, color: 'var(--color-gray-600)' };
+    }
+  };
+
+  const statusDisplay = getStatusDisplay();
+
+  if (loading) {
+    return (
+      <div style={{ background: 'var(--bg-page)' }} className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-900 mx-auto mb-4"></div>
+          <p style={{ color: 'var(--text-secondary)' }}>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
@@ -23,17 +128,17 @@ export default function StudentDashboard() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-heading-2 mb-2" style={{ color: 'var(--text-primary)' }}>
-                  Welcome, Student!
+                  Welcome, {profile?.full_name || 'Student'}!
                 </h2>
                 <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
-                  You are logged in as <strong>Student</strong> at <strong>{vertical}</strong>
+                  You are logged in as <strong>{profile?.full_name || 'Student'}</strong> at <strong>{vertical}</strong>
                 </p>
                 <p className="text-body-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
                   Academic Year: <strong>{academicYear}</strong> | Current Period: <strong>{currentPeriod.replace('_', ' ')}</strong>
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-medium text-white" style={{ background: 'var(--color-green-600)' }}>
-                Checked-in
+              <span className="px-3 py-1 rounded-full text-xs font-medium text-white" style={{ background: statusDisplay.color }}>
+                {statusDisplay.label}
               </span>
             </div>
           </div>
@@ -164,11 +269,17 @@ export default function StudentDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Room No:</span>
-                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>A-201</span>
+                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>
+                  {roomNumber || 'Not Allocated'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Joining Date:</span>
-                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>August 15, 2024</span>
+                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>
+                  {joiningDate
+                    ? new Date(joiningDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'Not Available'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Academic Year:</span>
@@ -186,7 +297,9 @@ export default function StudentDashboard() {
               </div>
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Status:</span>
-                <span className="px-2 py-1 rounded text-xs font-medium text-white" style={{ background: 'var(--color-green-600)' }}>Checked-in</span>
+                <span className="px-2 py-1 rounded text-xs font-medium text-white" style={{ background: statusDisplay.color }}>
+                  {statusDisplay.label}
+                </span>
               </div>
             </div>
           </div>

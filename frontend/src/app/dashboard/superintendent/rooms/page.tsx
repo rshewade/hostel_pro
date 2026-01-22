@@ -16,7 +16,7 @@ type Room = {
   vertical: Vertical;
   floor: number;
   capacity: number;
-  current_occupancy: number;
+  occupied_count: number;
   status: RoomStatus;
 };
 
@@ -77,8 +77,8 @@ export default function RoomAllocationPage() {
   // Calculate room status
   const getRoomStatus = (room: Room): RoomStatus => {
     if (room.status === 'MAINTENANCE') return 'MAINTENANCE';
-    if (room.current_occupancy === 0) return 'AVAILABLE';
-    if (room.current_occupancy >= room.capacity) return 'FULL';
+    if (room.occupied_count === 0) return 'AVAILABLE';
+    if (room.occupied_count >= room.capacity) return 'FULL';
     return 'PARTIAL';
   };
 
@@ -302,7 +302,7 @@ function RoomCard({
 
       <div className="mb-3">
         <div className="text-body-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-          {room.current_occupancy} / {room.capacity}
+          {room.occupied_count} / {room.capacity}
         </div>
         <div className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>
           Occupancy
@@ -341,14 +341,17 @@ function RoomDetailPanel({
     try {
       // Fetch student profiles for each allocation
       const students = await Promise.all(
-        allocations.map(async (allocation, index) => {
+        allocations.map(async (allocation: any, index) => {
+          // Handle both student_id and student_user_id field names
+          const studentId = allocation.student_user_id || allocation.student_id;
           try {
-            const response = await fetch(`/api/users/profile?user_id=${allocation.student_id}`);
+            const response = await fetch(`/api/users/profile?user_id=${studentId}`);
             if (response.ok) {
-              const data = await response.json();
+              const result = await response.json();
+              const userData = result.data || result;
               return {
-                id: allocation.student_id,
-                full_name: data.profile?.full_name || 'Unknown Student',
+                id: studentId || `occupant-${index}`,
+                full_name: userData.full_name || userData.profile?.full_name || 'Unknown Student',
                 bed_number: index + 1,
               };
             }
@@ -356,8 +359,8 @@ function RoomDetailPanel({
             console.error('Error fetching student:', error);
           }
           return {
-            id: allocation.student_id,
-            full_name: 'Student ' + allocation.student_id,
+            id: studentId || `occupant-${index}`,
+            full_name: 'Student',
             bed_number: index + 1,
           };
         })
@@ -370,7 +373,7 @@ function RoomDetailPanel({
     }
   };
 
-  const availableBeds = room.capacity - room.current_occupancy;
+  const availableBeds = room.capacity - room.occupied_count;
 
   return (
     <div className="sticky top-6 p-6 rounded-lg border" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
@@ -413,7 +416,7 @@ function RoomDetailPanel({
             Capacity
           </div>
           <div className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>
-            {room.current_occupancy} / {room.capacity} beds occupied
+            {room.occupied_count} / {room.capacity} beds occupied
           </div>
           {availableBeds > 0 && (
             <div className="text-body-sm text-green-600">
@@ -438,9 +441,9 @@ function RoomDetailPanel({
           </p>
         ) : (
           <div className="space-y-2">
-            {occupants.map((student) => (
+            {occupants.map((student, index) => (
               <div
-                key={student.id}
+                key={`${student.id}-${index}`}
                 className="p-3 rounded-md"
                 style={{ background: 'var(--surface-secondary)' }}
               >

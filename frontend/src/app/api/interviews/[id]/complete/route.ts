@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findById, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
@@ -18,6 +18,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const { id } = await params;
     const body: InterviewAPI.CompleteRequest = await request.json();
     const { final_score, internal_remarks } = body;
@@ -47,9 +48,14 @@ export async function PUT(
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    const interview = await findById('interviews', id);
+    // Find interview
+    const { data: interview, error: fetchError } = await supabase
+      .from('interviews')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!interview) {
+    if (fetchError || !interview) {
       return notFoundResponse('Interview not found');
     }
 
@@ -58,21 +64,30 @@ export async function PUT(
     }
 
     // Update interview
-    const updatedInterview = await updateById('interviews', id, {
-      final_score,
-      internal_remarks,
-      status: InterviewStatus.COMPLETED,
-    });
+    const { data: updatedInterview, error: updateError } = await supabase
+      .from('interviews')
+      .update({
+        final_score,
+        internal_remarks,
+        status: InterviewStatus.COMPLETED,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to complete interview', updateError);
+    }
 
     // Log completion
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
+    await supabase.from('audit_logs').insert({
       entity_type: 'INTERVIEW',
       entity_id: id,
       action: 'COMPLETE',
       old_value: interview.status,
       new_value: InterviewStatus.COMPLETED,
-      performed_by: interview.trustee_id,
+      actor_id: interview.trustee_id,
       performed_at: new Date().toISOString(),
       metadata: {
         application_id: interview.application_id,
@@ -81,7 +96,7 @@ export async function PUT(
     });
 
     console.log('\n========================================');
-    console.log('✅ INTERVIEW COMPLETED');
+    console.log('INTERVIEW COMPLETED');
     console.log('========================================');
     console.log('Interview ID:', id);
     console.log('Application ID:', interview.application_id);

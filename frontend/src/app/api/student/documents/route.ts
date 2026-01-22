@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('studentId') || 'u1';
 
-    const documents = await find('documents', (doc: any) => 
-      doc.student_id === studentId || doc.studentId === studentId
-    );
+    // Query documents for the student
+    const { data: documents, error } = await supabase
+      .from('documents')
+      .select('*')
+      .or(`student_user_id.eq.${studentId},student_id.eq.${studentId}`);
+
+    if (error) {
+      console.error('Supabase error fetching documents:', error);
+    }
 
     const documentTypeMap: Record<string, { title: string; category: string }> = {
       'AADHAR_CARD': { title: 'Aadhar Card', category: 'IDENTITY' },
@@ -21,12 +28,12 @@ export async function GET(request: NextRequest) {
       'FEE_RECEIPT': { title: 'Fee Receipt', category: 'RECEIPT' },
     };
 
-    const formattedDocuments = documents.map((doc: any, index: number) => {
-      const typeInfo = documentTypeMap[doc.document_type] || { 
-        title: doc.document_type.replace(/_/g, ' '), 
-        category: 'ADMISSION' 
+    const formattedDocuments = (documents || []).map((doc: any, index: number) => {
+      const typeInfo = documentTypeMap[doc.document_type] || {
+        title: doc.document_type?.replace(/_/g, ' ') || 'Document',
+        category: 'ADMISSION'
       };
-      
+
       return {
         id: doc.id || `doc-${index}`,
         title: typeInfo.title,

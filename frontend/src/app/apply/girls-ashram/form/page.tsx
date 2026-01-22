@@ -951,7 +951,9 @@ export default function ApplicationFormPage() {
 
       const result = await response.json();
       localStorage.removeItem('application_draft_girls-ashram');
-      window.location.href = `/apply/girls-ashram/success?trackingNumber=${result.trackingNumber}`;
+      // API response wraps data in { success: true, data: {...} }
+      const trackingNumber = result.data?.trackingNumber || result.data?.tracking_number || result.trackingNumber;
+      window.location.href = `/apply/girls-ashram/success?trackingNumber=${trackingNumber}`;
     } catch (error: any) {
       console.error('Failed to submit application:', error);
       alert(`Failed to submit application: ${error.message || 'Please try again.'}`);

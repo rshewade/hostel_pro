@@ -1,55 +1,70 @@
 import { NextRequest } from 'next/server';
-import { findById, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
   badRequestResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
-import { LeaveAPI, LeaveStatus } from '@/types/api';
+import { LeaveStatus } from '@/types/api';
 
 /**
  * PUT /api/leaves/[id]/approve
  * Approve a leave request
  */
 export async function PUT(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const { id } = await params;
 
-    const leave = await findById('leaves', id);
+    // Get leave request
+    const { data: leave, error: fetchError } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!leave) {
+    if (fetchError || !leave) {
       return notFoundResponse('Leave request not found');
     }
 
-    if (leave.status !== LeaveStatus.PENDING) {
+    if (leave.status !== 'PENDING') {
       return badRequestResponse(
         `Leave request has already been ${leave.status.toLowerCase()}`
       );
     }
 
     // Update leave status
-    const updatedLeave = await updateById('leaves', id, {
-      status: LeaveStatus.APPROVED,
-      parent_notified_at: new Date().toISOString(),
-    });
+    const { data: updatedLeave, error: updateError } = await supabase
+      .from('leave_requests')
+      .update({
+        status: 'APPROVED',
+        approved_at: new Date().toISOString(),
+        parent_notified: true,
+        parent_notified_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to approve leave', updateError);
+    }
 
     // Log approval
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
-      entity_type: 'LEAVE',
+    await supabase.from('audit_logs').insert({
+      entity_type: 'LEAVE_REQUEST',
       entity_id: id,
       action: 'APPROVE',
-      old_value: LeaveStatus.PENDING,
-      new_value: LeaveStatus.APPROVED,
-      performed_by: null, // Should be superintendent/admin ID
-      performed_at: new Date().toISOString(),
       metadata: {
-        student_id: leave.student_id,
+        student_id: leave.student_user_id,
         leave_type: leave.type,
+        old_status: 'PENDING',
+        new_status: 'APPROVED',
       },
     });
 
@@ -57,7 +72,7 @@ export async function PUT(
     console.log('✅ LEAVE APPROVED');
     console.log('========================================');
     console.log('Leave ID:', id);
-    console.log('Student ID:', leave.student_id);
+    console.log('Student ID:', leave.student_user_id);
     console.log('Type:', leave.type);
     console.log('Parent Notified:', true);
     console.log('========================================\n');

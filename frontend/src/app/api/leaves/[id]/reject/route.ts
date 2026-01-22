@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findById, updateById, insert } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   notFoundResponse,
@@ -7,7 +7,7 @@ import {
   serverErrorResponse,
   validateFields,
 } from '@/lib/api/responses';
-import { LeaveAPI, LeaveStatus } from '@/types/api';
+import { LeaveAPI } from '@/types/api';
 
 /**
  * PUT /api/leaves/[id]/reject
@@ -18,6 +18,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = createServerClient();
     const { id } = await params;
     const body: LeaveAPI.RejectRequest = await request.json();
     const { reason } = body;
@@ -42,43 +43,53 @@ export async function PUT(
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    const leave = await findById('leaves', id);
+    // Get leave request
+    const { data: leave, error: fetchError } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!leave) {
+    if (fetchError || !leave) {
       return notFoundResponse('Leave request not found');
     }
 
-    if (leave.status !== LeaveStatus.PENDING) {
+    if (leave.status !== 'PENDING') {
       return badRequestResponse(
         `Leave request has already been ${leave.status.toLowerCase()}`
       );
     }
 
     // Update leave status
-    const updatedLeave = await updateById('leaves', id, {
-      status: LeaveStatus.REJECTED,
-      rejection_reason: reason,
-      parent_notified_at: new Date().toISOString(),
-    });
+    const { data: updatedLeave, error: updateError } = await supabase
+      .from('leave_requests')
+      .update({
+        status: 'REJECTED',
+        rejected_at: new Date().toISOString(),
+        rejection_reason: reason,
+        parent_notified: true,
+        parent_notified_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
 
-    if (!updatedLeave) {
-      return serverErrorResponse('Failed to update leave status');
+    if (updateError) {
+      console.error('Supabase update error:', updateError);
+      return serverErrorResponse('Failed to reject leave', updateError);
     }
 
     // Log rejection
-    await insert('auditLogs', {
-      id: `audit${Date.now()}`,
-      entity_type: 'LEAVE',
+    await supabase.from('audit_logs').insert({
+      entity_type: 'LEAVE_REQUEST',
       entity_id: id,
       action: 'REJECT',
-      old_value: LeaveStatus.PENDING,
-      new_value: LeaveStatus.REJECTED,
-      performed_by: null, // Should be superintendent/admin ID
-      performed_at: new Date().toISOString(),
       metadata: {
-        student_id: leave.student_id,
+        student_id: leave.student_user_id,
         leave_type: leave.type,
         rejection_reason: reason,
+        old_status: 'PENDING',
+        new_status: 'REJECTED',
       },
     });
 
@@ -86,7 +97,7 @@ export async function PUT(
     console.log('❌ LEAVE REJECTED');
     console.log('========================================');
     console.log('Leave ID:', id);
-    console.log('Student ID:', leave.student_id);
+    console.log('Student ID:', leave.student_user_id);
     console.log('Reason:', reason);
     console.log('========================================\n');
 

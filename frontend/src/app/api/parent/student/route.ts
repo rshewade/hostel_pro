@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { find, findOne } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/parent/student
  *
  * Read-only endpoint for parent to view their ward's student information.
- * Looks up students by matching parent mobile number in applications/profiles.
+ * Looks up students by matching parent mobile number.
  *
  * Query Parameters:
  * - sessionToken: string - Parent session token from OTP login
@@ -18,6 +18,7 @@ import { find, findOne } from '@/lib/api/db';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const sessionToken = searchParams.get('sessionToken');
 
@@ -41,8 +42,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify role is PARENT
-    if (tokenData.vertical !== 'parent' && tokenData.role !== 'parent') {
+    // Verify role is parent
+    if (tokenData.vertical !== 'parent') {
       return NextResponse.json(
         { message: 'Access denied. Parent access required.' },
         { status: 403 }
@@ -67,132 +68,119 @@ export async function GET(request: NextRequest) {
     const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
     const normalizedParentMobile = normalizePhone(parentMobile);
 
-    // First, look up parent user by mobile to get linked_student_id
-    const parentUser = await findOne('users', (u: any) => 
-      u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
-    );
-
-    // Also check applications where parent mobile matches
-    const applications = await find('applications', (app: any) => {
-      const fatherMobile = normalizePhone(app.data?.guardian_info?.father_mobile || '');
-      const motherMobile = normalizePhone(app.data?.guardian_info?.mother_mobile || '');
-      return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
-    });
-
-    // Check students for existing residents by parent mobile
-    const studentsWithParent = await find('students', (student: any) => {
-      const fatherMobile = normalizePhone(student.father_mobile || '');
-      const motherMobile = normalizePhone(student.mother_mobile || '');
-      return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
-    });
-
-    // Combine and deduplicate students
     const students: any[] = [];
 
-    // If parent user has linked_student_ids, look up each student
-    if (parentUser?.linked_student_ids && Array.isArray(parentUser.linked_student_ids)) {
-      for (const studentId of parentUser.linked_student_ids) {
-        const student = await findOne('students', (s: any) => s.id === studentId);
-        if (student) {
-          // Skip if already added
-          if (students.some(s => s.id === student.id)) continue;
+    // 1. Find students from students table where father/mother mobile matches
+    const { data: studentRecords, error: studentError } = await supabase
+      .from('students')
+      .select('*, users!inner(id, full_name, email, mobile)')
+      .or(`father_mobile.eq.${normalizedParentMobile},mother_mobile.eq.${normalizedParentMobile}`);
+
+    if (!studentError && studentRecords) {
+      for (const student of studentRecords) {
+        // Get room allocation for this student
+        const { data: allocation } = await supabase
+          .from('room_allocations')
+          .select('*, rooms(*)')
+          .eq('student_user_id', student.user_id)
+          .eq('status', 'ACTIVE')
+          .single();
+
+        const verticalMap: Record<string, string> = {
+          'BOYS_HOSTEL': 'Boys Hostel',
+          'GIRLS_ASHRAM': 'Girls Ashram',
+          'DHARAMSHALA': 'Dharamshala',
+        };
+
+        students.push({
+          id: student.user_id,
+          name: student.users?.full_name || 'Unknown',
+          photo: null,
+          vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
+          room: allocation?.rooms?.room_number ? `Room ${allocation.rooms.room_number}` : 'Not Allocated',
+          joiningDate: student.joining_date || student.created_at,
+          status: student.status || (allocation ? 'CHECKED_IN' : 'PENDING'),
+          institution: student.institution,
+          course: student.course,
+          year: student.year_of_study,
+        });
+      }
+    }
+
+    // 2. Fallback: Check users table parent_mobile (for backwards compatibility)
+    if (students.length === 0) {
+      const { data: studentUsers } = await supabase
+        .from('users')
+        .select('*')
+        .eq('role', 'STUDENT');
+
+      if (studentUsers) {
+        for (const user of studentUsers) {
+          const userParentMobile = normalizePhone(user.parent_mobile || '');
+          if (userParentMobile === normalizedParentMobile) {
+            const { data: allocation } = await supabase
+              .from('room_allocations')
+              .select('*, rooms(*)')
+              .eq('student_user_id', user.id)
+              .eq('status', 'ACTIVE')
+              .single();
+
+            const verticalMap: Record<string, string> = {
+              'BOYS_HOSTEL': 'Boys Hostel',
+              'GIRLS_ASHRAM': 'Girls Ashram',
+              'DHARAMSHALA': 'Dharamshala',
+            };
+
+            students.push({
+              id: user.id,
+              name: user.full_name,
+              photo: null,
+              vertical: verticalMap[user.vertical] || user.vertical || 'N/A',
+              room: allocation?.rooms?.room_number ? `Room ${allocation.rooms.room_number}` : 'Not Allocated',
+              joiningDate: user.created_at,
+              status: allocation ? 'CHECKED_IN' : 'PENDING',
+            });
+          }
+        }
+      }
+    }
+
+    // 2. Also check applications where parent mobile matches (for pending applications)
+    const { data: applications, error: appError } = await supabase
+      .from('applications')
+      .select('*');
+
+    if (!appError && applications) {
+      for (const app of applications) {
+        const fatherMobile = normalizePhone(app.data?.guardian_info?.father_mobile || '');
+        const motherMobile = normalizePhone(app.data?.guardian_info?.mother_mobile || '');
+
+        if (fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile) {
+          // Skip if already added (approved students should be in users table)
+          const applicantName = app.applicant_name || app.data?.personal_info?.full_name || 'Unknown';
+          if (students.some(s => s.name?.toLowerCase() === applicantName?.toLowerCase())) continue;
+
+          // Skip approved applications that have a student_user_id (they're in users table)
+          if (app.student_user_id && app.current_status === 'APPROVED') continue;
 
           const verticalMap: Record<string, string> = {
-            'Boys Hostel': 'Boys Hostel',
-            'Girls Ashram': 'Girls Ashram',
-            'Dharamshala': 'Dharamshala',
             'BOYS_HOSTEL': 'Boys Hostel',
             'GIRLS_ASHRAM': 'Girls Ashram',
             'DHARAMSHALA': 'Dharamshala',
           };
 
           students.push({
-            id: student.id,
-            name: student.name,
+            id: app.id,
+            name: applicantName,
             photo: null,
-            vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
-            room: student.room ? `Room ${student.room}` : 'Not Allocated',
-            joiningDate: student.joiningDate || 'N/A',
-            status: student.status || 'CHECKED_IN',
-            academicYear: student.academicYear || '2024-25',
-            currentPeriod: student.currentPeriod || 'SEMESTER_2',
+            vertical: verticalMap[app.vertical] || app.vertical,
+            room: 'Not Allocated',
+            joiningDate: app.submitted_at || app.created_at,
+            status: app.current_status,
+            trackingNumber: app.tracking_number,
           });
         }
       }
-    }
-
-    // Add students from applications
-    for (const app of applications) {
-      const applicantName = app.data?.personal_info?.full_name || 'Unknown';
-      
-      // Skip if already added by name (avoid duplicates like Amit Shah in both app and students)
-      if (students.some(s => s.name.toLowerCase() === applicantName.toLowerCase())) continue;
-
-      const verticalMap: Record<string, string> = {
-        'BOYS_HOSTEL': 'Boys Hostel',
-        'GIRLS_ASHRAM': 'Girls Ashram',
-        'DHARAMSHALA': 'Dharamshala',
-      };
-
-      let room = 'Not Allocated';
-      let status = app.current_status;
-
-      if (app.student_user_id) {
-        const allocation = await findOne('allocations', (a: any) =>
-          a.student_id === app.student_user_id && a.status === 'ACTIVE'
-        );
-        if (allocation) {
-          const roomData = await findOne('rooms', (r: any) => r.id === allocation.room_id);
-          room = roomData ? `Room ${roomData.room_number}` : 'Allocated';
-          status = 'CHECKED_IN';
-        }
-      }
-
-      // Only add application if it's not an approved/checked-in student
-      // (Approved students should be in the students collection)
-      if (['APPROVED', 'CHECKED_IN'].includes(status) && room !== 'Not Allocated') {
-        continue; // Skip - this student should be in students collection
-      }
-
-      students.push({
-        id: app.id,
-        name: applicantName,
-        photo: null,
-        vertical: verticalMap[app.vertical] || app.vertical,
-        room,
-        joiningDate: app.submitted_at || app.created_at,
-        status,
-        academicYear: '2024-25',
-        currentPeriod: 'SEMESTER_2',
-        trackingNumber: app.tracking_number,
-      });
-    }
-
-    // Add students from students table (existing residents found by parent mobile)
-    for (const studentRecord of studentsWithParent) {
-      // Skip if already added by id
-      if (students.some(s => s.id === studentRecord.id || s.id === studentRecord.user_id)) continue;
-
-      const verticalMap: Record<string, string> = {
-        'Boys Hostel': 'Boys Hostel',
-        'Girls Ashram': 'Girls Ashram',
-        'Dharamshala': 'Dharamshala',
-        'BOYS_HOSTEL': 'Boys Hostel',
-        'GIRLS_ASHRAM': 'Girls Ashram',
-        'DHARAMSHALA': 'Dharamshala',
-      };
-
-      students.push({
-        id: studentRecord.id,
-        name: studentRecord.name,
-        photo: null,
-        vertical: verticalMap[studentRecord.vertical] || studentRecord.vertical || 'N/A',
-        room: studentRecord.room ? `Room ${studentRecord.room}` : 'Not Allocated',
-        joiningDate: studentRecord.joiningDate || 'N/A',
-        status: studentRecord.status || 'CHECKED_IN',
-        academicYear: studentRecord.academicYear || '2024-25',
-        currentPeriod: studentRecord.currentPeriod || 'SEMESTER_2',
-      });
     }
 
     // If no students found, return appropriate message
@@ -200,22 +188,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: null,
-        message: 'No student records found for this mobile number.',
+        message: 'No student records found for this mobile number. Make sure you are using the mobile number registered as parent/guardian contact.',
       });
     }
 
     // Mock logging
     console.log('\n========================================');
-    console.log('👨‍👩‍👧 PARENT DATA ACCESS');
+    console.log('PARENT DATA ACCESS');
     console.log('========================================');
     console.log('Endpoint: /api/parent/student');
     console.log('Parent Mobile:', parentMobile);
     console.log('Students Found:', students.length);
     console.log('Access Type: READ-ONLY');
     console.log('========================================\n');
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Return first student (or array if multiple children)
     return NextResponse.json({

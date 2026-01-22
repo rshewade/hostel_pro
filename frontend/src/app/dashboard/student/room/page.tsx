@@ -21,7 +21,7 @@ type Room = {
   vertical: string;
   floor: number;
   capacity: number;
-  current_occupancy: number;
+  occupied_count: number;
   amenities?: string[];
 };
 
@@ -38,13 +38,29 @@ export default function StudentRoomPage() {
   const [roommates, setRoommates] = useState<Roommate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Mock student ID - in production, get from auth session
-  const studentId = 'u1';
+  const [studentId, setStudentId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAllocationData();
+    // Get student ID from auth token in localStorage
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const tokenData = JSON.parse(atob(token));
+        setStudentId(tokenData.userId);
+      } catch (e) {
+        console.error('Error decoding token:', e);
+        setError('Authentication error. Please login again.');
+      }
+    } else {
+      setError('Please login to view room details.');
+    }
   }, []);
+
+  useEffect(() => {
+    if (studentId) {
+      fetchAllocationData();
+    }
+  }, [studentId]);
 
   const fetchAllocationData = async () => {
     try {
@@ -52,11 +68,13 @@ export default function StudentRoomPage() {
       setError(null);
 
       // Fetch student's allocation
-      const allocationsResponse = await fetch('/api/allocations');
-      const allocationsData = await allocationsResponse.json();
+      const allocationsResponse = await fetch(`/api/allocations?student_id=${studentId}`);
+      const allocationsResult = await allocationsResponse.json();
+      // API returns { success: true, data: [...] }
+      const allocationsData = allocationsResult.data || allocationsResult || [];
 
-      const studentAllocation = (allocationsData.data || []).find(
-        (a: Allocation) => a.student_id === studentId && a.status === 'ACTIVE'
+      const studentAllocation = (Array.isArray(allocationsData) ? allocationsData : []).find(
+        (a: any) => (a.student_user_id === studentId || a.student_id === studentId) && a.status === 'ACTIVE'
       );
 
       if (!studentAllocation) {
@@ -69,29 +87,32 @@ export default function StudentRoomPage() {
 
       // Fetch room details
       const roomsResponse = await fetch('/api/rooms');
-      const roomsData = await roomsResponse.json();
-      const roomData = (roomsData.data || []).find((r: Room) => r.id === studentAllocation.room_id);
+      const roomsResult = await roomsResponse.json();
+      const roomsList = roomsResult.data || roomsResult || [];
+      const roomData = (Array.isArray(roomsList) ? roomsList : []).find((r: Room) => r.id === studentAllocation.room_id);
 
       if (roomData) {
         setRoom(roomData);
       }
 
       // Fetch roommates (other students in the same room)
-      const allRoomAllocations = (allocationsData.data || []).filter(
-        (a: Allocation) => a.room_id === studentAllocation.room_id && a.status === 'ACTIVE'
+      const allRoomAllocations = (Array.isArray(allocationsData) ? allocationsData : []).filter(
+        (a: any) => a.room_id === studentAllocation.room_id && a.status === 'ACTIVE'
       );
 
       const roommatesData = await Promise.all(
         allRoomAllocations
-          .filter((a: Allocation) => a.student_id !== studentId)
-          .map(async (allocation: Allocation, index: number) => {
+          .filter((a: any) => (a.student_user_id || a.student_id) !== studentId)
+          .map(async (allocation: any, index: number) => {
             try {
-              const response = await fetch(`/api/users/profile?user_id=${allocation.student_id}`);
+              const oderId = allocation.student_user_id || allocation.student_id;
+              const response = await fetch(`/api/users/profile?user_id=${oderId}`);
               if (response.ok) {
                 const data = await response.json();
+                const userData = data.data || data;
                 return {
-                  id: allocation.student_id,
-                  full_name: data.profile?.full_name || 'Student',
+                  id: oderId,
+                  full_name: userData.full_name || userData.profile?.full_name || 'Student',
                   bed_number: index + 2,
                   check_in_confirmed: allocation.check_in_confirmed || false,
                 };
@@ -99,8 +120,9 @@ export default function StudentRoomPage() {
             } catch (err) {
               console.error('Error fetching roommate:', err);
             }
+            const oderId2 = allocation.student_user_id || allocation.student_id;
             return {
-              id: allocation.student_id,
+              id: oderId2,
               full_name: 'Student',
               bed_number: index + 2,
               check_in_confirmed: allocation.check_in_confirmed || false,
@@ -358,11 +380,11 @@ export default function StudentRoomPage() {
                   <div className="flex-1 h-2 rounded-full" style={{ background: 'var(--surface-secondary)' }}>
                     <div
                       className="h-2 rounded-full bg-blue-500"
-                      style={{ width: `${(room.current_occupancy / room.capacity) * 100}%` }}
+                      style={{ width: `${(room.occupied_count / room.capacity) * 100}%` }}
                     />
                   </div>
                   <div className="text-body-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                    {room.current_occupancy} / {room.capacity}
+                    {room.occupied_count} / {room.capacity}
                   </div>
                 </div>
               </div>

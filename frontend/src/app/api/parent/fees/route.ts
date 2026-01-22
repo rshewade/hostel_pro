@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findOne, find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const sessionToken = searchParams.get('sessionToken');
 
@@ -51,41 +52,61 @@ export async function GET(request: NextRequest) {
 
     if (selectedStudentId) {
       // Parent has selected a specific ward - use that student's user_id
-      const student = await findOne('students', (s: any) => s.id === selectedStudentId);
-      if (student) {
+      const { data: student, error: studErr } = await supabase
+        .from('students')
+        .select('*')
+        .eq('id', selectedStudentId)
+        .single();
+
+      if (student && !studErr) {
         studentUserId = student.user_id;
         console.log('\n========================================');
-        console.log('💰 PARENT FEE DATA ACCESS (Selected Ward)');
+        console.log('PARENT FEE DATA ACCESS (Selected Ward)');
         console.log('========================================');
         console.log('Selected Ward ID:', selectedStudentId);
         console.log('Ward User ID:', studentUserId);
       }
     } else {
       // No selection - fall back to first student in parent's linked_student_ids
-      const parentUser = await findOne('users', (u: any) =>
-        u.role === 'parent' && normalizePhone(u.mobile_no) === normalizedParentMobile
+      const { data: parentUsers, error: parentErr } = await supabase
+        .from('users')
+        .select('*')
+        .eq('role', 'parent');
+
+      const parentUser = (parentUsers || []).find((u: any) =>
+        normalizePhone(u.mobile_no) === normalizedParentMobile
       );
 
       if (parentUser?.linked_student_ids && parentUser.linked_student_ids.length > 0) {
         const defaultStudentId = parentUser.linked_student_ids[0];
-        const student = await findOne('students', (s: any) => s.id === defaultStudentId);
+        const { data: student, error: studErr } = await supabase
+          .from('students')
+          .select('*')
+          .eq('id', defaultStudentId)
+          .single();
+
         studentUserId = student?.user_id;
         console.log('\n========================================');
-        console.log('💰 PARENT FEE DATA ACCESS (Default Ward)');
+        console.log('PARENT FEE DATA ACCESS (Default Ward)');
         console.log('========================================');
         console.log('Default Ward ID:', defaultStudentId);
         console.log('Ward User ID:', studentUserId);
       }
     }
 
-    let fees = [];
+    let fees: any[] = [];
     if (studentUserId) {
-      fees = await find('fees', (f: any) => f.student_id === studentUserId);
+      const { data: feeData, error: feeErr } = await supabase
+        .from('fees')
+        .select('*')
+        .eq('student_user_id', studentUserId);
+
+      fees = feeData || [];
       console.log('Fees Found:', fees.length);
       console.log('========================================\n');
     } else {
       console.log('\n========================================');
-      console.log('💰 PARENT FEE DATA ACCESS');
+      console.log('PARENT FEE DATA ACCESS');
       console.log('========================================');
       console.log('No student found for parent');
       console.log('========================================\n');
@@ -98,8 +119,8 @@ export async function GET(request: NextRequest) {
     const outstanding = totalFees - totalPaid;
 
     const pendingFees = fees.filter((f: any) => f.status === 'PENDING');
-    const nextDueDate = pendingFees.length > 0 
-      ? pendingFees.sort((a: any, b: any) => new Date(a.due_date || '9999-12-31').getTime() - new Date(b.due_date || '9999-12-31').getTime())[0]?.due_date 
+    const nextDueDate = pendingFees.length > 0
+      ? pendingFees.sort((a: any, b: any) => new Date(a.due_date || '9999-12-31').getTime() - new Date(b.due_date || '9999-12-31').getTime())[0]?.due_date
       : null;
 
     const feeItems = fees.map((fee: any) => ({

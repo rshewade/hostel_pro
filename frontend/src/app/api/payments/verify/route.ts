@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   badRequestResponse,
@@ -14,6 +14,7 @@ import { PaymentAPI } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: PaymentAPI.VerifyRequest = await request.json();
     const { transaction_id } = body;
 
@@ -21,13 +22,14 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Transaction ID is required');
     }
 
-    // Find transaction
-    const transaction = await findOne(
-      'transactions',
-      (txn: any) => txn.transaction_id === transaction_id
-    );
+    // Find payment by transaction_id
+    const { data: payment, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('transaction_id', transaction_id)
+      .single();
 
-    if (!transaction) {
+    if (error || !payment) {
       return notFoundResponse('Transaction not found');
     }
 
@@ -35,13 +37,13 @@ export async function POST(request: NextRequest) {
     console.log('🔍 PAYMENT VERIFIED');
     console.log('========================================');
     console.log('Transaction ID:', transaction_id);
-    console.log('Status:', transaction.status);
-    console.log('Amount:', transaction.amount);
+    console.log('Status:', payment.status);
+    console.log('Amount:', payment.amount);
     console.log('========================================\n');
 
     return successResponse({
-      status: transaction.status,
-      data: transaction,
+      status: payment.status,
+      data: payment,
     } as PaymentAPI.VerifyResponse);
   } catch (error: any) {
     console.error('Error in POST /api/payments/verify:', error);

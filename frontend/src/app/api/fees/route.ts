@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { find } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   serverErrorResponse,
@@ -12,16 +12,26 @@ import { FeeAPI, FeeStatus } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('student_id');
     const status = searchParams.get('status') as FeeStatus | null;
 
-    const fees = await find('fees', (fee: any) => {
-      const matchesStudent = !studentId || fee.student_id === studentId;
-      const matchesStatus = !status || fee.status === status;
+    let query = supabase.from('fees').select('*');
 
-      return matchesStudent && matchesStatus;
-    });
+    if (studentId) {
+      query = query.eq('student_user_id', studentId);
+    }
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: fees, error } = await query.order('due_date', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return serverErrorResponse('Failed to fetch fees', error);
+    }
 
     // Calculate summary
     const summary = {
@@ -30,21 +40,21 @@ export async function GET(request: NextRequest) {
       total_overdue: 0,
     };
 
-    fees.forEach((fee: any) => {
-      const amount = fee.amount || 0;
-      if (fee.status === FeeStatus.PENDING) {
-        // Check if overdue
+    const now = new Date();
+    (fees || []).forEach((fee: any) => {
+      const amount = parseFloat(fee.amount) || 0;
+      if (fee.status === 'PENDING') {
         const dueDate = new Date(fee.due_date);
-        const isOverdue = dueDate < new Date();
+        const isOverdue = dueDate < now;
 
         if (isOverdue) {
           summary.total_overdue += amount;
         } else {
           summary.total_pending += amount;
         }
-      } else if (fee.status === FeeStatus.PAID) {
+      } else if (fee.status === 'PAID') {
         summary.total_paid += amount;
-      } else if (fee.status === FeeStatus.OVERDUE) {
+      } else if (fee.status === 'OVERDUE') {
         summary.total_overdue += amount;
       }
     });

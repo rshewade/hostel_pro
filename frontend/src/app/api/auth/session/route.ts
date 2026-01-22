@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   unauthorizedResponse,
@@ -12,12 +12,11 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
  *
  * Validate current session and return user information.
  * Used by frontend to check if user is authenticated.
- *
- * @see Task 7 - Student Login (Session Handling)
- * @see .docs/api-routes-audit.md
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
+
     // Get token from Authorization header
     const authHeader = request.headers.get('authorization');
 
@@ -25,7 +24,7 @@ export async function GET(request: NextRequest) {
       return unauthorizedResponse('No authentication token provided');
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const token = authHeader.substring(7);
 
     // Verify and decode token
     const tokenData = verifyMockToken(token);
@@ -35,38 +34,27 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify user still exists and is active
-    const user = await findOne('users', (u: any) => u.id === tokenData.userId);
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', tokenData.userId)
+      .single();
 
-    if (!user) {
+    if (error || !user) {
       return unauthorizedResponse('User not found');
     }
 
-    if (user.status !== 'ACTIVE') {
+    if (!user.is_active) {
       return unauthorizedResponse(
-        `Account is ${user.status.toLowerCase()}. Please contact administration.`
+        'Account is inactive. Please contact administration.'
       );
-    }
-
-    // Get user's vertical (if student)
-    let vertical: Vertical | undefined;
-    if (user.role === UserRole.STUDENT) {
-      const student = await findOne('students', (s: any) => s.user_id === user.id);
-      if (student?.vertical) {
-        // Map vertical names to enum values
-        const verticalMap: Record<string, Vertical> = {
-          'Boys Hostel': Vertical.BOYS_HOSTEL,
-          'Girls Ashram': Vertical.GIRLS_ASHRAM,
-          'Dharamshala': Vertical.DHARAMSHALA,
-        };
-        vertical = verticalMap[student.vertical] || student.vertical;
-      }
     }
 
     const response: AuthAPI.SessionResponse = {
       success: true,
       userId: user.id,
       role: user.role as UserRole,
-      ...(vertical && { vertical }),
+      ...(user.vertical && { vertical: user.vertical as Vertical }),
     };
 
     return successResponse(response);
@@ -81,6 +69,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body = await request.json();
     const { token } = body;
 
@@ -96,38 +85,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user still exists and is active
-    const user = await findOne('users', (u: any) => u.id === tokenData.userId);
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', tokenData.userId)
+      .single();
 
-    if (!user) {
+    if (error || !user) {
       return unauthorizedResponse('User not found');
     }
 
-    if (user.status !== 'ACTIVE') {
+    if (!user.is_active) {
       return unauthorizedResponse(
-        `Account is ${user.status.toLowerCase()}. Please contact administration.`
+        'Account is inactive. Please contact administration.'
       );
-    }
-
-    // Get user's vertical (if student)
-    let vertical: Vertical | undefined;
-    if (user.role === UserRole.STUDENT) {
-      const student = await findOne('students', (s: any) => s.user_id === user.id);
-      if (student?.vertical) {
-        // Map vertical names to enum values
-        const verticalMap: Record<string, Vertical> = {
-          'Boys Hostel': Vertical.BOYS_HOSTEL,
-          'Girls Ashram': Vertical.GIRLS_ASHRAM,
-          'Dharamshala': Vertical.DHARAMSHALA,
-        };
-        vertical = verticalMap[student.vertical] || student.vertical;
-      }
     }
 
     const response: AuthAPI.SessionResponse = {
       success: true,
       userId: user.id,
       role: user.role as UserRole,
-      ...(vertical && { vertical }),
+      ...(user.vertical && { vertical: user.vertical as Vertical }),
     };
 
     return successResponse(response);
@@ -143,20 +121,18 @@ export async function POST(request: NextRequest) {
 
 /**
  * Verify and decode mock JWT token
- * In production, use: jwt.verify(token, SECRET_KEY)
  */
 function verifyMockToken(token: string): any {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
     const tokenData = JSON.parse(decoded);
 
-    // Check expiration
     if (tokenData.exp && tokenData.exp < Date.now()) {
       return null;
     }
 
     return tokenData;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

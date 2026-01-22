@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { findOne } from '@/lib/api/db';
+import { createServerClient } from '@/lib/supabase/server';
 import {
   successResponse,
   unauthorizedResponse,
@@ -14,12 +14,10 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
  *
  * Authenticate user with username/email/mobile and password.
  * Returns JWT token and user role for session management.
- *
- * @see Task 7 - Student Login
- * @see .docs/api-routes-audit.md
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const body: AuthAPI.LoginRequest = await request.json();
     const { username, password } = body;
 
@@ -51,63 +49,59 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    // Find user by username, email, or mobile
-    const user = await findOne('users', (u: any) => {
-      const normalizedInput = username.toLowerCase().trim();
-      return (
-        u.email?.toLowerCase() === normalizedInput ||
-        u.mobile_no?.replace(/\s/g, '') === username.replace(/\s/g, '') ||
-        u.id === username
-      );
-    });
+    // Find user by email or mobile
+    const normalizedInput = username.toLowerCase().trim();
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .or(`email.ilike.${normalizedInput},mobile.eq.${username.replace(/\s/g, '')}`)
+      .single();
 
-    if (!user) {
-      // Generic error message for security (don't reveal if user exists)
+    if (userError || !user) {
+      // Generic error message for security
       return unauthorizedResponse('Invalid credentials');
     }
 
     // Check user status
-    if (user.status !== 'ACTIVE') {
+    if (!user.is_active) {
       return unauthorizedResponse(
-        `Account is ${user.status.toLowerCase()}. Please contact administration.`
+        'Account is inactive. Please contact administration.'
       );
     }
 
-    // Verify password (mock implementation)
-    // In production, use bcrypt.compare(password, user.password_hash)
-    const isValidPassword = await verifyPassword(password, user.password_hash);
+    // In production, use Supabase Auth for password verification
+    // For now, we use a mock verification for prototyping
+    const isValidPassword = await verifyPassword(password, user);
 
     if (!isValidPassword) {
       return unauthorizedResponse('Invalid credentials');
     }
 
     // Check if first-time login (password never changed)
-    const requiresPasswordChange = await checkFirstTimeLogin(user.id);
+    const requiresPasswordChange = user.requires_password_change || false;
 
     // Generate session token (mock JWT)
-    // In production, use proper JWT library
     const token = generateMockToken({
       userId: user.id,
       role: user.role,
       email: user.email,
     });
 
-    // Get user's vertical (if student)
-    let vertical: Vertical | undefined;
-    if (user.role === UserRole.STUDENT) {
-      const student = await findOne('students', (s: any) => s.user_id === user.id);
-      if (student?.vertical) {
-        // Map vertical names to enum values
-        const verticalMap: Record<string, Vertical> = {
-          'Boys Hostel': Vertical.BOYS_HOSTEL,
-          'Girls Ashram': Vertical.GIRLS_ASHRAM,
-          'Dharamshala': Vertical.DHARAMSHALA,
-        };
-        vertical = verticalMap[student.vertical] || student.vertical;
-      }
-    }
+    // Get user's vertical
+    const vertical: Vertical | undefined = user.vertical as Vertical;
 
-    // Log successful login (audit)
+    // Log successful login
+    await supabase.from('audit_logs').insert({
+      entity_type: 'USER',
+      entity_id: user.id,
+      action: 'LOGIN',
+      actor_id: user.id,
+      metadata: {
+        email: user.email,
+        role: user.role,
+      },
+    });
+
     console.log('\n========================================');
     console.log('✅ LOGIN SUCCESSFUL');
     console.log('========================================');
@@ -142,52 +136,31 @@ export async function POST(request: NextRequest) {
 // ============================================================================
 
 /**
- * Verify password against hash (mock implementation)
- * In production, use: bcrypt.compare(password, hash)
+ * Verify password (mock implementation)
+ * In production, use Supabase Auth signInWithPassword
  */
 async function verifyPassword(
   password: string,
-  hash: string
+  user: any
 ): Promise<boolean> {
   // Mock verification for prototyping
-  // In development, accept any password for testing
-  // In production, use actual bcrypt comparison
   if (process.env.NODE_ENV === 'development') {
-    // For prototyping, accept "password123" or actual hash comparison
-    return password === 'password123' || password === hash;
+    // Check if user has changed their password (stored in metadata)
+    if (user.metadata?.password_hash) {
+      // Password was changed via first-time-setup, check against stored hash
+      return user.metadata.password_hash === `$mock$${password}`;
+    }
+    // For users who haven't changed password yet, accept "password123"
+    return password === 'password123';
   }
 
-  // In production: return await bcrypt.compare(password, hash);
-  return password === hash;
-}
-
-/**
- * Check if user needs to change password (first-time login)
- * In production, track this with a database flag
- */
-async function checkFirstTimeLogin(userId: string): Promise<boolean> {
-  // Mock implementation - check if user has a "first_login" flag
-  // In production, maintain a separate field or password_changed_at timestamp
-  const user = await findOne('users', (u: any) => u.id === userId);
-
-  // For prototyping, check if user was created recently (within 7 days)
-  // and hasn't changed password yet
-  if (user?.created_at) {
-    const createdDate = new Date(user.created_at);
-    const daysSinceCreation =
-      (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
-
-    // If account is less than 7 days old, require password change
-    // In production, use explicit password_changed_at field
-    return daysSinceCreation < 7;
-  }
-
+  // In production: use Supabase Auth
   return false;
 }
 
 /**
  * Generate mock JWT token
- * In production, use proper JWT library (jsonwebtoken or jose)
+ * In production, use proper JWT library or Supabase Auth tokens
  */
 function generateMockToken(payload: {
   userId: string;
@@ -200,7 +173,5 @@ function generateMockToken(payload: {
     exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
   };
 
-  // Mock token (base64 encoded)
-  // In production: jwt.sign(payload, SECRET_KEY, { expiresIn: '24h' })
   return Buffer.from(JSON.stringify(tokenData)).toString('base64');
 }
