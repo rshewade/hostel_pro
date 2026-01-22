@@ -92,7 +92,7 @@ export const ApprovalHistoryTable: React.FC<ApprovalHistoryTableProps> = ({
   };
 
   const verticals = useMemo(() => {
-    const v = new Set(entries.map((e) => e.vertical));
+    const v = new Set(entries.map((e) => e.vertical).filter(Boolean));
     return Array.from(v);
   }, [entries]);
 
