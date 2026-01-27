@@ -5,19 +5,42 @@ This guide provides step-by-step instructions to manually validate the functiona
 ## 📋 Prerequisites
 
 - **URL:** Access the application (e.g., `http://localhost:3000` or your deployment URL).
-- **Database:** Ensure `db.json` is populated with initial mock data.
-- **API Server:** Run `npm run dev:api` to start json-server on port 3001.
+- **Database:** Supabase PostgreSQL (configured via environment variables).
+- **Environment:** Ensure `.env` has valid Supabase credentials.
 
-### Test Credentials
+### Test Credentials (Supabase Auth)
 
-| Role                   | Email                           | Password      |
-| ---------------------- | ------------------------------- | ------------- |
-| Student                | `student@example.com`           | `password123` |
-| Superintendent (Boys)  | `superintendent@jain.org`       | `password123` |
-| Superintendent (Girls) | `superintendent-girls@jain.org` | `password123` |
-| Trustee                | `trustee@jain.org`              | `password123` |
-| Accounts               | `accounts@jain.org`             | `password123` |
-| Parent                 | Mobile: `9876543210`            | OTP: `123456` |
+> **Note:** Staff users use Supabase Auth. First-time login requires password change.
+
+| Role                        | Email                                 | Password                    | Notes                    |
+| --------------------------- | ------------------------------------- | --------------------------- | ------------------------ |
+| Superintendent (Boys)       | `superintendent@jain.org`             | `Staff@SUPERINTENDENT2024`  | Change on first login    |
+| Superintendent (Girls)      | `superintendent-girls@jain.org`       | `Staff@SUPERINTENDENT2024`  | Change on first login    |
+| Superintendent (Dharamshala)| `superintendent-dharamshala@jain.org` | `Staff@SUPERINTENDENT2024`  | Change on first login    |
+| Trustee                     | `trustee@jain.org`                    | `Staff@TRUSTEE2024`         | Change on first login    |
+| Accounts                    | `accounts@jain.org`                   | `Staff@ACCOUNTS2024`        | Change on first login    |
+| Parent                      | Mobile: `9876543210`                  | OTP: `123456`               | OTP-based login          |
+
+#### Student Credentials
+
+Students are created when applications are approved. Their temporary password is:
+- **Format:** `Hostel@{tracking_number}` (e.g., `Hostel@BH-2025-00001`)
+- First login requires password change and DPDP consent
+
+#### Staff Migration
+
+If staff users don't have Supabase Auth accounts, run the migration:
+```bash
+# Dry run (preview only)
+curl -X POST http://localhost:3000/api/admin/seed-auth-users \
+  -H 'Content-Type: application/json' \
+  -d '{"adminSecret":"hostel-admin-seed-2024","dryRun":true}'
+
+# Execute migration
+curl -X POST http://localhost:3000/api/admin/seed-auth-users \
+  -H 'Content-Type: application/json' \
+  -d '{"adminSecret":"hostel-admin-seed-2024","dryRun":false}'
+```
 
 ### Test Application Tracking Numbers
 
@@ -118,7 +141,7 @@ This section validates the complete admission cycle from application to approval
 
 ## 3. Student Dashboard
 
-**Login:** Use `student@example.com` / `password123`.
+**Login:** Use a student created via application approval (temp password: `Hostel@{tracking_number}`).
 
 ### 3.1 Overview
 
@@ -173,7 +196,7 @@ This section validates the complete admission cycle from application to approval
 
 ## 4. Superintendent Dashboard
 
-**Login:** Use `superintendent@jain.org` / `password123`.
+**Login:** Use `superintendent@jain.org` / `Staff@SUPERINTENDENT2024` (or your changed password).
 
 ### 4.1 Dashboard Overview
 
@@ -229,7 +252,7 @@ This section validates the complete admission cycle from application to approval
 
 ## 6. Trustee Dashboard
 
-**Login:** Use `trustee@jain.org` / `password123`.
+**Login:** Use `trustee@jain.org` / `Staff@TRUSTEE2024` (or your changed password).
 
 ### 6.1 Approvals
 
@@ -254,31 +277,36 @@ This section validates the complete admission cycle from application to approval
 
 | Issue                            | Solution                                                                       |
 | -------------------------------- | ------------------------------------------------------------------------------ |
-| **Login Fails**                  | Ensure `db.json` has `password_hash: "password123"` for the user               |
-| **Empty Data**                   | Verify json-server is running: `npm run dev:api`                               |
-| **API Errors (404)**             | Check that API routes exist in `db.json` (collections should be at root level) |
-| **API Errors (500)**             | Check browser console Network tab for details                                  |
-| **Components show "Loading..."** | Ensure json-server is running on port 3001                                     |
-| **Data not updating**            | Refresh the page or restart json-server                                        |
+| **Login Fails (401)**            | Ensure user has `auth_user_id` in Supabase. Run staff migration if needed.     |
+| **"Account not configured"**     | User exists in `public.users` but not in Supabase Auth. Run migration.         |
+| **Empty Data**                   | Verify Supabase connection and environment variables                           |
+| **API Errors (404)**             | Check that API routes exist in Next.js app directory                           |
+| **API Errors (500)**             | Check browser console Network tab and server logs for details                  |
+| **First-time setup fails**       | Ensure password meets requirements: 8+ chars, uppercase, lowercase, number, special char |
+| **Session Invalid**              | Token may have expired. Re-login to get a fresh token.                         |
 
 ### Starting the Development Environment
 
 ```bash
-# Terminal 1: Start Next.js frontend
+# Start Next.js frontend (includes API routes)
 cd frontend
 npm run dev
+```
 
-# Terminal 2: Start json-server API
-npm run dev:api
+### Environment Variables Required
 
-# Or run both concurrently
-npm run dev:all
+```bash
+# .env file in frontend/
+SUPABASE_URL=your-supabase-url
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### Resetting Test Data
 
-If test data becomes corrupted, you can reset by:
+If staff users need to be re-migrated to Supabase Auth:
 
-1. Stop the json-server
-2. Replace `db.json` with a fresh copy from version control
-3. Restart json-server
+1. Delete users from Supabase Auth dashboard
+2. Set `auth_user_id = NULL` for users in `public.users`
+3. Run the seed migration endpoint again
