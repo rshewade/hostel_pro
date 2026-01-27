@@ -52,6 +52,8 @@ export async function POST(request: NextRequest) {
 
     // Find user by email or mobile in public.users
     const normalizedInput = username.toLowerCase().trim();
+    console.log('[LOGIN] Attempting login for:', normalizedInput);
+
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -59,12 +61,15 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (userError || !user) {
-      // Generic error message for security
+      console.error('[LOGIN] User not found:', normalizedInput, 'Error:', userError?.message);
       return unauthorizedResponse('Invalid credentials');
     }
 
+    console.log('[LOGIN] User found:', user.id, user.email, 'auth_user_id:', user.auth_user_id);
+
     // Check user status
     if (!user.is_active) {
+      console.error('[LOGIN] User inactive:', user.id);
       return unauthorizedResponse(
         'Account is inactive. Please contact administration.'
       );
@@ -72,22 +77,25 @@ export async function POST(request: NextRequest) {
 
     // Check if user has auth_user_id (linked to Supabase Auth)
     if (!user.auth_user_id) {
-      console.error('User does not have auth_user_id:', user.id);
+      console.error('[LOGIN] User missing auth_user_id:', user.id, user.email);
       return unauthorizedResponse(
         'Account not properly configured. Please contact administration.'
       );
     }
 
     // Verify password using Supabase Auth
+    console.log('[LOGIN] Verifying password with Supabase Auth for:', user.email);
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: password,
     });
 
     if (authError || !authData.session) {
-      console.error('Supabase Auth error:', authError?.message);
+      console.error('[LOGIN] Supabase Auth failed:', authError?.message, 'Code:', authError?.status);
       return unauthorizedResponse('Invalid credentials');
     }
+
+    console.log('[LOGIN] Supabase Auth successful for:', user.email);
 
     // Check if first-time login (password never changed)
     const requiresPasswordChange = user.requires_password_change || false;
