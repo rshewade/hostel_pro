@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     if (userError || !user) {
       console.error('[LOGIN] User not found:', normalizedInput, 'Error:', userError?.message);
-      return unauthorizedResponse('Invalid credentials');
+      return unauthorizedResponse('User not found: ' + normalizedInput);
     }
 
     console.log('[LOGIN] User found:', user.id, user.email, 'auth_user_id:', user.auth_user_id);
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     if (!user.auth_user_id) {
       console.error('[LOGIN] User missing auth_user_id:', user.id, user.email);
       return unauthorizedResponse(
-        'Account not properly configured. Please contact administration.'
+        'Account not configured - missing auth_user_id for: ' + user.email
       );
     }
 
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     if (authError || !authData.session) {
       console.error('[LOGIN] Supabase Auth failed:', authError?.message, 'Code:', authError?.status);
-      return unauthorizedResponse('Invalid credentials');
+      return unauthorizedResponse('Auth failed: ' + (authError?.message || 'No session'));
     }
 
     console.log('[LOGIN] Supabase Auth successful for:', user.email);
