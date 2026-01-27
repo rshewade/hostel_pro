@@ -20,15 +20,27 @@ export async function POST(request: NextRequest) {
   try {
     // Debug: Check environment variables
     const supabaseUrl = process.env.SUPABASE_URL;
-    const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
-    console.log('[LOGIN] ENV Check - SUPABASE_URL:', supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'MISSING');
-    console.log('[LOGIN] ENV Check - SERVICE_ROLE_KEY present:', hasServiceKey);
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    console.log('[LOGIN] ENV Check - SUPABASE_URL:', supabaseUrl ? supabaseUrl.substring(0, 40) + '...' : 'MISSING');
+    console.log('[LOGIN] ENV Check - SERVICE_ROLE_KEY:', serviceKey ? 'Present (' + serviceKey.length + ' chars)' : 'MISSING');
 
-    if (!supabaseUrl || !hasServiceKey) {
-      return serverErrorResponse('Server configuration error: Missing Supabase credentials');
+    if (!supabaseUrl) {
+      return serverErrorResponse('Config error: SUPABASE_URL is missing');
+    }
+    if (!serviceKey) {
+      return serverErrorResponse('Config error: SUPABASE_SERVICE_ROLE_KEY is missing');
     }
 
     const supabase = createServerClient();
+
+    // Test Supabase connection before proceeding
+    const { error: connectionError } = await supabase.from('users').select('count').limit(1);
+    if (connectionError) {
+      console.error('[LOGIN] Supabase connection failed:', connectionError.message);
+      return serverErrorResponse('Database connection failed: ' + connectionError.message);
+    }
+    console.log('[LOGIN] Supabase connection OK');
+
     const body: AuthAPI.LoginRequest = await request.json();
     const { username, password } = body;
 
