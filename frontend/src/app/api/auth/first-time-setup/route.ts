@@ -13,8 +13,8 @@ import { AuthAPI, UserRole } from '@/types/api';
  * POST /api/auth/first-time-setup
  *
  * Handle first-time password change after initial login.
- * Requires valid token from login response.
- * Validates password strength and DPDP consent.
+ * Requires valid Supabase Auth token from login response.
+ * Updates password in Supabase Auth and records DPDP consent.
  *
  * @see Task 7 - Student Login, First-Time Setup
  * @see .docs/api-routes-audit.md
@@ -82,36 +82,44 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    // Verify and decode token
-    const tokenData = verifyMockToken(token);
-    if (!tokenData) {
+    // Verify token by getting the user from Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      console.error('Token verification failed:', authError?.message);
       return unauthorizedResponse('Invalid or expired token');
     }
 
-    // Find user
+    // Find user in public.users by auth_user_id
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
-      .eq('id', tokenData.userId)
+      .eq('auth_user_id', authData.user.id)
       .single();
 
     if (userError || !user) {
+      console.error('User not found for auth_user_id:', authData.user.id);
       return unauthorizedResponse('User not found');
     }
 
-    // Hash new password (mock implementation)
-    // In production, use: bcrypt.hash(newPassword, 10)
-    const hashedPassword = await hashPassword(newPassword);
+    // Update password in Supabase Auth using admin API
+    const { error: passwordError } = await supabase.auth.admin.updateUserById(
+      user.auth_user_id,
+      { password: newPassword }
+    );
 
-    // Update user - set requires_password_change to false and store password in metadata
-    // Note: In production, password should be managed by Supabase Auth, not stored in users table
+    if (passwordError) {
+      console.error('Failed to update password in Supabase Auth:', passwordError);
+      return serverErrorResponse('Failed to update password', passwordError);
+    }
+
+    // Update public.users - set requires_password_change to false and record DPDP consent
     const { error: updateError } = await supabase
       .from('users')
       .update({
         requires_password_change: false,
         metadata: {
           ...(user.metadata || {}),
-          password_hash: hashedPassword, // Mock storage for development
           password_changed_at: new Date().toISOString(),
           dpdp_consent: true,
           dpdp_consent_at: new Date().toISOString(),
@@ -120,8 +128,8 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id);
 
     if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to update password', updateError);
+      console.error('Failed to update public.users:', updateError);
+      return serverErrorResponse('Failed to update user record', updateError);
     }
 
     // Log DPDP consent
@@ -146,13 +154,15 @@ export async function POST(request: NextRequest) {
       actor_id: user.id,
       metadata: {
         change_type: 'first_time_setup',
+        auth_user_id: user.auth_user_id,
       },
     });
 
     console.log('\n========================================');
-    console.log('FIRST-TIME SETUP COMPLETED');
+    console.log('✅ FIRST-TIME SETUP COMPLETED (Supabase Auth)');
     console.log('========================================');
     console.log('User ID:', user.id);
+    console.log('Auth User ID:', user.auth_user_id);
     console.log('Role:', user.role);
     console.log('DPDP Consent:', dpdpConsent);
     console.log('Timestamp:', new Date().toISOString());
@@ -169,43 +179,4 @@ export async function POST(request: NextRequest) {
     console.error('Error in /api/auth/first-time-setup:', error);
     return serverErrorResponse('Failed to update password', error);
   }
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Verify and decode mock JWT token
- * In production, use: jwt.verify(token, SECRET_KEY)
- */
-function verifyMockToken(token: string): any {
-  try {
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const tokenData = JSON.parse(decoded);
-
-    // Check expiration
-    if (tokenData.exp && tokenData.exp < Date.now()) {
-      return null;
-    }
-
-    return tokenData;
-  } catch (error) {
-    return null;
-  }
-}
-
-/**
- * Hash password (mock implementation)
- * In production, use: bcrypt.hash(password, 10)
- */
-async function hashPassword(password: string): Promise<string> {
-  // Mock hashing for prototyping
-  // In development, just use a simple prefix for testing
-  if (process.env.NODE_ENV === 'development') {
-    return `$mock$${password}`;
-  }
-
-  // In production: return await bcrypt.hash(password, 10);
-  return `$mock$${password}`;
 }

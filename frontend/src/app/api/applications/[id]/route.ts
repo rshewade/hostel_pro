@@ -171,10 +171,44 @@ export async function PUT(
                             application.data?.guardian_info?.mother_mobile ||
                             application.data?.emergency_contact?.mobile || null;
 
-        // Create new student user
+        // Generate temporary password based on tracking number
+        const tempPassword = `Hostel@${application.tracking_number}`;
+
+        // Step 1: Create Supabase Auth user
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+          email: application.applicant_email,
+          password: tempPassword,
+          email_confirm: true, // Skip email verification since this is admin-created
+          user_metadata: {
+            full_name: application.applicant_name,
+            role: 'STUDENT',
+            vertical: application.vertical,
+            tracking_number: application.tracking_number,
+          },
+        });
+
+        if (authError) {
+          console.error('Failed to create Supabase Auth user:', authError);
+          throw authError;
+        }
+
+        if (!authData.user) {
+          throw new Error('Auth user creation returned no user');
+        }
+
+        console.log('========================================');
+        console.log('✅ SUPABASE AUTH USER CREATED');
+        console.log('========================================');
+        console.log('Auth User ID:', authData.user.id);
+        console.log('Email:', authData.user.email);
+        console.log('Temp Password:', tempPassword);
+        console.log('========================================');
+
+        // Step 2: Create public.users record with auth_user_id link
         const { data: newUser, error: userError } = await supabase
           .from('users')
           .insert({
+            auth_user_id: authData.user.id, // Link to Supabase Auth
             role: 'STUDENT',
             vertical: application.vertical,
             full_name: application.applicant_name,
@@ -188,46 +222,53 @@ export async function PUT(
               application_id: id,
               tracking_number: application.tracking_number,
               approved_at: new Date().toISOString(),
+              temp_password_hint: `Hostel@{tracking_number}`,
             },
           })
           .select()
           .single();
 
         if (userError) {
-          console.error('Failed to create student user:', userError);
-        } else if (newUser) {
-          // Link the new user to the application
-          await supabase
-            .from('applications')
-            .update({ student_user_id: newUser.id })
-            .eq('id', id);
-
-          // Log user creation
-          await supabase.from('audit_logs').insert({
-            entity_type: 'USER',
-            entity_id: newUser.id,
-            action: 'CREATE',
-            metadata: {
-              application_id: id,
-              tracking_number: application.tracking_number,
-              reason: 'Application approved - student account created',
-            },
-          });
-
-          console.log('========================================');
-          console.log('✅ STUDENT USER CREATED');
-          console.log('========================================');
-          console.log('User ID:', newUser.id);
-          console.log('Name:', newUser.full_name);
-          console.log('Email:', newUser.email);
-          console.log('Mobile:', newUser.mobile);
-          console.log('Application:', application.tracking_number);
-          console.log('========================================');
-
-          // Update the response with the new user info
-          (updatedApplication as any).student_user_id = newUser.id;
-          (updatedApplication as any).student_user = newUser;
+          console.error('Failed to create public.users record:', userError);
+          // Rollback: delete the auth user if public.users creation failed
+          await supabase.auth.admin.deleteUser(authData.user.id);
+          throw userError;
         }
+
+        // Link the new user to the application
+        await supabase
+          .from('applications')
+          .update({ student_user_id: newUser.id })
+          .eq('id', id);
+
+        // Log user creation
+        await supabase.from('audit_logs').insert({
+          entity_type: 'USER',
+          entity_id: newUser.id,
+          action: 'CREATE',
+          metadata: {
+            application_id: id,
+            tracking_number: application.tracking_number,
+            auth_user_id: authData.user.id,
+            reason: 'Application approved - student account created with Supabase Auth',
+          },
+        });
+
+        console.log('========================================');
+        console.log('✅ STUDENT USER CREATED');
+        console.log('========================================');
+        console.log('User ID:', newUser.id);
+        console.log('Auth User ID:', authData.user.id);
+        console.log('Name:', newUser.full_name);
+        console.log('Email:', newUser.email);
+        console.log('Mobile:', newUser.mobile);
+        console.log('Application:', application.tracking_number);
+        console.log('Temp Password:', tempPassword);
+        console.log('========================================');
+
+        // Update the response with the new user info
+        (updatedApplication as any).student_user_id = newUser.id;
+        (updatedApplication as any).student_user = newUser;
       } catch (userCreationError) {
         console.error('Error creating student user:', userCreationError);
         // Don't fail the request - approval succeeded, just user creation failed

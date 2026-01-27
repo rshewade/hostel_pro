@@ -3,21 +3,21 @@
  *
  * Creates a Supabase client for use in API routes with service role key.
  * This client bypasses Row Level Security (RLS) - use with caution.
+ *
+ * IMPORTANT: A fresh client is created for each request to avoid state
+ * pollution between requests (e.g., auth state affecting subsequent queries).
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-let serverClient: SupabaseClient | null = null;
-
 /**
- * Creates a Supabase client for server-side operations.
+ * Creates a fresh Supabase client for server-side operations.
  * Uses service role key to bypass RLS for admin operations.
+ *
+ * NOTE: Each call creates a new client instance to prevent auth state
+ * from one request affecting subsequent requests.
  */
 export function createServerClient(): SupabaseClient {
-  if (serverClient) {
-    return serverClient;
-  }
-
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -28,14 +28,12 @@ export function createServerClient(): SupabaseClient {
     );
   }
 
-  serverClient = createClient(supabaseUrl, supabaseServiceKey, {
+  return createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
   });
-
-  return serverClient;
 }
 
 /**

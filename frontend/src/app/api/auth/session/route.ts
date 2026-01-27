@@ -10,7 +10,7 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
 /**
  * GET /api/auth/session
  *
- * Validate current session and return user information.
+ * Validate current Supabase Auth session and return user information.
  * Used by frontend to check if user is authenticated.
  */
 export async function GET(request: NextRequest) {
@@ -26,21 +26,23 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.substring(7);
 
-    // Verify and decode token
-    const tokenData = verifyMockToken(token);
+    // Verify token with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
 
-    if (!tokenData) {
+    if (authError || !authData.user) {
+      console.error('Session validation failed:', authError?.message);
       return unauthorizedResponse('Invalid or expired session');
     }
 
-    // Verify user still exists and is active
-    const { data: user, error } = await supabase
+    // Find user in public.users by auth_user_id
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
-      .eq('id', tokenData.userId)
+      .eq('auth_user_id', authData.user.id)
       .single();
 
-    if (error || !user) {
+    if (userError || !user) {
+      console.error('User not found for auth_user_id:', authData.user.id);
       return unauthorizedResponse('User not found');
     }
 
@@ -77,21 +79,23 @@ export async function POST(request: NextRequest) {
       return unauthorizedResponse('Authentication token is required');
     }
 
-    // Verify and decode token
-    const tokenData = verifyMockToken(token);
+    // Verify token with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
 
-    if (!tokenData) {
+    if (authError || !authData.user) {
+      console.error('Session validation failed:', authError?.message);
       return unauthorizedResponse('Invalid or expired session');
     }
 
-    // Verify user still exists and is active
-    const { data: user, error } = await supabase
+    // Find user in public.users by auth_user_id
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
-      .eq('id', tokenData.userId)
+      .eq('auth_user_id', authData.user.id)
       .single();
 
-    if (error || !user) {
+    if (userError || !user) {
+      console.error('User not found for auth_user_id:', authData.user.id);
       return unauthorizedResponse('User not found');
     }
 
@@ -112,27 +116,5 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error in /api/auth/session:', error);
     return serverErrorResponse('Session validation failed', error);
-  }
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Verify and decode mock JWT token
- */
-function verifyMockToken(token: string): any {
-  try {
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const tokenData = JSON.parse(decoded);
-
-    if (tokenData.exp && tokenData.exp < Date.now()) {
-      return null;
-    }
-
-    return tokenData;
-  } catch {
-    return null;
   }
 }

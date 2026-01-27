@@ -13,7 +13,8 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
  * POST /api/auth/login
  *
  * Authenticate user with username/email/mobile and password.
- * Returns JWT token and user role for session management.
+ * Uses Supabase Auth for secure password verification.
+ * Returns Supabase session token and user role for session management.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    // Find user by email or mobile
+    // Find user by email or mobile in public.users
     const normalizedInput = username.toLowerCase().trim();
     const { data: user, error: userError } = await supabase
       .from('users')
@@ -69,23 +70,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, use Supabase Auth for password verification
-    // For now, we use a mock verification for prototyping
-    const isValidPassword = await verifyPassword(password, user);
+    // Check if user has auth_user_id (linked to Supabase Auth)
+    if (!user.auth_user_id) {
+      console.error('User does not have auth_user_id:', user.id);
+      return unauthorizedResponse(
+        'Account not properly configured. Please contact administration.'
+      );
+    }
 
-    if (!isValidPassword) {
+    // Verify password using Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: password,
+    });
+
+    if (authError || !authData.session) {
+      console.error('Supabase Auth error:', authError?.message);
       return unauthorizedResponse('Invalid credentials');
     }
 
     // Check if first-time login (password never changed)
     const requiresPasswordChange = user.requires_password_change || false;
 
-    // Generate session token (mock JWT)
-    const token = generateMockToken({
-      userId: user.id,
-      role: user.role,
-      email: user.email,
-    });
+    // Use Supabase session access_token
+    const token = authData.session.access_token;
 
     // Get user's vertical
     const vertical: Vertical | undefined = user.vertical as Vertical;
@@ -99,13 +107,15 @@ export async function POST(request: NextRequest) {
       metadata: {
         email: user.email,
         role: user.role,
+        auth_user_id: user.auth_user_id,
       },
     });
 
     console.log('\n========================================');
-    console.log('✅ LOGIN SUCCESSFUL');
+    console.log('✅ LOGIN SUCCESSFUL (Supabase Auth)');
     console.log('========================================');
     console.log('User ID:', user.id);
+    console.log('Auth User ID:', user.auth_user_id);
     console.log('Role:', user.role);
     console.log('Email:', user.email);
     console.log('Requires Password Change:', requiresPasswordChange);
@@ -129,49 +139,4 @@ export async function POST(request: NextRequest) {
     console.error('Error in /api/auth/login:', error);
     return serverErrorResponse('Login failed', error);
   }
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Verify password (mock implementation)
- * In production, use Supabase Auth signInWithPassword
- */
-async function verifyPassword(
-  password: string,
-  user: any
-): Promise<boolean> {
-  // Mock verification for prototyping
-  if (process.env.NODE_ENV === 'development') {
-    // Check if user has changed their password (stored in metadata)
-    if (user.metadata?.password_hash) {
-      // Password was changed via first-time-setup, check against stored hash
-      return user.metadata.password_hash === `$mock$${password}`;
-    }
-    // For users who haven't changed password yet, accept "password123"
-    return password === 'password123';
-  }
-
-  // In production: use Supabase Auth
-  return false;
-}
-
-/**
- * Generate mock JWT token
- * In production, use proper JWT library or Supabase Auth tokens
- */
-function generateMockToken(payload: {
-  userId: string;
-  role: string;
-  email: string;
-}): string {
-  const tokenData = {
-    ...payload,
-    iat: Date.now(),
-    exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-  };
-
-  return Buffer.from(JSON.stringify(tokenData)).toString('base64');
 }
