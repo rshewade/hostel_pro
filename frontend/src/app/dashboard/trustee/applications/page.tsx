@@ -97,7 +97,6 @@ export default function TrusteeApplications() {
 
       setApplications(transformedApplications);
     } catch (err: any) {
-      console.error('Error fetching applications:', err);
       setError(err.message || 'Failed to load applications');
     } finally {
       setIsLoading(false);
@@ -450,7 +449,7 @@ export default function TrusteeApplications() {
             pageSize: 10,
             totalItems: filteredApplications.length,
             totalPages: Math.ceil(filteredApplications.length / 10),
-            onPageChange: (page) => console.log('Page change:', page),
+            onPageChange: () => {},
           }}
           density="normal"
           striped={true}

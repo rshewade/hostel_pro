@@ -32,14 +32,16 @@ export function InterviewScheduleModal({
   const [sendInvitation, setSendInvitation] = useState(true);
   const [sendReminder, setSendReminder] = useState(true);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     if (!application || !date || !time) {
-      alert('Please select both date and time for the interview');
+      setError('Please select both date and time for the interview');
       return;
     }
 
     setIsScheduling(true);
+    setError(null);
     try {
       await onSchedule({
         applicationId: application.id,
@@ -56,9 +58,8 @@ export function InterviewScheduleModal({
       setSendInvitation(true);
       setSendReminder(true);
       onClose();
-    } catch (error) {
-      console.error('Error scheduling interview:', error);
-      alert('Failed to schedule interview');
+    } catch {
+      setError('Failed to schedule interview. Please try again.');
     } finally {
       setIsScheduling(false);
     }
@@ -194,6 +195,13 @@ export function InterviewScheduleModal({
             <p className="text-sm text-blue-800">
               A meeting link will be generated automatically and sent to the applicant.
             </p>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+            <p className="text-sm text-red-800">{error}</p>
           </div>
         )}
 

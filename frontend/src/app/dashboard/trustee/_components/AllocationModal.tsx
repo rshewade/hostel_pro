@@ -35,6 +35,7 @@ export function AllocationModal({
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAllocating, setIsAllocating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && application) {
@@ -62,8 +63,8 @@ export function AllocationModal({
         );
         setRooms(availableRooms);
       }
-    } catch (error) {
-      console.error('Error fetching rooms:', error);
+    } catch {
+      setError('Failed to fetch available rooms');
     } finally {
       setIsLoading(false);
     }
@@ -71,18 +72,18 @@ export function AllocationModal({
 
   const handleAllocate = async () => {
     if (!application || !selectedRoom) {
-      alert('Please select a room');
+      setError('Please select a room');
       return;
     }
 
     setIsAllocating(true);
+    setError(null);
     try {
       await onAllocate(application.id, selectedRoom);
       setSelectedRoom(null);
       onClose();
-    } catch (error) {
-      console.error('Error allocating room:', error);
-      alert('Failed to allocate room');
+    } catch {
+      setError('Failed to allocate room. Please try again.');
     } finally {
       setIsAllocating(false);
     }
@@ -195,6 +196,13 @@ export function AllocationModal({
               <strong>Selected:</strong> Room{' '}
               {rooms.find((r) => r.id === selectedRoom)?.room_number}
             </p>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+            <p className="text-sm text-red-800">{error}</p>
           </div>
         )}
 

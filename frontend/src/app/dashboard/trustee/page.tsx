@@ -102,7 +102,6 @@ export default function TrusteeOverview() {
 
       setRecentActivities(activities);
     } catch (err: any) {
-      console.error('Error fetching dashboard data:', err);
       setError(err.message || 'Failed to load dashboard data');
     } finally {
       setIsLoading(false);

@@ -209,7 +209,6 @@ export default function TrusteeReports() {
         },
       });
     } catch (err: any) {
-      console.error('Error fetching report data:', err);
       setError(err.message || 'Failed to load report data');
     } finally {
       setIsLoading(false);

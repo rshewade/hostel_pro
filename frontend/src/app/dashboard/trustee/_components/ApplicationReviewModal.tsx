@@ -65,6 +65,7 @@ export function ApplicationReviewModal({
   const [activeTab, setActiveTab] = useState<'summary' | 'interview' | 'decision' | 'audit'>('summary');
   const [decisionRemarks, setDecisionRemarks] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getStatusVariant = (status: ApplicationStatus): BadgeVariant => {
     switch (status) {
@@ -85,11 +86,12 @@ export function ApplicationReviewModal({
 
   const handleDecision = async (type: DecisionType) => {
     if (!application || !decisionRemarks.trim()) {
-      alert('Please provide remarks for your decision');
+      setError('Please provide remarks for your decision');
       return;
     }
 
     setIsProcessing(true);
+    setError(null);
     try {
       switch (type) {
         case 'PROVISIONAL_APPROVE_INTERVIEW':
@@ -110,8 +112,8 @@ export function ApplicationReviewModal({
       }
       setDecisionRemarks('');
       onClose();
-    } catch (error) {
-      console.error('Error processing decision:', error);
+    } catch {
+      setError('Failed to process decision. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -414,6 +416,13 @@ export function ApplicationReviewModal({
                     <strong>Note:</strong> Final approval will create a student account and send login credentials to the applicant.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+                <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
           </div>

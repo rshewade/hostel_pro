@@ -58,6 +58,8 @@ export default function TrusteeInterviews() {
     recommendation: 'APPROVE',
   });
   const [isSavingEvaluation, setIsSavingEvaluation] = useState(false);
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   const fetchInterviews = useCallback(async () => {
     try {
@@ -103,7 +105,6 @@ export default function TrusteeInterviews() {
 
       setInterviews(interviewList);
     } catch (err: any) {
-      console.error('Error fetching interviews:', err);
       setError(err.message || 'Failed to load interviews');
     } finally {
       setIsLoading(false);
@@ -137,10 +138,11 @@ export default function TrusteeInterviews() {
   };
 
   const handleJoinInterview = (interview: Interview) => {
+    setJoinError(null);
     if (interview.meetingLink) {
       window.open(interview.meetingLink, '_blank');
     } else {
-      alert('No meeting link available');
+      setJoinError('No meeting link available for this interview');
     }
   };
 
@@ -153,6 +155,7 @@ export default function TrusteeInterviews() {
     if (!selectedInterview) return;
 
     setIsSavingEvaluation(true);
+    setEvaluationError(null);
     try {
       const response = await fetch(`/api/applications/${selectedInterview.applicationId}`, {
         method: 'PUT',
@@ -180,9 +183,8 @@ export default function TrusteeInterviews() {
       } else {
         throw new Error('Failed to save evaluation');
       }
-    } catch (err) {
-      console.error('Error saving evaluation:', err);
-      alert('Failed to save evaluation');
+    } catch {
+      setEvaluationError('Failed to save evaluation. Please try again.');
     } finally {
       setIsSavingEvaluation(false);
     }
@@ -414,6 +416,13 @@ export default function TrusteeInterviews() {
         </div>
       </div>
 
+      {/* Join Error Display */}
+      {joinError && (
+        <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+          <p className="text-sm text-red-800">{joinError}</p>
+        </div>
+      )}
+
       {/* Interviews Table */}
       {filteredInterviews.length === 0 ? (
         <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
@@ -430,7 +439,7 @@ export default function TrusteeInterviews() {
             pageSize: 10,
             totalItems: filteredInterviews.length,
             totalPages: Math.ceil(filteredInterviews.length / 10),
-            onPageChange: (page) => console.log('Page change:', page),
+            onPageChange: () => {},
           }}
           density="normal"
           striped={true}
@@ -536,6 +545,13 @@ export default function TrusteeInterviews() {
                 placeholder="Overall observations and recommendations..."
               />
             </div>
+
+            {/* Evaluation Error */}
+            {evaluationError && (
+              <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+                <p className="text-sm text-red-800">{evaluationError}</p>
+              </div>
+            )}
 
             <div className="flex gap-3 pt-4 border-t">
               <Button variant="primary" onClick={handleSaveEvaluation} loading={isSavingEvaluation}>

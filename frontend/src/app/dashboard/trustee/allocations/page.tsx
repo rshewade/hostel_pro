@@ -99,7 +99,6 @@ export default function TrusteeAllocations() {
 
       setRoomSummary(Object.values(summaryMap));
     } catch (err: any) {
-      console.error('Error fetching data:', err);
       setError(err.message || 'Failed to load data');
     } finally {
       setIsLoading(false);
@@ -396,7 +395,7 @@ export default function TrusteeAllocations() {
             pageSize: 10,
             totalItems: filteredAllocations.length,
             totalPages: Math.ceil(filteredAllocations.length / 10),
-            onPageChange: (page) => console.log('Page change:', page),
+            onPageChange: () => {},
           }}
           density="normal"
           striped={true}
