@@ -18,6 +18,16 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Debug: Check environment variables
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+    console.log('[LOGIN] ENV Check - SUPABASE_URL:', supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'MISSING');
+    console.log('[LOGIN] ENV Check - SERVICE_ROLE_KEY present:', hasServiceKey);
+
+    if (!supabaseUrl || !hasServiceKey) {
+      return serverErrorResponse('Server configuration error: Missing Supabase credentials');
+    }
+
     const supabase = createServerClient();
     const body: AuthAPI.LoginRequest = await request.json();
     const { username, password } = body;
@@ -60,8 +70,13 @@ export async function POST(request: NextRequest) {
       .or(`email.ilike.${normalizedInput},mobile.eq.${username.replace(/\s/g, '')}`)
       .single();
 
-    if (userError || !user) {
-      console.error('[LOGIN] User not found:', normalizedInput, 'Error:', userError?.message);
+    if (userError) {
+      console.error('[LOGIN] Database error:', userError.message, 'Code:', userError.code);
+      return serverErrorResponse('Database error: ' + userError.message);
+    }
+
+    if (!user) {
+      console.error('[LOGIN] User not found:', normalizedInput);
       return unauthorizedResponse('User not found: ' + normalizedInput);
     }
 
