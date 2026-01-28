@@ -9,7 +9,7 @@ import {
 /**
  * POST /api/admin/seed-auth-users
  *
- * Creates Supabase Auth users for existing staff members in public.users
+ * Creates Supabase Auth users for existing users in public.users
  * who don't have auth_user_id set. This is a one-time migration script.
  *
  * IMPORTANT: This endpoint should be protected in production.
@@ -18,14 +18,15 @@ import {
  * Request body:
  * {
  *   "adminSecret": "your-admin-secret",
- *   "dryRun": true/false (optional, defaults to true)
+ *   "dryRun": true/false (optional, defaults to true),
+ *   "userType": "staff" | "students" | "all" (optional, defaults to "staff")
  * }
  */
 export async function POST(request: NextRequest) {
   try {
     const supabase = createServerClient();
     const body = await request.json();
-    const { adminSecret, dryRun = true } = body;
+    const { adminSecret, dryRun = true, userType = 'staff' } = body;
 
     // Validate admin secret (use environment variable in production)
     const expectedSecret = process.env.ADMIN_SEED_SECRET || 'hostel-admin-seed-2024';
@@ -33,12 +34,24 @@ export async function POST(request: NextRequest) {
       return unauthorizedResponse('Invalid admin secret');
     }
 
-    // Find all staff users without auth_user_id
+    // Determine which roles to process
+    let rolesToProcess: string[] = [];
+    if (userType === 'staff') {
+      rolesToProcess = ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'];
+    } else if (userType === 'students') {
+      rolesToProcess = ['STUDENT'];
+    } else if (userType === 'all') {
+      rolesToProcess = ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS', 'STUDENT'];
+    } else {
+      rolesToProcess = ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'];
+    }
+
+    // Find all users without auth_user_id
     const { data: usersWithoutAuth, error: fetchError } = await supabase
       .from('users')
       .select('*')
       .is('auth_user_id', null)
-      .in('role', ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
+      .in('role', rolesToProcess);
 
     if (fetchError) {
       console.error('Failed to fetch users:', fetchError);
@@ -48,7 +61,7 @@ export async function POST(request: NextRequest) {
     if (!usersWithoutAuth || usersWithoutAuth.length === 0) {
       return successResponse({
         success: true,
-        message: 'No staff users found without auth_user_id',
+        message: `No ${userType} users found without auth_user_id`,
         usersProcessed: 0,
       });
     }
@@ -56,6 +69,7 @@ export async function POST(request: NextRequest) {
     console.log('\n========================================');
     console.log(`${dryRun ? '🔍 DRY RUN:' : '🚀 EXECUTING:'} SEED AUTH USERS`);
     console.log('========================================');
+    console.log('User type:', userType);
     console.log('Users to process:', usersWithoutAuth.length);
     console.log('========================================\n');
 
@@ -67,9 +81,32 @@ export async function POST(request: NextRequest) {
       failed: [],
     };
 
+    // For students, fetch their tracking numbers from applications
+    const trackingNumberMap: Record<string, string> = {};
+    if (userType === 'students' || userType === 'all') {
+      const { data: applications } = await supabase
+        .from('applications')
+        .select('student_user_id, tracking_number')
+        .not('student_user_id', 'is', null);
+
+      if (applications) {
+        for (const app of applications) {
+          if (app.student_user_id && app.tracking_number) {
+            trackingNumberMap[app.student_user_id] = app.tracking_number;
+          }
+        }
+      }
+    }
+
     for (const user of usersWithoutAuth) {
-      // Generate temporary password
-      const tempPassword = `Staff@${user.role}2024`;
+      // Generate temporary password based on role
+      let tempPassword: string;
+      if (user.role === 'STUDENT') {
+        const trackingNumber = trackingNumberMap[user.id];
+        tempPassword = trackingNumber ? `Hostel@${trackingNumber}` : `Hostel@Student${user.id.slice(-6)}`;
+      } else {
+        tempPassword = `Staff@${user.role}2024`;
+      }
 
       console.log(`Processing: ${user.full_name} (${user.email}) - Role: ${user.role}`);
 
