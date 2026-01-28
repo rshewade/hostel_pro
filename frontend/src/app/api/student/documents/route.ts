@@ -5,27 +5,38 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('studentId') || 'u1';
+    const studentId = searchParams.get('studentId');
+
+    if (!studentId) {
+      return NextResponse.json([], { status: 200 }); // Return empty array if no studentId
+    }
 
     // Query documents for the student
     const { data: documents, error } = await supabase
       .from('documents')
       .select('*')
-      .or(`student_user_id.eq.${studentId},student_id.eq.${studentId}`);
+      .eq('student_user_id', studentId);
 
     if (error) {
       console.error('Supabase error fetching documents:', error);
     }
 
+    console.log(`📄 Fetching documents for student ${studentId}:`, documents?.length || 0, 'found');
+
+    // Map database enum values to display info
     const documentTypeMap: Record<string, { title: string; category: string }> = {
-      'AADHAR_CARD': { title: 'Aadhar Card', category: 'IDENTITY' },
-      'PHOTO': { title: 'Passport Size Photo', category: 'IDENTITY' },
-      'MARKSHEET': { title: 'Academic Marksheet', category: 'ADMISSION' },
+      'AADHAAR_CARD': { title: 'Aadhar Card', category: 'IDENTITY' },
+      'PHOTOGRAPH': { title: 'Passport Size Photo', category: 'IDENTITY' },
+      'EDUCATION_CERTIFICATE': { title: 'Academic Document', category: 'ADMISSION' },
       'BIRTH_CERTIFICATE': { title: 'Birth Certificate', category: 'IDENTITY' },
-      'TRANSFER_CERTIFICATE': { title: 'Transfer Certificate', category: 'ADMISSION' },
-      'ANTI_RAGGING': { title: 'Anti-Ragging Undertaking', category: 'UNDERTAKING' },
-      'HOSTEL_RULES': { title: 'Hostel Rules Acceptance', category: 'UNDERTAKING' },
-      'FEE_RECEIPT': { title: 'Fee Receipt', category: 'RECEIPT' },
+      'INCOME_CERTIFICATE': { title: 'Income Certificate', category: 'ADMISSION' },
+      'MEDICAL_CERTIFICATE': { title: 'Medical Certificate', category: 'ADMISSION' },
+      'POLICE_VERIFICATION': { title: 'Police Verification', category: 'ADMISSION' },
+      'UNDERTAKING': { title: 'Undertaking', category: 'UNDERTAKING' },
+      'RECEIPT': { title: 'Fee Receipt', category: 'RECEIPT' },
+      'LEAVE_APPLICATION': { title: 'Leave Application', category: 'ADMISSION' },
+      'RENEWAL_FORM': { title: 'Renewal Form', category: 'ADMISSION' },
+      'OTHER': { title: 'Other Document', category: 'ADMISSION' },
     };
 
     const formattedDocuments = (documents || []).map((doc: any, index: number) => {
@@ -38,45 +49,15 @@ export async function GET(request: NextRequest) {
         id: doc.id || `doc-${index}`,
         title: typeInfo.title,
         category: typeInfo.category,
-        uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toISOString().split('T')[0] : '2024-06-15',
-        status: doc.verification_status || 'PENDING',
-        size: '0.5 MB',
-        type: doc.s3_key?.split('.').pop()?.toUpperCase() || 'PDF'
+        uploadDate: doc.created_at ? new Date(doc.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        status: doc.status || 'UPLOADED',
+        size: doc.file_size ? `${(doc.file_size / 1024 / 1024).toFixed(2)} MB` : 'Unknown',
+        type: doc.storage_path?.split('.').pop()?.toUpperCase() || doc.mime_type?.split('/').pop()?.toUpperCase() || 'PDF',
+        url: doc.storage_url || '',
       };
     });
 
-    if (formattedDocuments.length === 0) {
-      return NextResponse.json([
-        {
-          id: '1',
-          title: 'Aadhar Card',
-          category: 'IDENTITY' as const,
-          uploadDate: '2024-06-10',
-          status: 'VERIFIED' as const,
-          size: '2.4 MB',
-          type: 'PDF'
-        },
-        {
-          id: '2',
-          title: 'Passport Size Photo',
-          category: 'IDENTITY' as const,
-          uploadDate: '2024-06-10',
-          status: 'VERIFIED' as const,
-          size: '1.8 MB',
-          type: 'JPG'
-        },
-        {
-          id: '3',
-          title: 'Academic Marksheet',
-          category: 'ADMISSION' as const,
-          uploadDate: '2024-06-15',
-          status: 'VERIFIED' as const,
-          size: '1.2 MB',
-          type: 'PDF'
-        }
-      ]);
-    }
-
+    // Return actual documents (empty array if none found)
     return NextResponse.json(formattedDocuments);
   } catch (error) {
     console.error('Error fetching documents:', error);

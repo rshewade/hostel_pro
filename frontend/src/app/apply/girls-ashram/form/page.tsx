@@ -930,13 +930,74 @@ export default function ApplicationFormPage() {
     }
   };
 
+  const uploadDocument = async (file: File, documentType: string, tempId: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('document_type', documentType);
+    formData.append('temp_id', tempId);
+
+    const response = await fetch('/api/applications/documents/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Failed to upload ${documentType}`);
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || `Failed to upload ${documentType}`);
+    }
+
+    return result.data;
+  };
+
   const handleSubmit = async (data: any) => {
     try {
+      // Generate a temporary ID for this application's documents
+      const tempId = `app_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
+      // Document fields that need to be uploaded
+      const documentFields = ['photoFile', 'birthCertificate', 'marksheet', 'recommendationLetter'];
+      const uploadedDocuments: Record<string, any> = {};
+
+      // Upload all documents first
+      for (const fieldName of documentFields) {
+        const file = data[fieldName];
+        if (file instanceof File) {
+          try {
+            const uploadResult = await uploadDocument(file, fieldName, tempId);
+            uploadedDocuments[fieldName] = uploadResult;
+          } catch (uploadError: any) {
+            console.error(`Failed to upload ${fieldName}:`, uploadError);
+            throw new Error(`Failed to upload ${fieldName}: ${uploadError.message}`);
+          }
+        }
+      }
+
+      // Prepare submission data - replace File objects with upload info
+      const submissionData = { ...data };
+      for (const fieldName of documentFields) {
+        if (uploadedDocuments[fieldName]) {
+          submissionData[fieldName] = uploadedDocuments[fieldName];
+        } else {
+          delete submissionData[fieldName];
+        }
+      }
+
+      // Add documents array for the API
+      submissionData.documents = Object.entries(uploadedDocuments).map(([fieldName, docInfo]) => ({
+        type: fieldName,
+        ...docInfo,
+      }));
+
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...data,
+          ...submissionData,
           vertical: 'girls-ashram',
           status: 'SUBMITTED',
           submittedAt: new Date().toISOString(),

@@ -204,6 +204,8 @@ export async function POST(request: NextRequest) {
         // Declaration
         declaration_accepted: body.declarationAccepted,
         declaration_timestamp: body.declarationAccepted ? new Date().toISOString() : null,
+        // Documents (uploaded to Supabase Storage)
+        documents: body.documents || [],
       },
       submitted_at: body.status === 'SUBMITTED' ? new Date().toISOString() : null,
     };

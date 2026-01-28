@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/forms/Input';
 import { DatePicker } from '@/components/forms/DatePicker';
 import { TimePicker } from '@/components/forms/TimePicker';
 import { Textarea } from '@/components/forms/Textarea';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import Link from 'next/link';
 
 type LeaveType = 'short' | 'night-out' | 'multi-day';
 type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
@@ -47,61 +46,77 @@ const leaveRules: LeaveRule[] = [
   }
 ];
 
-const mockLeaveHistory: LeaveRequest[] = [
-  {
-    id: '1',
-    type: 'short',
-    fromDate: '2024-12-15',
-    toDate: '2024-12-15',
-    fromTime: '09:00',
-    toTime: '18:00',
-    reason: 'Personal work at home',
-    status: 'APPROVED',
-    appliedDate: '2024-12-10',
-    remarks: 'Approved for emergency family matter'
-  },
-  {
-    id: '2',
-    type: 'multi-day',
-    fromDate: '2024-12-20',
-    toDate: '2024-12-25',
-    fromTime: '08:00',
-    toTime: '18:00',
-    reason: 'Attend sister\'s wedding',
-    destination: 'Mumbai',
-    contactNumber: '+91 98765 43210',
-    status: 'PENDING',
-    appliedDate: '2024-12-18'
-  },
-  {
-    id: '3',
-    type: 'night-out',
-    fromDate: '2024-12-28',
-    toDate: '2024-12-28',
-    fromTime: '18:00',
-    toTime: '22:00',
-    reason: 'Family dinner',
-    status: 'REJECTED',
-    appliedDate: '2024-12-26',
-    remarks: 'Insufficient notice given. Night-outs require 24 hours prior approval.'
-  },
-  {
-    id: '4',
-    type: 'short',
-    fromDate: '2024-12-30',
-    toDate: '2024-12-30',
-    fromTime: '14:00',
-    toTime: '18:00',
-    reason: 'Medical appointment',
-    status: 'PENDING',
-    appliedDate: '2024-12-28'
-  }
-];
-
 export default function LeaveManagementPage() {
   const [selectedType, setSelectedType] = useState<LeaveType | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'request' | 'history'>('request');
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [leaveHistory, setLeaveHistory] = useState<LeaveRequest[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  // Get student ID from localStorage on mount
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('authToken');
+
+    if (userId) {
+      setStudentId(userId);
+    } else if (token) {
+      try {
+        // Handle both JWT tokens (Supabase) and legacy base64 tokens
+        if (token.includes('.')) {
+          const payload = token.split('.')[1];
+          const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+          const tokenData = JSON.parse(atob(base64));
+          setStudentId(tokenData.sub);
+        } else {
+          const tokenData = JSON.parse(atob(token));
+          setStudentId(tokenData.userId);
+        }
+      } catch (e) {
+        console.error('Error decoding token:', e);
+      }
+    }
+  }, []);
+
+  // Fetch leave history when studentId is available
+  useEffect(() => {
+    if (studentId) {
+      fetchLeaveHistory();
+    }
+  }, [studentId]);
+
+  const fetchLeaveHistory = async () => {
+    if (!studentId) return;
+
+    try {
+      setHistoryLoading(true);
+      const response = await fetch(`/api/leaves?student_id=${studentId}`);
+      if (response.ok) {
+        const result = await response.json();
+        const data = result.data || result || [];
+        // Transform API data to match LeaveRequest interface
+        const transformedData: LeaveRequest[] = (Array.isArray(data) ? data : []).map((leave: any) => ({
+          id: leave.id,
+          type: leave.leaveType || 'short',
+          fromDate: leave.fromDate || '',
+          toDate: leave.toDate || '',
+          fromTime: leave.fromTime || '',
+          toTime: leave.toTime || '',
+          reason: leave.reason || '',
+          destination: leave.destination || '',
+          contactNumber: leave.contactNumber || '',
+          status: leave.status || 'PENDING',
+          appliedDate: leave.appliedDate || '',
+          remarks: leave.remarks || '',
+        }));
+        setLeaveHistory(transformedData);
+      }
+    } catch (err) {
+      console.error('Error fetching leave history:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
   
   const [formData, setFormData] = useState({
     fromDate: '',
@@ -196,6 +211,11 @@ export default function LeaveManagementPage() {
   };
 
   const handleSubmit = async () => {
+    if (!studentId) {
+      alert('Unable to identify student. Please login again.');
+      return;
+    }
+
     if (validateForm()) {
       try {
         const leaveTypeMap: Record<LeaveType, string> = {
@@ -208,6 +228,7 @@ export default function LeaveManagementPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            student_id: studentId,
             type: leaveTypeMap[selectedType!],
             start_time: `${formData.fromDate}T${formData.fromTime || '09:00'}:00Z`,
             end_time: `${formData.toDate}T${formData.toTime || '18:00'}:00Z`,
@@ -221,8 +242,12 @@ export default function LeaveManagementPage() {
           alert('Leave request submitted successfully!');
           setShowForm(false);
           setSelectedType(null);
+          // Refresh leave history to show the new request
+          fetchLeaveHistory();
         } else {
-          alert('Failed to submit leave request');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Leave request error:', errorData);
+          alert('Failed to submit leave request: ' + (errorData.message || errorData.error || 'Unknown error'));
         }
       } catch (err) {
         console.error('Error submitting leave request:', err);
@@ -477,66 +502,79 @@ export default function LeaveManagementPage() {
                 <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-semibold">
                   Leave History
                 </h2>
+                <Button variant="ghost" size="sm" onClick={fetchLeaveHistory} disabled={historyLoading}>
+                  {historyLoading ? 'Loading...' : 'Refresh'}
+                </Button>
               </div>
-              
+
               <div className="card" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b" style={{ borderColor: 'var(--border-primary)' }}>
-                        <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                          Type
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                          Dates
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                          Reason
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                          Status
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                          Remarks
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mockLeaveHistory.map((leave) => (
-                        <tr key={leave.id} className="border-b hover:bg-gray-50" style={{ borderColor: 'var(--border-primary)' }}>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">
-                                {leave.type === 'short' && '📋'}
-                                {leave.type === 'night-out' && '🌙'}
-                                {leave.type === 'multi-day' && '📅'}
-                              </span>
-                              <span className="capitalize" style={{ color: 'var(--text-primary)' }}>
-                                {leave.type.replace('-', ' ')}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
-                            {leave.fromDate} → {leave.toDate}
-                          </td>
-                          <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
-                            {leave.reason}
-                            {leave.destination && (
-                              <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                to {leave.destination}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            {getStatusBadge(leave.status)}
-                          </td>
-                          <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                            {leave.remarks || '-'}
-                          </td>
+                  {historyLoading ? (
+                    <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
+                      Loading leave history...
+                    </div>
+                  ) : leaveHistory.length === 0 ? (
+                    <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
+                      No leave requests found. Submit your first leave request above.
+                    </div>
+                  ) : (
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b" style={{ borderColor: 'var(--border-primary)' }}>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            Type
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            Dates
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            Reason
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            Status
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
+                            Remarks
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {leaveHistory.map((leave) => (
+                          <tr key={leave.id} className="border-b hover:bg-gray-50" style={{ borderColor: 'var(--border-primary)' }}>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">
+                                  {leave.type === 'short' && '📋'}
+                                  {leave.type === 'night-out' && '🌙'}
+                                  {leave.type === 'multi-day' && '📅'}
+                                </span>
+                                <span className="capitalize" style={{ color: 'var(--text-primary)' }}>
+                                  {leave.type.replace('-', ' ')}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
+                              {leave.fromDate} → {leave.toDate}
+                            </td>
+                            <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
+                              {leave.reason}
+                              {leave.destination && (
+                                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                  to {leave.destination}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              {getStatusBadge(leave.status)}
+                            </td>
+                            <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                              {leave.remarks || '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </div>
             </div>

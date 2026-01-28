@@ -200,7 +200,7 @@ export default function SuperintendentLeaveManagement() {
         : `/api/leaves/${actionModal.leave.id}/reject`;
       
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           remarks: actionModal.remarks,
@@ -211,6 +211,8 @@ export default function SuperintendentLeaveManagement() {
       if (response.ok) {
         setActionModal({ isOpen: false, type: 'approve', leave: null, remarks: '' });
         setSelectedLeave(null);
+        // Refresh the leaves list to reflect the status change
+        fetchLeaveRequests();
         alert(`Leave ${actionModal.type === 'approve' ? 'approved' : 'rejected'} successfully`);
       } else {
         alert('Failed to process leave request');

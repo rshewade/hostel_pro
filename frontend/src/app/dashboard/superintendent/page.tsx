@@ -50,13 +50,17 @@ export default function SuperintendentDashboard() {
       if (!response.ok) {
         throw new Error('Failed to fetch applications');
       }
-      const data = await response.json();
-      
+      const result = await response.json();
+      // Handle wrapped response format: { success: true, data: [...] }
+      const data = result.data || result;
+
       // Transform API data to UI format
       const transformedApplications: Application[] = Array.isArray(data) ? data.map((app: any) => {
-        // Extract applicant name from different formats
+        // Extract applicant name from different formats (check snake_case first as that's the DB format)
         let applicantName = 'Unknown';
-        if (app.applicantName) {
+        if (app.applicant_name) {
+          applicantName = app.applicant_name;
+        } else if (app.applicantName) {
           applicantName = app.applicantName;
         } else if (app.firstName) {
           applicantName = `${app.firstName} ${app.lastName || ''}`.trim();
@@ -71,16 +75,17 @@ export default function SuperintendentDashboard() {
           trackingNumber: app.trackingNumber || app.tracking_number || `HG-${new Date().getFullYear()}-00000`,
           applicantName,
           vertical: mapVertical(app.personalInfo?.vertical || app.vertical || app.data?.vertical),
-          status: mapApplicationStatus(app.currentStatus || app.status),
-          applicationDate: app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') : 
-                          app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-GB') : 
-                          app.submitted_at ? new Date(app.submitted_at).toLocaleDateString('en-GB') : 
+          status: mapApplicationStatus(app.current_status || app.currentStatus || app.status),
+          applicationDate: app.created_at ? new Date(app.created_at).toLocaleDateString('en-GB') :
+                          app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') :
+                          app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-GB') :
+                          app.submitted_at ? new Date(app.submitted_at).toLocaleDateString('en-GB') :
                           new Date().toLocaleDateString('en-GB'),
           paymentStatus: app.fees?.paymentStatus || app.paymentStatus || 'PENDING',
-          interviewScheduled: app.interview?.scheduled || app.interviewScheduled || false,
+          interviewScheduled: app.interview?.scheduled || app.interviewScheduled || !!app.interview_scheduled_at || false,
           flags: app.flags || [],
-          email: app.personalInfo?.email || app.applicantEmail || app.email,
-          mobile: app.personalInfo?.mobile || app.applicantMobile || app.mobile
+          email: app.personalInfo?.email || app.applicant_email || app.applicantEmail || app.email,
+          mobile: app.personalInfo?.mobile || app.applicant_mobile || app.applicantMobile || app.mobile
         };
       }) : [];
       
