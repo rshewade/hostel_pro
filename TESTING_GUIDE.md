@@ -12,24 +12,26 @@ This guide provides step-by-step instructions to manually validate the functiona
 
 > **Note:** Staff users use Supabase Auth. First-time login requires password change.
 
-| Role                        | Email                                 | Password                    | Notes                    |
-| --------------------------- | ------------------------------------- | --------------------------- | ------------------------ |
-| Superintendent (Boys)       | `superintendent@jain.org`             | `Staff@SUPERINTENDENT2024`  | Change on first login    |
-| Superintendent (Girls)      | `superintendent-girls@jain.org`       | `Staff@SUPERINTENDENT2024`  | Change on first login    |
-| Superintendent (Dharamshala)| `superintendent-dharamshala@jain.org` | `Staff@SUPERINTENDENT2024`  | Change on first login    |
-| Trustee                     | `trustee@jain.org`                    | `Staff@TRUSTEE2024`         | Change on first login    |
-| Accounts                    | `accounts@jain.org`                   | `Staff@ACCOUNTS2024`        | Change on first login    |
-| Parent                      | Mobile: `9876543210`                  | OTP: `123456`               | OTP-based login          |
+| Role                         | Email                                 | Password                   | Notes                 |
+| ---------------------------- | ------------------------------------- | -------------------------- | --------------------- |
+| Superintendent (Boys)        | `superintendent@jain.org`             | `Staff@SUPERINTENDENT2024` | Change on first login |
+| Superintendent (Girls)       | `superintendent-girls@jain.org`       | `Staff@SUPERINTENDENT2024` | Change on first login |
+| Superintendent (Dharamshala) | `superintendent-dharamshala@jain.org` | `Staff@SUPERINTENDENT2024` | Change on first login |
+| Trustee                      | `trustee@jain.org`                    | `Staff@TRUSTEE2024`        | Change on first login |
+| Accounts                     | `accounts@jain.org`                   | `Staff@ACCOUNTS2024`       | Change on first login |
+| Parent                       | Mobile: `9876543220`                  | OTP: `123456`              | OTP-based login       |
 
 #### Student Credentials
 
 Students are created when applications are approved. Their temporary password is:
+
 - **Format:** `Hostel@{tracking_number}` (e.g., `Hostel@BH-2025-00001`)
 - First login requires password change and DPDP consent
 
 #### Staff Migration
 
 If staff users don't have Supabase Auth accounts, run the migration:
+
 ```bash
 # Dry run (preview only)
 curl -X POST http://localhost:3000/api/admin/seed-auth-users \
@@ -128,7 +130,7 @@ This section validates the complete admission cycle from application to approval
 ### 2.4 System - User Creation
 
 - [ ] `TC-APP-019` Upon final approval, the system should generate a **Student User Account**.
-- [ ] `TC-APP-020` (Manual Verification): Check `db.json` -> `users` for a new entry with the applicant's email/mobile.
+- [ ] `TC-APP-020` (Manual Verification): Check Database -> `users` for a new entry with the applicant's email/mobile.UPdated
 
 ### 2.5 Student - First Login
 
@@ -196,7 +198,7 @@ This section validates the complete admission cycle from application to approval
 
 ## 4. Superintendent Dashboard
 
-**Login:** Use `superintendent@jain.org` / `Staff@SUPERINTENDENT2024` (or your changed password).
+**Login:** Use `superintendent@jain.org` / `SecurePass1!` (or your changed password).
 
 ### 4.1 Dashboard Overview
 
@@ -238,7 +240,7 @@ This section validates the complete admission cycle from application to approval
 
 ### 5.1 Login
 
-- [ ] `TC-PAR-001` Enter Mobile Number `9876543210`.
+- [ ] `TC-PAR-001` Enter Mobile Number `9876543220`.
 - [ ] `TC-PAR-002` Enter OTP `123456`.
 
 ### 5.2 Dashboard View
@@ -275,15 +277,15 @@ This section validates the complete admission cycle from application to approval
 
 ### Common Issues
 
-| Issue                            | Solution                                                                       |
-| -------------------------------- | ------------------------------------------------------------------------------ |
-| **Login Fails (401)**            | Ensure user has `auth_user_id` in Supabase. Run staff migration if needed.     |
-| **"Account not configured"**     | User exists in `public.users` but not in Supabase Auth. Run migration.         |
-| **Empty Data**                   | Verify Supabase connection and environment variables                           |
-| **API Errors (404)**             | Check that API routes exist in Next.js app directory                           |
-| **API Errors (500)**             | Check browser console Network tab and server logs for details                  |
-| **First-time setup fails**       | Ensure password meets requirements: 8+ chars, uppercase, lowercase, number, special char |
-| **Session Invalid**              | Token may have expired. Re-login to get a fresh token.                         |
+| Issue                        | Solution                                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------------------- |
+| **Login Fails (401)**        | Ensure user has `auth_user_id` in Supabase. Run staff migration if needed.               |
+| **"Account not configured"** | User exists in `public.users` but not in Supabase Auth. Run migration.                   |
+| **Empty Data**               | Verify Supabase connection and environment variables                                     |
+| **API Errors (404)**         | Check that API routes exist in Next.js app directory                                     |
+| **API Errors (500)**         | Check browser console Network tab and server logs for details                            |
+| **First-time setup fails**   | Ensure password meets requirements: 8+ chars, uppercase, lowercase, number, special char |
+| **Session Invalid**          | Token may have expired. Re-login to get a fresh token.                                   |
 
 ### Starting the Development Environment
 
