@@ -41,12 +41,24 @@ export default function StudentRoomPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get student ID from auth token in localStorage
+    // Get student ID from localStorage (stored during login)
+    const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('authToken');
-    if (token) {
+
+    if (userId) {
+      setStudentId(userId);
+    } else if (token) {
       try {
-        const tokenData = JSON.parse(atob(token));
-        setStudentId(tokenData.userId);
+        // Fallback: try to decode from JWT token
+        if (token.includes('.')) {
+          const payload = token.split('.')[1];
+          const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+          const tokenData = JSON.parse(atob(base64));
+          setStudentId(tokenData.sub);
+        } else {
+          const tokenData = JSON.parse(atob(token));
+          setStudentId(tokenData.userId);
+        }
       } catch (e) {
         console.error('Error decoding token:', e);
         setError('Authentication error. Please login again.');

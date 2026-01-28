@@ -36,8 +36,32 @@ export default function StudentDashboard() {
           return;
         }
 
-        const tokenData = JSON.parse(atob(token));
-        const userId = tokenData.userId;
+        // Handle both JWT tokens (Supabase) and legacy base64 tokens
+        let userId: string;
+        try {
+          if (token.includes('.')) {
+            // JWT token format: header.payload.signature
+            const payload = token.split('.')[1];
+            // JWT uses base64url encoding, convert to standard base64
+            const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            const tokenData = JSON.parse(atob(base64));
+            // Supabase JWT has 'sub' as user ID, but we store our userId separately
+            userId = localStorage.getItem('userId') || tokenData.sub;
+          } else {
+            // Legacy base64 encoded JSON token
+            const tokenData = JSON.parse(atob(token));
+            userId = tokenData.userId;
+          }
+        } catch (e) {
+          console.error('Failed to decode token:', e);
+          router.push('/login');
+          return;
+        }
+
+        if (!userId) {
+          router.push('/login');
+          return;
+        }
 
         // Fetch user profile
         const profileResponse = await fetch(`/api/users/profile?user_id=${userId}`);

@@ -41,17 +41,41 @@ export default function StudentFeesPage() {
     const fetchFees = async () => {
       try {
         setLoading(true);
-        // Get current student ID from auth token in localStorage
+        // Get current student ID from localStorage (stored during login)
         const token = localStorage.getItem('authToken');
+        let studentId = localStorage.getItem('userId');
+
         if (!token) {
           setError('Please login to view fees');
           setLoading(false);
           return;
         }
 
-        // Decode token to get user ID
-        const tokenData = JSON.parse(atob(token));
-        const studentId = tokenData.userId;
+        // Fallback: try to decode from token if userId not in localStorage
+        if (!studentId) {
+          try {
+            if (token.includes('.')) {
+              const payload = token.split('.')[1];
+              const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+              const tokenData = JSON.parse(atob(base64));
+              studentId = tokenData.sub;
+            } else {
+              const tokenData = JSON.parse(atob(token));
+              studentId = tokenData.userId;
+            }
+          } catch (e) {
+            console.error('Error decoding token:', e);
+            setError('Authentication error. Please login again.');
+            setLoading(false);
+            return;
+          }
+        }
+
+        if (!studentId) {
+          setError('Please login to view fees');
+          setLoading(false);
+          return;
+        }
 
         const response = await fetch(`/api/fees?student_id=${studentId}`);
 
