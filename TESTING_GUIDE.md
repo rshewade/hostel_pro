@@ -28,21 +28,16 @@ Students are created when applications are approved. Their temporary password is
 - **Format:** `Hostel@{tracking_number}` (e.g., `Hostel@BH-2025-00001`)
 - First login requires password change and DPDP consent
 
-#### Staff Migration
+**Test Student Accounts (for Student Dashboard testing):**
 
-If staff users don't have Supabase Auth accounts, run the migration:
+| Name            | Email                    | Password                  | Tracking Number | Vertical     | Room  |
+| --------------- | ------------------------ | ------------------------- | --------------- | ------------ | ----- |
+| Amit Kumar Jain | `amit.kumar@email.com`   | `Hostel@BH-2025-00004`    | BH-2025-00004   | Boys Hostel  | A-101 |
+| Priya Sharma    | `priya.sharma@email.com` | `Hostel@GA-2025-00003`    | GA-2025-00003   | Girls Ashram | B-101 |
+| Rahul Verma     | `rahul.verma@email.com`  | `Hostel@BH-2025-00006`    | BH-2025-00006   | Boys Hostel  | A-102 |
+| Neha Gupta      | `neha.gupta@email.com`   | `Hostel@GA-2025-00004`    | GA-2025-00004   | Girls Ashram | B-102 |
 
-```bash
-# Dry run (preview only)
-curl -X POST http://localhost:3000/api/admin/seed-auth-users \
-  -H 'Content-Type: application/json' \
-  -d '{"adminSecret":"hostel-admin-seed-2024","dryRun":true}'
-
-# Execute migration
-curl -X POST http://localhost:3000/api/admin/seed-auth-users \
-  -H 'Content-Type: application/json' \
-  -d '{"adminSecret":"hostel-admin-seed-2024","dryRun":false}'
-```
+> **Note:** If these credentials don't work, check Supabase Auth dashboard to verify the student has an `auth_user_id`. Students are auto-created in Supabase Auth when their application is approved.
 
 ### Test Application Tracking Numbers
 
@@ -56,15 +51,6 @@ curl -X POST http://localhost:3000/api/admin/seed-auth-users \
 | `GA-2025-00001` | `9988776665`  | SUBMITTED           | Girls Ashram |
 | `GA-2025-00002` | `9988776675`  | INTERVIEW_SCHEDULED | Girls Ashram |
 | `DH-2025-00001` | `9988776690`  | DRAFT               | Dharamshala  |
-
-### Additional Test Students
-
-| Name            | Email                    | Vertical     | Room  |
-| --------------- | ------------------------ | ------------ | ----- |
-| Amit Kumar Jain | `amit.kumar@email.com`   | Boys Hostel  | A-101 |
-| Priya Sharma    | `priya.sharma@email.com` | Girls Ashram | B-101 |
-| Rahul Verma     | `rahul.verma@email.com`  | Boys Hostel  | A-102 |
-| Neha Gupta      | `neha.gupta@email.com`   | Girls Ashram | B-102 |
 
 ---
 
