@@ -241,6 +241,63 @@ export async function PUT(
           .update({ student_user_id: newUser.id })
           .eq('id', id);
 
+        // Step 3: Create students table record with detailed info from application
+        const personalInfo = application.data?.personal_info || {};
+        const guardianInfo = application.data?.guardian_info || {};
+        const academicInfo = application.data?.academic_info || {};
+        const emergencyContact = application.data?.emergency_contact || {};
+
+        const { error: studentError } = await supabase
+          .from('students')
+          .insert({
+            user_id: newUser.id,
+            vertical: application.vertical,
+            status: 'PENDING', // Will change to CHECKED_IN after room check-in
+            // Personal Information
+            gender: personalInfo.gender || null,
+            date_of_birth: personalInfo.date_of_birth || null,
+            aadhar_number: personalInfo.aadhar_number || null,
+            native_place: personalInfo.native_place || null,
+            permanent_address: personalInfo.permanent_address || personalInfo.address || null,
+            // Guardian Information
+            father_name: guardianInfo.father_name || null,
+            father_mobile: guardianInfo.father_mobile || null,
+            mother_name: guardianInfo.mother_name || null,
+            mother_mobile: guardianInfo.mother_mobile || null,
+            guardian_name: guardianInfo.guardian_name || null,
+            guardian_mobile: guardianInfo.guardian_mobile || null,
+            guardian_relation: guardianInfo.guardian_relation || null,
+            // Academic Information
+            institution: academicInfo.institution || academicInfo.college || null,
+            course: academicInfo.course || null,
+            year_of_study: academicInfo.year_of_study || academicInfo.year || null,
+            enrollment_number: academicInfo.enrollment_number || null,
+            // Hostel Information
+            joining_date: new Date().toISOString().split('T')[0],
+            academic_year: academicInfo.academic_year || '2025-26',
+            // Emergency Contact
+            emergency_contact_name: emergencyContact.name || guardianInfo.father_name || null,
+            emergency_contact_phone: emergencyContact.mobile || guardianInfo.father_mobile || null,
+            emergency_contact_relation: emergencyContact.relation || 'Father',
+            // Medical Information
+            blood_group: personalInfo.blood_group || null,
+            medical_conditions: personalInfo.medical_conditions || null,
+            allergies: personalInfo.allergies || null,
+            // Metadata
+            metadata: {
+              application_id: id,
+              tracking_number: application.tracking_number,
+              created_from_application: true,
+            },
+          });
+
+        if (studentError) {
+          console.error('Failed to create students record:', studentError);
+          // Don't rollback - user is created, students record can be added manually
+        } else {
+          console.log('✅ STUDENTS RECORD CREATED for user:', newUser.id);
+        }
+
         // Log user creation
         await supabase.from('audit_logs').insert({
           entity_type: 'USER',
@@ -250,6 +307,7 @@ export async function PUT(
             application_id: id,
             tracking_number: application.tracking_number,
             auth_user_id: authData.user.id,
+            students_record_created: !studentError,
             reason: 'Application approved - student account created with Supabase Auth',
           },
         });

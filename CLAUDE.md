@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Hostel Management Application** for a Jain Hostel system covering Boys Hostel, Girls Ashram, and Dharamshala. The application manages the complete resident lifecycle from admission application through approvals, interviews, payments, room allocation, stay management, 6-month renewals, and final exit with strict institutional governance, auditability, and DPDP Act compliance.
 
 **Key Features:**
+
 - Multi-role workflows (Applicants, Residents, Superintendents, Trustees, Accounts, Parents)
 - Guest-first admission flow (OTP-verified applications without requiring accounts)
 - Manual approval workflows with interview scheduling
@@ -19,15 +20,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Tech Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| **Frontend** | Next.js | Unified handling of SEO Landing Pages and Role-Based Dashboards |
-| **Backend** | NestJS | Structured framework for complex business rules and PDF generation |
-| **Database** | PostgreSQL (Supabase) | Relational integrity with Row Level Security (RLS) |
-| **Storage** | Supabase Storage | Integrated with RLS for secure document access |
-| **Auth** | Supabase Auth | OTP handling for Applicants/Parents and JWT for Residents/Staff |
-| **Notifications** | BullMQ / Redis | Asynchronous SMS/WhatsApp/Email delivery |
-| **PDF Service** | Puppeteer / pdf-lib | Backend service for non-repudiable legal documents |
+| Layer             | Technology            | Rationale                                                          |
+| ----------------- | --------------------- | ------------------------------------------------------------------ |
+| **Frontend**      | Next.js               | Unified handling of SEO Landing Pages and Role-Based Dashboards    |
+| **Backend**       | NestJS                | Structured framework for complex business rules and PDF generation |
+| **Database**      | PostgreSQL (Supabase) | Relational integrity with Row Level Security (RLS)                 |
+| **Storage**       | Supabase Storage      | Integrated with RLS for secure document access                     |
+| **Auth**          | Supabase Auth         | OTP handling for Applicants/Parents and JWT for Residents/Staff    |
+| **Notifications** | BullMQ / Redis        | Asynchronous SMS/WhatsApp/Email delivery                           |
+| **PDF Service**   | Puppeteer / pdf-lib   | Backend service for non-repudiable legal documents                 |
 
 ## Development Commands
 
@@ -36,6 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Development Phases
 
 **Phase 1: Prototyping with db.json (Current)**
+
 ```bash
 npm run dev          # Next.js frontend (port 3000)
 npm run dev:api      # json-server mock API (port 3001)
@@ -43,11 +45,13 @@ npm run dev:all      # Run both concurrently
 ```
 
 **Phase 2: Hybrid Development**
+
 - Supabase Auth for authentication
 - db.json for remaining data operations
 - Gradual backend migration
 
 **Phase 3: Production Setup**
+
 - Full Supabase PostgreSQL backend
 - NestJS API with RLS enabled
 - Complete security implementation
@@ -87,6 +91,7 @@ The application follows a three-tier architecture optimized for institutional go
 ### Core Data Schema
 
 **Applications Lifecycle:**
+
 - `id` (UUID), `tracking_number` (human-readable)
 - `type` (NEW, RENEWAL), `parent_application_id` (for renewal history)
 - `applicant_mobile` (OTP-verified, used before User creation)
@@ -95,6 +100,7 @@ The application follows a three-tier architecture optimized for institutional go
 - `data` (jsonb) - Stores all form responses
 
 **User Roles:**
+
 - STUDENT (Residents with full dashboard access)
 - SUPERINTENDENT (Boys/Girls/Dharamshala specific)
 - TRUSTEE (Interview and final approval authority)
@@ -104,6 +110,7 @@ The application follows a three-tier architecture optimized for institutional go
 ## Design System
 
 **Colors (Logo-Derived):**
+
 - **Primary:** Institutional Blue (Headers, Navigation, Key Actions)
 - **Accent:** Brownish-Yellow (CTA highlights, semantic differentiation)
 - **Interface Theme:** White & Blue (Clean, professional background)
@@ -111,6 +118,7 @@ The application follows a three-tier architecture optimized for institutional go
 **Typography:** Professional Sans-Serif (Inter/Roboto) for high readability
 
 **Layout Style:**
+
 - Modern elevated card containers on light backgrounds
 - Visual step-flow for admission journey: Draft → Submitted → Review → Interview → Approved → Checked-in
 - Mobile-first responsive design
@@ -118,21 +126,25 @@ The application follows a three-tier architecture optimized for institutional go
 ## Code Conventions
 
 ### File Naming
+
 - **Frontend Components:** PascalCase (e.g., `ApplicationForm.tsx`, `StudentDashboard.tsx`)
 - **Backend Services:** kebab-case (e.g., `application.service.ts`, `pdf-generation.service.ts`)
 - **Database Tables/Columns:** snake_case (e.g., `applications`, `student_user_id`)
 
 ### State Management
+
 - Local state (`useState`) for UI-only state
 - Context/Zustand for cross-component global state
 - Server state via React Query/SWR for API data
 
 ### Authentication Flow
+
 - Public routes: Landing pages, Application submission, Status tracking (OTP-verified)
 - Protected routes: All dashboards (role-based JWT authentication)
 - RLS policies enforce data access at database level
 
 ### API Design
+
 - RESTful endpoints with role-based authorization
 - `/api/v1/public/*` - Guest APIs (OTP-restricted)
 - `/api/v1/admin/*` - Admin-only operations
@@ -161,6 +173,7 @@ The application follows a three-tier architecture optimized for institutional go
 This project uses Task Master AI for task-driven development. See `.taskmaster/CLAUDE.md` for comprehensive workflow guidance.
 
 **Key Task Master Commands:**
+
 ```bash
 task-master list                    # Show all tasks
 task-master next                    # Get next available task
@@ -179,12 +192,14 @@ task-master set-status --id=<id> --status=done  # Complete task
 ## Security & Compliance
 
 ### DPDP Act Compliance
+
 - Encryption: AES-256 for PII
 - Signed URLs for all student documents
 - Data minimization: Applications archived (PII stripped) after 1 year of rejection/exit
 - Consent tracking: Digital fingerprints captured at every 6-month renewal
 
 ### Security Checklist
+
 - Never commit API keys, credentials, or sensitive data
 - All user input must be validated and sanitized
 - Use parameterized queries to prevent SQL injection
@@ -214,53 +229,65 @@ task-master set-status --id=<id> --status=done  # Complete task
 - Every feature should consider the multi-role access model and audit requirements.
 
 ## CLI TOOLING & ENVIRONMENT
+
 I have installed specialized CLI utilities to speed up your workflow. You must use these specific binaries instead of standard Unix tools whenever possible.
 
 ### 1. SEARCH (Use `rg`)
-* **Tool:** `ripgrep`
-* **Binary Name:** `rg`
-* **Instruction:** Always use `rg` instead of `grep` or `find`. It is faster and respects `.gitignore` automatically.
-* **Typical Usage:** `rg -n "search_term" src/` (Shows line numbers).
+
+- **Tool:** `ripgrep`
+- **Binary Name:** `rg`
+- **Instruction:** Always use `rg` instead of `grep` or `find`. It is faster and respects `.gitignore` automatically.
+- **Typical Usage:** `rg -n "search_term" src/` (Shows line numbers).
 
 ### 2. NAVIGATION (Use `zoxide`)
-* **Tool:** `zoxide`
-* **Binary Name:** `zoxide`
-* **Instruction:** Use `zoxide query <name>` to find directory paths if you are unsure of the exact location.
-* **Typical Usage:**
-    * To find a path: `zoxide query my-project`
-    * To move (if shell allows): `cd $(zoxide query my-project)`
+
+- **Tool:** `zoxide`
+- **Binary Name:** `zoxide`
+- **Instruction:** Use `zoxide query <name>` to find directory paths if you are unsure of the exact location.
+- **Typical Usage:**
+  - To find a path: `zoxide query my-project`
+  - To move (if shell allows): `cd $(zoxide query my-project)`
 
 ### 3. CONTEXT GATHERING (Use `repomix`)
-* **Tool:** `repomix`
-* **Binary Name:** `repomix`
-* **Instruction:** Use this to read multiple files at once. It packs the repository content into a single, LLM-friendly XML format.
-* **Typical Usage:** `repomix src/components --style xml` (Then read the output).
-* **Strategy for context gathering** run after successful build completion
+
+- **Tool:** `repomix`
+- **Binary Name:** `repomix`
+- **Instruction:** Use this to read multiple files at once. It packs the repository content into a single, LLM-friendly XML format.
+- **Typical Usage:** `repomix src/components --style xml` (Then read the output).
+- **Strategy for context gathering** run after successful build completion
 
 ### 4. STRUCTURAL SEARCH (Use `sg`)
-* **Tool:** `ast-grep`
-* **Binary Name:** `sg`
-* **Instruction:** Use this for complex code queries (finding patterns, not just text).
-* **Typical Usage:** `sg run -p 'console.log($$$)'`
+
+- **Tool:** `ast-grep`
+- **Binary Name:** `sg`
+- **Instruction:** Use this for complex code queries (finding patterns, not just text).
+- **Typical Usage:** `sg run -p 'console.log($$$)'`
 
 ### 5. SEARCH STRATEGY: `rg` vs `sg`
+
 You must choose the right tool based on what you are looking for. Follow this decision matrix:
 
 **A. Use `rg` (Ripgrep) when:**
+
 1.  **Finding Literals:** Searching for exact strings, error codes (e.g., "Error: 500"), or TODO comments.
 2.  **Simple References:** Finding where a variable name is mentioned (e.g., `user_id`).
 3.  **File Finding:** Locating files by name/path.
 4.  **Speed:** You need a quick "grep" of the codebase.
 
 **B. Use `sg` (AST-Grep) when:**
+
 1.  **Multi-line Logic:** You need to find a function call that might be split across lines (e.g., a function with many arguments).
 2.  **Syntax Specifics:** You need to find "all function definitions" (not calls) or "all try/catch blocks".
 3.  **Refactoring:** You need to replace a pattern safely without breaking syntax.
 4.  **Ignoring Formatting:** You want to find code regardless of spaces, tabs, or newlines.
 
 **C. The Fallback Rule:**
-* Start with `rg` for initial discovery.
-* If `rg` returns too much noise (false positives) or misses multi-line occurrences, switch to `sg`.
+
+- Start with `rg` for initial discovery.
+- If `rg` returns too much noise (false positives) or misses multi-line occurrences, switch to `sg`.
 
 ### ERROR HANDLING
+
 If a specific tool command fails (e.g., "command not found"), immediately fall back to standard tools (`grep`, `find`, `cat`) without asking for permission.
+Check that pages are not using any hard coded data which is not connected to database
+Check if Page is using post method and API calls using Put or vice versa

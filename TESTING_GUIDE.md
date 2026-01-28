@@ -14,7 +14,7 @@ This guide provides step-by-step instructions to manually validate the functiona
 
 | Role                         | Email                                 | Password                   | Notes                 |
 | ---------------------------- | ------------------------------------- | -------------------------- | --------------------- |
-| Superintendent (Boys)        | `superintendent@jain.org`             | `Staff@SUPERINTENDENT2024` | Change on first login |
+| Superintendent (Boys)        | `superintendent@jain.org`             | `SecurePass1!`             | Change on first login |
 | Superintendent (Girls)       | `superintendent-girls@jain.org`       | `Staff@SUPERINTENDENT2024` | Change on first login |
 | Superintendent (Dharamshala) | `superintendent-dharamshala@jain.org` | `Staff@SUPERINTENDENT2024` | Change on first login |
 | Trustee                      | `trustee@jain.org`                    | `Staff@TRUSTEE2024`        | Change on first login |
@@ -27,15 +27,6 @@ Students are created when applications are approved. Their temporary password is
 
 - **Format:** `Hostel@{tracking_number}` (e.g., `Hostel@BH-2025-00001`)
 - First login requires password change and DPDP consent
-
-**Test Student Accounts (for Student Dashboard testing):**
-
-| Name            | Email                    | Password                  | Tracking Number | Vertical     | Room  |
-| --------------- | ------------------------ | ------------------------- | --------------- | ------------ | ----- |
-| Amit Kumar Jain | `amit.kumar@email.com`   | `Hostel@BH-2025-00004`    | BH-2025-00004   | Boys Hostel  | A-101 |
-| Priya Sharma    | `priya.sharma@email.com` | `Hostel@GA-2025-00003`    | GA-2025-00003   | Girls Ashram | B-101 |
-| Rahul Verma     | `rahul.verma@email.com`  | `Hostel@BH-2025-00006`    | BH-2025-00006   | Boys Hostel  | A-102 |
-| Neha Gupta      | `neha.gupta@email.com`   | `Hostel@GA-2025-00004`    | GA-2025-00004   | Girls Ashram | B-102 |
 
 > **Note:** If these credentials don't work, check Supabase Auth dashboard to verify the student has an `auth_user_id`. Students are auto-created in Supabase Auth when their application is approved.
 
@@ -129,7 +120,7 @@ This section validates the complete admission cycle from application to approval
 
 ## 3. Student Dashboard
 
-**Login:** Use a student created via application approval (temp password: `Hostel@{tracking_number}`).
+**Login:** Use a student created via application approval (User: `pappu@gmail.com` temp password: `SecurePass1!`).
 
 ### 3.1 Overview
 
