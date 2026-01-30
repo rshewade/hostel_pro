@@ -15,6 +15,17 @@ import { Spinner } from '@/components/feedback/Spinner';
 type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
 type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 
+interface ApplicationDocument {
+  type: string;
+  documentType: string;
+  dbDocumentType: string;
+  originalFileName: string;
+  fileSize: number;
+  mimeType: string;
+  storagePath: string;
+  bucketId: string;
+}
+
 interface Application {
   id: string;
   trackingNumber: string;
@@ -27,6 +38,7 @@ interface Application {
   flags?: string[];
   email?: string;
   mobile?: string;
+  documents?: ApplicationDocument[];
 }
 
 
@@ -40,6 +52,7 @@ export default function SuperintendentDashboard() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   // Fetch applications from API
   const fetchApplications = useCallback(async () => {
@@ -101,6 +114,59 @@ export default function SuperintendentDashboard() {
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
+
+  // Fetch full application details including documents
+  const fetchApplicationDetails = useCallback(async (appId: string) => {
+    try {
+      setIsLoadingDetails(true);
+      const response = await fetch(`/api/applications/${appId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch application details');
+      }
+      const result = await response.json();
+      const appData = result.data || result;
+
+      // Extract documents from the application data
+      const documents: ApplicationDocument[] = appData.data?.documents || [];
+
+      return documents;
+    } catch (err) {
+      console.error('Error fetching application details:', err);
+      return [];
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  }, []);
+
+  // Handle viewing an application - fetch full details
+  const handleViewApplication = useCallback(async (app: Application) => {
+    setSelectedApplication(app);
+    const documents = await fetchApplicationDetails(app.id);
+    setSelectedApplication(prev => prev ? { ...prev, documents } : null);
+  }, [fetchApplicationDetails]);
+
+  // Get signed URL for viewing a document
+  const getDocumentUrl = async (storagePath: string, bucketId: string): Promise<string | null> => {
+    try {
+      const response = await fetch(`/api/applications/documents/url?path=${encodeURIComponent(storagePath)}&bucket=${encodeURIComponent(bucketId)}`);
+      if (!response.ok) return null;
+      const result = await response.json();
+      return result.url || null;
+    } catch (err) {
+      console.error('Error getting document URL:', err);
+      return null;
+    }
+  };
+
+  // View document in new tab
+  const handleViewDocument = async (doc: ApplicationDocument) => {
+    const url = await getDocumentUrl(doc.storagePath, doc.bucketId);
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      alert('Failed to get document URL');
+    }
+  };
 
   // Communication state (for sending messages to applicants)
   const [showMessagePanel, setShowMessagePanel] = useState(false);
@@ -278,13 +344,14 @@ export default function SuperintendentDashboard() {
           <Button
             variant="primary"
             size="sm"
-            onClick={() => setSelectedApplication(row)}
+            onClick={() => handleViewApplication(row)}
           >
             Review
           </Button>
           <Button
             variant="secondary"
             size="sm"
+            onClick={() => handleViewApplication(row)}
           >
             View Details
           </Button>
@@ -495,7 +562,7 @@ export default function SuperintendentDashboard() {
               <Table<Application>
                 data={filteredApplications}
                 columns={columns}
-                onRowClick={(row) => setSelectedApplication(row)}
+                onRowClick={(row) => handleViewApplication(row)}
                 pagination={{
                   currentPage: 1,
                   pageSize: 10,
@@ -632,25 +699,56 @@ export default function SuperintendentDashboard() {
               <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
                 Uploaded Documents
               </h4>
-              <div className="grid grid-cols-2 gap-4">
-                {['Student Declaration', 'Parent Consent', 'Aadhar Card', 'Marksheets'].map((doc, index) => (
-                  <div
-                    key={index}
-                    className="p-4 rounded border cursor-pointer hover:shadow-md transition-shadow"
-                    style={{ borderColor: 'var(--border-gray-200)', background: 'var(--bg-page)' }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">📄</div>
-                      <div>
-                        <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-                          {doc}
-                        </p>
-                        <p className="text-xs text-gray-600">PDF • 245 KB</p>
+              {isLoadingDetails ? (
+                <div className="flex items-center justify-center py-4">
+                  <Spinner size="sm" />
+                  <span className="ml-2 text-sm text-gray-500">Loading documents...</span>
+                </div>
+              ) : selectedApplication.documents && selectedApplication.documents.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {selectedApplication.documents.map((doc, index) => {
+                    const docTypeLabels: Record<string, string> = {
+                      'photoFile': 'Passport Photo',
+                      'birthCertificate': 'Birth Certificate',
+                      'marksheet': 'Academic Marksheet',
+                      'recommendationLetter': 'Recommendation Letter',
+                      'PHOTOGRAPH': 'Passport Photo',
+                      'BIRTH_CERTIFICATE': 'Birth Certificate',
+                      'EDUCATION_CERTIFICATE': 'Academic Document',
+                      'OTHER': 'Other Document',
+                    };
+                    const label = docTypeLabels[doc.type] || docTypeLabels[doc.dbDocumentType] || doc.type;
+                    const fileExt = doc.originalFileName?.split('.').pop()?.toUpperCase() || 'PDF';
+                    const fileSize = doc.fileSize ? `${(doc.fileSize / 1024).toFixed(0)} KB` : 'Unknown';
+
+                    return (
+                      <div
+                        key={index}
+                        className="p-4 rounded border cursor-pointer hover:shadow-md transition-shadow"
+                        style={{ borderColor: 'var(--border-gray-200)', background: 'var(--bg-page)' }}
+                        onClick={() => handleViewDocument(doc)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{fileExt === 'PDF' ? '📄' : '🖼️'}</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>
+                              {label}
+                            </p>
+                            <p className="text-xs text-gray-600">{fileExt} • {fileSize}</p>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-4 rounded border text-center" style={{ borderColor: 'var(--border-gray-200)', background: 'var(--bg-page)' }}>
+                  <p className="text-sm text-gray-500">No documents uploaded yet</p>
+                </div>
+              )}
             </div>
 
             {/* Internal Notes */}
