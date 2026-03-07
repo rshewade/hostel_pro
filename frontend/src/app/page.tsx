@@ -1,48 +1,9 @@
 import Link from "next/link";
-import Image from "next/image";
+import PublicLayout from "@/components/public/PublicLayout";
 
 export default function Home() {
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
-      {/* Header */}
-      <header
-        className="px-6 py-4 border-b"
-        style={{
-          backgroundColor: "var(--surface-primary)",
-          borderColor: "var(--border-primary)",
-        }}
-      >
-        <div className="mx-auto max-w-6xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Hirachand Gumanji Family Charitable Trust"
-              width={48}
-              height={48}
-              className="h-12 w-auto"
-            />
-            <div>
-              <h1
-                className="text-lg font-semibold"
-                style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}
-              >
-                Hirachand Gumanji Family
-              </h1>
-              <p className="text-caption">Charitable Trust</p>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            {["Home", "About Us", "Institutions", "Admissions", "Alumni", "Trustees", "Gallery", "News", "Donate", "Contact"].map(
-              (item) => (
-                <Link key={item} href="#" className="nav-link">
-                  {item}
-                </Link>
-              )
-            )}
-          </nav>
-        </div>
-      </header>
-
+    <PublicLayout>
       {/* Hero Section */}
       <section
         className="relative py-20 px-6"
@@ -160,7 +121,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-Discipline &amp; Safety
+              Discipline &amp; Safety
             </h2>
             <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
               Maintaining high standards of conduct and safety for all residents
@@ -168,22 +129,22 @@ Discipline &amp; Safety
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="card p-6 text-center">
-              <div className="text-3xl mb-3">🕐</div>
+              <div className="text-3xl mb-3">&#x1F550;</div>
               <h3 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>Timely Schedule</h3>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Fixed timings for meals, studies, and lights out</p>
             </div>
             <div className="card p-6 text-center">
-              <div className="text-3xl mb-3">👮</div>
+              <div className="text-3xl mb-3">&#x1F46E;</div>
               <h3 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>24/7 Security</h3>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Professional security staff and CCTV monitoring</p>
             </div>
             <div className="card p-6 text-center">
-              <div className="text-3xl mb-3">📋</div>
+              <div className="text-3xl mb-3">&#x1F4CB;</div>
               <h3 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>Code of Conduct</h3>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Strict adherence to hostel rules and regulations</p>
             </div>
             <div className="card p-6 text-center">
-              <div className="text-3xl mb-3">🏥</div>
+              <div className="text-3xl mb-3">&#x1F3E5;</div>
               <h3 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>Medical Care</h3>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>First-aid facilities and tie-ups with nearby hospitals</p>
             </div>
@@ -303,13 +264,13 @@ Discipline &amp; Safety
                   </p>
                   <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> 2-3 person sharing rooms
+                      <span className="text-green-500">&#x2713;</span> 2-3 person sharing rooms
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Study hall and library
+                      <span className="text-green-500">&#x2713;</span> Study hall and library
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Sports and recreation
+                      <span className="text-green-500">&#x2713;</span> Sports and recreation
                     </li>
                   </ul>
                   <span className="btn-primary w-full inline-flex items-center justify-center">Apply to Boys Hostel</span>
@@ -335,13 +296,13 @@ Discipline &amp; Safety
                   </p>
                   <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Enhanced security measures
+                      <span className="text-green-500">&#x2713;</span> Enhanced security measures
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Women's study areas
+                      <span className="text-green-500">&#x2713;</span> Women&apos;s study areas
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Cultural and spiritual activities
+                      <span className="text-green-500">&#x2713;</span> Cultural and spiritual activities
                     </li>
                   </ul>
                   <span className="btn-primary w-full inline-flex items-center justify-center">Apply to Girls Ashram</span>
@@ -367,13 +328,13 @@ Discipline &amp; Safety
                   </p>
                   <ul className="text-left mb-6 space-y-2" style={{ color: "var(--text-secondary)" }}>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Prayer and meditation halls
+                      <span className="text-green-500">&#x2713;</span> Prayer and meditation halls
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Simple, clean accommodation
+                      <span className="text-green-500">&#x2713;</span> Simple, clean accommodation
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span> Community kitchen facilities
+                      <span className="text-green-500">&#x2713;</span> Community kitchen facilities
                     </li>
                   </ul>
                   <span className="btn-primary w-full inline-flex items-center justify-center">Book Dharamshala</span>
@@ -395,7 +356,7 @@ Discipline &amp; Safety
               Simple and transparent admission journey from application to check-in
             </p>
           </div>
-          
+
           {/* Desktop: Horizontal Timeline */}
           <div className="hidden lg:block">
             <div className="relative">
@@ -409,7 +370,7 @@ Discipline &amp; Safety
                   { step: 5, title: "Payment", desc: "Fee payment" },
                   { step: 6, title: "Allocate", desc: "Room assignment" },
                   { step: 7, title: "Check-in", desc: "Move in" }
-                ].map((item, index) => (
+                ].map((item) => (
                   <div key={item.step} className="text-center">
                     <div
                       className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-white font-bold text-lg"
@@ -436,7 +397,7 @@ Discipline &amp; Safety
                 { step: 5, title: "Payment", desc: "Payment of fees and security deposit" },
                 { step: 6, title: "Allocate", desc: "Room allocation based on availability" },
                 { step: 7, title: "Check-in", desc: "Formal check-in and orientation" }
-              ].map((item, index) => (
+              ].map((item) => (
                 <div key={item.step} className="flex gap-4">
                   <div className="flex-shrink-0">
                     <div
@@ -458,7 +419,7 @@ Discipline &amp; Safety
       </section>
 
       {/* Main Content */}
-      <main className="px-6 py-12">
+      <div className="px-6 py-12">
         <div className="mx-auto max-w-6xl">
           {/* Two Column Cards */}
           <div className="grid gap-8 md:grid-cols-2">
@@ -549,7 +510,7 @@ Discipline &amp; Safety
           {/* Announcements & Notices */}
           <section className="mt-12">
             <h3 className="text-2xl font-bold mb-6" style={{ color: "var(--text-primary)" }}>
-Announcements &amp; Notices
+              Announcements &amp; Notices
             </h3>
             <div className="space-y-4">
               <div className="card p-6 border-l-4" style={{ borderLeftColor: "var(--color-red-500)" }}>
@@ -663,155 +624,7 @@ Announcements &amp; Notices
             </p>
           </section>
         </div>
-      </main>
-
-      {/* Enhanced Footer */}
-      <footer
-        className="px-6 py-16 mt-8"
-        style={{ backgroundColor: "var(--bg-inverse)" }}
-      >
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-12 md:grid-cols-4">
-            {/* Logo &amp; Description */}
-            <div className="md:col-span-1">
-              <div className="flex items-center gap-3 mb-6">
-                <Image
-                  src="/logo.png"
-                  alt="Hirachand Gumanji Family Charitable Trust"
-                  width={48}
-                  height={48}
-                  className="h-12 w-auto brightness-0 invert"
-                />
-                <div>
-                  <h4
-                    className="text-xl font-bold"
-                    style={{ color: "var(--text-inverse)", fontFamily: "var(--font-serif)" }}
-                  >
-                    Seth Hirachand Gumanji
-                  </h4>
-                  <p style={{ color: "var(--color-navy-300)" }}>
-                    Jain Trust, Mumbai
-                  </p>
-                </div>
-              </div>
-              <p style={{ color: "var(--color-navy-300)" }} className="mb-6">
-                Serving the Jain community through education, shelter, and spiritual welfare since 1940. Providing quality accommodation with values and tradition.
-              </p>
-              <div className="flex gap-3">
-                <button className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--color-navy-700)" }}>
-                  <span className="text-white">📧</span>
-                </button>
-                <button className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--color-navy-700)" }}>
-                  <span className="text-white">📞</span>
-                </button>
-                <button className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--color-navy-700)" }}>
-                  <span className="text-white">📍</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4
-                className="font-bold mb-6 text-lg"
-                style={{ color: "var(--text-inverse)" }}
-              >
-                Quick Links
-              </h4>
-              <ul className="space-y-3">
-                {["About Us", "Boys' Hostel", "Girls' Hostel", "Dharamshala", "Admissions", "Alumni"].map(
-                  (link) => (
-                    <li key={link}>
-                      <Link
-                        href="#"
-                        className="hover:text-white transition-colors"
-                        style={{ color: "var(--color-navy-300)" }}
-                      >
-                        {link}
-                      </Link>
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-
-            {/* Services */}
-            <div>
-              <h4
-                className="font-bold mb-6 text-lg"
-                style={{ color: "var(--text-inverse)" }}
-              >
-                Services
-              </h4>
-              <ul className="space-y-3">
-                {["Student Accommodation", "Mess Services", "Library Access", "Medical Care", "Transportation", "24/7 Security"].map(
-                  (service) => (
-                    <li key={service}>
-                      <Link
-                        href="#"
-                        className="hover:text-white transition-colors"
-                        style={{ color: "var(--color-navy-300)" }}
-                      >
-                        {service}
-                      </Link>
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-
-            {/* Contact & Support */}
-            <div>
-              <h4
-                className="font-bold mb-6 text-lg"
-                style={{ color: "var(--text-inverse)" }}
-              >
-Contact &amp; Support
-              </h4>
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <span className="text-xl">📍</span>
-                  <div>
-                    <p style={{ color: "var(--color-navy-300)" }}>Hirabaug, Dr. B.A. Road</p>
-                    <p style={{ color: "var(--color-navy-300)" }}>Mumbai - 400014</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">📞</span>
-                  <p style={{ color: "var(--color-navy-300)" }}>+91 22 2414 1234</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">✉️</span>
-                  <p style={{ color: "var(--color-navy-300)" }}>info@shgjaintrust.org</p>
-                </div>
-              </div>
-              <button
-                className="w-full px-6 py-3 rounded-md font-medium transition-colors hover:opacity-90"
-                style={{
-                  backgroundColor: "var(--bg-accent)",
-                  color: "var(--text-on-accent)",
-                }}
-              >
-                Support Our Mission ❤️
-              </button>
-            </div>
-          </div>
-
-          {/* Bottom Footer */}
-          <div className="mt-12 pt-8 border-t" style={{ borderColor: "var(--color-navy-700)" }}>
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p style={{ color: "var(--color-navy-300)" }}>
-                © 2025 Seth Hirachand Gumanji Jain Trust. All rights reserved.
-              </p>
-              <div className="flex gap-6 mt-4 md:mt-0">
-                <Link href="#" style={{ color: "var(--color-navy-300)" }}>Privacy Policy</Link>
-                <Link href="#" style={{ color: "var(--color-navy-300)" }}>Terms of Service</Link>
-                <Link href="#" style={{ color: "var(--color-navy-300)" }}>Refund Policy</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      </div>
 
       {/* Design System Link - Dev Only */}
       <Link
@@ -823,9 +636,9 @@ Contact &amp; Support
           border: '1px solid var(--border-primary)',
         }}
       >
-        Design System →
+        Design System &rarr;
       </Link>
-      
+
       {/* Working Application Demo - Dev Only */}
       <Link
         href="/demo"
@@ -836,8 +649,8 @@ Contact &amp; Support
           border: '1px solid var(--border-primary)',
         }}
       >
-        🎯 Working App Demo
+        Working App Demo
       </Link>
-    </div>
+    </PublicLayout>
   );
 }
