@@ -105,7 +105,7 @@ export default function AccountsDashboard() {
         const transactionsData = await transactionsRes.json();
 
         // Transform receivables data to match the expected format
-        const transformedReceivables: Receivable[] = receivablesData.map((rec: any) => ({
+        const transformedReceivables: Receivable[] = (Array.isArray(receivablesData) ? receivablesData : []).map((rec: any) => ({
           id: rec.id,
           studentName: rec.student_name,
           studentId: rec.student_id,
@@ -130,7 +130,7 @@ export default function AccountsDashboard() {
         }));
 
         // Transform transactions data to payment logs format
-        const transformedPaymentLogs = transactionsData.map((txn: any) => ({
+        const transformedPaymentLogs = (Array.isArray(transactionsData) ? transactionsData : []).map((txn: any) => ({
           id: txn.id,
           transactionId: txn.transaction_id,
           studentName: txn.student_name,

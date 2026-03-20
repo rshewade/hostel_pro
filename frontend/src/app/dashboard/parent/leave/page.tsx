@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import Link from 'next/link';
 
@@ -23,72 +23,88 @@ interface LeaveRequest {
   parentAcknowledged?: boolean;
 }
 
+interface StudentInfo {
+  name: string;
+  id: string;
+  room: string;
+  vertical: string;
+}
+
 export default function ParentLeaveView() {
   const [selectedFilter, setSelectedFilter] = useState<LeaveStatus | 'ALL'>('ALL');
   const [acknowledgedLeaves, setAcknowledgedLeaves] = useState<Set<string>>(new Set());
-  
-  const studentName = 'Rahul Jain';
-  const studentId = 'STU-001';
-  const roomNumber = 'Room 201, Block A';
-  const vertical = 'Boys Hostel';
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [studentInfo, setStudentInfo] = useState<StudentInfo>({ name: '', id: '', room: '', vertical: '' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mockLeaveRequests: LeaveRequest[] = [
-    {
-      id: '1',
-      type: 'short',
-      fromDate: '2024-12-15',
-      toDate: '2024-12-15',
-      fromTime: '09:00',
-      toTime: '18:00',
-      reason: 'Personal work at home',
-      status: 'APPROVED',
-      appliedDate: '2024-12-10',
-      superintendentRemarks: 'Approved for emergency family matter',
-      parentNotified: true,
-      parentAcknowledged: true
-    },
-    {
-      id: '2',
-      type: 'multi-day',
-      fromDate: '2024-12-20',
-      toDate: '2024-12-25',
-      fromTime: '08:00',
-      toTime: '18:00',
-      reason: 'Attend sister\'s wedding',
-      destination: 'Mumbai',
-      status: 'PENDING',
-      appliedDate: '2024-12-18',
-      parentNotified: false,
-      parentAcknowledged: false
-    },
-    {
-      id: '3',
-      type: 'night-out',
-      fromDate: '2024-12-25',
-      toDate: '2024-12-25',
-      fromTime: '18:00',
-      toTime: '22:00',
-      reason: 'Family dinner',
-      status: 'REJECTED',
-      appliedDate: '2024-12-23',
-      superintendentRemarks: 'Insufficient notice given. Night-outs require 24 hours prior approval.',
-      parentNotified: true,
-      parentAcknowledged: false
-    },
-    {
-      id: '4',
-      type: 'short',
-      fromDate: '2024-12-28',
-      toDate: '2024-12-28',
-      fromTime: '14:00',
-      toTime: '18:00',
-      reason: 'Medical appointment',
-      status: 'PENDING',
-      appliedDate: '2024-12-26',
-      parentNotified: true,
-      parentAcknowledged: false
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const sessionToken = localStorage.getItem('parentSessionToken');
+        if (!sessionToken) {
+          setError('Please login to view leave requests.');
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch student info
+        const studentRes = await fetch(`/api/parent/student?sessionToken=${encodeURIComponent(sessionToken)}`);
+        if (studentRes.ok) {
+          const studentResult = await studentRes.json();
+          const student = Array.isArray(studentResult.data) ? studentResult.data[0] : studentResult.data;
+          if (student) {
+            setStudentInfo({
+              name: student.name || 'N/A',
+              id: student.id || 'N/A',
+              room: student.room || 'Not Allocated',
+              vertical: student.vertical || 'N/A',
+            });
+          }
+        }
+
+        // Fetch leave requests
+        const leaveRes = await fetch(`/api/parent/leave?sessionToken=${encodeURIComponent(sessionToken)}`);
+        if (leaveRes.ok) {
+          const leaveResult = await leaveRes.json();
+          const items = leaveResult.data?.items || [];
+          const typeMap: Record<string, LeaveType> = {
+            'Short Leave': 'short',
+            'Night Out': 'night-out',
+            'Multi-Day': 'multi-day',
+          };
+          const transformed: LeaveRequest[] = items.map((item: any) => ({
+            id: item.id,
+            type: typeMap[item.type] || 'short',
+            fromDate: item.startDate || '',
+            toDate: item.endDate || '',
+            reason: item.reason || '',
+            status: item.status || 'PENDING',
+            appliedDate: item.appliedDate || '',
+            superintendentRemarks: item.remarks || undefined,
+            parentNotified: item.parentNotified ?? false,
+            parentAcknowledged: item.parentAcknowledged ?? false,
+          }));
+          setLeaveRequests(transformed);
+        } else {
+          setError('Failed to load leave requests.');
+        }
+      } catch (err) {
+        console.error('Error fetching parent leave data:', err);
+        setError('Failed to load data. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const studentName = studentInfo.name;
+  const studentId = studentInfo.id;
+  const roomNumber = studentInfo.room;
+  const vertical = studentInfo.vertical;
 
   const getStatusBadge = (status: LeaveStatus) => {
     switch (status) {
@@ -116,7 +132,7 @@ export default function ParentLeaveView() {
     }
   };
 
-  const filteredLeaves = mockLeaveRequests.filter(leave => {
+  const filteredLeaves = leaveRequests.filter(leave => {
     const matchesStatus = selectedFilter === 'ALL' || leave.status === selectedFilter;
     return matchesStatus;
   });
@@ -261,6 +277,16 @@ export default function ParentLeaveView() {
             </div>
           </div>
 
+          {isLoading ? (
+            <div className="p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p>Loading leave requests...</p>
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center rounded-lg" style={{ background: 'var(--color-red-50)' }}>
+              <p className="font-medium" style={{ color: 'var(--color-red-700)' }}>{error}</p>
+            </div>
+          ) : (
           <div className="card rounded-lg overflow-hidden" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -435,6 +461,7 @@ export default function ParentLeaveView() {
               </ul>
             </div>
           </div>
+          )}
         </div>
       </main>
     </div>

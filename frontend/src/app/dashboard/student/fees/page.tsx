@@ -36,6 +36,9 @@ export default function StudentFeesPage() {
   const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<{ name: string; email: string; phone: string; vertical: string; academicYear: string }>({
+    name: '', email: '', phone: '', vertical: '', academicYear: '',
+  });
 
   useEffect(() => {
     const fetchFees = async () => {
@@ -75,6 +78,27 @@ export default function StudentFeesPage() {
           setError('Please login to view fees');
           setLoading(false);
           return;
+        }
+
+        // Fetch profile for receipt data
+        try {
+          const profileRes = await fetch(`/api/users/profile?user_id=${studentId}`);
+          if (profileRes.ok) {
+            const profileResult = await profileRes.json();
+            const userData = profileResult.data || profileResult;
+            const verticalMap: Record<string, string> = { 'BOYS': 'Boys Hostel', 'GIRLS': 'Girls Ashram', 'DHARAMSHALA': 'Dharamshala' };
+            const now = new Date();
+            const ayStart = now.getMonth() >= 5 ? now.getFullYear() : now.getFullYear() - 1;
+            setProfileData({
+              name: userData.full_name || '',
+              email: userData.email || '',
+              phone: userData.mobile || '',
+              vertical: verticalMap[userData.vertical] || userData.vertical || '',
+              academicYear: `${ayStart}-${String(ayStart + 1).slice(2)}`,
+            });
+          }
+        } catch (e) {
+          // Non-critical - receipt will show blank fields
         }
 
         const response = await fetch(`/api/fees?student_id=${studentId}`);
@@ -480,6 +504,11 @@ export default function StudentFeesPage() {
           feeId={selectedFee.id}
           feeName={selectedFee.name}
           amount={selectedFee.amount}
+          payerName={profileData.name}
+          payerEmail={profileData.email}
+          payerPhone={profileData.phone}
+          payerVertical={profileData.vertical}
+          academicYear={profileData.academicYear}
           onPaymentComplete={handlePaymentComplete}
         />
       )}

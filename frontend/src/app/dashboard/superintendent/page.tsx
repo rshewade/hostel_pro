@@ -26,6 +26,11 @@ interface ApplicationDocument {
   bucketId: string;
 }
 
+interface InterviewDetails {
+  scheduleTime: string | null;
+  mode: string | null;
+}
+
 interface Application {
   id: string;
   trackingNumber: string;
@@ -35,6 +40,7 @@ interface Application {
   applicationDate: string;
   paymentStatus: string;
   interviewScheduled: boolean;
+  interview?: InterviewDetails;
   flags?: string[];
   email?: string;
   mobile?: string;
@@ -96,6 +102,10 @@ export default function SuperintendentDashboard() {
                           new Date().toLocaleDateString('en-GB'),
           paymentStatus: app.fees?.paymentStatus || app.paymentStatus || 'PENDING',
           interviewScheduled: app.interview?.scheduled || app.interviewScheduled || !!app.interview_scheduled_at || false,
+          interview: {
+            scheduleTime: app.interview_scheduled_at || app.data?.interview?.scheduled_at || null,
+            mode: app.data?.interview?.mode || null,
+          },
           flags: app.flags || [],
           email: app.personalInfo?.email || app.applicant_email || app.applicantEmail || app.email,
           mobile: app.personalInfo?.mobile || app.applicant_mobile || app.applicantMobile || app.mobile
@@ -129,10 +139,16 @@ export default function SuperintendentDashboard() {
       // Extract documents from the application data
       const documents: ApplicationDocument[] = appData.data?.documents || [];
 
-      return documents;
+      // Extract interview details
+      const interview: InterviewDetails = {
+        scheduleTime: appData.interview_scheduled_at || appData.data?.interview?.scheduled_at || null,
+        mode: appData.data?.interview?.mode || null,
+      };
+
+      return { documents, interview };
     } catch (err) {
       console.error('Error fetching application details:', err);
-      return [];
+      return { documents: [], interview: { scheduleTime: null, mode: null } };
     } finally {
       setIsLoadingDetails(false);
     }
@@ -141,8 +157,8 @@ export default function SuperintendentDashboard() {
   // Handle viewing an application - fetch full details
   const handleViewApplication = useCallback(async (app: Application) => {
     setSelectedApplication(app);
-    const documents = await fetchApplicationDetails(app.id);
-    setSelectedApplication(prev => prev ? { ...prev, documents } : null);
+    const { documents, interview } = await fetchApplicationDetails(app.id);
+    setSelectedApplication(prev => prev ? { ...prev, documents, interview } : null);
   }, [fetchApplicationDetails]);
 
   // Get signed URL for viewing a document
@@ -646,7 +662,7 @@ export default function SuperintendentDashboard() {
             </div>
 
             {/* Interview Details */}
-            {selectedApplication.interviewScheduled && (
+            {selectedApplication.interviewScheduled && selectedApplication.interview?.scheduleTime && (
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <h4 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Interview Scheduled
@@ -655,21 +671,23 @@ export default function SuperintendentDashboard() {
                   <div>
                     <label className="text-sm text-gray-600">Date</label>
                     <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                      December 28, 2024
+                      {new Date(selectedApplication.interview.scheduleTime).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Time</label>
                     <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                      10:00 AM IST
+                      {new Date(selectedApplication.interview.scheduleTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}
                     </p>
                   </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Mode</label>
-                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                      Online (Google Meet)
-                    </p>
-                  </div>
+                  {selectedApplication.interview.mode && (
+                    <div>
+                      <label className="text-sm text-gray-600">Mode</label>
+                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                        {selectedApplication.interview.mode}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -984,8 +1002,8 @@ export default function SuperintendentDashboard() {
           id: app.id,
           name: app.applicantName,
           role: 'applicant' as const,
-          phone: '+91 9876543210',
-          email: `${app.applicantName.toLowerCase().replace(' ', '.')}@example.com`
+          phone: app.mobile || '',
+          email: app.email || ''
         }))}
         templates={DEFAULT_TEMPLATES}
         defaultRecipientId={selectedMessageRecipient || undefined}

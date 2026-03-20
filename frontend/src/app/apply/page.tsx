@@ -141,9 +141,9 @@ export default function ApplyPage() {
           {/* Vertical Selection Cards */}
           <div className="grid gap-8 md:grid-cols-3 mb-12">
             {/* Boys Hostel Card */}
-            <Link href="/apply/boys-hostel/contact" className="block">
-              <div className="card p-8 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-blue-500">
-                <div className="text-center">
+            <Link href="/apply/boys-hostel/contact" className="block h-full">
+              <div className="card p-8 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-blue-500 h-full flex flex-col">
+                <div className="text-center flex flex-col flex-1">
                   <div
                     className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--color-blue-100)" }}
@@ -175,7 +175,7 @@ export default function ApplyPage() {
                       <span style={{ color: "var(--text-secondary)" }}>24/7 security and warden supervision</span>
                     </li>
                   </ul>
-                  <button className="btn-primary w-full">
+                  <button className="btn-primary w-full mt-auto">
                     Apply to Boys Hostel
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>
@@ -184,9 +184,9 @@ export default function ApplyPage() {
             </Link>
 
             {/* Girls Ashram Card */}
-            <Link href="/apply/girls-ashram/contact" className="block">
-              <div className="card p-8 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-purple-500">
-                <div className="text-center">
+            <Link href="/apply/girls-ashram/contact" className="block h-full">
+              <div className="card p-8 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-purple-500 h-full flex flex-col">
+                <div className="text-center flex flex-col flex-1">
                   <div
                     className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--color-purple-100)" }}
@@ -218,7 +218,7 @@ export default function ApplyPage() {
                       <span style={{ color: "var(--text-secondary)" }}>Matron &amp; warden care</span>
                     </li>
                   </ul>
-                  <button className="btn-primary w-full">
+                  <button className="btn-primary w-full mt-auto">
                     Apply to Girls Ashram
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>
@@ -227,9 +227,9 @@ export default function ApplyPage() {
             </Link>
 
             {/* Dharamshala Card */}
-            <Link href="/apply/dharamshala/contact" className="block">
-              <div className="card p-8 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-amber-500">
-                <div className="text-center">
+            <Link href="/apply/dharamshala/contact" className="block h-full">
+              <div className="card p-8 hover:shadow-lg transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-amber-500 h-full flex flex-col">
+                <div className="text-center flex flex-col flex-1">
                   <div
                     className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--color-amber-100)" }}
@@ -261,7 +261,7 @@ export default function ApplyPage() {
                       <span style={{ color: "var(--text-secondary)" }}>Affordable short-term stay</span>
                     </li>
                   </ul>
-                  <button className="btn-primary w-full">
+                  <button className="btn-primary w-full mt-auto">
                     Book Dharamshala
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>

@@ -21,6 +21,11 @@ interface PaymentFlowModalProps {
   feeId: string;
   feeName: string;
   amount: number;
+  payerName?: string;
+  payerEmail?: string;
+  payerPhone?: string;
+  payerVertical?: string;
+  academicYear?: string;
   onPaymentComplete?: () => void;
 }
 
@@ -47,6 +52,11 @@ export function PaymentFlowModal({
   feeId,
   feeName,
   amount,
+  payerName,
+  payerEmail,
+  payerPhone,
+  payerVertical,
+  academicYear,
   onPaymentComplete,
 }: PaymentFlowModalProps) {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -67,11 +77,11 @@ export function PaymentFlowModal({
       finalAmount: amount,
     },
     payerDetails: {
-      name: 'Rahul Kumar',
-      email: 'rahul.kumar@example.com',
-      phone: '+91 98765 43210',
-      vertical: 'Boys Hostel',
-      academicYear: '2024-25',
+      name: payerName || 'Student',
+      email: payerEmail || '',
+      phone: payerPhone || '',
+      vertical: payerVertical || '',
+      academicYear: academicYear || '',
     },
     paymentDetails: {
       method: (selectedMethod === 'upi' ? 'UPI' : 'QR Code') as 'UPI' | 'QR Code',

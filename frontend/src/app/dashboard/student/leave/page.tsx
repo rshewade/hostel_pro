@@ -31,27 +31,44 @@ interface LeaveRule {
   description: string;
 }
 
-const leaveRules: LeaveRule[] = [
-  {
-    type: 'Short Leave',
-    description: 'Maximum 2 days per month. Minimum 24 hours notice required.'
-  },
-  {
-    type: 'Night-Out',
-    description: 'Must return by 10:00 PM. Prior approval from Superintendent required.'
-  },
-  {
-    type: 'Multi-Day Leave',
-    description: 'Maximum 7 days per semester. Minimum 3 days notice required. Requires parent/guardian consent.'
-  }
-];
-
 export default function LeaveManagementPage() {
   const [selectedType, setSelectedType] = useState<LeaveType | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [leaveHistory, setLeaveHistory] = useState<LeaveRequest[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [leaveRules, setLeaveRules] = useState<LeaveRule[]>([]);
+  const [rulesLoading, setRulesLoading] = useState(true);
+
+  // Fetch leave rules from database on mount
+  useEffect(() => {
+    const fetchLeaveRules = async () => {
+      try {
+        setRulesLoading(true);
+        const response = await fetch('/api/config/leave-types?active=true');
+        if (response.ok) {
+          const result = await response.json();
+          const data = result.data || result || [];
+          const rules: LeaveRule[] = (Array.isArray(data) ? data : []).map((lt: any) => {
+            const parts: string[] = [];
+            if (lt.maxDaysPerMonth) parts.push(`Maximum ${lt.maxDaysPerMonth} days per month`);
+            if (lt.maxDaysPerSemester) parts.push(`Maximum ${lt.maxDaysPerSemester} days per semester`);
+            if (lt.requiresApproval) parts.push('Requires prior approval');
+            return {
+              type: lt.name,
+              description: parts.length > 0 ? parts.join('. ') + '.' : 'Standard leave policy applies.',
+            };
+          });
+          setLeaveRules(rules);
+        }
+      } catch (err) {
+        console.error('Error fetching leave rules:', err);
+      } finally {
+        setRulesLoading(false);
+      }
+    };
+    fetchLeaveRules();
+  }, []);
 
   // Get student ID from localStorage on mount
   useEffect(() => {
@@ -359,7 +376,11 @@ export default function LeaveManagementPage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {leaveRules.map((rule, index) => (
+                  {rulesLoading ? (
+                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>Loading rules...</p>
+                  ) : leaveRules.length === 0 ? (
+                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>No leave rules configured.</p>
+                  ) : leaveRules.map((rule, index) => (
                     <div key={index} className="flex items-start gap-3 pb-3 border-b" style={{ borderColor: 'var(--border-primary)' }}>
                       <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--bg-accent)' }}>
                         <span className="text-sm font-medium">{index + 1}</span>

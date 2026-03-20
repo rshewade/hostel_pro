@@ -111,24 +111,7 @@ export default function SuperintendentLeaveManagement() {
     fetchLeaveRequests();
   }, [fetchLeaveRequests]);
 
-  const getDefaultLeaves = (): LeaveRequest[] => [
-    {
-      id: '1',
-      studentId: 'STU-001',
-      studentName: 'Rahul Sharma',
-      studentRoom: 'A-201',
-      vertical: 'BOYS',
-      leaveType: 'short',
-      fromDate: '2024-12-28',
-      toDate: '2024-12-28',
-      fromTime: '09:00',
-      toTime: '18:00',
-      reason: 'Personal work at home',
-      contactNumber: '+91 98765 43210',
-      status: 'PENDING',
-      appliedDate: '2024-12-26'
-    }
-  ];
+  const getDefaultLeaves = (): LeaveRequest[] => [];
 
   // Leave rules (read-only from Task 12 config)
   const leaveRules: LeaveRule[] = [
@@ -328,6 +311,12 @@ export default function SuperintendentLeaveManagement() {
         </div>
 
         {/* Leave Requests Table */}
+        {isLoading ? (
+          <div className="p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p>Loading leave requests...</p>
+          </div>
+        ) : (
         <div className="rounded-lg border" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -383,7 +372,7 @@ export default function SuperintendentLeaveManagement() {
                           {leave.leaveType === 'multi-day' && '📅'}
                         </span>
                         <span className="capitalize" style={{ color: 'var(--text-primary)' }}>
-                          {leave.leaveType.replace('-', ' ')}
+                          {(leave.leaveType || '').replace('-', ' ')}
                         </span>
                       </div>
                     </td>
@@ -446,6 +435,7 @@ export default function SuperintendentLeaveManagement() {
             </div>
           )}
         </div>
+        )}
 
       {/* Leave Detail/Review Modal */}
       <Modal
@@ -504,7 +494,7 @@ export default function SuperintendentLeaveManagement() {
                       {selectedLeave.leaveType === 'multi-day' && '📅'}
                     </span>
                     <span style={{ color: 'var(--text-primary)' }} className="font-medium capitalize">
-                      {selectedLeave.leaveType.replace('-', ' ')}
+                      {(selectedLeave.leaveType || '').replace('-', ' ')}
                     </span>
                   </div>
                 </div>
@@ -715,7 +705,7 @@ export default function SuperintendentLeaveManagement() {
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--text-secondary)' }}>Leave Type:</span>
                   <span style={{ color: 'var(--text-primary)' }} className="font-medium capitalize">
-                    {actionModal.leave.leaveType.replace('-', ' ')}
+                    {(actionModal.leave.leaveType || '').replace('-', ' ')}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -784,8 +774,8 @@ export default function SuperintendentLeaveManagement() {
           id: leave.id,
           name: leave.studentName,
           role: 'student' as const,
-          phone: leave.contactNumber || '+91 98765 43210',
-          email: `${leave.studentName.toLowerCase().replace(' ', '.')}@example.com`
+          phone: leave.contactNumber || '',
+          email: ''
         }))}
         templates={DEFAULT_TEMPLATES}
         defaultRecipientId={selectedMessageRecipient || undefined}

@@ -13,25 +13,8 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-// Mock next/navigation
-vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(() => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    back: vi.fn(),
-    forward: vi.fn(),
-    prefetch: vi.fn(),
-    refresh: vi.fn(),
-  })),
-  useSearchParams: vi.fn(() => ({
-    get: vi.fn((key: string) => null),
-    getAll: vi.fn(() => []),
-    has: vi.fn(() => false),
-    toString: vi.fn(() => ''),
-  })),
-  usePathname: vi.fn(() => '/'),
-  useParams: vi.fn(() => ({})),
-}));
+// Mock next/navigation - centralized mock from tests/mocks/next/navigation.ts
+vi.mock('next/navigation', () => import('./tests/mocks/next/navigation'));
 
 // Mock next/image
 vi.mock('next/image', () => ({

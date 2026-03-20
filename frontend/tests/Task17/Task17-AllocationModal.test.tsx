@@ -12,7 +12,7 @@ describe('Task 17 - Allocation Modal', () => {
     vertical: 'BOYS_HOSTEL',
     floor: 1,
     capacity: 3,
-    current_occupancy: 1,
+    occupied_count: 1,
   };
 
   const mockStudents = [

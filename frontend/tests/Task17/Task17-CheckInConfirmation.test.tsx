@@ -9,6 +9,18 @@ global.fetch = vi.fn();
 delete (window as any).location;
 window.location = { href: '' } as any;
 
+// Mock localStorage so studentId resolves
+const localStorageMock = (() => {
+  let store: Record<string, string> = { userId: 'u1' };
+  return {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+    removeItem: vi.fn((key: string) => { delete store[key]; }),
+    clear: vi.fn(() => { store = { userId: 'u1' }; }),
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true });
+
 describe('Task 17 - Check-in Confirmation', () => {
   const mockAllocations = [
     {
@@ -35,7 +47,13 @@ describe('Task 17 - Check-in Confirmation', () => {
     vi.clearAllMocks();
     window.location.href = '';
     (global.fetch as any).mockImplementation((url: string, options?: any) => {
-      if (url.includes('/api/allocations') && !options) {
+      if (url.includes('/api/allocations') && options?.method === 'PUT') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ data: { id: 'alloc1', check_in_confirmed: true } }),
+        });
+      }
+      if (url.includes('/api/allocations')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({ data: mockAllocations }),
@@ -45,12 +63,6 @@ describe('Task 17 - Check-in Confirmation', () => {
         return Promise.resolve({
           ok: true,
           json: async () => ({ data: mockRooms }),
-        });
-      }
-      if (url.includes('/api/allocations/alloc1') && options?.method === 'PUT') {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ data: { id: 'alloc1', check_in_confirmed: true } }),
         });
       }
       return Promise.resolve({

@@ -247,9 +247,9 @@ export default function Home() {
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {/* Boys Hostel Card */}
-            <Link href="/apply/boys-hostel/contact" className="block">
-              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
-                <div className="text-center">
+            <Link href="/apply/boys-hostel/contact" className="block h-full">
+              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" style={{ border: "2px solid var(--border-primary)" }}>
+                <div className="text-center flex flex-col flex-1">
                   <div
                     className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--color-blue-100)" }}
@@ -273,15 +273,15 @@ export default function Home() {
                       <span className="text-green-500">&#x2713;</span> Sports and recreation
                     </li>
                   </ul>
-                  <span className="btn-primary w-full inline-flex items-center justify-center">Apply to Boys Hostel</span>
+                  <span className="btn-primary w-full inline-flex items-center justify-center mt-auto">Apply to Boys Hostel</span>
                 </div>
               </div>
             </Link>
 
             {/* Girls Ashram Card */}
-            <Link href="/apply/girls-ashram/contact" className="block">
-              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
-                <div className="text-center">
+            <Link href="/apply/girls-ashram/contact" className="block h-full">
+              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" style={{ border: "2px solid var(--border-primary)" }}>
+                <div className="text-center flex flex-col flex-1">
                   <div
                     className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--color-purple-100)" }}
@@ -305,15 +305,15 @@ export default function Home() {
                       <span className="text-green-500">&#x2713;</span> Cultural and spiritual activities
                     </li>
                   </ul>
-                  <span className="btn-primary w-full inline-flex items-center justify-center">Apply to Girls Ashram</span>
+                  <span className="btn-primary w-full inline-flex items-center justify-center mt-auto">Apply to Girls Ashram</span>
                 </div>
               </div>
             </Link>
 
             {/* Dharamshala Card */}
-            <Link href="/apply/dharamshala/contact" className="block">
-              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer" style={{ border: "2px solid var(--border-primary)" }}>
-                <div className="text-center">
+            <Link href="/apply/dharamshala/contact" className="block h-full">
+              <div className="card p-8 hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col" style={{ border: "2px solid var(--border-primary)" }}>
+                <div className="text-center flex flex-col flex-1">
                   <div
                     className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--color-amber-100)" }}
@@ -337,7 +337,7 @@ export default function Home() {
                       <span className="text-green-500">&#x2713;</span> Community kitchen facilities
                     </li>
                   </ul>
-                  <span className="btn-primary w-full inline-flex items-center justify-center">Book Dharamshala</span>
+                  <span className="btn-primary w-full inline-flex items-center justify-center mt-auto">Book Dharamshala</span>
                 </div>
               </div>
             </Link>

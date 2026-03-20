@@ -9,6 +9,18 @@ global.fetch = vi.fn();
 delete (window as any).location;
 window.location = { href: '' } as any;
 
+// Mock localStorage so studentId resolves
+const localStorageMock = (() => {
+  let store: Record<string, string> = { userId: 'u1' };
+  return {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+    removeItem: vi.fn((key: string) => { delete store[key]; }),
+    clear: vi.fn(() => { store = { userId: 'u1' }; }),
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true });
+
 describe('Task 17 - Student Room View', () => {
   const mockAllocations = [
     {
@@ -29,7 +41,7 @@ describe('Task 17 - Student Room View', () => {
       vertical: 'BOYS_HOSTEL',
       floor: 1,
       capacity: 3,
-      current_occupancy: 2,
+      occupied_count: 2,
       amenities: ['Bed', 'Study Table', 'Cupboard', 'Chair', 'Ceiling Fan'],
     },
   ];
@@ -284,7 +296,7 @@ describe('Task 17 - Student Room View', () => {
     fireEvent.click(refreshButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/allocations');
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/allocations'));
     });
   });
 

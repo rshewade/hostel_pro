@@ -23,9 +23,12 @@ export default function StudentDashboard() {
   const [status, setStatus] = useState('CHECKED_IN');
   const [roomNumber, setRoomNumber] = useState<string | null>(null);
   const [joiningDate, setJoiningDate] = useState<string | null>(null);
-  const [academicYear] = useState('2024-25');
-  const [currentPeriod] = useState('SEMESTER_2');
-  const [renewalDaysRemaining] = useState(30);
+  const [academicYear, setAcademicYear] = useState<string>('');
+  const [currentPeriod, setCurrentPeriod] = useState<string>('');
+  const [renewalDaysRemaining, setRenewalDaysRemaining] = useState<number | null>(null);
+  const [renewalDueDate, setRenewalDueDate] = useState<string | null>(null);
+  const [feeDueDate, setFeeDueDate] = useState<string | null>(null);
+  const [pendingFeeAmount, setPendingFeeAmount] = useState<number>(0);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -108,6 +111,50 @@ export default function StudentDashboard() {
             setStatus('NOT_ALLOCATED');
           }
         }
+
+        // Fetch renewal data (academic year, period, days remaining)
+        const renewalsResponse = await fetch(`/api/renewals`);
+        if (renewalsResponse.ok) {
+          const renewalsResult = await renewalsResponse.json();
+          const renewalsData = renewalsResult.data || renewalsResult || [];
+          const studentRenewal = (Array.isArray(renewalsData) ? renewalsData : []).find(
+            (r: any) => r.student_id === userId
+          );
+          if (studentRenewal) {
+            setRenewalDaysRemaining(studentRenewal.days_remaining);
+            setRenewalDueDate(studentRenewal.renewal_due_date);
+          }
+        }
+
+        // Fetch fee data for notifications
+        const feesResponse = await fetch(`/api/fees?student_id=${userId}`);
+        if (feesResponse.ok) {
+          const feesResult = await feesResponse.json();
+          const feesData = feesResult.data?.data || feesResult.data || [];
+          const summary = feesResult.data?.summary || feesResult.summary || {};
+          const pendingTotal = (summary.total_pending || 0) + (summary.total_overdue || 0);
+          setPendingFeeAmount(pendingTotal);
+
+          // Find nearest upcoming due date
+          const now = new Date();
+          const pendingFees = (Array.isArray(feesData) ? feesData : [])
+            .filter((f: any) => f.status === 'PENDING' && new Date(f.due_date) > now)
+            .sort((a: any, b: any) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
+          if (pendingFees.length > 0) {
+            setFeeDueDate(pendingFees[0].due_date);
+          }
+        }
+
+        // Derive academic year and period from allocation date
+        const allocationDate = joiningDate ? new Date(joiningDate) : new Date();
+        const year = allocationDate.getFullYear();
+        const month = allocationDate.getMonth(); // 0-indexed
+        // Academic year runs June to May
+        const ayStart = month >= 5 ? year : year - 1;
+        setAcademicYear(`${ayStart}-${String(ayStart + 1).slice(2)}`);
+        // Period: June-Nov = Semester 1, Dec-May = Semester 2
+        const currentMonth = new Date().getMonth();
+        setCurrentPeriod(currentMonth >= 5 && currentMonth <= 10 ? 'SEMESTER 1' : 'SEMESTER 2');
       } catch (err) {
         console.error('Error fetching profile data:', err);
       } finally {
@@ -158,7 +205,7 @@ export default function StudentDashboard() {
                   You are logged in as <strong>{profile?.full_name || 'Student'}</strong> at <strong>{vertical}</strong>
                 </p>
                 <p className="text-body-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
-                  Academic Year: <strong>{academicYear}</strong> | Current Period: <strong>{currentPeriod.replace('_', ' ')}</strong>
+                  Academic Year: <strong>{academicYear || 'N/A'}</strong> | Current Period: <strong>{currentPeriod || 'N/A'}</strong>
                 </p>
               </div>
               <span className="px-3 py-1 rounded-full text-xs font-medium text-white" style={{ background: statusDisplay.color }}>
@@ -167,7 +214,7 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {renewalDaysRemaining <= 30 && (
+          {renewalDaysRemaining !== null && renewalDaysRemaining <= 30 && (
             <div className="mb-8 p-4 rounded-lg border-l-4" style={{ background: 'var(--bg-page)', borderLeftColor: 'var(--color-gold-500)' }}>
               <div className="flex items-start gap-3">
                 <span className="text-2xl">🔔</span>
@@ -261,21 +308,30 @@ export default function StudentDashboard() {
             <div className="card p-6 md:col-span-2">
               <h3 className="text-heading-4 mb-4" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
               <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded" style={{ background: 'var(--bg-page)' }}>
-                  <span className="text-red-500 text-lg">⚠</span>
-                  <div>
-                    <p className="text-body font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Fee payment due</p>
-                    <p className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Due date: December 31, 2025</p>
+                {pendingFeeAmount > 0 && feeDueDate && (
+                  <div className="flex items-start gap-3 p-3 rounded" style={{ background: 'var(--bg-page)' }}>
+                    <span className="text-red-500 text-lg">⚠</span>
+                    <div>
+                      <p className="text-body font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Fee payment due</p>
+                      <p className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>
+                        Due date: {new Date(feeDueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded" style={{ background: 'var(--bg-page)' }}>
-                  <span style={{ color: 'var(--color-gold-600)' }} className="text-lg">📢</span>
-                  <div>
-                    <p className="text-body font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Renewal reminder</p>
-                    <p className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Your 6-month renewal is due in 30 days</p>
+                )}
+                {renewalDaysRemaining !== null && renewalDaysRemaining <= 60 && (
+                  <div className="flex items-start gap-3 p-3 rounded" style={{ background: 'var(--bg-page)' }}>
+                    <span style={{ color: 'var(--color-gold-600)' }} className="text-lg">📢</span>
+                    <div>
+                      <p className="text-body font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Renewal reminder</p>
+                      <p className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>
+                        Your 6-month renewal is due in {renewalDaysRemaining} days
+                        {renewalDueDate && ` (${new Date(renewalDueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })})`}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                {renewalDaysRemaining <= 30 && (
+                )}
+                {renewalDaysRemaining !== null && renewalDaysRemaining <= 30 && (
                   <div className="flex items-start gap-3 p-3 rounded" style={{ background: 'var(--color-gold-50)', borderLeft: '3px solid var(--color-gold-500)' }}>
                     <span className="text-xl">🔔</span>
                     <div>
@@ -307,16 +363,16 @@ export default function StudentDashboard() {
               </div>
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Academic Year:</span>
-                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>{academicYear}</span>
+                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>{academicYear || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Current Period:</span>
-                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>{currentPeriod.replace('_', ' ')}</span>
+                <span className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>{currentPeriod || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>Renewal Due:</span>
-                <span className="text-body font-medium" style={{ color: renewalDaysRemaining <= 30 ? 'var(--color-gold-600)' : 'var(--text-primary)' }}>
-                  {renewalDaysRemaining} days
+                <span className="text-body font-medium" style={{ color: renewalDaysRemaining !== null && renewalDaysRemaining <= 30 ? 'var(--color-gold-600)' : 'var(--text-primary)' }}>
+                  {renewalDaysRemaining !== null ? `${renewalDaysRemaining} days` : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between">

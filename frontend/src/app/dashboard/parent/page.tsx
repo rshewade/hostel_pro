@@ -163,7 +163,9 @@ export default function ParentDashboard() {
         const feesResponse = await fetch(`/api/parent/fees?sessionToken=${encodeURIComponent(sessionToken)}&studentId=${encodeURIComponent(currentStudent.id)}`);
         const feesResult = await feesResponse.json();
         if (feesResult.success && feesResult.data) {
-          setFeeSummary(feesResult.data.summary);
+          if (feesResult.data.summary) {
+            setFeeSummary(feesResult.data.summary);
+          }
           setFeeItems(feesResult.data.items || []);
         }
 
