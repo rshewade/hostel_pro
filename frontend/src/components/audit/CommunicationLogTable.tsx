@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
 import { Input } from '@/components/forms/Input';
 import { Select } from '@/components/forms/Select';
 import { Calendar, Filter, Download, Search, Mail, MessageCircle, Smartphone, AlertCircle, CheckCircle, Clock } from 'lucide-react';

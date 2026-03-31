@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ExitRequestCard } from './ExitRequestCard';
 import {
   ExitRequestSummary,

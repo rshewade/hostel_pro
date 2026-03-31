@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 type Allocation = {
@@ -42,6 +43,7 @@ const DEFAULT_INVENTORY: Omit<InventoryItem, 'verified' | 'actual_quantity' | 'n
 ];
 
 export default function CheckInPage() {
+  const { t } = useLanguage();
   const [allocation, setAllocation] = useState<Allocation | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
@@ -213,10 +215,10 @@ export default function CheckInPage() {
       <div className="min-h-screen p-6 flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
         <div className="text-center">
           <div className="text-heading-3 mb-2" style={{ color: 'var(--text-primary)' }}>
-            Loading...
+            {t('Loading...', 'लोड हो रहा है...')}
           </div>
           <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
-            Preparing check-in process
+            {t('Preparing check-in process', 'चेक-इन प्रक्रिया तैयार हो रही है')}
           </p>
         </div>
       </div>
@@ -228,7 +230,7 @@ export default function CheckInPage() {
       <div className="min-h-screen p-6" style={{ background: 'var(--bg-page)' }}>
         <div className="max-w-2xl mx-auto">
           <div className="p-6 rounded-lg border border-red-200 bg-red-50">
-            <h2 className="text-heading-3 text-red-700 mb-2">Unable to Process Check-in</h2>
+            <h2 className="text-heading-3 text-red-700 mb-2">{t('Unable to Process Check-in', 'चेक-इन संसाधित करने में असमर्थ')}</h2>
             <p className="text-body text-red-600">{error}</p>
             <Button
               variant="primary"
@@ -236,7 +238,7 @@ export default function CheckInPage() {
               onClick={() => (window.location.href = '/dashboard/student/room')}
               className="mt-4"
             >
-              Go Back
+              {t('Go Back', 'वापस जाएं')}
             </Button>
           </div>
         </div>
@@ -253,10 +255,10 @@ export default function CheckInPage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-            Room Check-in
+            {t('Room Check-in', 'कमरा चेक-इन')}
           </h1>
           <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
-            Complete the inventory verification and confirm your check-in for Room {room?.room_number}
+            {t(`Complete the inventory verification and confirm your check-in for Room ${room?.room_number}`, `कमरा ${room?.room_number} के लिए इन्वेंटरी सत्यापन पूरा करें और अपने चेक-इन की पुष्टि करें`)}
           </p>
         </div>
 
@@ -265,7 +267,7 @@ export default function CheckInPage() {
           <div className="flex items-center gap-4">
             <div className="flex-1">
               <div className="text-body-sm mb-1" style={{ color: 'var(--text-secondary)' }}>
-                Progress
+                {t('Progress', 'प्रगति')}
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-2 rounded-full" style={{ background: 'var(--surface-secondary)' }}>
@@ -305,10 +307,10 @@ export default function CheckInPage() {
         {/* Inventory Checklist */}
         <div className="mb-6 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <h2 className="text-heading-2 mb-4" style={{ color: 'var(--text-primary)' }}>
-            Inventory Verification
+            {t('Inventory Verification', 'इन्वेंटरी सत्यापन')}
           </h2>
           <p className="text-body mb-4" style={{ color: 'var(--text-secondary)' }}>
-            Please verify all items are present and in good condition. Report any discrepancies in the notes.
+            {t('Please verify all items are present and in good condition. Report any discrepancies in the notes.', 'कृपया सत्यापित करें कि सभी वस्तुएं मौजूद हैं और अच्छी स्थिति में हैं। किसी भी विसंगति की रिपोर्ट नोट्स में करें।')}
           </p>
 
           <div className="space-y-4">
@@ -337,7 +339,7 @@ export default function CheckInPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <label className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>
-                          Quantity:
+                          {t('Quantity', 'मात्रा')}:
                         </label>
                         <input
                           type="number"
@@ -385,7 +387,7 @@ export default function CheckInPage() {
         {/* Room Condition Confirmation */}
         <div className="mb-6 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <h2 className="text-heading-3 mb-4" style={{ color: 'var(--text-primary)' }}>
-            Room Condition
+            {t('Room Condition', 'कमरे की स्थिति')}
           </h2>
 
           <label className="flex items-start gap-3 cursor-pointer">
@@ -397,11 +399,10 @@ export default function CheckInPage() {
             />
             <div>
               <div className="text-body font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
-                I confirm that the room is in acceptable condition
+                {t('I confirm that the room is in acceptable condition', 'मैं पुष्टि करता/करती हूं कि कमरा स्वीकार्य स्थिति में है')}
               </div>
               <div className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>
-                The room is clean, all fixtures are working, and there are no visible damages that were not reported
-                above.
+                {t('The room is clean, all fixtures are working, and there are no visible damages that were not reported above.', 'कमरा साफ है, सभी फिक्सचर काम कर रहे हैं, और ऊपर रिपोर्ट नहीं किए गए कोई दृश्य नुकसान नहीं हैं।')}
               </div>
             </div>
           </label>
@@ -410,7 +411,7 @@ export default function CheckInPage() {
         {/* Rules and Regulations */}
         <div className="mb-6 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <h2 className="text-heading-3 mb-4" style={{ color: 'var(--text-primary)' }}>
-            Rules and Regulations
+            {t('Rules and Regulations', 'नियम और विनियम')}
           </h2>
 
           <div className="mb-4 p-4 rounded-lg" style={{ background: 'var(--surface-secondary)' }}>
@@ -434,7 +435,7 @@ export default function CheckInPage() {
             />
             <div>
               <div className="text-body font-medium" style={{ color: 'var(--text-primary)' }}>
-                I accept and agree to follow all room rules and regulations
+                {t('I accept and agree to follow all room rules and regulations', 'मैं सभी कमरे के नियमों और विनियमों का पालन करने के लिए स्वीकार करता/करती हूं और सहमत हूं')}
               </div>
             </div>
           </label>
@@ -443,12 +444,12 @@ export default function CheckInPage() {
         {/* Additional Notes */}
         <div className="mb-6 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <h2 className="text-heading-3 mb-4" style={{ color: 'var(--text-primary)' }}>
-            Additional Notes (Optional)
+            {t('Additional Notes (Optional)', 'अतिरिक्त नोट्स (वैकल्पिक)')}
           </h2>
           <textarea
             value={additionalNotes}
             onChange={(e) => setAdditionalNotes(e.target.value)}
-            placeholder="Any other observations or requests..."
+            placeholder={t('Any other observations or requests...', 'कोई अन्य अवलोकन या अनुरोध...')}
             rows={4}
             className="w-full px-3 py-2 rounded border"
             style={{
@@ -469,7 +470,7 @@ export default function CheckInPage() {
             loading={submitting}
             fullWidth
           >
-            {submitting ? 'Confirming Check-in...' : 'Confirm Check-in'}
+            {submitting ? t('Confirming Check-in...', 'चेक-इन की पुष्टि हो रही है...') : t('Confirm Check-in', 'चेक-इन की पुष्टि करें')}
           </Button>
           <Button
             variant="secondary"
@@ -477,14 +478,14 @@ export default function CheckInPage() {
             onClick={() => (window.location.href = '/dashboard/student/room')}
             disabled={submitting}
           >
-            Cancel
+            {t('Cancel', 'रद्द करें')}
           </Button>
         </div>
 
         {!canSubmit && !submitting && (
           <div className="mt-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
             <p className="text-body-sm text-yellow-700">
-              Please complete all verifications to proceed with check-in
+              {t('Please complete all verifications to proceed with check-in', 'चेक-इन के साथ आगे बढ़ने के लिए कृपया सभी सत्यापन पूरे करें')}
             </p>
           </div>
         )}

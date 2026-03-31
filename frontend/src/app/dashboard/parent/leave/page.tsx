@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type LeaveType = 'short' | 'night-out' | 'multi-day';
 type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
@@ -31,6 +32,7 @@ interface StudentInfo {
 }
 
 export default function ParentLeaveView() {
+  const { t } = useLanguage();
   const [selectedFilter, setSelectedFilter] = useState<LeaveStatus | 'ALL'>('ALL');
   const [acknowledgedLeaves, setAcknowledgedLeaves] = useState<Set<string>>(new Set());
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
@@ -109,13 +111,13 @@ export default function ParentLeaveView() {
   const getStatusBadge = (status: LeaveStatus) => {
     switch (status) {
       case 'PENDING':
-        return <Badge variant="warning">Pending</Badge>;
+        return <Badge variant="warning">{t('Pending', 'लंबित')}</Badge>;
       case 'APPROVED':
-        return <Badge variant="success">Approved</Badge>;
+        return <Badge variant="success">{t('Approved', 'स्वीकृत')}</Badge>;
       case 'REJECTED':
-        return <Badge variant="error">Rejected</Badge>;
+        return <Badge variant="error">{t('Rejected', 'अस्वीकृत')}</Badge>;
       case 'CANCELLED':
-        return <Badge variant="default">Cancelled</Badge>;
+        return <Badge variant="default">{t('Cancelled', 'रद्द')}</Badge>;
       default:
         return <Badge variant="default">{status}</Badge>;
     }
@@ -147,7 +149,7 @@ export default function ParentLeaveView() {
         <div className="mx-auto max-w-6xl flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 style={{ color: 'var(--text-primary)' }} className="text-xl font-semibold">
-              Parent Dashboard - Leave Management
+              {t('Parent Dashboard - Leave Management', 'अभिभावक डैशबोर्ड - अवकाश प्रबंधन')}
             </h1>
             <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
               {vertical}
@@ -155,10 +157,10 @@ export default function ParentLeaveView() {
           </div>
           <div className="flex items-center gap-4">
             <Link href="/dashboard/parent" className="text-sm" style={{ color: 'var(--text-link)' }}>
-              Back to Dashboard
+              {t('Back to Dashboard', 'डैशबोर्ड पर वापस')}
             </Link>
             <Link href="/login/parent" className="text-sm" style={{ color: 'var(--text-link)' }}>
-              Logout
+              {t('Logout', 'लॉगआउट')}
             </Link>
           </div>
         </div>
@@ -168,10 +170,10 @@ export default function ParentLeaveView() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-6">
             <h1 style={{ color: 'var(--text-primary)' }} className="text-3xl font-bold mb-2">
-              Leave Requests for {studentName}
+              {t(`Leave Requests for ${studentName}`, `${studentName} के अवकाश अनुरोध`)}
             </h1>
             <p style={{ color: 'var(--text-secondary)' }} className="text-lg">
-              View-only access to your ward's leave history and status
+              {t("View-only access to your ward's leave history and status", "आपके वार्ड के अवकाश इतिहास और स्थिति तक केवल-पठन पहुंच")}
             </p>
           </div>
 
@@ -179,12 +181,12 @@ export default function ParentLeaveView() {
             <span className="text-2xl">ℹ️</span>
             <div>
               <h3 style={{ color: 'var(--text-primary)' }} className="text-lg font-semibold mb-2">
-                View-Only Access
+                {t('View-Only Access', 'केवल देखने की पहुंच')}
               </h3>
               <p style={{ color: 'var(--text-secondary)' }} className="text-sm">
-                This page provides read-only access to view your ward's leave requests.
-                <strong>You cannot create, edit, or approve leave requests through this portal.</strong>
-                All leave management actions are handled by hostel administration.
+                {t("This page provides read-only access to view your ward's leave requests.", "यह पृष्ठ आपके वार्ड के अवकाश अनुरोध देखने के लिए केवल-पठन पहुंच प्रदान करता है।")}
+                <strong>{t('You cannot create, edit, or approve leave requests through this portal.', 'आप इस पोर्टल के माध्यम से अवकाश अनुरोध बना, संपादित या स्वीकृत नहीं कर सकते।')}</strong>
+                {t('All leave management actions are handled by hostel administration.', 'सभी अवकाश प्रबंधन कार्य छात्रावास प्रशासन द्वारा संभाले जाते हैं।')}
               </p>
             </div>
           </div>
@@ -192,24 +194,24 @@ export default function ParentLeaveView() {
           <div className="card p-6 rounded-lg mb-6" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
             <div className="flex items-center justify-between mb-4">
               <h2 style={{ color: 'var(--text-primary)' }} className="text-xl font-semibold">
-                Student Information
+                {t('Student Information', 'छात्र जानकारी')}
               </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <label style={{ color: 'var(--text-secondary)' }}>Name</label>
+                <label style={{ color: 'var(--text-secondary)' }}>{t('Name', 'नाम')}</label>
                 <p style={{ color: 'var(--text-primary)' }} className="font-medium">{studentName}</p>
               </div>
               <div>
-                <label style={{ color: 'var(--text-secondary)' }}>Student ID</label>
+                <label style={{ color: 'var(--text-secondary)' }}>{t('Student ID', 'छात्र आईडी')}</label>
                 <p style={{ color: 'var(--text-primary)' }} className="font-medium">{studentId}</p>
               </div>
               <div>
-                <label style={{ color: 'var(--text-secondary)' }}>Room</label>
+                <label style={{ color: 'var(--text-secondary)' }}>{t('Room', 'कमरा')}</label>
                 <p style={{ color: 'var(--text-primary)' }} className="font-medium">{roomNumber}</p>
               </div>
               <div>
-                <label style={{ color: 'var(--text-secondary)' }}>Vertical</label>
+                <label style={{ color: 'var(--text-secondary)' }}>{t('Vertical', 'वर्टिकल')}</label>
                 <Badge variant="info" size="sm" className="mt-1">{vertical}</Badge>
               </div>
             </div>
@@ -217,12 +219,12 @@ export default function ParentLeaveView() {
 
           <div className="flex items-center justify-between mb-6">
             <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-semibold">
-              Leave History
+              {t('Leave History', 'अवकाश इतिहास')}
             </h2>
 
             <div className="flex items-center gap-2">
               <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Filter by Status:
+                {t('Filter by Status:', 'स्थिति के अनुसार फ़िल्टर करें:')}
               </label>
               <div className="flex gap-2">
                 <button
@@ -235,7 +237,7 @@ export default function ParentLeaveView() {
                     }
                   `}
                 >
-                  All Statuses
+                  {t('All Statuses', 'सभी स्थितियां')}
                 </button>
                 <button
                   onClick={() => setSelectedFilter('PENDING')}
@@ -247,7 +249,7 @@ export default function ParentLeaveView() {
                     }
                   `}
                 >
-                  Pending
+                  {t('Pending', 'लंबित')}
                 </button>
                 <button
                   onClick={() => setSelectedFilter('APPROVED')}
@@ -259,7 +261,7 @@ export default function ParentLeaveView() {
                     }
                   `}
                 >
-                  Approved
+                  {t('Approved', 'स्वीकृत')}
                 </button>
                 <button
                   onClick={() => setSelectedFilter('REJECTED')}
@@ -271,7 +273,7 @@ export default function ParentLeaveView() {
                     }
                   `}
                 >
-                  Rejected
+                  {t('Rejected', 'अस्वीकृत')}
                 </button>
               </div>
             </div>
@@ -280,7 +282,7 @@ export default function ParentLeaveView() {
           {isLoading ? (
             <div className="p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p>Loading leave requests...</p>
+              <p>{t('Loading leave requests...', 'अवकाश अनुरोध लोड हो रहे हैं...')}</p>
             </div>
           ) : error ? (
             <div className="p-8 text-center rounded-lg" style={{ background: 'var(--color-red-50)' }}>
@@ -293,28 +295,28 @@ export default function ParentLeaveView() {
                 <thead>
                   <tr className="border-b" style={{ borderColor: 'var(--border-primary)' }}>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Leave Type
+                      {t('Leave Type', 'अवकाश प्रकार')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Dates
+                      {t('Dates', 'तिथियां')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Duration
+                      {t('Duration', 'अवधि')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Reason
+                      {t('Reason', 'कारण')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Status
+                      {t('Status', 'स्थिति')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Applied On
+                      {t('Applied On', 'आवेदन तिथि')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Notification
+                      {t('Notification', 'सूचना')}
                     </th>
                     <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      Actions
+                      {t('Actions', 'कार्रवाई')}
                     </th>
                   </tr>
                 </thead>
@@ -376,7 +378,7 @@ export default function ParentLeaveView() {
                             )}
                             <div className="flex items-center gap-2">
                               <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                Notified: {leave.parentNotified ? 'Yes' : 'No'}
+                                {t('Notified:', 'सूचित:')} {leave.parentNotified ? t('Yes', 'हां') : t('No', 'नहीं')}
                               </span>
                               {leave.parentNotified && !leave.parentAcknowledged && (
                                 <span className="text-xs" style={{ color: 'var(--color-gold-600)' }}>
@@ -401,7 +403,7 @@ export default function ParentLeaveView() {
                                 color: 'var(--color-green-800)'
                               }}
                             >
-                              Acknowledge
+                              {t('Acknowledge', 'स्वीकार करें')}
                             </button>
                           )}
                         </td>
@@ -415,8 +417,8 @@ export default function ParentLeaveView() {
             {filteredLeaves.length === 0 && (
               <div className="p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
                 <div className="text-4xl mb-4">📋</div>
-                <h3 className="text-xl font-semibold mb-2">No leave requests found</h3>
-                <p>Try adjusting your filter or check back later</p>
+                <h3 className="text-xl font-semibold mb-2">{t('No leave requests found', 'कोई अवकाश अनुरोध नहीं मिला')}</h3>
+                <p>{t('Try adjusting your filter or check back later', 'अपना फ़िल्टर बदलकर देखें या बाद में पुनः जांचें')}</p>
               </div>
             )}
 
@@ -425,7 +427,7 @@ export default function ParentLeaveView() {
                 <span className="text-2xl">📢</span>
                 <div>
                   <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    Communication with Hostel Administration
+                    {t('Communication with Hostel Administration', 'छात्रावास प्रशासन के साथ संपर्क')}
                   </h3>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                     For any questions about your ward's leave requests or to request special considerations,
@@ -435,15 +437,15 @@ export default function ParentLeaveView() {
               </div>
               <div className="grid gap-4 text-sm">
                 <div>
-                  <label style={{ color: 'var(--text-secondary)' }}>Phone Number</label>
+                  <label style={{ color: 'var(--text-secondary)' }}>{t('Phone Number', 'फ़ोन नंबर')}</label>
                   <p style={{ color: 'var(--text-primary)' }} className="font-medium">+91 22 2414 1234</p>
                 </div>
                 <div>
-                  <label style={{ color: 'var(--text-secondary)' }}>Email</label>
+                  <label style={{ color: 'var(--text-secondary)' }}>{t('Email', 'ईमेल')}</label>
                   <p style={{ color: 'var(--text-primary)' }} className="font-medium">superintendant@shgjaintrust.org</p>
                 </div>
                 <div>
-                  <label style={{ color: 'var(--text-secondary)' }}>Office Hours</label>
+                  <label style={{ color: 'var(--text-secondary)' }}>{t('Office Hours', 'कार्यालय समय')}</label>
                   <p style={{ color: 'var(--text-primary)' }} className="font-medium">Monday to Saturday: 9:00 AM to 6:00 PM IST</p>
                 </div>
               </div>

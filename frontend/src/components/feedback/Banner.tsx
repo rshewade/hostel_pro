@@ -1,5 +1,5 @@
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import type { BaseComponentProps } from '../types';
 
 export type BannerVariant = 'default' | 'success' | 'warning' | 'error' | 'info';

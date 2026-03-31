@@ -1,12 +1,14 @@
 'use client';
 
 import { FormWizard, Input, Select, DatePicker, FileUpload, Textarea, Checkbox } from '@/components/forms';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ArrowLeft, Save, FileText, User, GraduationCap, Home, Users, Upload, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ApplicationFormPage() {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [initialData, setInitialData] = useState<any>({});
 
@@ -49,49 +51,48 @@ export default function ApplicationFormPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Personal Information
-              </h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Please provide your personal details</p>
+                {t('Personal Information', 'व्यक्तिगत जानकारी')}</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Please provide your personal details', 'कृपया अपना व्यक्तिगत विवरण प्रदान करें')}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
-              label="First Name"
+              label={t('First Name', 'पहला नाम')}
               value={data.firstName || ''}
               onChange={(e) => onChange('firstName', e.target.value)}
               error={errors.firstName}
               required
-              placeholder="Enter first name"
+              placeholder={t('Enter first name', 'पहला नाम दर्ज करें')}
             />
 
             <Input
-              label="Middle Name"
+              label={t('Middle Name', 'मध्य नाम')}
               value={data.middleName || ''}
               onChange={(e) => onChange('middleName', e.target.value)}
-              placeholder="Enter middle name (optional)"
+              placeholder={t('Enter middle name (optional)', 'मध्य नाम दर्ज करें (वैकल्पिक)')}
             />
 
             <Input
-              label="Last Name"
+              label={t('Last Name', 'अंतिम नाम')}
               value={data.lastName || ''}
               onChange={(e) => onChange('lastName', e.target.value)}
               error={errors.lastName}
               required
-              placeholder="Enter last name"
+              placeholder={t('Enter last name', 'अंतिम नाम दर्ज करें')}
             />
 
             <DatePicker
-              label="Date of Birth"
+              label={t('Date of Birth', 'जन्म तिथि')}
               value={data.dob || ''}
               onChange={(e) => onChange('dob', e.target.value)}
               error={errors.dob}
               required
-              helperText="You must be at least 18 years old"
+              helperText={t('You must be at least 18 years old', 'आपकी आयु कम से कम 18 वर्ष होनी चाहिए')}
             />
 
             <Select
-              label="Gender"
+              label={t('Gender', 'लिंग')}
               value={data.gender || ''}
               onChange={(e) => onChange('gender', e.target.value)}
               error={errors.gender}
@@ -105,7 +106,7 @@ export default function ApplicationFormPage() {
             />
 
             <Select
-              label="Blood Group"
+              label={t('Blood Group', 'रक्त समूह')}
               value={data.bloodGroup || ''}
               onChange={(e) => onChange('bloodGroup', e.target.value)}
               error={errors.bloodGroup}
@@ -126,52 +127,51 @@ export default function ApplicationFormPage() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-              Permanent Address
-            </h3>
+              {t('Permanent Address', 'स्थायी पता')}</h3>
             <div className="space-y-4">
               <Input
-                label="Address Line 1"
+                label={t('Address Line 1', 'पता पंक्ति 1')}
                 value={data.addressLine1 || ''}
                 onChange={(e) => onChange('addressLine1', e.target.value)}
                 error={errors.addressLine1}
                 required
-                placeholder="House/Flat No, Street, Area"
+                placeholder={t('House/Flat No, Street, Area', 'मकान/फ्लैट नंबर, सड़क, क्षेत्र')}
               />
 
               <Input
-                label="Address Line 2"
+                label={t('Address Line 2', 'पता पंक्ति 2')}
                 value={data.addressLine2 || ''}
                 onChange={(e) => onChange('addressLine2', e.target.value)}
-                placeholder="Landmark, Locality"
+                placeholder={t('Landmark, Locality', 'लैंडमार्क, इलाका')}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
-                  label="City"
+                  label={t('City', 'शहर')}
                   value={data.city || ''}
                   onChange={(e) => onChange('city', e.target.value)}
                   error={errors.city}
                   required
-                  placeholder="Enter city"
+                  placeholder={t('Enter city', 'शहर दर्ज करें')}
                 />
 
                 <Input
-                  label="State"
+                  label={t('State', 'राज्य')}
                   value={data.state || ''}
                   onChange={(e) => onChange('state', e.target.value)}
                   error={errors.state}
                   required
-                  placeholder="Enter state"
+                  placeholder={t('Enter state', 'राज्य दर्ज करें')}
                 />
 
                 <Input
-                  label="PIN Code"
+                  label={t('PIN Code', 'पिन कोड')}
                   type="text"
                   value={data.pinCode || ''}
                   onChange={(e) => onChange('pinCode', e.target.value)}
                   error={errors.pinCode}
                   required
-                  placeholder="6-digit PIN"
+                  placeholder={t('6-digit PIN', '6 अंकों का पिन')}
                   maxLength={6}
                   inputMode="numeric"
                 />
@@ -181,80 +181,79 @@ export default function ApplicationFormPage() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-              Parent/Guardian Information
-            </h3>
+              {t('Parent/Guardian Information', 'अभिभावक जानकारी')}</h3>
             <div className="space-y-4">
               <Input
-                label="Father's Name"
+                label={t('Father\'s Name', 'पिता का नाम')}
                 value={data.fatherName || ''}
                 onChange={(e) => onChange('fatherName', e.target.value)}
                 error={errors.fatherName}
                 required
-                placeholder="Enter father's full name"
+                placeholder={t('Enter father\'s full name', 'पिता का पूरा नाम दर्ज करें')}
               />
 
               <Input
-                label="Father's Occupation"
+                label={t('Father\'s Occupation', 'पिता का व्यवसाय')}
                 value={data.fatherOccupation || ''}
                 onChange={(e) => onChange('fatherOccupation', e.target.value)}
-                placeholder="Enter father's occupation"
+                placeholder={t('Enter father\'s occupation', 'पिता का व्यवसाय दर्ज करें')}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Father's Mobile Number"
+                  label={t('Father\'s Mobile Number', 'पिता का मोबाइल नंबर')}
                   type="tel"
                   value={data.fatherMobile || ''}
                   onChange={(e) => onChange('fatherMobile', e.target.value)}
                   error={errors.fatherMobile}
                   required
-                  placeholder="10-digit mobile number"
+                  placeholder={t('10-digit mobile number', '10 अंकों का मोबाइल नंबर')}
                   maxLength={10}
                   inputMode="tel"
                 />
 
                 <Input
-                  label="Father's Email"
+                  label={t('Father\'s Email', 'पिता का ईमेल')}
                   type="email"
                   value={data.fatherEmail || ''}
                   onChange={(e) => onChange('fatherEmail', e.target.value)}
-                  placeholder="Enter email (optional)"
+                  placeholder={t('Enter email (optional)', 'ईमेल दर्ज करें (वैकल्पिक)')}
                 />
               </div>
 
               <Input
-                label="Mother's Name"
+                label={t('Mother\'s Name', 'माता का नाम')}
                 value={data.motherName || ''}
                 onChange={(e) => onChange('motherName', e.target.value)}
                 error={errors.motherName}
                 required
-                placeholder="Enter mother's full name"
+                placeholder={t('Enter mother\'s full name', 'माता का पूरा नाम दर्ज करें')}
               />
 
               <Input
-                label="Mother's Occupation"
+                label={t('Mother\'s Occupation', 'माता का व्यवसाय')}
                 value={data.motherOccupation || ''}
                 onChange={(e) => onChange('motherOccupation', e.target.value)}
-                placeholder="Enter mother's occupation"
+                placeholder={t('Enter mother\'s occupation', 'माता का व्यवसाय दर्ज करें')}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Mother's Mobile Number"
+                  label={t('Mother\'s Mobile Number', 'माता का मोबाइल नंबर')}
                   type="tel"
                   value={data.motherMobile || ''}
                   onChange={(e) => onChange('motherMobile', e.target.value)}
-                  placeholder="10-digit mobile number (optional)"
+                  placeholder={t('10-digit mobile number (optional)', '10 अंकों का मोबाइल नंबर (वैकल्पिक)')}
                   maxLength={10}
                   inputMode="tel"
                 />
 
                 <Input
-                  label="Mother's Email"
+                  label={t('Mother\'s Email', 'माता का ईमेल')}
                   type="email"
                   value={data.motherEmail || ''}
                   onChange={(e) => onChange('motherEmail', e.target.value)}
-                  placeholder="Enter email (optional)"
+                  placeholder={t('Enter email (optional)', 'ईमेल दर्ज करें (वैकल्पिक)')}
                 />
               </div>
             </div>
@@ -262,30 +261,29 @@ export default function ApplicationFormPage() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-              Local Guardian (if different from parents)
-            </h3>
+              {t('Local Guardian (if different from parents)', 'स्थानीय अभिभावक (यदि माता-पिता से भिन्न)')}</h3>
             <div className="space-y-4">
               <Input
-                label="Guardian Name"
+                label={t('Guardian Name', 'अभिभावक का नाम')}
                 value={data.guardianName || ''}
                 onChange={(e) => onChange('guardianName', e.target.value)}
-                placeholder="Enter local guardian's name (optional)"
+                placeholder={t('Enter local guardian\'s name (optional)', 'स्थानीय अभिभावक का नाम दर्ज करें (वैकल्पिक)')}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Relationship"
+                  label={t('Relationship', 'संबंध')}
                   value={data.guardianRelationship || ''}
                   onChange={(e) => onChange('guardianRelationship', e.target.value)}
-                  placeholder="e.g., Uncle, Family Friend"
+                  placeholder={t('e.g., Uncle, Family Friend', 'जैसे, चाचा, पारिवारिक मित्र')}
                 />
 
                 <Input
-                  label="Guardian Mobile"
+                  label={t('Guardian Mobile', 'अभिभावक मोबाइल')}
                   type="tel"
                   value={data.guardianMobile || ''}
                   onChange={(e) => onChange('guardianMobile', e.target.value)}
-                  placeholder="10-digit mobile number"
+                  placeholder={t('10-digit mobile number', '10 अंकों का मोबाइल नंबर')}
                   maxLength={10}
                   inputMode="tel"
                 />
@@ -295,38 +293,37 @@ export default function ApplicationFormPage() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-              Emergency Contact
-            </h3>
+              {t('Emergency Contact', 'आपातकालीन संपर्क')}</h3>
             <div className="space-y-4">
               <Input
-                label="Emergency Contact Person"
+                label={t('Emergency Contact Person', 'आपातकालीन संपर्क व्यक्ति')}
                 value={data.emergencyContactPerson || ''}
                 onChange={(e) => onChange('emergencyContactPerson', e.target.value)}
                 error={errors.emergencyContactPerson}
                 required
-                placeholder="Name of emergency contact"
+                placeholder={t('Name of emergency contact', 'आपातकालीन संपर्क का नाम')}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Emergency Mobile"
+                  label={t('Emergency Mobile', 'आपातकालीन मोबाइल')}
                   type="tel"
                   value={data.emergencyMobile || ''}
                   onChange={(e) => onChange('emergencyMobile', e.target.value)}
                   error={errors.emergencyMobile}
                   required
-                  placeholder="10-digit mobile number"
+                  placeholder={t('10-digit mobile number', '10 अंकों का मोबाइल नंबर')}
                   maxLength={10}
                   inputMode="tel"
                 />
 
                 <Input
-                  label="Relationship"
+                  label={t('Relationship', 'संबंध')}
                   value={data.emergencyRelationship || ''}
                   onChange={(e) => onChange('emergencyRelationship', e.target.value)}
                   error={errors.emergencyRelationship}
                   required
-                  placeholder="e.g., Parent, Sibling"
+                  placeholder={t('e.g., Parent, Sibling', 'जैसे, माता-पिता, भाई-बहन')}
                 />
               </div>
             </div>
@@ -371,24 +368,23 @@ export default function ApplicationFormPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Academic Details
-              </h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Please provide your educational background</p>
+                {t('Academic Details', 'शैक्षणिक विवरण')}</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Please provide your educational background', 'कृपया अपनी शैक्षणिक पृष्ठभूमि प्रदान करें')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <Input
-              label="Current Institution/College"
+              label={t('Current Institution/College', 'वर्तमान संस्था/कॉलेज')}
               value={data.institution || ''}
               onChange={(e) => onChange('institution', e.target.value)}
               error={errors.institution}
               required
-              placeholder="Enter institution name"
+              placeholder={t('Enter institution name', 'संस्था का नाम दर्ज करें')}
             />
 
             <Input
-              label="Course/Degree"
+              label={t('Course/Degree', 'पाठ्यक्रम/डिग्री')}
               value={data.course || ''}
               onChange={(e) => onChange('course', e.target.value)}
               error={errors.course}
@@ -398,7 +394,7 @@ export default function ApplicationFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Select
-                label="Year/Semester"
+                label={t('Year/Semester', 'वर्ष/सेमेस्टर')}
                 value={data.year || ''}
                 onChange={(e) => onChange('year', e.target.value)}
                 error={errors.year}
@@ -414,7 +410,7 @@ export default function ApplicationFormPage() {
               />
 
               <Input
-                label="Percentage/CGPA"
+                label={t('Percentage/CGPA', 'प्रतिशत/सीजीपीए')}
                 value={data.percentage || ''}
                 onChange={(e) => onChange('percentage', e.target.value)}
                 error={errors.percentage}
@@ -425,7 +421,7 @@ export default function ApplicationFormPage() {
             </div>
 
             <Input
-              label="Previous Academic Qualification"
+              label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
               value={data.qualification || ''}
               onChange={(e) => onChange('qualification', e.target.value)}
               error={errors.qualification}
@@ -435,7 +431,7 @@ export default function ApplicationFormPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="Board/University"
+                label={t('Board/University', 'बोर्ड/विश्वविद्यालय')}
                 value={data.board || ''}
                 onChange={(e) => onChange('board', e.target.value)}
                 error={errors.board}
@@ -444,7 +440,7 @@ export default function ApplicationFormPage() {
               />
 
               <Input
-                label="Passing Year"
+                label={t('Passing Year', 'उत्तीर्ण वर्ष')}
                 type="number"
                 value={data.passingYear || ''}
                 onChange={(e) => onChange('passingYear', e.target.value)}
@@ -480,19 +476,18 @@ export default function ApplicationFormPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Hostel Preferences
-              </h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Specify your room type and stay preferences</p>
+                {t('Hostel Preferences', 'छात्रावास प्राथमिकताएं')}</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Specify your room type and stay preferences', 'अपने कमरे का प्रकार और ठहरने की प्राथमिकताएं बताएं')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <Select
-              label="Vertical"
+              label={t('Vertical', 'श्रेणी')}
               value={data.vertical || 'boys-hostel'}
               onChange={(e) => onChange('vertical', e.target.value)}
               disabled
-              helperText="This is pre-selected based on your application choice"
+              helperText={t('This is pre-selected based on your application choice', 'यह आपके आवेदन की पसंद के आधार पर पूर्व-चयनित है')}
               options={[
                 { value: 'boys-hostel', label: 'Boys Hostel' },
                 { value: 'girls-ashram', label: 'Girls Ashram' },
@@ -501,12 +496,12 @@ export default function ApplicationFormPage() {
             />
 
             <Select
-              label="Preferred Room Type"
+              label={t('Preferred Room Type', 'पसंदीदा कमरे का प्रकार')}
               value={data.roomType || ''}
               onChange={(e) => onChange('roomType', e.target.value)}
               error={errors.roomType}
               required
-              helperText="Subject to availability"
+              helperText={t('Subject to availability', 'उपलब्धता के अधीन')}
               options={[
                 { value: '', label: 'Select Room Type' },
                 { value: '2-sharing', label: '2-Sharing' },
@@ -516,7 +511,7 @@ export default function ApplicationFormPage() {
             />
 
             <Select
-              label="Duration of Stay"
+              label={t('Duration of Stay', 'ठहरने की अवधि')}
               value={data.duration || ''}
               onChange={(e) => onChange('duration', e.target.value)}
               error={errors.duration}
@@ -532,21 +527,21 @@ export default function ApplicationFormPage() {
             />
 
             <DatePicker
-              label="Intended Joining Date"
+              label={t('Intended Joining Date', 'अपेक्षित प्रवेश तिथि')}
               value={data.joiningDate || ''}
               onChange={(e) => onChange('joiningDate', e.target.value)}
               error={errors.joiningDate}
               required
-              helperText="Expected date of admission"
+              helperText={t('Expected date of admission', 'प्रवेश की अपेक्षित तिथि')}
             />
 
             <Textarea
-              label="Special Requirements (Optional)"
+              label={t('Special Requirements (Optional)', 'विशेष आवश्यकताएं (वैकल्पिक)')}
               value={data.specialRequirements || ''}
               onChange={(e) => onChange('specialRequirements', e.target.value)}
               placeholder="Any specific needs or requirements (e.g., medical conditions, dietary restrictions)"
               rows={4}
-              helperText="Please mention any special needs or health conditions we should be aware of"
+              helperText={t('Please mention any special needs or health conditions we should be aware of', 'कृपया किसी विशेष आवश्यकता या स्वास्थ्य स्थिति का उल्लेख करें')}
             />
           </div>
         </div>
@@ -571,42 +566,40 @@ export default function ApplicationFormPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                References
-              </h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Provide references from ex-students</p>
+                {t('References', 'संदर्भ')}</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Provide references from ex-students', 'पूर्व छात्रों से संदर्भ प्रदान करें')}</p>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Reference 1
-              </h3>
+                {t('Reference 1', 'संदर्भ 1')}</h3>
               <div className="space-y-4">
                 <Input
-                  label="Ex-Student Name"
+                  label={t('Ex-Student Name', 'पूर्व छात्र का नाम')}
                   value={data.ref1Name || ''}
                   onChange={(e) => onChange('ref1Name', e.target.value)}
                   error={errors.ref1Name}
                   required
-                  placeholder="Enter full name of ex-student"
+                  placeholder={t('Enter full name of ex-student', 'पूर्व छात्र का पूरा नाम दर्ज करें')}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
-                    label="Mobile Number"
+                    label={t('Mobile Number', 'मोबाइल नंबर')}
                     type="tel"
                     value={data.ref1Mobile || ''}
                     onChange={(e) => onChange('ref1Mobile', e.target.value)}
                     error={errors.ref1Mobile}
                     required
-                    placeholder="10-digit mobile number"
+                    placeholder={t('10-digit mobile number', '10 अंकों का मोबाइल नंबर')}
                     maxLength={10}
                     inputMode="tel"
                   />
 
                   <Input
-                    label="Year of Stay"
+                    label={t('Year of Stay', 'ठहरने का वर्ष')}
                     value={data.ref1Year || ''}
                     onChange={(e) => onChange('ref1Year', e.target.value)}
                     error={errors.ref1Year}
@@ -616,39 +609,38 @@ export default function ApplicationFormPage() {
                 </div>
 
                 <Input
-                  label="Relationship (Optional)"
+                  label={t('Relationship (Optional)', 'संबंध (वैकल्पिक)')}
                   value={data.ref1Relationship || ''}
                   onChange={(e) => onChange('ref1Relationship', e.target.value)}
-                  placeholder="e.g., Family friend, Relative, Neighbor"
+                  placeholder={t('e.g., Family friend, Relative, Neighbor', 'जैसे, पारिवारिक मित्र, रिश्तेदार, पड़ोसी')}
                 />
               </div>
             </div>
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Reference 2
-              </h3>
+                {t('Reference 2', 'संदर्भ 2')}</h3>
               <div className="space-y-4">
                 <Input
-                  label="Ex-Student Name"
+                  label={t('Ex-Student Name', 'पूर्व छात्र का नाम')}
                   value={data.ref2Name || ''}
                   onChange={(e) => onChange('ref2Name', e.target.value)}
-                  placeholder="Enter full name of ex-student"
+                  placeholder={t('Enter full name of ex-student', 'पूर्व छात्र का पूरा नाम दर्ज करें')}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
-                    label="Mobile Number"
+                    label={t('Mobile Number', 'मोबाइल नंबर')}
                     type="tel"
                     value={data.ref2Mobile || ''}
                     onChange={(e) => onChange('ref2Mobile', e.target.value)}
-                    placeholder="10-digit mobile number"
+                    placeholder={t('10-digit mobile number', '10 अंकों का मोबाइल नंबर')}
                     maxLength={10}
                     inputMode="tel"
                   />
 
                   <Input
-                    label="Year of Stay"
+                    label={t('Year of Stay', 'ठहरने का वर्ष')}
                     value={data.ref2Year || ''}
                     onChange={(e) => onChange('ref2Year', e.target.value)}
                     placeholder="e.g., 2021-2024"
@@ -656,10 +648,10 @@ export default function ApplicationFormPage() {
                 </div>
 
                 <Input
-                  label="Relationship (Optional)"
+                  label={t('Relationship (Optional)', 'संबंध (वैकल्पिक)')}
                   value={data.ref2Relationship || ''}
                   onChange={(e) => onChange('ref2Relationship', e.target.value)}
-                  placeholder="e.g., Family friend, Relative, Neighbor"
+                  placeholder={t('e.g., Family friend, Relative, Neighbor', 'जैसे, पारिवारिक मित्र, रिश्तेदार, पड़ोसी')}
                 />
               </div>
             </div>
@@ -688,40 +680,38 @@ export default function ApplicationFormPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Document Upload
-              </h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Upload required documents</p>
+                {t('Document Upload', 'दस्तावेज़ अपलोड')}</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Upload required documents', 'आवश्यक दस्तावेज़ अपलोड करें')}</p>
             </div>
           </div>
 
           <div className="card p-6 border-2" style={{ backgroundColor: 'var(--color-blue-50)', borderColor: 'var(--color-blue-200)' }}>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <FileText className="w-5 h-5" />
-              Upload Guidelines
-            </h3>
+              {t('Upload Guidelines', 'अपलोड दिशानिर्देश')}</h3>
             <ul className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-semibold">•</span>
-                <span>Accepted formats: PDF, JPG, JPEG</span>
+                <span>{t('Accepted formats: PDF, JPG, JPEG', 'स्वीकृत प्रारूप: PDF, JPG, JPEG')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-semibold">•</span>
-                <span>Maximum file size: 5 MB per document</span>
+                <span>{t('Maximum file size: 5 MB per document', 'अधिकतम फ़ाइल आकार: 5 MB प्रति दस्तावेज़')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-semibold">•</span>
-                <span>Ensure documents are clear and readable</span>
+                <span>{t('Ensure documents are clear and readable', 'सुनिश्चित करें कि दस्तावेज़ स्पष्ट और पढ़ने योग्य हैं')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 font-semibold">•</span>
-                <span>Drag and drop files or click to browse</span>
+                <span>{t('Drag and drop files or click to browse', 'फ़ाइलें ड्रैग और ड्रॉप करें या ब्राउज़ करने के लिए क्लिक करें')}</span>
               </li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <FileUpload
-              label="Recent Passport Size Photo"
+              label={t('Recent Passport Size Photo', 'हालिया पासपोर्ट आकार का फोटो')}
               value={data.photoFile || null}
               onChange={(file) => onChange('photoFile', file)}
               error={errors.photoFile}
@@ -732,7 +722,7 @@ export default function ApplicationFormPage() {
             />
 
             <FileUpload
-              label="Birth Certificate"
+              label={t('Birth Certificate', 'जन्म प्रमाण पत्र')}
               value={data.birthCertificate || null}
               onChange={(file) => onChange('birthCertificate', file)}
               error={errors.birthCertificate}
@@ -744,7 +734,7 @@ export default function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <FileUpload
-                label="Educational Marksheet/Certificate"
+                label={t('Educational Marksheet/Certificate', 'शैक्षणिक अंकपत्र/प्रमाण पत्र')}
                 value={data.marksheet || null}
                 onChange={(file) => onChange('marksheet', file)}
                 error={errors.marksheet}
@@ -757,7 +747,7 @@ export default function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <FileUpload
-                label="Community Recommendation Letter (Optional)"
+                label={t('Community Recommendation Letter (Optional)', 'सामुदायिक अनुशंसा पत्र (वैकल्पिक)')}
                 value={data.recommendationLetter || null}
                 onChange={(file) => onChange('recommendationLetter', file)}
                 accept=".jpg,.jpeg,.pdf"
@@ -788,17 +778,15 @@ export default function ApplicationFormPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Review Your Application
-              </h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Please review all details before submitting</p>
+                {t('Review Your Application', 'अपने आवेदन की समीक्षा करें')}</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Please review all details before submitting', 'कृपया जमा करने से पहले सभी विवरणों की समीक्षा करें')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Personal Details
-              </h3>
+                {t('Personal Details', 'व्यक्तिगत विवरण')}</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Name:</strong> {data.firstName} {data.middleName} {data.lastName}</p>
                 <p><strong>Date of Birth:</strong> {data.dob}</p>
@@ -813,8 +801,7 @@ export default function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Academic Information
-              </h3>
+                {t('Academic Information', 'शैक्षणिक जानकारी')}</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Institution:</strong> {data.institution}</p>
                 <p><strong>Course:</strong> {data.course}</p>
@@ -828,8 +815,7 @@ export default function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Hostel Preferences
-              </h3>
+                {t('Hostel Preferences', 'छात्रावास प्राथमिकताएं')}</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Vertical:</strong> {data.vertical === 'boys-hostel' ? 'Boys Hostel' : data.vertical === 'girls-ashram' ? 'Girls Ashram' : 'Dharamshala'}</p>
                 <p><strong>Room Type:</strong> {data.roomType}</p>
@@ -843,8 +829,7 @@ export default function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Reference 1
-              </h3>
+                {t('Reference 1', 'संदर्भ 1')}</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Name:</strong> {data.ref1Name}</p>
                 <p><strong>Mobile:</strong> {data.ref1Mobile}</p>
@@ -856,8 +841,7 @@ export default function ApplicationFormPage() {
             {data.ref2Name && (
               <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
                 <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                  Reference 2
-                </h3>
+                  {t('Reference 2', 'संदर्भ 2')}</h3>
                 <div className="space-y-2 text-sm">
                   <p><strong>Name:</strong> {data.ref2Name}</p>
                   <p><strong>Mobile:</strong> {data.ref2Mobile}</p>
@@ -869,8 +853,7 @@ export default function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                Documents
-              </h3>
+                {t('Documents', 'दस्तावेज़')}</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Photo:</strong> {data.photoFile?.name || 'Not uploaded'}</p>
                 <p><strong>Birth Certificate:</strong> {data.birthCertificate?.name || 'Not uploaded'}</p>
@@ -884,16 +867,13 @@ export default function ApplicationFormPage() {
 
           <div className="card p-6 border-2" style={{ backgroundColor: 'var(--color-blue-50)', borderColor: 'var(--color-blue-200)' }}>
             <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Declaration
-            </h3>
+              {t('Declaration', 'घोषणा')}</h3>
             <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-              I hereby declare that all the information provided above is true and correct to the best of my knowledge.
-              I understand that any false information may result in rejection of my application.
-            </p>
+              {t('I hereby declare that all the information provided above is true and correct to the best of my knowledge. I understand that any false information may result in rejection of my application.', 'मैं एतद्द्वारा घोषणा करता/करती हूं कि ऊपर दी गई सभी जानकारी मेरी सर्वोत्तम जानकारी के अनुसार सत्य और सही है। मैं समझता/समझती हूं कि कोई भी गलत जानकारी मेरे आवेदन की अस्वीकृति का कारण बन सकती है।')}</p>
             <Checkbox
               checked={data.declarationAccepted || false}
               onChange={(e) => onChange('declarationAccepted', e.target.checked)}
-              label="I agree to the terms and conditions and declare that the information provided is accurate"
+              label={t('I agree to the terms and conditions and declare that the information provided is accurate', 'मैं नियम और शर्तों से सहमत हूं और घोषणा करता/करती हूं कि प्रदान की गई जानकारी सटीक है')}
               required
             />
           </div>
@@ -1036,16 +1016,15 @@ export default function ApplicationFormPage() {
             <ArrowLeft className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
             <div>
               <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                Boys Hostel Application
-              </h1>
-              <p className="text-caption">Application Form</p>
+                {t('Boys Hostel Application', 'बालक छात्रावास आवेदन')}</h1>
+              <p className="text-caption">{t('Application Form', 'आवेदन पत्र')}</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link">Apply Now</Link>
-            <Link href="/check-status" className="nav-link">Check Status</Link>
-            <Link href="/login" className="nav-link">Login</Link>
+            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+            <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+            <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
           </nav>
         </div>
       </header>

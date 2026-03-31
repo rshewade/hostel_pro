@@ -1,394 +1,174 @@
-import Link from "next/link";
+"use client";
+
+import React from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/shadcn/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
+import { Building2, Users, Home, ExternalLink, FileText, CheckCircle } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
 import PageHero from "@/components/public/PageHero";
-import { Building2, Users, Home, CheckCircle, ArrowRight } from "lucide-react";
 
-type AdmissionId = "boys-hostel" | "girls-hostel" | "dharamshala";
-
-interface AdmissionData {
-  title: string;
-  subtitle: string;
-  icon: typeof Building2;
-  themeColor: string;
-  themeBg: string;
-  themeBorder: string;
-  applyLink: string;
-  ctaLabel: string;
-  steps: string[];
-  documents: string[];
-}
-
-const admissionsData: Record<AdmissionId, AdmissionData> = {
-  "boys-hostel": {
-    title: "Boys' Hostel Admissions",
-    subtitle: "Seth Hirachand Gumanji Jain Hostel",
+const admissionsData = {
+  'boys-hostel': {
+    title: { en: "Boys' Hostel Admissions", hi: 'बालक छात्रावास प्रवेश' },
+    subtitle: { en: 'Seth Hirachand Gumanji Jain Hostel', hi: 'सेठ हीराचंद गुमानजी जैन छात्रावास' },
     icon: Building2,
-    themeColor: "var(--color-navy-700)",
-    themeBg: "var(--color-navy-50, #eff3f8)",
-    themeBorder: "var(--color-navy-200, #b0c4de)",
-    applyLink: "/apply/boys-hostel/contact",
-    ctaLabel: "Apply for Boys' Hostel",
-    steps: [
-      "Check eligibility criteria and age requirements",
-      "Create an account or login with your mobile number",
-      "Fill in the application form with personal and academic details",
-      "Upload all required documents in the specified formats",
-      "Submit your application and track its status online",
-    ],
-    documents: [
-      "Birth Certificate",
-      "Caste Certificate",
-      "College Admission Letter",
-      "Academic Records / Marksheets",
-      "Passport-size Photographs",
-      "Jain Sangh Recommendation Letter",
-    ],
+    color: 'blue',
+    externalUrl: '#',
   },
-  "girls-hostel": {
-    title: "Girls' Hostel Admissions",
-    subtitle: "R. R. Shravika Ashram",
+  'girls-hostel': {
+    title: { en: "Girls' Hostel Admissions", hi: 'बालिका छात्रावास प्रवेश' },
+    subtitle: { en: 'R. R. Shravika Ashram', hi: 'आर. आर. श्राविका आश्रम' },
     icon: Users,
-    themeColor: "#9f1239",
-    themeBg: "#fff1f2",
-    themeBorder: "#fecdd3",
-    applyLink: "/apply/girls-ashram/contact",
-    ctaLabel: "Apply for Girls' Hostel",
-    steps: [
-      "Check eligibility criteria and age requirements",
-      "Create an account or login with your mobile number",
-      "Fill in the application form with personal and academic details",
-      "Upload all required documents in the specified formats",
-      "Submit your application and track its status online",
-    ],
-    documents: [
-      "Birth Certificate",
-      "Caste Certificate",
-      "College Admission Letter",
-      "Academic Records / Marksheets",
-      "Passport-size Photographs",
-      "Jain Sangh Recommendation Letter",
-    ],
+    color: 'rose',
+    externalUrl: '#',
   },
-  dharamshala: {
-    title: "Dharamshala Booking",
-    subtitle: "Hirabaug",
+  'dharamshala': {
+    title: { en: 'Dharamshala Booking', hi: 'धर्मशाला बुकिंग' },
+    subtitle: { en: 'Hirabaug', hi: 'हीराबाग' },
     icon: Home,
-    themeColor: "#92400e",
-    themeBg: "#fffbeb",
-    themeBorder: "#fde68a",
-    applyLink: "/apply/dharamshala/contact",
-    ctaLabel: "Book Dharamshala",
-    steps: [
-      "Check room availability for your desired dates",
-      "Fill in the booking form with a valid government ID",
-      "Make the payment online or at the office",
-      "Receive your booking confirmation via SMS and email",
-    ],
-    documents: [
-      "Valid Government ID (Aadhaar / Passport / Driving License)",
-      "Hospital or medical documents (if visiting for medical transit)",
-    ],
+    color: 'amber',
+    externalUrl: '#',
   },
 };
 
-const validIds: AdmissionId[] = ["boys-hostel", "girls-hostel", "dharamshala"];
+export default function AdmissionsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
+  const { t, language } = useLanguage();
 
-export function generateStaticParams() {
-  return validIds.map((id) => ({ id }));
-}
+  const admission = admissionsData[id as keyof typeof admissionsData];
 
-export default async function AdmissionsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const data = admissionsData[id as AdmissionId];
-
-  if (!data) {
+  if (!admission) {
     return (
       <PublicLayout>
-        <div
-          style={{
-            textAlign: "center",
-            padding: "5rem 1rem",
-            color: "var(--text-secondary)",
-          }}
-        >
-          <h1
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 700,
-              marginBottom: "0.5rem",
-              color: "var(--text-primary)",
-            }}
-          >
-            Page Not Found
-          </h1>
-          <p>The admissions page you are looking for does not exist.</p>
+        <div className="flex items-center justify-center py-32">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Page not found</h1>
+          </div>
         </div>
       </PublicLayout>
     );
   }
 
-  const IconComponent = data.icon;
+  const Icon = admission.icon;
+  const isDharamshala = id === 'dharamshala';
+
+  const steps = isDharamshala
+    ? [
+        { en: 'Check room availability', hi: 'कमरे की उपलब्धता जांचें' },
+        { en: 'Fill booking form with valid ID', hi: 'वैध आईडी के साथ बुकिंग फॉर्म भरें' },
+        { en: 'Make advance payment', hi: 'अग्रिम भुगतान करें' },
+        { en: 'Receive booking confirmation', hi: 'बुकिंग की पुष्टि प्राप्त करें' },
+      ]
+    : [
+        { en: 'Check eligibility criteria', hi: 'पात्रता मानदंड जांचें' },
+        { en: 'Create account / Login', hi: 'खाता बनाएं / लॉगिन करें' },
+        { en: 'Fill online application form', hi: 'ऑनलाइन आवेदन फॉर्म भरें' },
+        { en: 'Upload required documents', hi: 'आवश्यक दस्तावेज अपलोड करें' },
+        { en: 'Submit and track application', hi: 'जमा करें और आवेदन ट्रैक करें' },
+      ];
+
+  const documents = isDharamshala
+    ? [
+        { en: 'Valid Government ID (Aadhar/Passport)', hi: 'वैध सरकारी आईडी (आधार/पासपोर्ट)' },
+        { en: 'Hospital documents (if medical transit)', hi: 'अस्पताल के दस्तावेज (यदि चिकित्सा यात्रा)' },
+      ]
+    : [
+        { en: 'Birth Certificate', hi: 'जन्म प्रमाण पत्र' },
+        { en: 'Caste Certificate (Jain Community)', hi: 'जाति प्रमाण पत्र (जैन समुदाय)' },
+        { en: 'College Admission Letter', hi: 'कॉलेज प्रवेश पत्र' },
+        { en: 'Previous Academic Records', hi: 'पिछले शैक्षणिक रिकॉर्ड' },
+        { en: 'Passport Size Photographs', hi: 'पासपोर्ट साइज फोटो' },
+        { en: 'Recommendation Letter from Jain Sangh', hi: 'जैन संघ से अनुशंसा पत्र' },
+      ];
 
   return (
     <PublicLayout>
-      <PageHero title={data.title} subtitle={data.subtitle}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "3.5rem",
-            height: "3.5rem",
-            borderRadius: "1rem",
-            backgroundColor: "rgba(255,255,255,0.15)",
-            marginBottom: "1.25rem",
-          }}
-        >
-          <IconComponent size={28} color="var(--text-inverse)" />
+      {/* Hero */}
+      <PageHero
+        title={admission.title[language]}
+        subtitle={admission.subtitle[language]}
+      >
+        <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-4">
+          <Icon className="h-8 w-8 text-accent" />
         </div>
       </PageHero>
 
-      {/* Two-column grid */}
-      <section
-        style={{
-          backgroundColor: "var(--bg-page)",
-          padding: "3rem 1rem",
-        }}
-      >
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-          style={{
-            maxWidth: "72rem",
-            marginInline: "auto",
-          }}
-        >
-          {/* Left: Process Steps */}
-          <div
-            style={{
-              backgroundColor: "var(--surface-primary)",
-              borderRadius: "0.75rem",
-              border: "1px solid var(--border-primary)",
-              padding: "2rem",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                marginBottom: "0.25rem",
-                fontFamily: "var(--font-serif)",
-              }}
-            >
-              {id === "dharamshala"
-                ? "Booking Process"
-                : "Application Process"}
-            </h2>
-            <p
-              style={{
-                color: "var(--text-secondary)",
-                marginBottom: "1.5rem",
-                fontSize: "0.95rem",
-              }}
-            >
-              {id === "dharamshala"
-                ? "Follow these steps to book your stay"
-                : "Follow these steps to apply for admission"}
-            </p>
+      {/* Content */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Process Steps */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-heading">
+                    {isDharamshala ? t('Booking Process', 'बुकिंग प्रक्रिया') : t('Application Process', 'आवेदन प्रक्रिया')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ol className="space-y-4">
+                    {steps.map((step, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">
+                          {index + 1}
+                        </span>
+                        <span className="text-muted-foreground">{step[language]}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </CardContent>
+              </Card>
 
-            <ol
-              style={{
-                listStyle: "none",
-                padding: 0,
-                margin: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-              }}
-            >
-              {data.steps.map((step, index) => (
-                <li
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "1rem",
-                  }}
+              {/* Required Documents */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-heading flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    {t('Required Documents', 'आवश्यक दस्तावेज')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {documents.map((doc, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <span className="text-muted-foreground">{doc[language]}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Login CTA */}
+            <Card className="mt-8 bg-primary text-primary-foreground">
+              <CardHeader className="text-center">
+                <CardTitle className="font-heading text-2xl">
+                  {isDharamshala ? t('Book Your Stay', 'अपना प्रवास बुक करें') : t('Start Your Application', 'अपना आवेदन शुरू करें')}
+                </CardTitle>
+                <CardDescription className="text-primary-foreground/80">
+                  {isDharamshala
+                    ? t('Click below to access the booking portal', 'बुकिंग पोर्टल तक पहुंचने के लिए नीचे क्लिक करें')
+                    : t('Login to continue your application or register as a new applicant', 'अपना आवेदन जारी रखने के लिए लॉगिन करें या नए आवेदक के रूप में पंजीकरण करें')
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button
+                  size="lg"
+                  variant="accent"
+                  className="gap-2"
+                  onClick={() => window.open(admission.externalUrl, '_blank')}
                 >
-                  <span
-                    style={{
-                      flexShrink: 0,
-                      width: "2rem",
-                      height: "2rem",
-                      borderRadius: "50%",
-                      backgroundColor: data.themeBg,
-                      color: data.themeColor,
-                      fontWeight: 700,
-                      fontSize: "0.875rem",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: `1px solid ${data.themeBorder}`,
-                    }}
-                  >
-                    {index + 1}
-                  </span>
-                  <span
-                    style={{
-                      color: "var(--text-primary)",
-                      fontSize: "0.95rem",
-                      lineHeight: 1.6,
-                      paddingTop: "0.25rem",
-                    }}
-                  >
-                    {step}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Right: Required Documents */}
-          <div
-            style={{
-              backgroundColor: "var(--surface-primary)",
-              borderRadius: "0.75rem",
-              border: "1px solid var(--border-primary)",
-              padding: "2rem",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                marginBottom: "0.25rem",
-                fontFamily: "var(--font-serif)",
-              }}
-            >
-              Required Documents
-            </h2>
-            <p
-              style={{
-                color: "var(--text-secondary)",
-                marginBottom: "1.5rem",
-                fontSize: "0.95rem",
-              }}
-            >
-              Please keep the following documents ready
-            </p>
-
-            <ul
-              style={{
-                listStyle: "none",
-                padding: 0,
-                margin: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-              }}
-            >
-              {data.documents.map((doc, index) => (
-                <li
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "0.75rem",
-                  }}
-                >
-                  <CheckCircle
-                    size={20}
-                    color={data.themeColor}
-                    style={{ flexShrink: 0, marginTop: "0.125rem" }}
-                  />
-                  <span
-                    style={{
-                      color: "var(--text-primary)",
-                      fontSize: "0.95rem",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {doc}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Full-width CTA Card */}
-      <section
-        style={{
-          backgroundColor: "var(--bg-page)",
-          padding: "0 1rem 3rem",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "72rem",
-            marginInline: "auto",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "var(--bg-inverse, #1a365d)",
-              borderRadius: "0.75rem",
-              padding: "2.5rem 2rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: "1rem",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "var(--text-inverse)",
-                fontFamily: "var(--font-serif)",
-              }}
-            >
-              Ready to{" "}
-              {id === "dharamshala" ? "book your stay" : "begin your journey"}?
-            </h2>
-            <p
-              style={{
-                color: "var(--color-navy-200, #b0c4de)",
-                fontSize: "0.95rem",
-                maxWidth: "32rem",
-              }}
-            >
-              {id === "dharamshala"
-                ? "Check availability and reserve your room at Hirabaug Dharamshala today."
-                : "Start your application now and take the first step towards securing your place."}
-            </p>
-            <Link
-              href={data.applyLink}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                marginTop: "0.5rem",
-                padding: "0.75rem 2rem",
-                backgroundColor: "var(--bg-accent)",
-                color: "var(--text-inverse)",
-                fontWeight: 600,
-                fontSize: "1rem",
-                borderRadius: "0.5rem",
-                textDecoration: "none",
-                transition: "opacity 0.2s",
-              }}
-            >
-              {data.ctaLabel}
-              <ArrowRight size={18} />
-            </Link>
+                  <ExternalLink className="h-5 w-5" />
+                  {isDharamshala ? t('Booking Portal', 'बुकिंग पोर्टल') : t('Login / Register', 'लॉगिन / पंजीकरण')}
+                </Button>
+                <p className="text-sm text-primary-foreground/60 mt-4">
+                  {t('You will be redirected to our secure portal', 'आपको हमारे सुरक्षित पोर्टल पर पुनर्निर्देशित किया जाएगा')}
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

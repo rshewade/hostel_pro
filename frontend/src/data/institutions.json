@@ -1,0 +1,29 @@
+[
+  {
+    "id": "boys-hostel",
+    "name": "Seth Hirachand Gumanji Boys' Hostel",
+    "shortName": "Boys' Hostel",
+    "type": "hostel",
+    "location": "Mumbai",
+    "established": 1920,
+    "description": "Premier residential facility for young men pursuing education in Mumbai"
+  },
+  {
+    "id": "girls-hostel",
+    "name": "Seth Hirachand Gumanji Girls' Hostel",
+    "shortName": "Girls' Hostel",
+    "type": "hostel",
+    "location": "Mumbai",
+    "established": 1935,
+    "description": "Safe and nurturing residential facility for young women"
+  },
+  {
+    "id": "dharamshala",
+    "name": "Hirachand Gumanji Dharamshala",
+    "shortName": "Dharamshala",
+    "type": "dharamshala",
+    "location": "Palitana",
+    "established": 1910,
+    "description": "Pilgrim accommodation near sacred Jain temples"
+  }
+]

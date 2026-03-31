@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Table } from '@/components/data/Table';
 import type { TableColumn } from '@/components/types';
 import { Select, type SelectOption } from '@/components/forms/Select';
 import { cn } from '@/components/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type Vertical = 'ALL' | 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 type Period = 'THIS_MONTH' | 'LAST_MONTH' | 'LAST_3_MONTHS' | 'LAST_6_MONTHS' | 'THIS_YEAR' | 'ALL_TIME';
@@ -40,6 +41,7 @@ interface Receivable {
 }
 
 export default function AccountsDashboard() {
+  const { t } = useLanguage();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'receivables' | 'payment-logs' | 'receipts' | 'clearance' | 'data-export'>('overview');
   const [selectedVertical, setSelectedVertical] = useState<Vertical>('ALL');
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('THIS_MONTH');
@@ -177,10 +179,10 @@ export default function AccountsDashboard() {
 
   const kpis = calculateKPIs();
   const kpiData = [
-    { title: 'Total Receivables', value: kpis.totalReceivables, icon: '💰', color: 'blue' },
-    { title: 'Collected', value: kpis.collected, icon: '✅', color: 'green' },
-    { title: 'Overdue', value: kpis.overdue, icon: '⚠️', color: 'red' },
-    { title: 'Upcoming This Month', value: kpis.upcomingThisMonth, icon: '📅', color: 'yellow' }
+    { title: t('Total Receivables', 'कुल प्राप्य'), value: kpis.totalReceivables, icon: '💰', color: 'blue' },
+    { title: t('Collected', 'संग्रहित'), value: kpis.collected, icon: '✅', color: 'green' },
+    { title: t('Overdue', 'अतिदेय'), value: kpis.overdue, icon: '⚠️', color: 'red' },
+    { title: t('Upcoming This Month', 'इस महीने आगामी'), value: kpis.upcomingThisMonth, icon: '📅', color: 'yellow' }
   ];
 
   function calculateKPIs() {
@@ -501,14 +503,14 @@ export default function AccountsDashboard() {
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Accounts Dashboard
+              {t('Accounts Dashboard', 'लेखा डैशबोर्ड')}
             </h1>
             <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
               {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
             </span>
           </div>
           <Button variant="ghost" size="sm">
-            Logout
+            {t('Logout', 'लॉगआउट')}
           </Button>
         </div>
       </header>
@@ -528,7 +530,7 @@ export default function AccountsDashboard() {
                 }}
                 onClick={() => setSelectedTab('overview')}
               >
-                Overview
+                {t('Overview', 'अवलोकन')}
               </button>
               <button
                 className={cn(
@@ -543,7 +545,7 @@ export default function AccountsDashboard() {
                 }}
                 onClick={() => setSelectedTab('receivables')}
               >
-                Receivables
+                {t('Receivables', 'प्राप्य')}
               </button>
               <button
                 className={cn(
@@ -558,7 +560,7 @@ export default function AccountsDashboard() {
                 }}
                 onClick={() => setSelectedTab('payment-logs')}
               >
-                Payment Logs
+                {t('Payment Logs', 'भुगतान लॉग')}
               </button>
               <button
                 className={cn(
@@ -573,7 +575,7 @@ export default function AccountsDashboard() {
                 }}
                 onClick={() => setSelectedTab('receipts')}
               >
-                Receipts
+                {t('Receipts', 'रसीदें')}
               </button>
               <button
                 className={cn(
@@ -588,7 +590,7 @@ export default function AccountsDashboard() {
                 }}
                 onClick={() => setSelectedTab('clearance')}
               >
-                Clearance
+                {t('Clearance', 'मंजूरी')}
               </button>
               <button
                 className={cn(
@@ -603,7 +605,7 @@ export default function AccountsDashboard() {
                 }}
                 onClick={() => setSelectedTab('data-export')}
               >
-                Export
+                {t('Export', 'निर्यात')}
               </button>
             </div>
       </nav>
@@ -658,26 +660,26 @@ export default function AccountsDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="lg:col-span-2">
                 <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                  Recent Receivables
+                  {t('Recent Receivables', 'हालिया प्राप्य')}
                 </h2>
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={() => setSelectedTab('receivables')}
                 >
-                  View All Receivables
+                  {t('View All Receivables', 'सभी प्राप्य देखें')}
                 </Button>
               </div>
               <div className="lg:col-span-2">
                 <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                  Recent Payment Activity
+                  {t('Recent Payment Activity', 'हालिया भुगतान गतिविधि')}
                 </h2>
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={() => setSelectedTab('payment-logs')}
                 >
-                  View Payment Logs
+                  {t('View Payment Logs', 'भुगतान लॉग देखें')}
                 </Button>
               </div>
             </div>

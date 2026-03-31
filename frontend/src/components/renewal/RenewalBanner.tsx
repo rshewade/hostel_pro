@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import {
   AlertCircle,
   AlertTriangle,

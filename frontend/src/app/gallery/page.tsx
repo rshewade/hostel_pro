@@ -1,55 +1,43 @@
+"use client";
+
 import Image from "next/image";
+import { useLanguage } from "@/contexts/LanguageContext";
 import PublicLayout from "@/components/public/PublicLayout";
 import PageHero from "@/components/public/PageHero";
 
-const galleryImages = [
-  { src: "/hostel-gate.png", alt: "Historic Main Gate" },
-  { src: "/hostel-building.png", alt: "Heritage Building" },
-  { src: "/hostel-temple.png", alt: "Temple View" },
-  { src: "/hostel-room.png", alt: "Traditional Interior" },
-  { src: "/hostel-playground.jpg", alt: "Sports Ground" },
-];
-
 export default function GalleryPage() {
+  const { t } = useLanguage();
+
+  const images = [
+    { src: "/hostel-gate.png", alt: t('Historic Main Gate', 'ऐतिहासिक मुख्य द्वार') },
+    { src: "/hostel-building.png", alt: t('Heritage Building', 'विरासत भवन') },
+    { src: "/hostel-temple.png", alt: t('Temple View', 'मंदिर का दृश्य') },
+    { src: "/hostel-room.png", alt: t('Traditional Interior', 'पारंपरिक आंतरिक') },
+    { src: "/hostel-playground.jpg", alt: t('Sports Ground', 'खेल का मैदान') },
+  ];
+
   return (
     <PublicLayout>
       <PageHero
-        title="Photo Gallery"
-        subtitle="Glimpses of our institutions and events"
+        title={t('Photo Gallery', 'फोटो गैलरी')}
+        subtitle={t('Glimpses of our institutions and events', 'हमारी संस्थाओं और कार्यक्रमों की झलकियां')}
       />
 
-      <section
-        className="px-4 py-16"
-        style={{ background: "var(--bg-page)" }}
-      >
-        <div className="mx-auto max-w-6xl">
-          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-            {galleryImages.map((image) => (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 max-w-6xl mx-auto">
+            {images.map((image, index) => (
               <div
-                key={image.src}
-                className="group mb-4 break-inside-avoid overflow-hidden rounded-lg"
-                style={{
-                  backgroundColor: "var(--surface-primary)",
-                  border: "1px solid var(--border-primary)",
-                }}
+                key={index}
+                className="mb-4 break-inside-avoid overflow-hidden rounded-lg group cursor-pointer"
               >
-                <div className="overflow-hidden">
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={600}
-                    height={400}
-                    className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-                <div className="px-3 py-2">
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {image.alt}
-                  </p>
-                </div>
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  width={600}
+                  height={400}
+                  className="w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
             ))}
           </div>

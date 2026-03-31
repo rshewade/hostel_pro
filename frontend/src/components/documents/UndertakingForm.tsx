@@ -2,11 +2,11 @@
 
 import { forwardRef, useState } from 'react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Checkbox } from '../forms/Checkbox';
 import { Input } from '../forms/Input';
 import { Textarea } from '../forms/Textarea';
-import { Badge } from '../ui/Badge';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { 
   AlertCircle, 
   CheckCircle2,

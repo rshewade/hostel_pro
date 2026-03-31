@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 import { Table } from '@/components/data/Table';
 import { Modal } from '@/components/feedback/Modal';
 import { Spinner } from '@/components/feedback/Spinner';
 import type { TableColumn } from '@/components/types';
 import { cn } from '@/components/utils';
 import { CalendarDays, Video, MapPin, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type InterviewStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED' | 'CANCELLED';
 type InterviewMode = 'ONLINE' | 'PHYSICAL';
@@ -41,6 +42,7 @@ interface EvaluationForm {
 }
 
 export default function TrusteeInterviews() {
+  const { t } = useLanguage();
   const [selectedStatus, setSelectedStatus] = useState<InterviewStatus | 'ALL'>('ALL');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -281,7 +283,7 @@ export default function TrusteeInterviews() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
         <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>
-          Loading interviews...
+          {t('Loading interviews...', 'साक्षात्कार लोड हो रहे हैं...')}
         </span>
       </div>
     );
@@ -305,10 +307,10 @@ export default function TrusteeInterviews() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Interviews
+            {t('Interviews', 'साक्षात्कार')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Manage interview schedules and evaluations
+            {t('Manage interview schedules and evaluations', 'साक्षात्कार अनुसूची और मूल्यांकन प्रबंधित करें')}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={fetchInterviews}>
@@ -327,7 +329,7 @@ export default function TrusteeInterviews() {
               <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {interviews.filter((i) => i.status === 'SCHEDULED').length}
               </p>
-              <p className="text-sm text-gray-500">Scheduled</p>
+              <p className="text-sm text-gray-500">{t('Scheduled', 'निर्धारित')}</p>
             </div>
           </div>
         </div>
@@ -340,7 +342,7 @@ export default function TrusteeInterviews() {
               <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {interviews.filter((i) => i.status === 'COMPLETED').length}
               </p>
-              <p className="text-sm text-gray-500">Completed</p>
+              <p className="text-sm text-gray-500">{t('Completed', 'पूर्ण')}</p>
             </div>
           </div>
         </div>
@@ -353,7 +355,7 @@ export default function TrusteeInterviews() {
               <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {interviews.filter((i) => i.status === 'MISSED' || i.status === 'CANCELLED').length}
               </p>
-              <p className="text-sm text-gray-500">Missed/Cancelled</p>
+              <p className="text-sm text-gray-500">{t('Missed/Cancelled', 'छूटा/रद्द')}</p>
             </div>
           </div>
         </div>
@@ -366,7 +368,7 @@ export default function TrusteeInterviews() {
               <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {interviews.length}
               </p>
-              <p className="text-sm text-gray-500">Total</p>
+              <p className="text-sm text-gray-500">{t('Total', 'कुल')}</p>
             </div>
           </div>
         </div>
@@ -427,8 +429,8 @@ export default function TrusteeInterviews() {
       {filteredInterviews.length === 0 ? (
         <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <CalendarDays className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 mb-2">No interviews found</p>
-          <p className="text-sm text-gray-500">Schedule interviews from the Applications page.</p>
+          <p className="text-gray-600 mb-2">{t('No interviews found', 'कोई साक्षात्कार नहीं मिला')}</p>
+          <p className="text-sm text-gray-500">{t('Schedule interviews from the Applications page.', 'आवेदन पृष्ठ से साक्षात्कार निर्धारित करें।')}</p>
         </div>
       ) : (
         <Table<Interview>
@@ -555,7 +557,7 @@ export default function TrusteeInterviews() {
 
             <div className="flex gap-3 pt-4 border-t">
               <Button variant="primary" onClick={handleSaveEvaluation} loading={isSavingEvaluation}>
-                Save Evaluation
+                {t('Save Evaluation', 'मूल्यांकन सहेजें')}
               </Button>
               <Button
                 variant="secondary"
@@ -564,7 +566,7 @@ export default function TrusteeInterviews() {
                   setSelectedInterview(null);
                 }}
               >
-                Cancel
+                {t('Cancel', 'रद्द करें')}
               </Button>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Container, Grid, Col, Stack } from '@/components/layout';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Input } from '@/components/forms/Input';
 import { Select } from '@/components/forms/Select';
 import { Checkbox } from '@/components/forms/Checkbox';

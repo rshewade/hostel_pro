@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { Spinner } from '@/components/feedback/Spinner';
 import { TrusteeStatsCard } from './_components';
 import { FileText, CalendarDays, BedDouble, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DashboardStats {
   pendingApplications: number;
@@ -26,6 +27,7 @@ interface RecentActivity {
 }
 
 export default function TrusteeOverview() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +119,7 @@ export default function TrusteeOverview() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
         <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>
-          Loading dashboard...
+          {t('Loading dashboard...', 'डैशबोर्ड लोड हो रहा है...')}
         </span>
       </div>
     );
@@ -129,12 +131,12 @@ export default function TrusteeOverview() {
         <div className="flex items-center gap-3">
           <AlertCircle className="w-6 h-6 text-red-600" />
           <div>
-            <p className="font-medium text-red-700">Error loading dashboard</p>
+            <p className="font-medium text-red-700">{t('Error loading dashboard', 'डैशबोर्ड लोड करने में त्रुटि')}</p>
             <p className="text-sm text-red-600">{error}</p>
           </div>
         </div>
         <Button variant="secondary" size="sm" className="mt-4" onClick={fetchDashboardData}>
-          Retry
+          {t('Retry', 'पुनः प्रयास करें')}
         </Button>
       </div>
     );
@@ -145,41 +147,41 @@ export default function TrusteeOverview() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-          Trustee Dashboard
+          {t('Trustee Dashboard', 'ट्रस्टी डैशबोर्ड')}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-          Overview of applications, interviews, and allocations
+          {t('Overview of applications, interviews, and allocations', 'आवेदन, साक्षात्कार, और आवंटन का अवलोकन')}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <TrusteeStatsCard
-          title="Pending Applications"
+          title={t('Pending Applications', 'लंबित आवेदन')}
           value={stats.pendingApplications}
-          subtitle="Awaiting review"
+          subtitle={t('Awaiting review', 'समीक्षा की प्रतीक्षा')}
           icon={FileText}
           variant="warning"
           onClick={() => router.push('/dashboard/trustee/applications')}
         />
         <TrusteeStatsCard
-          title="Scheduled Interviews"
+          title={t('Scheduled Interviews', 'निर्धारित साक्षात्कार')}
           value={stats.scheduledInterviews}
-          subtitle="This week"
+          subtitle={t('This week', 'इस सप्ताह')}
           icon={CalendarDays}
           variant="primary"
           onClick={() => router.push('/dashboard/trustee/interviews')}
         />
         <TrusteeStatsCard
-          title="Pending Allocations"
+          title={t('Pending Allocations', 'लंबित आवंटन')}
           value={stats.pendingAllocations}
-          subtitle="Approved, awaiting room"
+          subtitle={t('Approved, awaiting room', 'स्वीकृत, कमरे की प्रतीक्षा')}
           icon={BedDouble}
           variant="success"
           onClick={() => router.push('/dashboard/trustee/allocations')}
         />
         <TrusteeStatsCard
-          title="Approved This Month"
+          title={t('Approved This Month', 'इस महीने स्वीकृत')}
           value={stats.approvedThisMonth}
           subtitle={`${stats.rejectedThisMonth} rejected`}
           icon={CheckCircle}
@@ -191,7 +193,7 @@ export default function TrusteeOverview() {
       {/* Quick Actions */}
       <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Quick Actions
+          {t('Quick Actions', 'त्वरित कार्रवाई')}
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
           <Button
@@ -200,7 +202,7 @@ export default function TrusteeOverview() {
             onClick={() => router.push('/dashboard/trustee/applications')}
           >
             <FileText className="w-4 h-4 mr-2" />
-            Review Applications
+            {t('Review Applications', 'आवेदन समीक्षा करें')}
           </Button>
           <Button
             variant="secondary"
@@ -208,7 +210,7 @@ export default function TrusteeOverview() {
             onClick={() => router.push('/dashboard/trustee/interviews')}
           >
             <CalendarDays className="w-4 h-4 mr-2" />
-            Manage Interviews
+            {t('Manage Interviews', 'साक्षात्कार प्रबंधित करें')}
           </Button>
           <Button
             variant="secondary"
@@ -216,7 +218,7 @@ export default function TrusteeOverview() {
             onClick={() => router.push('/dashboard/trustee/allocations')}
           >
             <BedDouble className="w-4 h-4 mr-2" />
-            Allocate Rooms
+            {t('Allocate Rooms', 'कमरे आवंटित करें')}
           </Button>
         </div>
       </div>
@@ -224,10 +226,10 @@ export default function TrusteeOverview() {
       {/* Recent Activity */}
       <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Recent Activity
+          {t('Recent Activity', 'हाल की गतिविधि')}
         </h2>
         {recentActivities.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No recent activity</p>
+          <p className="text-gray-500 text-center py-8">{t('No recent activity', 'कोई हाल की गतिविधि नहीं')}</p>
         ) : (
           <div className="space-y-3">
             {recentActivities.map((activity) => (
@@ -291,7 +293,7 @@ export default function TrusteeOverview() {
                 className="mt-3"
                 onClick={() => router.push('/dashboard/trustee/applications')}
               >
-                Review Now
+                {t('Review Now', 'अभी समीक्षा करें')}
               </Button>
             </div>
           </div>

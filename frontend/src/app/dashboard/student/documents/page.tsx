@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components';
 import { Card } from '@/components/data/Card';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { FileText, Download, Eye, Upload, AlertCircle, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type DocumentCategory = 'IDENTITY' | 'ADMISSION' | 'UNDERTAKING' | 'RECEIPT';
 
@@ -32,6 +33,7 @@ const DOCUMENT_TYPES = [
 ];
 
 export default function StudentDocumentsPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<DocumentCategory | 'ALL'>('ALL');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -217,10 +219,10 @@ export default function StudentDocumentsPage() {
 
   const getCategoryLabel = (cat: DocumentCategory) => {
     switch (cat) {
-      case 'IDENTITY': return 'Identity Proofs';
-      case 'ADMISSION': return 'Admission Docs';
-      case 'UNDERTAKING': return 'Undertakings';
-      case 'RECEIPT': return 'Fee Receipts';
+      case 'IDENTITY': return t('Identity Proofs', 'पहचान प्रमाण');
+      case 'ADMISSION': return t('Admission Docs', 'प्रवेश दस्तावेज़');
+      case 'UNDERTAKING': return t('Undertakings', 'शपथ पत्र');
+      case 'RECEIPT': return t('Fee Receipts', 'शुल्क रसीदें');
       default: return cat;
     }
   };
@@ -241,12 +243,12 @@ export default function StudentDocumentsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Documents</h1>
-            <p className="text-gray-600">View and manage your official hostel documents</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('My Documents', 'मेरे दस्तावेज़')}</h1>
+            <p className="text-gray-600">{t('View and manage your official hostel documents', 'अपने आधिकारिक छात्रावास दस्तावेज़ देखें और प्रबंधित करें')}</p>
           </div>
           <Button variant="primary" size="md" onClick={openUploadModal}>
             <Upload className="w-4 h-4 mr-2" />
-            Upload New Document
+            {t('Upload New Document', 'नया दस्तावेज़ अपलोड करें')}
           </Button>
         </div>
 
@@ -262,7 +264,7 @@ export default function StudentDocumentsPage() {
                   : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
               }`}
             >
-              {tab === 'ALL' ? 'All Documents' : getCategoryLabel(tab as DocumentCategory)}
+              {tab === 'ALL' ? t('All Documents', 'सभी दस्तावेज़') : getCategoryLabel(tab as DocumentCategory)}
             </button>
           ))}
         </div>
@@ -270,20 +272,20 @@ export default function StudentDocumentsPage() {
         {/* Documents Grid */}
         {isLoading ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">Loading documents...</p>
+            <p className="text-gray-500">{t('Loading documents...', 'दस्तावेज़ लोड हो रहे हैं...')}</p>
           </div>
         ) : filteredDocuments.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Documents Found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('No Documents Found', 'कोई दस्तावेज़ नहीं मिला')}</h3>
             <p className="text-gray-500 mb-4">
               {activeTab === 'ALL'
-                ? "You haven't uploaded any documents yet."
-                : `No ${getCategoryLabel(activeTab as DocumentCategory).toLowerCase()} found.`}
+                ? t("You haven't uploaded any documents yet.", "आपने अभी तक कोई दस्तावेज़ अपलोड नहीं किया है।")
+                : t(`No ${getCategoryLabel(activeTab as DocumentCategory).toLowerCase()} found.`, `कोई ${getCategoryLabel(activeTab as DocumentCategory)} नहीं मिला।`)}
             </p>
             <Button variant="primary" size="sm" onClick={openUploadModal}>
               <Upload className="w-4 h-4 mr-2" />
-              Upload Document
+              {t('Upload Document', 'दस्तावेज़ अपलोड करें')}
             </Button>
           </div>
         ) : (
@@ -333,9 +335,9 @@ export default function StudentDocumentsPage() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
           <div>
-            <h4 className="font-medium text-yellow-900">Missing Required Documents</h4>
+            <h4 className="font-medium text-yellow-900">{t('Missing Required Documents', 'आवश्यक दस्तावेज़ अनुपलब्ध')}</h4>
             <p className="text-sm text-yellow-800 mt-1">
-              Please upload your updated <strong>Income Certificate</strong> before the next renewal cycle (July 2025).
+              {t('Please upload your updated Income Certificate before the next renewal cycle (July 2025).', 'कृपया अगले नवीनीकरण चक्र (जुलाई 2025) से पहले अपना अपडेट किया हुआ आय प्रमाण पत्र अपलोड करें।')}
             </p>
           </div>
         </div>
@@ -346,7 +348,7 @@ export default function StudentDocumentsPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Upload Document</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('Upload Document', 'दस्तावेज़ अपलोड करें')}</h2>
               <button
                 onClick={() => setShowUploadModal(false)}
                 className="p-1 hover:bg-gray-100 rounded"
@@ -365,14 +367,14 @@ export default function StudentDocumentsPage() {
               {/* Document Type Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Document Type *
+                  {t('Document Type', 'दस्तावेज़ प्रकार')} *
                 </label>
                 <select
                   value={selectedDocType}
                   onChange={(e) => setSelectedDocType(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">Select document type</option>
+                  <option value="">{t('Select document type', 'दस्तावेज़ प्रकार चुनें')}</option>
                   {DOCUMENT_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
                       {type.label}
@@ -384,7 +386,7 @@ export default function StudentDocumentsPage() {
               {/* File Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Select File *
+                  {t('Select File', 'फ़ाइल चुनें')} *
                 </label>
                 <input
                   ref={fileInputRef}
@@ -408,8 +410,8 @@ export default function StudentDocumentsPage() {
                   ) : (
                     <div>
                       <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Click to select a file</p>
-                      <p className="text-xs text-gray-500 mt-1">PDF, JPG, PNG (max 5MB)</p>
+                      <p className="text-sm text-gray-600">{t('Click to select a file', 'फ़ाइल चुनने के लिए क्लिक करें')}</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('PDF, JPG, PNG (max 5MB)', 'PDF, JPG, PNG (अधिकतम 5MB)')}</p>
                     </div>
                   )}
                 </div>
@@ -423,7 +425,7 @@ export default function StudentDocumentsPage() {
                 disabled={uploading}
                 className="flex-1"
               >
-                Cancel
+                {t('Cancel', 'रद्द करें')}
               </Button>
               <Button
                 variant="primary"
@@ -431,7 +433,7 @@ export default function StudentDocumentsPage() {
                 disabled={!selectedFile || !selectedDocType || uploading}
                 className="flex-1"
               >
-                {uploading ? 'Uploading...' : 'Upload'}
+                {uploading ? t('Uploading...', 'अपलोड हो रहा है...') : t('Upload', 'अपलोड')}
               </Button>
             </div>
           </div>

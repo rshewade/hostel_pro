@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { cn } from '../utils';
-import { Badge, type BadgeVariant } from '../ui/Badge';
-import { Button } from '../ui/Button';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 
 export type MessageStatus = 'SENT' | 'PENDING' | 'FAILED' | 'SCHEDULED' | 'DELIVERED' | 'READ';
 

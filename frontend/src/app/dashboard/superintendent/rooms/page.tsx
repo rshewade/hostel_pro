@@ -5,6 +5,7 @@ import { Button } from '@/components';
 import { Select } from '@/components/forms/Select';
 import { SearchField } from '@/components/forms/SearchField';
 import AllocationModal from '@/components/AllocationModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 type RoomStatus = 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'MAINTENANCE';
@@ -35,6 +36,7 @@ type Student = {
 };
 
 export default function RoomAllocationPage() {
+  const { t } = useLanguage();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,10 +127,10 @@ export default function RoomAllocationPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-heading-1 mb-2" style={{ color: 'var(--text-primary)' }}>
-          Room Allocation Matrix
+          {t('Room Allocation Matrix', 'कमरा आवंटन मैट्रिक्स')}
         </h1>
         <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
-          Manage room allocations across all verticals
+          {t('Manage room allocations across all verticals', 'सभी वर्टिकल में कमरा आवंटन प्रबंधित करें')}
         </p>
       </div>
 
@@ -186,11 +188,11 @@ export default function RoomAllocationPage() {
         <div className={showDetailPanel ? 'lg:col-span-2' : 'lg:col-span-3'}>
           {loading ? (
             <div className="text-center py-12">
-              <p style={{ color: 'var(--text-secondary)' }}>Loading rooms...</p>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('Loading rooms...', 'कमरे लोड हो रहे हैं...')}</p>
             </div>
           ) : Object.keys(roomsByFloor).length === 0 ? (
             <div className="text-center py-12">
-              <p style={{ color: 'var(--text-secondary)' }}>No rooms found</p>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('No rooms found', 'कोई कमरा नहीं मिला')}</p>
             </div>
           ) : (
             <div className="space-y-6">

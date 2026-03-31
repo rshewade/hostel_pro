@@ -3,7 +3,7 @@
 import React from 'react';
 import { Calendar, User, Home, Clock, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ExitRequestSummary, ClearanceOwnerRole } from './types';
 
 interface ExitRequestCardProps {

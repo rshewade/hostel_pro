@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { RenewalCard } from '@/components/renewal/RenewalCard';
 import { RenewalStatusTracker, RenewalStatus } from '@/components/renewal/RenewalStatusTracker';
 import { InfoReviewStep } from '@/components/renewal/InfoReviewStep';
@@ -45,6 +46,7 @@ const STEPS = [
 ];
 
 export default function StudentRenewalPage() {
+  const { t } = useLanguage();
   const [currentStatus, setCurrentStatus] = useState<RenewalStatus>('IN_PROGRESS');
   const [renewalCompleted, setRenewalCompleted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -63,7 +65,7 @@ export default function StudentRenewalPage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  6-Month Stay Renewal
+                  {t('6-Month Stay Renewal', '6 महीने का रहने का नवीनीकरण')}
                 </h1>
                 <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
                   Boys Hostel
@@ -76,10 +78,10 @@ export default function StudentRenewalPage() {
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
               <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                Renewal Submitted Successfully!
+                {t('Renewal Submitted Successfully!', 'नवीनीकरण सफलतापूर्वक जमा हो गया!')}
               </h1>
               <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-                Your renewal application has been submitted and is now under review.
+                {t('Your renewal application has been submitted and is now under review.', 'आपका नवीनीकरण आवेदन जमा कर दिया गया है और अब समीक्षाधीन है।')}
               </p>
             </div>
 
@@ -93,7 +95,7 @@ export default function StudentRenewalPage() {
 
             <div className="card p-6 mb-6">
               <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-                What's Next?
+                {t("What's Next?", 'आगे क्या?')}
               </h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -101,9 +103,9 @@ export default function StudentRenewalPage() {
                     <span className="text-sm font-medium text-blue-600">1</span>
                   </div>
                   <div>
-                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Application Under Review</p>
+                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('Application Under Review', 'आवेदन समीक्षाधीन')}</p>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      Your application is being reviewed by the superintendent
+                      {t('Your application is being reviewed by the superintendent', 'आपका आवेदन अधीक्षक द्वारा समीक्षा किया जा रहा है')}
                     </p>
                   </div>
                 </div>
@@ -112,9 +114,9 @@ export default function StudentRenewalPage() {
                     <span className="text-sm font-medium text-gray-600">2</span>
                   </div>
                   <div>
-                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Decision Notification</p>
+                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('Decision Notification', 'निर्णय सूचना')}</p>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      You will receive an SMS/WhatsApp notification once a decision is made
+                      {t('You will receive an SMS/WhatsApp notification once a decision is made', 'निर्णय लिए जाने पर आपको SMS/WhatsApp सूचना प्राप्त होगी')}
                     </p>
                   </div>
                 </div>
@@ -123,9 +125,9 @@ export default function StudentRenewalPage() {
                     <span className="text-sm font-medium text-gray-600">3</span>
                   </div>
                   <div>
-                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>View Status Online</p>
+                    <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('View Status Online', 'ऑनलाइन स्थिति देखें')}</p>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      Track your application status anytime on this page
+                      {t('Track your application status anytime on this page', 'इस पृष्ठ पर किसी भी समय अपने आवेदन की स्थिति ट्रैक करें')}
                     </p>
                   </div>
                 </div>
@@ -141,7 +143,7 @@ export default function StudentRenewalPage() {
 
             <div className="flex justify-center">
               <Button variant="secondary" onClick={() => window.location.href = '/dashboard/student'}>
-                Return to Dashboard
+                {t('Return to Dashboard', 'डैशबोर्ड पर वापस जाएं')}
               </Button>
             </div>
           </div>
@@ -157,7 +159,7 @@ export default function StudentRenewalPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                6-Month Stay Renewal
+                {t('6-Month Stay Renewal', '6 महीने का रहने का नवीनीकरण')}
               </h1>
               <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
                 Boys Hostel | 2025-26 | SEMESTER 1

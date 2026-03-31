@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Input } from '../../components/forms/Input';
-import { Button } from '../../components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { cn } from '../../components/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TrackingPage() {
+  const { t } = useLanguage();
   const [trackingId, setTrackingId] = useState('');
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'input' | 'otp' | 'loading'>('input');
@@ -145,13 +147,12 @@ export default function TrackingPage() {
               className="h-12 w-auto"
             />
             <div>
-              <h1 className="text-lg font-semibold">Hirachand Gumanji Family</h1>
-              <p className="text-caption">Charitable Trust</p>
+              <h1 className="text-lg font-semibold">{t('Hirachand Gumanji Family', 'हीराचंद गुमानजी परिवार')}</h1>
+              <p className="text-caption">{t('Charitable Trust', 'चैरिटेबल ट्रस्ट')}</p>
             </div>
           </div>
           <Link href="/" className="text-sm text-blue-600 hover:underline">
-            ← Back to Home
-          </Link>
+            {t('← Back to Home', '← होम पर वापस')}</Link>
         </div>
       </header>
 
@@ -160,33 +161,33 @@ export default function TrackingPage() {
         <div className="mx-auto max-w-md">
           <div className="bg-white rounded-lg shadow-md p-8">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2">Track Your Application</h2>
-              <p className="text-gray-600">Enter your tracking ID and mobile number to view your application status</p>
+              <h2 className="text-2xl font-bold mb-2">{t('Track Your Application', 'अपना आवेदन ट्रैक करें')}</h2>
+              <p className="text-gray-600">{t('Enter your tracking ID and mobile number to view your application status', 'अपने आवेदन की स्थिति देखने के लिए ट्रैकिंग आईडी और मोबाइल नंबर दर्ज करें')}</p>
             </div>
 
             {step === 'input' && (
               <form onSubmit={handleTrackingSubmit} className="space-y-6">
                 <Input
                   id="trackingId"
-                  label="Tracking ID"
+                  label={t('Tracking ID', 'ट्रैकिंग आईडी')}
                   type="text"
                   placeholder="e.g., BH2024001"
                   value={trackingId}
                   onChange={(e) => setTrackingId(e.target.value.toUpperCase())}
                   required
-                  helperText="Enter the tracking number from your application confirmation"
+                  helperText={t('Enter the tracking number from your application confirmation', 'अपने आवेदन की पुष्टि से ट्रैकिंग नंबर दर्ज करें')}
                   autoFocus
                 />
 
                 <Input
                   id="mobile"
-                  label="Mobile Number"
+                  label={t('Mobile Number', 'मोबाइल नंबर')}
                   type="tel"
                   placeholder="+91XXXXXXXXXX"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
                   required
-                  helperText="Enter the mobile number used during application"
+                  helperText={t('Enter the mobile number used during application', 'आवेदन के दौरान उपयोग किया गया मोबाइल नंबर दर्ज करें')}
                 />
 
                 {error && (
@@ -196,8 +197,7 @@ export default function TrackingPage() {
                 )}
 
                 <Button type="submit" className="w-full">
-                  Continue
-                </Button>
+                  {t('Continue', 'आगे बढ़ें')}</Button>
               </form>
             )}
 
@@ -205,7 +205,7 @@ export default function TrackingPage() {
               <form onSubmit={handleOtpSubmit} className="space-y-6">
                 <Input
                   id="otp"
-                  label="Enter OTP"
+                  label={t('Enter OTP', 'ओटीपी दर्ज करें')}
                   type="text"
                   inputMode="numeric"
                   placeholder="000000"
@@ -223,8 +223,7 @@ export default function TrackingPage() {
                 )}
 
                 <Button type="submit" className="w-full">
-                  Verify OTP
-                </Button>
+                  {t('Verify OTP', 'ओटीपी सत्यापित करें')}</Button>
 
                 <div className="text-center">
                   <button
@@ -245,7 +244,7 @@ export default function TrackingPage() {
             {step === 'loading' && (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Processing...</p>
+                <p className="mt-4 text-gray-600">{t('Processing...', 'प्रोसेसिंग...')}</p>
               </div>
             )}
           </div>
@@ -257,7 +256,7 @@ export default function TrackingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Secure Tracking</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">{t('Secure Tracking', 'सुरक्षित ट्रैकिंग')}</h4>
                   <p className="text-sm text-gray-600">
                     Your tracking ID and mobile number are used only to verify your identity and retrieve your application status.
                     All data transmission is encrypted and complies with DPDP Act, 2023.

@@ -7,12 +7,13 @@ import { Select, type SelectOption } from '@/components/forms/Select';
 import { Toggle } from '@/components/forms/Toggle';
 import { Checkbox } from '@/components/forms/Checkbox';
 import { Textarea } from '@/components/forms/Textarea';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Chip } from '@/components/ui/Chip';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { Chip } from '@/components/shadcn/chip';
 import { Modal } from '@/components/feedback/Modal';
 import { Spinner } from '@/components/feedback/Spinner';
 import { cn } from '@/components/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
@@ -51,6 +52,7 @@ interface NotificationRule {
 }
 
 export default function SuperintendentConfig() {
+  const { t } = useLanguage();
   const [selectedTab, setSelectedTab] = useState<'leave' | 'notification'>('leave');
   const [selectedVertical] = useState<Vertical | 'ALL'>('ALL');
 
@@ -307,7 +309,7 @@ export default function SuperintendentConfig() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-gray-500">Loading configuration...</p>
+          <p className="mt-4 text-gray-500">{t('Loading configuration...', 'विन्यास लोड हो रहा है...')}</p>
         </div>
       </div>
     );
@@ -332,10 +334,10 @@ export default function SuperintendentConfig() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Settings
+            {t('Settings', 'सेटिंग्स')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Configure leave policies, notifications, and blackout dates
+            {t('Configure leave policies, notifications, and blackout dates', 'अवकाश नीतियां, सूचनाएं, और ब्लैकआउट तिथियां कॉन्फ़िगर करें')}
           </p>
         </div>
         <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
@@ -359,7 +361,7 @@ export default function SuperintendentConfig() {
             }}
             onClick={() => setSelectedTab('leave')}
           >
-            Leave Configuration
+            {t('Leave Configuration', 'अवकाश विन्यास')}
           </button>
           <button
             className={cn(
@@ -374,7 +376,7 @@ export default function SuperintendentConfig() {
             }}
             onClick={() => setSelectedTab('notification')}
           >
-            Parent Notification Rules
+            {t('Parent Notification Rules', 'अभिभावक सूचना नियम')}
           </button>
         </div>
       </nav>
@@ -388,10 +390,10 @@ export default function SuperintendentConfig() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    Leave Types
+                    {t('Leave Types', 'अवकाश प्रकार')}
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    Configure different types of leaves with approval rules and duration limits
+                    {t('Configure different types of leaves with approval rules and duration limits', 'अनुमोदन नियमों और अवधि सीमाओं के साथ विभिन्न प्रकार के अवकाश कॉन्फ़िगर करें')}
                   </p>
                 </div>
                 <Button
@@ -407,7 +409,7 @@ export default function SuperintendentConfig() {
                     active: true
                   })}
                 >
-                  Add Leave Type
+                  {t('Add Leave Type', 'अवकाश प्रकार जोड़ें')}
                 </Button>
               </div>
 
@@ -501,10 +503,10 @@ export default function SuperintendentConfig() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    Blackout Dates
+                    {t('Blackout Dates', 'ब्लैकआउट तिथियां')}
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    Periods when leaves are not allowed (e.g., exam periods, festivals)
+                    {t('Periods when leaves are not allowed (e.g., exam periods, festivals)', 'वे अवधि जब अवकाश की अनुमति नहीं है (जैसे, परीक्षा अवधि, त्योहार)')}
                   </p>
                 </div>
                 <Button
@@ -519,7 +521,7 @@ export default function SuperintendentConfig() {
                     reason: ''
                   })}
                 >
-                  Add Blackout Period
+                  {t('Add Blackout Period', 'ब्लैकआउट अवधि जोड़ें')}
                 </Button>
               </div>
 

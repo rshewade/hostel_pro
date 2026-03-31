@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Calendar, MapPin, Phone, Mail, MessageSquare, AlertCircle } from 'lucide-react';
 import { cn } from '../utils';
 import { ExitStatus } from './ExitStatusBadge';

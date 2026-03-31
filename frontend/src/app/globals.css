@@ -270,6 +270,37 @@
   /* Legacy support */
   --background: var(--bg-page);
   --foreground: var(--text-primary);
+
+  /* --------------------------------------------------------------------------
+     SHADCN/UI COMPATIBILITY VARIABLES (HSL triplets for Radix components)
+     Used as: hsl(var(--primary)) in shadcn component classNames
+     -------------------------------------------------------------------------- */
+  --primary: 215 55% 32%;
+  --primary-foreground: 45 30% 98%;
+  --secondary: 43 65% 50%;
+  --secondary-foreground: 215 50% 15%;
+  --muted: 45 20% 94%;
+  --muted-foreground: 215 25% 45%;
+  --accent: 40 70% 55%;
+  --accent-foreground: 215 50% 15%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 50% 20%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 50% 20%;
+  --border: 215 20% 88%;
+  --input: 215 20% 88%;
+  --ring: 215 55% 32%;
+  --radius: 0.75rem;
+
+  /* Custom Gradients */
+  --gradient-hero: linear-gradient(135deg, hsl(215 55% 32%) 0%, hsl(215 45% 45%) 100%);
+  --gradient-cta: linear-gradient(135deg, hsl(43 65% 50%) 0%, hsl(40 70% 45%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(43 65% 55%) 0%, hsl(40 70% 50%) 100%);
+
+  /* Elegant Shadows */
+  --shadow-elegant: 0 10px 40px -10px hsl(215 55% 32% / 0.15);
 }
 
 /* ==========================================================================
@@ -312,10 +343,35 @@
   --color-surface-secondary: var(--surface-secondary);
   --color-surface-elevated: var(--surface-elevated);
 
+  /* shadcn/ui semantic colors (HSL-based for Radix components) */
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
   /* Typography */
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --font-heading: 'Playfair Display', 'Noto Sans Devanagari', serif;
+
+  /* Border radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
 /* ==========================================================================
@@ -561,4 +617,67 @@ body {
 
 .animate-slide-in-left {
   animation: slide-in-left var(--transition-slow) ease-out;
+}
+
+/* Fade In */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Float */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Gradient Utilities */
+.bg-gradient-hero {
+  background: var(--gradient-hero);
+}
+
+.bg-gradient-cta {
+  background: var(--gradient-cta);
+}
+
+.bg-gradient-accent {
+  background: var(--gradient-accent);
+}
+
+/* Elegant Shadow */
+.shadow-elegant {
+  box-shadow: var(--shadow-elegant);
+}
+
+/* Font Utilities */
+.font-heading {
+  font-family: 'Playfair Display', 'Noto Sans Devanagari', serif;
+}
+
+.font-body {
+  font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+}
+
+/* shadcn/ui base border color */
+.border-border {
+  border-color: hsl(var(--border));
 }

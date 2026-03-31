@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Shield, RefreshCw, Phone, Mail, Clock } from 'lucide-react';
 import { Input } from '@/components/forms/Input';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ContactOTPPage() {
+  const { t } = useLanguage();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [contactMethod, setContactMethod] = useState<'phone' | 'email'>('phone');
@@ -106,16 +108,16 @@ export default function ContactOTPPage() {
                 className="text-lg font-semibold"
                 style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}
               >
-                Boys Hostel Application
+                {t('Boys Hostel Application', 'बालक छात्रावास आवेदन')}
               </h1>
-              <p className="text-caption">Step 2 of 4</p>
+              <p className="text-caption">{t('Step 2 of 4', 'चरण 2 का 4')}</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link">Apply Now</Link>
-            <Link href="/check-status" className="nav-link">Check Status</Link>
-            <Link href="/login" className="nav-link">Login</Link>
+            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+            <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+            <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
           </nav>
         </div>
       </header>
@@ -133,7 +135,7 @@ export default function ContactOTPPage() {
                   1
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  Select Vertical
+                  {t('Select Vertical', 'श्रेणी चुनें')}
                 </span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
@@ -174,7 +176,7 @@ export default function ContactOTPPage() {
               </div>
             </div>
             <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              <span>Step 2 of 4</span>
+              <span>{t('Step 2 of 4', 'चरण 2 का 4')}</span>
             </div>
           </div>
         </div>
@@ -188,7 +190,7 @@ export default function ContactOTPPage() {
               Verify Your Identity
             </h2>
             <p className="text-lg mb-8" style={{ color: "var(--text-secondary)" }}>
-              We'll send a One-Time Password (OTP) to verify your contact details
+              {t('We will send a One-Time Password (OTP) to verify your contact details', 'हम आपके संपर्क विवरण सत्यापित करने के लिए एक ओटीपी भेजेंगे')}
             </p>
           </div>
 
@@ -207,9 +209,9 @@ export default function ContactOTPPage() {
                 onClick={() => setContactMethod('phone')}
               >
                 <Phone className="w-8 h-8 mx-auto mb-3" style={{ color: contactMethod === 'phone' ? 'var(--color-blue-600)' : 'var(--color-gray-600)' }} />
-                <h4 className="font-semibold mb-2">Mobile Number</h4>
+                <h4 className="font-semibold mb-2">{t('Mobile Number', 'मोबाइल नंबर')}</h4>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Fast and secure OTP verification via SMS
+                  {t('Fast and secure OTP verification via SMS', 'एसएमएस द्वारा तेज़ और सुरक्षित ओटीपी सत्यापन')}
                 </p>
               </button>
               
@@ -222,9 +224,9 @@ export default function ContactOTPPage() {
                 onClick={() => setContactMethod('email')}
               >
                 <Mail className="w-8 h-8 mx-auto mb-3" style={{ color: contactMethod === 'email' ? 'var(--color-blue-600)' : 'var(--color-gray-600)' }} />
-                <h4 className="font-semibold mb-2">Email Address</h4>
+                <h4 className="font-semibold mb-2">{t('Email Address', 'ईमेल पता')}</h4>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Receive OTP via email verification
+                  {t('Receive OTP via email verification', 'ईमेल सत्यापन द्वारा ओटीपी प्राप्त करें')}
                 </p>
               </button>
             </div>
@@ -234,14 +236,14 @@ export default function ContactOTPPage() {
               <div className="mb-6">
                 <Input
                   type="tel"
-                  label="Mobile Number"
+                  label={t('Mobile Number', 'मोबाइल नंबर')}
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter 10-digit mobile number"
+                  placeholder={t('Enter 10-digit mobile number', '10 अंकों का मोबाइल नंबर दर्ज करें')}
                   size="lg"
                   leftIcon={<Phone className="w-5 h-5" />}
                   error={errors.some(e => e.includes('phone') || e.includes('Phone')) ? errors.find(e => e.includes('phone') || e.includes('Phone')) : undefined}
-                  helperText="We'll send a 6-digit OTP to this number"
+                  helperText={t("We'll send a 6-digit OTP to this number", "हम इस नंबर पर 6 अंकों का ओटीपी भेजेंगे")}
                 />
               </div>
             )}
@@ -250,14 +252,14 @@ export default function ContactOTPPage() {
               <div className="mb-6">
                 <Input
                   type="email"
-                  label="Email Address"
+                  label={t('Email Address', 'ईमेल पता')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
+                  placeholder={t('Enter your email address', 'अपना ईमेल पता दर्ज करें')}
                   size="lg"
                   leftIcon={<Mail className="w-5 h-5" />}
                   error={errors.some(e => e.includes('email') || e.includes('Email')) ? errors.find(e => e.includes('email') || e.includes('Email')) : undefined}
-                  helperText="We'll send a 6-digit OTP to this email"
+                  helperText={t("We'll send a 6-digit OTP to this email", "हम इस ईमेल पर 6 अंकों का ओटीपी भेजेंगे")}
                 />
               </div>
             )}
@@ -330,18 +332,14 @@ export default function ContactOTPPage() {
                       <RefreshCw className="w-4 h-4" />
                       Resend OTP
                     </button>
-                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                      Didn't receive? Check spam folder or try with different contact method
-                    </p>
+                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{t('Didn\'t receive? Check spam folder or try with different contact method', 'प्राप्त नहीं हुआ? स्पैम फोल्डर जांचें या अन्य संपर्क माध्यम आज़माएं')}</p>
                   </div>
                 )}
               </div>
 
               {/* Alternate Contact */}
               <div className="text-center">
-                <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
-                  Having trouble? Contact admissions office directly:
-                </p>
+                <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>{t('Having trouble? Contact admissions office directly:', 'समस्या हो रही है? प्रवेश कार्यालय से सीधे संपर्क करें:')}</p>
                 <Link
                   href="tel:+912224141234"
                   className="text-blue-600 hover:text-blue-800 font-medium"

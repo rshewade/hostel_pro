@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   BookOpen, 
   Wallet, 
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function StudentUserManual() {
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState('overview');
 
   const scrollToSection = (id: string) => {
@@ -27,14 +29,14 @@ export default function StudentUserManual() {
   };
 
   const menuItems = [
-    { id: 'overview', label: 'Overview', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'fees', label: 'Fee Payments', icon: <Wallet className="w-4 h-4" /> },
-    { id: 'room', label: 'Room & Stay', icon: <BedDouble className="w-4 h-4" /> },
-    { id: 'leave', label: 'Leave Management', icon: <CalendarDays className="w-4 h-4" /> },
-    { id: 'documents', label: 'Documents', icon: <FileText className="w-4 h-4" /> },
-    { id: 'renewal', label: 'Stay Renewal', icon: <FileText className="w-4 h-4" /> },
-    { id: 'exit', label: 'Exit Process', icon: <LogOut className="w-4 h-4" /> },
-    { id: 'rules', label: 'Rules & Regulations', icon: <ShieldCheck className="w-4 h-4" /> },
+    { id: 'overview', label: t('Overview', 'अवलोकन'), icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'fees', label: t('Fee Payments', 'शुल्क भुगतान'), icon: <Wallet className="w-4 h-4" /> },
+    { id: 'room', label: t('Room & Stay', 'कमरा और रहना'), icon: <BedDouble className="w-4 h-4" /> },
+    { id: 'leave', label: t('Leave Management', 'अवकाश प्रबंधन'), icon: <CalendarDays className="w-4 h-4" /> },
+    { id: 'documents', label: t('Documents', 'दस्तावेज़'), icon: <FileText className="w-4 h-4" /> },
+    { id: 'renewal', label: t('Stay Renewal', 'रहने का नवीनीकरण'), icon: <FileText className="w-4 h-4" /> },
+    { id: 'exit', label: t('Exit Process', 'निकास प्रक्रिया'), icon: <LogOut className="w-4 h-4" /> },
+    { id: 'rules', label: t('Rules & Regulations', 'नियम और विनियम'), icon: <ShieldCheck className="w-4 h-4" /> },
   ];
 
   return (
@@ -43,10 +45,10 @@ export default function StudentUserManual() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Student User Manual
+              {t('Student User Manual', 'छात्र उपयोगकर्ता मैनुअल')}
             </h1>
             <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Comprehensive guide to using the Hostel Management Portal
+              {t('Comprehensive guide to using the Hostel Management Portal', 'छात्रावास प्रबंधन पोर्टल का उपयोग करने के लिए व्यापक गाइड')}
             </p>
           </div>
 
@@ -82,7 +84,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
                       <BookOpen className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Dashboard Overview</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Dashboard Overview', 'डैशबोर्ड अवलोकन')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -105,7 +107,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-green-100 rounded-lg text-green-600">
                       <Wallet className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Fee Payments</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Fee Payments', 'शुल्क भुगतान')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -133,7 +135,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
                       <BedDouble className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Room & Stay</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Room & Stay', 'कमरा और रहना')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -161,7 +163,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
                       <CalendarDays className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Leave Management</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Leave Management', 'अवकाश प्रबंधन')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -194,7 +196,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-teal-100 rounded-lg text-teal-600">
                       <FileText className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Documents</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Documents', 'दस्तावेज़')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -220,7 +222,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
                       <FileText className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">6-Month Renewal</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('6-Month Renewal', '6 महीने का नवीनीकरण')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -244,7 +246,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-red-100 rounded-lg text-red-600">
                       <LogOut className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Exit Process</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Exit Process', 'निकास प्रक्रिया')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-4">
                     <p>
@@ -268,7 +270,7 @@ export default function StudentUserManual() {
                     <div className="p-2 bg-gray-100 rounded-lg text-gray-600">
                       <ShieldCheck className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Rules & Regulations</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('Rules & Regulations', 'नियम और विनियम')}</h2>
                   </div>
                   <div className="prose max-w-none text-gray-600 space-y-2">
                     <p><strong>General Discipline:</strong></p>

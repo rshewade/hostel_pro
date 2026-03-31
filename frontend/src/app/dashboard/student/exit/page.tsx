@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   ExitRequestForm,
   ExitRequestData,
@@ -18,6 +19,7 @@ import {
 import { ArrowLeft, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 export default function StudentExitPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [currentStatus, setCurrentStatus] = useState<ExitStatus>('DRAFT');
   const [exitRequest, setExitRequest] = useState<Partial<ExitRequestData> | null>(null);
@@ -182,7 +184,7 @@ export default function StudentExitPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading exit request...</p>
+          <p style={{ color: 'var(--text-secondary)' }}>{t('Loading exit request...', 'निकास अनुरोध लोड हो रहा है...')}</p>
         </div>
       </div>
     );
@@ -201,10 +203,10 @@ export default function StudentExitPage() {
               </Button>
               <div>
                 <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  Exit Request
+                  {t('Exit Request', 'निकास अनुरोध')}
                 </h1>
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  Initiate your hostel exit process
+                  {t('Initiate your hostel exit process', 'अपनी छात्रावास निकास प्रक्रिया शुरू करें')}
                 </p>
               </div>
             </div>
@@ -216,9 +218,9 @@ export default function StudentExitPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 border border-blue-200">
               <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-blue-900">Request Submitted</h3>
+                <h3 className="text-sm font-semibold text-blue-900">{t('Request Submitted', 'अनुरोध जमा किया गया')}</h3>
                 <p className="text-sm text-blue-700 mt-1">
-                  Your exit request has been submitted and is awaiting clearance processing. You will be notified when the clearance process begins.
+                  {t('Your exit request has been submitted and is awaiting clearance processing. You will be notified when the clearance process begins.', 'आपका निकास अनुरोध जमा कर दिया गया है और मंजूरी प्रसंस्करण की प्रतीक्षा कर रहा है। मंजूरी प्रक्रिया शुरू होने पर आपको सूचित किया जाएगा।')}
                 </p>
                 {canWithdraw && (
                   <div className="mt-3">
@@ -229,7 +231,7 @@ export default function StudentExitPage() {
                       className="text-red-600 hover:bg-red-50"
                     >
                       <XCircle className="w-4 h-4 mr-1" />
-                      Withdraw Request
+                      {t('Withdraw Request', 'अनुरोध वापस लें')}
                     </Button>
                   </div>
                 )}
@@ -241,9 +243,9 @@ export default function StudentExitPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-yellow-50 border border-yellow-200">
               <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-semibold text-yellow-900">Clearance In Progress</h3>
+                <h3 className="text-sm font-semibold text-yellow-900">{t('Clearance In Progress', 'मंजूरी प्रगति पर है')}</h3>
                 <p className="text-sm text-yellow-700 mt-1">
-                  Your exit clearance is being processed. Please ensure all pending items are completed. You cannot withdraw the request at this stage.
+                  {t('Your exit clearance is being processed. Please ensure all pending items are completed. You cannot withdraw the request at this stage.', 'आपकी निकास मंजूरी संसाधित हो रही है। कृपया सुनिश्चित करें कि सभी लंबित आइटम पूरे हो गए हैं। इस स्तर पर आप अनुरोध वापस नहीं ले सकते।')}
                 </p>
               </div>
             </div>
@@ -253,13 +255,13 @@ export default function StudentExitPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-green-50 border border-green-200">
               <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-semibold text-green-900">Exit Approved</h3>
+                <h3 className="text-sm font-semibold text-green-900">{t('Exit Approved', 'निकास स्वीकृत')}</h3>
                 <p className="text-sm text-green-700 mt-1">
-                  Your exit request has been approved! You can now download your exit certificate and complete the final formalities.
+                  {t('Your exit request has been approved! You can now download your exit certificate and complete the final formalities.', 'आपका निकास अनुरोध स्वीकृत हो गया है! अब आप अपना निकास प्रमाणपत्र डाउनलोड कर सकते हैं और अंतिम औपचारिकताएं पूरी कर सकते हैं।')}
                 </p>
                 <div className="mt-3">
                   <Button variant="primary" size="sm">
-                    Download Exit Certificate
+                    {t('Download Exit Certificate', 'निकास प्रमाणपत्र डाउनलोड करें')}
                   </Button>
                 </div>
               </div>
@@ -270,9 +272,9 @@ export default function StudentExitPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
               <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-semibold text-red-900">Request Rejected</h3>
+                <h3 className="text-sm font-semibold text-red-900">{t('Request Rejected', 'अनुरोध अस्वीकृत')}</h3>
                 <p className="text-sm text-red-700 mt-1">
-                  Your exit request has been rejected. Please contact the administration for more details.
+                  {t('Your exit request has been rejected. Please contact the administration for more details.', 'आपका निकास अनुरोध अस्वीकृत कर दिया गया है। अधिक जानकारी के लिए कृपया प्रशासन से संपर्क करें।')}
                 </p>
               </div>
             </div>
@@ -282,9 +284,9 @@ export default function StudentExitPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
               <XCircle className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">Request Withdrawn</h3>
+                <h3 className="text-sm font-semibold text-gray-900">{t('Request Withdrawn', 'अनुरोध वापस लिया गया')}</h3>
                 <p className="text-sm text-gray-700 mt-1">
-                  You have withdrawn your exit request. You can create a new request if needed.
+                  {t('You have withdrawn your exit request. You can create a new request if needed.', 'आपने अपना निकास अनुरोध वापस ले लिया है। आवश्यकता होने पर आप नया अनुरोध बना सकते हैं।')}
                 </p>
               </div>
             </div>
@@ -296,7 +298,7 @@ export default function StudentExitPage() {
           {/* Exit Request Form */}
           <div className="card p-6">
             <h2 className="text-xl font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>
-              Exit Request Details
+              {t('Exit Request Details', 'निकास अनुरोध विवरण')}
             </h2>
             <ExitRequestForm
               initialData={exitRequest || undefined}
@@ -328,10 +330,10 @@ export default function StudentExitPage() {
               <AlertTriangle className="w-6 h-6 text-orange-600 flex-shrink-0" />
               <div>
                 <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  Confirm Withdrawal
+                  {t('Confirm Withdrawal', 'वापसी की पुष्टि करें')}
                 </h3>
                 <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
-                  Are you sure you want to withdraw your exit request? This action will be recorded in the audit trail.
+                  {t('Are you sure you want to withdraw your exit request? This action will be recorded in the audit trail.', 'क्या आप वाकई अपना निकास अनुरोध वापस लेना चाहते हैं? यह क्रिया ऑडिट ट्रेल में दर्ज की जाएगी।')}
                 </p>
               </div>
             </div>
@@ -342,7 +344,7 @@ export default function StudentExitPage() {
                 onClick={() => setShowWithdrawConfirm(false)}
                 disabled={withdrawing}
               >
-                Cancel
+                {t('Cancel', 'रद्द करें')}
               </Button>
               <Button
                 variant="primary"
@@ -350,7 +352,7 @@ export default function StudentExitPage() {
                 loading={withdrawing}
                 className="bg-red-600 hover:bg-red-700"
               >
-                Withdraw Request
+                {t('Withdraw Request', 'अनुरोध वापस लें')}
               </Button>
             </div>
           </div>

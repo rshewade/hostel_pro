@@ -1,4 +1,7 @@
+'use client';
+
 import { FutureModulePage } from '@/components/future/ComingSoonPlaceholder';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const messIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -6,21 +9,23 @@ const messIcon = (
   </svg>
 );
 
-const plannedFeatures = [
-  'Daily mess menu display with nutritional information',
-  'Mess attendance tracking and billing',
-  'Special meal requests ( Jain food, fasting days, etc.)',
-  'Mess fee payment and refund management',
-  'Feedback and rating system for food quality',
-  'Weekly/monthly consumption reports',
-];
-
 export default function StudentMessPage() {
+  const { t } = useLanguage();
+
+  const plannedFeatures = [
+    t('Daily mess menu display with nutritional information', 'पोषण संबंधी जानकारी के साथ दैनिक मेस मेनू प्रदर्शन'),
+    t('Mess attendance tracking and billing', 'मेस उपस्थिति ट्रैकिंग और बिलिंग'),
+    t('Special meal requests (Jain food, fasting days, etc.)', 'विशेष भोजन अनुरोध (जैन भोजन, उपवास के दिन, आदि)'),
+    t('Mess fee payment and refund management', 'मेस शुल्क भुगतान और वापसी प्रबंधन'),
+    t('Feedback and rating system for food quality', 'भोजन की गुणवत्ता के लिए प्रतिक्रिया और रेटिंग प्रणाली'),
+    t('Weekly/monthly consumption reports', 'साप्ताहिक/मासिक उपभोग रिपोर्ट'),
+  ];
+
   return (
     <FutureModulePage
-      title="Mess Management"
-      description="View mess menus, track attendance, and manage food preferences"
-      fullDescription="This module will help you stay informed about the daily mess menu, track your mess attendance, and manage special food requirements. You can also provide feedback on food quality and view your mess billing details."
+      title={t('Mess Management', 'मेस प्रबंधन')}
+      description={t('View mess menus, track attendance, and manage food preferences', 'मेस मेनू देखें, उपस्थिति ट्रैक करें, और भोजन प्राथमिकताएं प्रबंधित करें')}
+      fullDescription={t('This module will help you stay informed about the daily mess menu, track your mess attendance, and manage special food requirements. You can also provide feedback on food quality and view your mess billing details.', 'यह मॉड्यूल आपको दैनिक मेस मेनू के बारे में जानकारी रखने, अपनी मेस उपस्थिति ट्रैक करने, और विशेष भोजन आवश्यकताओं को प्रबंधित करने में मदद करेगा। आप भोजन की गुणवत्ता पर प्रतिक्रिया भी दे सकते हैं और अपने मेस बिलिंग विवरण देख सकते हैं।')}
       icon={messIcon}
       featureFlag="FEAT_MESS_MANAGEMENT"
       estimatedLaunch="Q1 2026"

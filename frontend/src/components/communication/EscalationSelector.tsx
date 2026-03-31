@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 
 export type Supervisor = {
   id: string;

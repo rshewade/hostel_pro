@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Application {
   id: string;
@@ -100,6 +101,22 @@ function getStatusColor(color: string | undefined): string {
 }
 
 export default function TrackingDetailPage() {
+  const { t } = useLanguage();
+  // Status label translations
+  const statusLabels: Record<string, string> = {
+    'Draft': 'प्रारूप', 'Submitted': 'जमा किया गया', 'Under Review': 'समीक्षाधीन',
+    'Approved': 'स्वीकृत', 'Rejected': 'अस्वीकृत', 'Withdrawn': 'वापस लिया गया',
+  };
+  const statusDescriptions: Record<string, string> = {
+    'Application is being prepared': 'आवेदन तैयार किया जा रहा है',
+    'Application submitted and under initial review': 'आवेदन जमा किया गया और प्रारंभिक समीक्षाधीन',
+    'Application is being reviewed by superintendent': 'अधीक्षक द्वारा आवेदन की समीक्षा की जा रही है',
+    'Application approved, awaiting final processing': 'आवेदन स्वीकृत, अंतिम प्रक्रिया की प्रतीक्षा',
+    'Application has been rejected': 'आवेदन अस्वीकृत किया गया है',
+    'Application has been withdrawn by applicant': 'आवेदक द्वारा आवेदन वापस लिया गया',
+  };
+  const tStatus = (label: string) => t(label, statusLabels[label] || label);
+  const tDesc = (desc: string) => t(desc, statusDescriptions[desc] || desc);
   const params = useParams();
   const trackingId = params.id as string;
 
@@ -259,7 +276,7 @@ export default function TrackingDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h4 className="text-sm font-semibold text-blue-900 mb-1">Application Submitted</h4>
+                <h4 className="text-sm font-semibold text-blue-900 mb-1">{t('Application Submitted', 'आवेदन जमा किया गया')}</h4>
                 <p className="text-sm text-blue-700">
                   Your application has been received and is under initial review. We will notify you when it moves to the next stage.
                 </p>
@@ -299,7 +316,7 @@ export default function TrackingDetailPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h4 className="text-sm font-semibold text-yellow-900 mb-1">Under Review</h4>
+                <h4 className="text-sm font-semibold text-yellow-900 mb-1">{t('Under Review', 'समीक्षाधीन')}</h4>
                 <p className="text-sm text-yellow-700">
                   Your application is currently under review by the superintendent. We will update you on any further steps.
                 </p>
@@ -370,7 +387,7 @@ export default function TrackingDetailPage() {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading application details...</p>
+          <p className="text-gray-600">{t('Loading application details...', 'आवेदन विवरण लोड हो रहा है...')}</p>
         </div>
       </div>
     );
@@ -386,13 +403,13 @@ export default function TrackingDetailPage() {
           <div className="flex items-center gap-3">
             <Image src="/logo.png" alt="Hirachand Gumanji Family Charitable Trust" width={48} height={48} className="h-12 w-auto" />
             <div>
-              <h1 className="text-lg font-semibold">Hirachand Gumanji Family</h1>
-              <p className="text-caption">Charitable Trust</p>
+              <h1 className="text-lg font-semibold">{t('Hirachand Gumanji Family', 'हीराचंद गुमानजी परिवार')}</h1>
+              <p className="text-caption">{t('Charitable Trust', 'चैरिटेबल ट्रस्ट')}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/track" className="text-sm text-blue-600 hover:underline">← Back to Tracking</Link>
-            <Link href="/" className="text-sm text-gray-600 hover:underline">Home</Link>
+            <Link href="/track" className="text-sm text-blue-600 hover:underline">{t('← Back to Tracking', '← ट्रैकिंग पर वापस')}</Link>
+            <Link href="/" className="text-sm text-gray-600 hover:underline">{t('Home', 'होम')}</Link>
           </div>
         </div>
       </header>
@@ -411,33 +428,33 @@ export default function TrackingDetailPage() {
                 <p className="text-gray-600">{application.vertical.replace('_', ' ')} • {application.type}</p>
               </div>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(currentStatus?.color)}`}>
-                {currentStatus.label}
+                {tStatus(currentStatus.label)}
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <p className="text-sm text-gray-500">Applicant</p>
+                <p className="text-sm text-gray-500">{t('Applicant', 'आवेदक')}</p>
                 <p className="font-medium">{application.data?.personal_info?.full_name || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Submitted</p>
+                <p className="text-sm text-gray-500">{t('Submitted', 'जमा किया गया')}</p>
                 <p className="font-medium">{new Date(application.submitted_at || application.created_at).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Mobile</p>
+                <p className="text-sm text-gray-500">{t('Mobile', 'मोबाइल')}</p>
                 <p className="font-medium">{application.applicant_mobile}</p>
               </div>
             </div>
 
             <div className="text-sm text-gray-600">
-              <p className="mb-2"><strong>Status Description:</strong> {currentStatus.description}</p>
+              <p className="mb-2"><strong>{t('Status Description:', 'स्थिति विवरण:')}</strong> {tDesc(currentStatus.description)}</p>
             </div>
           </div>
 
           {/* Status Timeline */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h3 className="text-xl font-semibold mb-6">Application Timeline</h3>
+            <h3 className="text-xl font-semibold mb-6">{t('Application Timeline', 'आवेदन समयरेखा')}</h3>
             <div className="relative">
               <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
               {statusSteps.map((step, index) => {
@@ -461,12 +478,12 @@ export default function TrackingDetailPage() {
                       )}
                     </div>
                     <div className="ml-4">
-                      <h4 className="font-medium">{step.label}</h4>
+                      <h4 className="font-medium">{tStatus(step.label)}</h4>
                       {isCurrent && (
-                        <p className="text-sm text-gray-600 mt-1">{statusConfig[step.status as keyof typeof statusConfig].description}</p>
+                        <p className="text-sm text-gray-600 mt-1">{tDesc(statusConfig[step.status as keyof typeof statusConfig].description)}</p>
                       )}
                       {isRejected && (
-                        <p className="text-sm text-red-600 mt-1">Application has been rejected</p>
+                        <p className="text-sm text-red-600 mt-1">{t('Application has been rejected', 'आवेदन अस्वीकृत किया गया है')}</p>
                       )}
                     </div>
                   </div>
@@ -478,48 +495,47 @@ export default function TrackingDetailPage() {
           {/* Interview Details */}
           {interview && interview.status === 'SCHEDULED' && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h3 className="text-xl font-semibold mb-4">Interview Details</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('Interview Details', 'साक्षात्कार विवरण')}</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Date & Time</p>
+                    <p className="text-sm text-gray-500">{t('Date & Time', 'तिथि और समय')}</p>
                     <p className="font-medium">{new Date(interview.schedule_time).toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Mode</p>
+                    <p className="text-sm text-gray-500">{t('Mode', 'माध्यम')}</p>
                     <p className="font-medium">{interview.mode === 'IN_PERSON' ? 'In Person' : 'Online'}</p>
                   </div>
                 </div>
                 {timeUntilInterview && (
                   <div className="mt-4 pt-4 border-t border-blue-300">
-                    <p className="text-sm text-gray-500 mb-2">Time until interview</p>
+                    <p className="text-sm text-gray-500 mb-2">{t('Time until interview', 'साक्षात्कार तक का समय')}</p>
                     <div className="flex gap-4">
                       <div className="text-center">
                         <div className="bg-blue-600 text-white rounded-lg p-2 min-w-[60px]">
                           <span className="text-2xl font-bold">{timeUntilInterview.days}</span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-1">Days</p>
+                        <p className="text-xs text-gray-600 mt-1">{t('Days', 'दिन')}</p>
                       </div>
                       <div className="text-center">
                         <div className="bg-blue-600 text-white rounded-lg p-2 min-w-[60px]">
                           <span className="text-2xl font-bold">{timeUntilInterview.hours}</span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-1">Hours</p>
+                        <p className="text-xs text-gray-600 mt-1">{t('Hours', 'घंटे')}</p>
                       </div>
                       <div className="text-center">
                         <div className="bg-blue-600 text-white rounded-lg p-2 min-w-[60px]">
                           <span className="text-2xl font-bold">{timeUntilInterview.minutes}</span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-1">Minutes</p>
+                        <p className="text-xs text-gray-600 mt-1">{t('Minutes', 'मिनट')}</p>
                       </div>
                     </div>
                   </div>
                 )}
                 <div className="mt-4">
-                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm text-gray-500">{t('Status', 'स्थिति')}</p>
                   <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    Scheduled
-                  </span>
+                    {t('Scheduled', 'निर्धारित')}</span>
                 </div>
               </div>
             </div>
@@ -527,23 +543,22 @@ export default function TrackingDetailPage() {
 
           {interview && interview.status === 'COMPLETED' && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h3 className="text-xl font-semibold mb-4">Interview Details</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('Interview Details', 'साक्षात्कार विवरण')}</h3>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Date & Time</p>
+                    <p className="text-sm text-gray-500">{t('Date & Time', 'तिथि और समय')}</p>
                     <p className="font-medium">{new Date(interview.schedule_time).toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Mode</p>
+                    <p className="text-sm text-gray-500">{t('Mode', 'माध्यम')}</p>
                     <p className="font-medium">{interview.mode === 'IN_PERSON' ? 'In Person' : 'Online'}</p>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm text-gray-500">{t('Status', 'स्थिति')}</p>
                   <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Completed
-                  </span>
+                    {t('Completed', 'पूर्ण')}</span>
                 </div>
               </div>
             </div>
@@ -552,7 +567,7 @@ export default function TrackingDetailPage() {
           {/* Documents */}
           {documents.length > 0 && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h3 className="text-xl font-semibold mb-4">Documents</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('Documents', 'दस्तावेज़')}</h3>
               <div className="space-y-3">
                 {documents.map((doc) => (
                   <div key={doc.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
@@ -582,7 +597,7 @@ export default function TrackingDetailPage() {
 
           {/* Actions */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-semibold mb-4">Actions</h3>
+            <h3 className="text-xl font-semibold mb-4">{t('Actions', 'कार्रवाई')}</h3>
             <div className="space-y-3">
               {isAwaitingDocuments && (
                 <button
@@ -594,27 +609,23 @@ export default function TrackingDetailPage() {
               )}
               {interview && interview.status === 'SCHEDULED' && (
                 <button className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
-                  Confirm Interview Attendance
-                </button>
+                  {t('Confirm Interview Attendance', 'साक्षात्कार उपस्थिति की पुष्टि करें')}</button>
               )}
               {application.current_status === 'APPROVED' && (
                 <button className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 font-medium">
-                  Download Provisional Letter
-                </button>
+                  {t('Download Provisional Letter', 'अनंतिम पत्र डाउनलोड करें')}</button>
               )}
               <button
                 className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"
                 onClick={() => window.open(`/api/applications/${trackingId}/pdf`, '_blank')}
               >
-                Download Application PDF
-              </button>
+                {t('Download Application PDF', 'आवेदन पीडीएफ डाउनलोड करें')}</button>
               {application.current_status !== 'APPROVED' && application.current_status !== 'REJECTED' && application.current_status !== 'WITHDRAWN' && (
                 <button
                   className="w-full border-2 border-red-500 text-red-600 py-2 px-4 rounded-md hover:bg-red-50"
                   onClick={() => setShowWithdrawModal(true)}
                 >
-                  Withdraw Application
-                </button>
+                  {t('Withdraw Application', 'आवेदन वापस लें')}</button>
               )}
             </div>
           </div>
@@ -628,7 +639,7 @@ export default function TrackingDetailPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <h4 className="text-sm font-medium text-blue-900 mb-1">Privacy & Data Protection</h4>
+            <h4 className="text-sm font-medium text-blue-900 mb-1">{t('Privacy & Data Protection', 'गोपनीयता और डेटा सुरक्षा')}</h4>
             <p className="text-sm text-blue-700">
               Your application data is processed in compliance with the Digital Personal Data Protection Act, 2023.
               We use your information solely for hostel admission processing and maintain strict confidentiality.
@@ -645,7 +656,7 @@ export default function TrackingDetailPage() {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Re-upload Documents</h3>
+                <h3 className="text-lg font-semibold">{t('Re-upload Documents', 'दस्तावेज़ पुनः अपलोड करें')}</h3>
                 <button
                   onClick={() => setShowReuploadModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -659,13 +670,12 @@ export default function TrackingDetailPage() {
               <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Document Type
-                  </label>
+                    {t('Select Document Type', 'दस्तावेज़ प्रकार चुनें')}</label>
                   <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Choose document type...</option>
                     <option value="AADHAR_CARD">Aadhar Card</option>
                     <option value="PHOTO">Passport Size Photo</option>
-                    <option value="BIRTH_CERTIFICATE">Birth Certificate</option>
+                    <option value="BIRTH_CERTIFICATE">{t('Birth Certificate', 'जन्म प्रमाण पत्र')}</option>
                     <option value="CASTE_CERTIFICATE">Caste Certificate</option>
                     <option value="COLLEGE_LETTER">College Admission Letter</option>
                     <option value="ACADEMIC_RECORDS">Academic Records</option>
@@ -675,8 +685,7 @@ export default function TrackingDetailPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload File
-                  </label>
+                    {t('Upload File', 'फ़ाइल अपलोड करें')}</label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                     <div className="text-center">
                       <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -685,8 +694,7 @@ export default function TrackingDetailPage() {
                       <div className="mt-4">
                         <label htmlFor="file-upload" className="cursor-pointer">
                           <span className="mt-2 block text-sm font-medium text-gray-900">
-                            Click to upload or drag and drop
-                          </span>
+                            {t('Click to upload or drag and drop', 'अपलोड करने के लिए क्लिक करें या ड्रैग और ड्रॉप करें')}</span>
                           <span className="mt-1 block text-xs text-gray-500">
                             PDF, JPG, JPEG up to 10MB
                           </span>
@@ -736,8 +744,7 @@ export default function TrackingDetailPage() {
                   onClick={() => setShowReuploadModal(false)}
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
                 >
-                  Cancel
-                </button>
+                  {t('Cancel', 'रद्द करें')}</button>
                 <button
                   onClick={async () => {
                     if (selectedFiles.length === 0) {
@@ -801,7 +808,7 @@ export default function TrackingDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-center mb-2">Withdraw Application?</h3>
+              <h3 className="text-lg font-semibold text-center mb-2">{t('Withdraw Application?', 'आवेदन वापस लें?')}</h3>
               <p className="text-gray-600 text-center mb-6">
                 Are you sure you want to withdraw your application <strong>{application?.tracking_number}</strong>? This action cannot be undone.
               </p>
@@ -811,8 +818,7 @@ export default function TrackingDetailPage() {
                   disabled={withdrawing}
                   className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 disabled:opacity-50"
                 >
-                  Cancel
-                </button>
+                  {t('Cancel', 'रद्द करें')}</button>
                 <button
                   onClick={handleWithdraw}
                   disabled={withdrawing}

@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 import { Table } from '@/components/data/Table';
 import { Spinner } from '@/components/feedback/Spinner';
 import type { TableColumn } from '@/components/types';
 import { cn } from '@/components/utils';
 import { BedDouble, CheckCircle, Clock, Home } from 'lucide-react';
 import { AllocationModal, type Application, type Vertical } from '../_components';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PendingAllocation {
   id: string;
@@ -28,6 +29,7 @@ interface RoomSummary {
 }
 
 export default function TrusteeAllocations() {
+  const { t } = useLanguage();
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [pendingAllocations, setPendingAllocations] = useState<PendingAllocation[]>([]);
   const [roomSummary, setRoomSummary] = useState<RoomSummary[]>([]);
@@ -216,7 +218,7 @@ export default function TrusteeAllocations() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
         <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>
-          Loading allocations...
+          {t('Loading allocations...', 'आवंटन लोड हो रहे हैं...')}
         </span>
       </div>
     );
@@ -240,14 +242,14 @@ export default function TrusteeAllocations() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Room Allocations
+            {t('Room Allocations', 'कमरा आवंटन')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Allocate rooms to approved students
+            {t('Allocate rooms to approved students', 'स्वीकृत छात्रों को कमरे आवंटित करें')}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={fetchData}>
-          Refresh
+          {t('Refresh', 'रीफ्रेश')}
         </Button>
       </div>
 
@@ -381,7 +383,7 @@ export default function TrusteeAllocations() {
       {filteredAllocations.length === 0 ? (
         <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <BedDouble className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 mb-2">No pending allocations</p>
+          <p className="text-gray-600 mb-2">{t('No pending allocations', 'कोई लंबित आवंटन नहीं')}</p>
           <p className="text-sm text-gray-500">
             All approved students have been allocated rooms, or there are no approved applications.
           </p>

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import type { TableProps, TableColumn, TableRowDensity } from '../types';
 
 // Row density padding classes

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Spinner } from '@/components/feedback/Spinner';
 import { cn } from '@/components/utils';
 import { TrendingUp, TrendingDown, Users, BedDouble, FileText, IndianRupee } from 'lucide-react';
 import type { Vertical } from '../_components';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ReportStats {
   applications: {
@@ -36,6 +37,7 @@ interface ReportStats {
 }
 
 export default function TrusteeReports() {
+  const { t } = useLanguage();
   const [selectedPeriod, setSelectedPeriod] = useState<'month' | 'quarter' | 'year'>('month');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -239,7 +241,7 @@ export default function TrusteeReports() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
         <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>
-          Loading reports...
+          {t('Loading reports...', 'रिपोर्ट लोड हो रही हैं...')}
         </span>
       </div>
     );
@@ -263,10 +265,10 @@ export default function TrusteeReports() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Reports & Analytics
+            {t('Reports & Analytics', 'रिपोर्ट और विश्लेषण')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Overview of hostel operations and statistics
+            {t('Overview of hostel operations and statistics', 'छात्रावास संचालन और आंकड़ों का अवलोकन')}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={fetchReportData}>
@@ -312,7 +314,7 @@ export default function TrusteeReports() {
           <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
             {stats.applications.total}
           </p>
-          <p className="text-sm text-gray-500">Total Applications</p>
+          <p className="text-sm text-gray-500">{t('Total Applications', 'कुल आवेदन')}</p>
         </div>
 
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
@@ -328,7 +330,7 @@ export default function TrusteeReports() {
           <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
             {stats.applications.approved}
           </p>
-          <p className="text-sm text-gray-500">Approved</p>
+          <p className="text-sm text-gray-500">{t('Approved', 'स्वीकृत')}</p>
         </div>
 
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
@@ -338,7 +340,7 @@ export default function TrusteeReports() {
           <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
             {stats.occupancy.occupancyRate}%
           </p>
-          <p className="text-sm text-gray-500">Occupancy Rate</p>
+          <p className="text-sm text-gray-500">{t('Occupancy Rate', 'अधिभोग दर')}</p>
         </div>
 
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
@@ -348,7 +350,7 @@ export default function TrusteeReports() {
           <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
             ₹{(stats.financial.totalCollected / 1000).toFixed(0)}K
           </p>
-          <p className="text-sm text-gray-500">Total Collected</p>
+          <p className="text-sm text-gray-500">{t('Total Collected', 'कुल संग्रहित')}</p>
         </div>
       </div>
 
@@ -356,12 +358,12 @@ export default function TrusteeReports() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            Applications by Status
+            {t('Applications by Status', 'स्थिति अनुसार आवेदन')}
           </h3>
           <div className="space-y-4">
             <div>
               <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-600">Pending Review</span>
+                <span className="text-sm text-gray-600">{t('Pending Review', 'समीक्षा लंबित')}</span>
                 <span className="text-sm font-medium">{stats.applications.pending}</span>
               </div>
               <div className="h-2 bg-gray-200 rounded-full">
@@ -400,7 +402,7 @@ export default function TrusteeReports() {
 
         <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
           <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            Applications by Vertical
+            {t('Applications by Vertical', 'वर्टिकल अनुसार आवेदन')}
           </h3>
           <div className="space-y-4">
             <div>
@@ -446,7 +448,7 @@ export default function TrusteeReports() {
       {/* Occupancy by Vertical */}
       <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
         <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Occupancy by Vertical
+          {t('Occupancy by Vertical', 'वर्टिकल अनुसार अधिभोग')}
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
           {Object.entries(stats.occupancy.byVertical).map(([vertical, data]) => (
@@ -490,7 +492,7 @@ export default function TrusteeReports() {
       {/* Financial Summary */}
       <div className="p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
         <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Financial Summary
+          {t('Financial Summary', 'वित्तीय सारांश')}
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="p-4 rounded border" style={{ borderColor: 'var(--border-gray-200)' }}>

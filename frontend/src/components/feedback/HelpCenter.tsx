@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { cn } from '../utils';
 import type { BaseComponentProps, HelpItem } from '../types';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Modal } from './Modal';
 
 export interface HelpCenterProps extends BaseComponentProps {

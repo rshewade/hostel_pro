@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { SendMessagePanel, DEFAULT_TEMPLATES, type Recipient, type SendMessageData } from '@/components/communication';
 
 export default function CommunicationDemoPage() {

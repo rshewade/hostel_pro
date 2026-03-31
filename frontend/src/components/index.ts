@@ -18,10 +18,10 @@ export * from './forms/SearchField';
 export * from './forms/InlineHelp';
 
 // UI Components
-export * from './ui/Button';
-export * from './ui/Badge';
-export * from './ui/Chip';
-export * from './ui/Tag';
+export * from './shadcn/button-extended';
+export * from './shadcn/badge-extended';
+export * from './shadcn/chip';
+export * from './shadcn/tag';
 
 // Navigation Components
 export * from './navigation';

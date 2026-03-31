@@ -1,7 +1,10 @@
+"use client";
+
+import { type ReactNode } from "react";
 import PublicHeader from "./PublicHeader";
 import PublicFooter from "./PublicFooter";
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/feedback/Modal';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Chip } from '@/components/ui/Chip';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
+import { Chip } from '@/components/shadcn/chip';
 
 export type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'FORWARDED' | 'PROVISIONALLY_APPROVED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED' | 'APPROVED' | 'REJECTED';
 export type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';

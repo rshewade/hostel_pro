@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { Input } from '@/components/forms/Input';
 import { Textarea } from '@/components/forms/Textarea';
 import { Modal } from '@/components/feedback/Modal';

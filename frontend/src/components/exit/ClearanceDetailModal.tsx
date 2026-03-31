@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Home, Calendar, Mail, Phone, MessageSquare, IndianRupee } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ClearanceChecklist } from './ClearanceChecklist';
 import { AuditTrailPanel } from './AuditTrailPanel';
 import {

@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Shield, RefreshCw, Phone, Mail, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DharamshalaContactPage() {
+  const { t } = useLanguage();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [contactMethod, setContactMethod] = useState<'phone' | 'email'>('phone');
@@ -100,16 +102,15 @@ export default function DharamshalaContactPage() {
                 className="text-lg font-semibold"
                 style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}
               >
-                Dharamshala Booking
-              </h1>
-              <p className="text-caption">Step 2 of 4</p>
+                {t('Dharamshala Booking', 'धरमशाला बुकिंग')}</h1>
+              <p className="text-caption">{t('Step 2 of 4', 'चरण 2 का 4')}</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link">Apply Now</Link>
-            <Link href="/check-status" className="nav-link">Check Status</Link>
-            <Link href="/login" className="nav-link">Login</Link>
+            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+            <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+            <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
           </nav>
         </div>
       </header>
@@ -126,8 +127,7 @@ export default function DharamshalaContactPage() {
                   1
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  Select Type
-                </span>
+                  {t('Select Type', 'प्रकार चुनें')}</span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2">
@@ -138,8 +138,7 @@ export default function DharamshalaContactPage() {
                   2
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  Contact Details
-                </span>
+                  {t('Contact Details', 'संपर्क विवरण')}</span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2 opacity-50">
@@ -150,8 +149,7 @@ export default function DharamshalaContactPage() {
                   3
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  OTP Verification
-                </span>
+                  {t('OTP Verification', 'ओटीपी सत्यापन')}</span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2 opacity-50">
@@ -162,12 +160,11 @@ export default function DharamshalaContactPage() {
                   4
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  Booking Form
-                </span>
+                  {t('Booking Form', 'बुकिंग फॉर्म')}</span>
               </div>
             </div>
             <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              <span>Step 2 of 4</span>
+              <span>{t('Step 2 of 4', 'चरण 2 का 4')}</span>
             </div>
           </div>
         </div>
@@ -177,17 +174,14 @@ export default function DharamshalaContactPage() {
         <div className="mx-auto max-w-2xl">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-              Verify Your Identity
-            </h2>
+              {t('Verify Your Identity', 'अपनी पहचान सत्यापित करें')}</h2>
             <p className="text-lg mb-8" style={{ color: "var(--text-secondary)" }}>
-              We'll send a One-Time Password (OTP) to verify your contact details
-            </p>
+              {t('We\'ll send a One-Time Password (OTP) to verify your contact details', 'हम आपके संपर्क विवरण सत्यापित करने के लिए एक ओटीपी भेजेंगे')}</p>
           </div>
 
           <div className="card p-8 mb-8">
             <h3 className="text-xl font-semibold mb-6" style={{ color: "var(--text-primary)" }}>
-              Choose Contact Method
-            </h3>
+              {t('Choose Contact Method', 'संपर्क माध्यम चुनें')}</h3>
             <div className="grid gap-4 md:grid-cols-2 mb-8">
               <button
                 className={`p-6 rounded-lg border-2 transition-all ${
@@ -198,10 +192,9 @@ export default function DharamshalaContactPage() {
                 onClick={() => setContactMethod('phone')}
               >
                 <Phone className="w-8 h-8 mx-auto mb-3" style={{ color: contactMethod === 'phone' ? 'var(--color-amber-600)' : 'var(--color-gray-600)' }} />
-                <h4 className="font-semibold mb-2">Mobile Number</h4>
+                <h4 className="font-semibold mb-2">{t('Mobile Number', 'मोबाइल नंबर')}</h4>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Fast and secure OTP verification via SMS
-                </p>
+                  {t('Fast and secure OTP verification via SMS', 'एसएमएस द्वारा तेज़ और सुरक्षित ओटीपी सत्यापन')}</p>
               </button>
               
               <button
@@ -213,24 +206,22 @@ export default function DharamshalaContactPage() {
                 onClick={() => setContactMethod('email')}
               >
                 <Mail className="w-8 h-8 mx-auto mb-3" style={{ color: contactMethod === 'email' ? 'var(--color-amber-600)' : 'var(--color-gray-600)' }} />
-                <h4 className="font-semibold mb-2">Email Address</h4>
+                <h4 className="font-semibold mb-2">{t('Email Address', 'ईमेल पता')}</h4>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Receive OTP via email verification
-                </p>
+                  {t('Receive OTP via email verification', 'ईमेल सत्यापन द्वारा ओटीपी प्राप्त करें')}</p>
               </button>
             </div>
 
             {contactMethod === 'phone' && (
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>
-                  Mobile Number
-                </label>
+                  {t('Mobile Number', 'मोबाइल नंबर')}</label>
                 <div className="relative">
                   <input
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Enter 10-digit mobile number"
+                    placeholder={t('Enter 10-digit mobile number', '10 अंकों का मोबाइल नंबर दर्ज करें')}
                     className="w-full px-4 py-3 border rounded-lg text-lg"
                     style={{
                       borderColor: errors.includes('Phone number') ? 'var(--color-red-500)' : 'var(--border-primary)',
@@ -240,22 +231,20 @@ export default function DharamshalaContactPage() {
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: "var(--color-gray-400)" }} />
                 </div>
                 <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
-                  We'll send a 6-digit OTP to this number
-                </p>
+                  {t('We\'ll send a 6-digit OTP to this number', 'हम इस नंबर पर 6 अंकों का ओटीपी भेजेंगे')}</p>
               </div>
             )}
 
             {contactMethod === 'email' && (
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>
-                  Email Address
-                </label>
+                  {t('Email Address', 'ईमेल पता')}</label>
                 <div className="relative">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
+                    placeholder={t('Enter your email address', 'अपना ईमेल पता दर्ज करें')}
                     className="w-full px-4 py-3 border rounded-lg text-lg"
                     style={{
                       borderColor: errors.includes('Email') ? 'var(--color-red-500)' : 'var(--border-primary)',
@@ -265,8 +254,7 @@ export default function DharamshalaContactPage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: "var(--color-gray-400)" }} />
                 </div>
                 <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
-                  We'll send a 6-digit OTP to this email
-                </p>
+                  {t('We\'ll send a 6-digit OTP to this email', 'हम इस ईमेल पर 6 अंकों का ओटीपी भेजेंगे')}</p>
               </div>
             )}
           </div>
@@ -275,20 +263,16 @@ export default function DharamshalaContactPage() {
             <Shield className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
             <div>
               <h4 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
-                Your Security Matters
-              </h4>
+                {t('Your Security Matters', 'आपकी सुरक्षा महत्वपूर्ण है')}</h4>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                This OTP is valid for 10 minutes and can only be used once. 
-                Never share your OTP with anyone.
-              </p>
+                {t('This OTP is valid for 10 minutes and can only be used once.  Never share your OTP with anyone.', 'यह ओटीपी 10 मिनट के लिए वैध है और केवल एक बार उपयोग किया जा सकता है। अपना ओटीपी किसी के साथ साझा न करें।')}</p>
             </div>
           </div>
 
           {errors.length > 0 && (
             <div className="card p-4 mb-6 border-l-4" style={{ borderLeftColor: "var(--color-red-500)" }}>
               <h4 className="font-semibold mb-2" style={{ color: "var(--color-red-600)" }}>
-                Please Fix The Following:
-              </h4>
+                {t('Please Fix The Following:', 'कृपया निम्नलिखित ठीक करें:')}</h4>
               <ul className="space-y-1">
                 {errors.map((error, index) => (
                   <li key={index} className="flex items-center gap-2">
@@ -306,15 +290,14 @@ export default function DharamshalaContactPage() {
               disabled={!isInputValid()}
               className="btn-primary w-full text-lg py-4 flex items-center justify-center gap-2"
             >
-              Send OTP
-              <ArrowRight className="w-5 h-5" />
+              {t('Send OTP', 'ओटीपी भेजें')}
+                <ArrowRight className="w-5 h-5" />
             </button>
           ) : (
             <div className="space-y-4">
               <div className="card p-4 text-center">
                 <h4 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
-                  OTP Sent Successfully!
-                </h4>
+                  {t('OTP Sent Successfully!', 'ओटीपी सफलतापूर्वक भेजा गया!')}</h4>
                 <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
                   Please check your {contactMethod === 'phone' ? 'SMS messages' : 'email'} for the 6-digit code.
                 </p>
@@ -333,19 +316,16 @@ export default function DharamshalaContactPage() {
                       className="btn-outline w-full flex items-center justify-center gap-2"
                     >
                       <RefreshCw className="w-4 h-4" />
-                      Resend OTP
-                    </button>
+                      {t('Resend OTP', 'ओटीपी पुनः भेजें')}</button>
                     <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                      Didn't receive? Check spam folder or try with different contact method
-                    </p>
+                      {t('Didn\'t receive? Check spam folder or try with different contact method', 'प्राप्त नहीं हुआ? स्पैम फोल्डर जांचें या अन्य संपर्क माध्यम आज़माएं')}</p>
                   </div>
                 )}
               </div>
 
               <div className="text-center">
                 <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
-                  Having trouble? Contact Dharamshala office:
-                </p>
+                  {t('Having trouble? Contact Dharamshala office:', 'समस्या हो रही है? धरमशाला कार्यालय से संपर्क करें:')}</p>
                 <Link
                   href="tel:+912224141236"
                   className="text-amber-600 hover:text-amber-800 font-medium"

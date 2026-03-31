@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { AdminRenewalList } from '@/components/renewal/AdminRenewalList';
 import { AdminRenewalDetail } from '@/components/renewal/AdminRenewalDetail';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdminRenewalPage() {
+  const { t } = useLanguage();
   const [selectedRenewal, setSelectedRenewal] = useState<string | null>(null);
   const [currentVertical, setCurrentVertical] = useState('BOYS');
 
@@ -57,7 +59,7 @@ export default function AdminRenewalPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <AdminRenewalList
-        title="Renewal Applications"
+        title={t('Renewal Applications', 'नवीनीकरण आवेदन')}
         showVerticalFilter={true}
         currentVertical={currentVertical}
         onViewDetail={(id) => setSelectedRenewal(id)}

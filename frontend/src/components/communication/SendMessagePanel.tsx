@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SidePanel } from '../feedback/SidePanel';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ChannelToggle, type Channel } from './ChannelToggle';
 import { RecipientSelector, type Recipient } from './RecipientSelector';
 import { TemplateSelector, type Template } from './TemplateSelector';

@@ -1,124 +1,73 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/shadcn/accordion";
 import PublicLayout from "@/components/public/PublicLayout";
 import PageHero from "@/components/public/PageHero";
 
-const faqs = [
-  {
-    question: "Who can apply for hostel admission?",
-    answer:
-      "Hostel admission is open to students belonging to the Digambar Jain community who are pursuing their education in Mumbai. Applicants must provide valid community references and proof of enrollment at a recognised educational institution. Both undergraduate and postgraduate students are eligible to apply.",
-  },
-  {
-    question: "What is the admission process?",
-    answer:
-      "The admission process begins with submitting an application through our online portal. After submission, your documents will be verified by the hostel superintendent. Shortlisted applicants are then called for an interview with the trust committee. Upon approval, you will receive an admission offer with instructions for fee payment and room allocation.",
-  },
-  {
-    question: "What are the hostel fees?",
-    answer:
-      "The trust charges minimal fees to support students from the community. Fee amounts vary depending on the room type (shared or single occupancy) and the specific hostel. Scholarships and fee concessions are available for students demonstrating financial need. Detailed fee structures are shared upon receiving the admission offer.",
-  },
-  {
-    question: "How can I book a room at Dharamshala?",
-    answer:
-      "Rooms at Hirabaug Dharamshala can be booked through our online portal or by visiting the trust office in person. Advance booking is recommended, especially during festival seasons and peak travel periods. Stays are available for a maximum of 7 days and are open to members of the Jain community with valid identification.",
-  },
-  {
-    question: "Are meals provided in the hostel?",
-    answer:
-      "Yes, the hostel provides pure Jain vegetarian meals prepared under strict dietary guidelines. The mess operates on a fixed schedule for breakfast, lunch, and dinner. Special dietary requirements can be communicated to the warden. No outside non-vegetarian food is permitted on the premises.",
-  },
-  {
-    question: "How can I donate to the trust?",
-    answer:
-      "Donations to the trust can be made via bank transfer, cheque, or in person at the trust office. All donations are eligible for tax benefits under Section 80G of the Income Tax Act. The trust issues official receipts for all contributions. For large donations or corpus fund contributions, please contact the trust office directly.",
-  },
-  {
-    question: "What facilities are available for girls?",
-    answer:
-      "The R.R. Shravika Ashram is a dedicated facility for girls with women-only staff and management. The ashram features 24/7 security with CCTV surveillance, a separate study hall, recreation room, and prayer hall. Strict visitor policies ensure a safe and comfortable environment. A female warden resides on the premises at all times.",
-  },
-];
-
 export default function FAQPage() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { t, language } = useLanguage();
 
-  const toggle = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  const faqs = [
+    {
+      question: { en: 'Who can apply for hostel admission?', hi: 'छात्रावास प्रवेश के लिए कौन आवेदन कर सकता है?' },
+      answer: { en: 'Students belonging to the Digambar Jain community who are enrolled in recognized colleges/universities in Mumbai can apply. A recommendation from a Jain Sangh or known reference is required.', hi: 'दिगंबर जैन समुदाय से संबंधित छात्र जो मुंबई में मान्यता प्राप्त कॉलेज/विश्वविद्यालयों में नामांकित हैं, आवेदन कर सकते हैं। जैन संघ या ज्ञात संदर्भ से अनुशंसा आवश्यक है।' },
+    },
+    {
+      question: { en: 'What is the admission process?', hi: 'प्रवेश प्रक्रिया क्या है?' },
+      answer: { en: 'Applications can be submitted through our online portal. After verification of documents, eligible candidates will be called for an interview. Final selection is based on academic merit and availability of seats.', hi: 'आवेदन हमारे ऑनलाइन पोर्टल के माध्यम से जमा किए जा सकते हैं। दस्तावेजों के सत्यापन के बाद, पात्र उम्मीदवारों को साक्षात्कार के लिए बुलाया जाएगा। अंतिम चयन शैक्षणिक योग्यता और सीटों की उपलब्धता पर आधारित है।' },
+    },
+    {
+      question: { en: 'What are the hostel fees?', hi: 'छात्रावास शुल्क क्या है?' },
+      answer: { en: 'Hostel fees are kept minimal to ensure affordability. The exact fee structure varies based on room type and is disclosed during the admission process. Scholarships are available for deserving students.', hi: 'सामर्थ्य सुनिश्चित करने के लिए छात्रावास शुल्क न्यूनतम रखा जाता है। सटीक शुल्क संरचना कमरे के प्रकार के आधार पर भिन्न होती है और प्रवेश प्रक्रिया के दौरान बताई जाती है। योग्य छात्रों के लिए छात्रवृत्ति उपलब्ध है।' },
+    },
+    {
+      question: { en: 'How can I book a room at Dharamshala?', hi: 'मैं धर्मशाला में कमरा कैसे बुक कर सकता हूं?' },
+      answer: { en: 'Rooms can be booked through our online booking portal or by contacting the trust office. Advance booking is recommended, especially during peak seasons and religious festivals.', hi: 'कमरे हमारे ऑनलाइन बुकिंग पोर्टल के माध्यम से या ट्रस्ट कार्यालय से संपर्क करके बुक किए जा सकते हैं। अग्रिम बुकिंग की सिफारिश की जाती है, विशेष रूप से पीक सीजन और धार्मिक त्योहारों के दौरान।' },
+    },
+    {
+      question: { en: 'Are meals provided in the hostel?', hi: 'क्या छात्रावास में भोजन प्रदान किया जाता है?' },
+      answer: { en: 'Yes, pure vegetarian Jain meals are provided in both hostels. The kitchen follows strict Jain dietary guidelines including no root vegetables after sunset.', hi: 'हां, दोनों छात्रावासों में शुद्ध शाकाहारी जैन भोजन प्रदान किया जाता है। रसोई सूर्यास्त के बाद कोई जड़ वाली सब्जियां नहीं सहित सख्त जैन आहार दिशानिर्देशों का पालन करती है।' },
+    },
+    {
+      question: { en: 'How can I donate to the trust?', hi: 'मैं ट्रस्ट को दान कैसे कर सकता हूं?' },
+      answer: { en: 'Donations can be made via bank transfer, cheque, or in person at the trust office. All donations are eligible for tax benefits under Section 80G. Contact our office for bank details.', hi: 'दान बैंक ट्रांसफर, चेक, या ट्रस्ट कार्यालय में व्यक्तिगत रूप से किया जा सकता है। सभी दान धारा 80जी के तहत कर लाभ के लिए पात्र हैं। बैंक विवरण के लिए हमारे कार्यालय से संपर्क करें।' },
+    },
+    {
+      question: { en: 'What facilities are available for girls?', hi: 'लड़कियों के लिए क्या सुविधाएं उपलब्ध हैं?' },
+      answer: { en: 'R.R. Shravika Ashram provides secure accommodation with women-only staff, 24/7 security, CCTV surveillance, library, study hall, and recreational facilities specifically designed for female students.', hi: 'आर.आर. श्राविका आश्रम महिला छात्रों के लिए विशेष रूप से डिज़ाइन की गई केवल महिला कर्मचारियों, 24/7 सुरक्षा, सीसीटीवी निगरानी, पुस्तकालय, अध्ययन कक्ष और मनोरंजक सुविधाओं के साथ सुरक्षित आवास प्रदान करता है।' },
+    },
+  ];
 
   return (
     <PublicLayout>
+      {/* Hero */}
       <PageHero
-        title="Frequently Asked Questions"
-        subtitle="Find answers to common questions about our hostels and services"
+        title={t('Frequently Asked Questions', 'अक्सर पूछे जाने वाले प्रश्न')}
+        subtitle={t('Find answers to common questions about our trust and services', 'हमारे ट्रस्ट और सेवाओं के बारे में सामान्य प्रश्नों के उत्तर खोजें')}
       />
 
-      <section className="px-4 py-16" style={{ background: "var(--bg-page)" }}>
-        <div className="mx-auto max-w-3xl">
-          <div className="flex flex-col gap-4">
-            {faqs.map((faq, index) => (
-              <div
-                key={index}
-                className="rounded-xl overflow-hidden transition-shadow duration-200"
-                style={{
-                  backgroundColor: "var(--surface-primary)",
-                  border: "1px solid var(--border-primary)",
-                  boxShadow:
-                    openIndex === index
-                      ? "0 4px 12px rgba(0,0,0,0.08)"
-                      : "0 1px 3px rgba(0,0,0,0.04)",
-                }}
-              >
-                <button
-                  onClick={() => toggle(index)}
-                  className="w-full flex items-center gap-3 px-5 py-4 text-left transition-colors duration-150"
-                  style={{
-                    backgroundColor:
-                      openIndex === index
-                        ? "var(--surface-secondary)"
-                        : "transparent",
-                  }}
-                >
-                  <HelpCircle
-                    size={20}
-                    style={{ color: "var(--color-gold-500)", flexShrink: 0 }}
-                  />
-                  <span
-                    className="flex-1 font-semibold text-base"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {faq.question}
-                  </span>
-                  <ChevronDown
-                    size={20}
-                    style={{
-                      color: "var(--text-secondary)",
-                      flexShrink: 0,
-                      transform:
-                        openIndex === index ? "rotate(180deg)" : "rotate(0)",
-                      transition: "transform 0.2s ease",
-                    }}
-                  />
-                </button>
-                {openIndex === index && (
-                  <div
-                    className="px-5 pb-5 pt-2"
-                    style={{ paddingLeft: "3.25rem" }}
-                  >
-                    <p
-                      className="text-sm leading-relaxed"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {faq.answer}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+      {/* FAQ */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="space-y-4">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-4">
+                  <AccordionTrigger className="text-left font-heading font-semibold hover:no-underline">
+                    {faq.question[language]}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed">
+                    {faq.answer[language]}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </div>
       </section>

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/feedback/Modal';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { Spinner } from '@/components/feedback/Spinner';
 import type { Application, Vertical } from './ApplicationReviewModal';
 

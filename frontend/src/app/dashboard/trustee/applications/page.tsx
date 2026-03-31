@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
-import { Chip } from '@/components/ui/Chip';
-import { Button } from '@/components/ui/Button';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
+import { Chip } from '@/components/shadcn/chip';
+import { Button } from '@/components/shadcn/button-extended';
 import { Table } from '@/components/data/Table';
 import { Spinner } from '@/components/feedback/Spinner';
 import type { TableColumn } from '@/components/types';
@@ -15,8 +15,10 @@ import {
   type ApplicationStatus,
   type Vertical,
 } from '../_components';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TrusteeApplications() {
+  const { t } = useLanguage();
   const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'FORWARDED' | 'PROVISIONALLY_APPROVED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED'>('ALL');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -320,7 +322,7 @@ export default function TrusteeApplications() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
         <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>
-          Loading applications...
+          {t('Loading applications...', 'आवेदन लोड हो रहे हैं...')}
         </span>
       </div>
     );
@@ -344,10 +346,10 @@ export default function TrusteeApplications() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Applications
+            {t('Applications', 'आवेदन')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Review forwarded applications and make decisions
+            {t('Review forwarded applications and make decisions', 'अग्रेषित आवेदनों की समीक्षा करें और निर्णय लें')}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={fetchApplications}>
@@ -427,7 +429,7 @@ export default function TrusteeApplications() {
                 setSearchQuery('');
               }}
             >
-              Clear Filters
+              {t('Clear Filters', 'फ़िल्टर साफ़ करें')}
             </Button>
           </div>
         </div>
@@ -436,8 +438,8 @@ export default function TrusteeApplications() {
       {/* Applications Table */}
       {filteredApplications.length === 0 ? (
         <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-          <p className="text-gray-600 mb-2">No applications found</p>
-          <p className="text-sm text-gray-500">Try adjusting your filters or check back later.</p>
+          <p className="text-gray-600 mb-2">{t('No applications found', 'कोई आवेदन नहीं मिला')}</p>
+          <p className="text-sm text-gray-500">{t('Try adjusting your filters or check back later.', 'अपने फ़िल्टर बदलकर देखें या बाद में पुनः जांचें।')}</p>
         </div>
       ) : (
         <Table<Application>

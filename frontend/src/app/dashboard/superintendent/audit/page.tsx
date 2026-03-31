@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Tabs } from '@/components/data/Tabs';
 import { CommunicationLogTable, type CommunicationLogEntry } from '@/components/audit/CommunicationLogTable';
 import { ApprovalHistoryTable, type ApprovalHistoryEntry } from '@/components/audit/ApprovalHistoryTable';
 import { ConsentLogsView, type ConsentLogEntry } from '@/components/audit/ConsentLogsView';
 import { Shield, MessageCircle, FileText, ClipboardList, Download, Bell, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdminAuditLogsPage() {
+  const { t } = useLanguage();
   const [communicationLogs, setCommunicationLogs] = useState<CommunicationLogEntry[]>([]);
   const [approvalHistory, setApprovalHistory] = useState<ApprovalHistoryEntry[]>([]);
   const [consentLogs, setConsentLogs] = useState<ConsentLogEntry[]>([]);
@@ -114,15 +116,15 @@ export default function AdminAuditLogsPage() {
   const tabs = [
     {
       id: 'communication',
-      label: 'Communication Logs',
+      label: t('Communication Logs', 'संचार लॉग'),
       icon: <MessageCircle className="w-4 h-4" />,
       content: (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Communication Logs</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('Communication Logs', 'संचार लॉग')}</h2>
               <p className="text-sm text-gray-500">
-                WhatsApp, SMS, and Email communications across all channels
+                {t('WhatsApp, SMS, and Email communications across all channels', 'सभी चैनलों पर WhatsApp, SMS, और ईमेल संचार')}
               </p>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -140,15 +142,15 @@ export default function AdminAuditLogsPage() {
     },
     {
       id: 'approvals',
-      label: 'Approval History',
+      label: t('Approval History', 'अनुमोदन इतिहास'),
       icon: <ClipboardList className="w-4 h-4" />,
       content: (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Approval History</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('Approval History', 'अनुमोदन इतिहास')}</h2>
               <p className="text-sm text-gray-500">
-                Decisions on applications, leaves, payments, and renewals
+                {t('Decisions on applications, leaves, payments, and renewals', 'आवेदन, अवकाश, भुगतान, और नवीनीकरण पर निर्णय')}
               </p>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -166,15 +168,15 @@ export default function AdminAuditLogsPage() {
     },
     {
       id: 'consents',
-      label: 'Consent Logs',
+      label: t('Consent Logs', 'सहमति लॉग'),
       icon: <Shield className="w-4 h-4" />,
       content: (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Consent & Undertaking Logs</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('Consent & Undertaking Logs', 'सहमति और अंडरटेकिंग लॉग')}</h2>
               <p className="text-sm text-gray-500">
-                DPDP, hostel rules, parent consent, and other consent records
+                {t('DPDP, hostel rules, parent consent, and other consent records', 'DPDP, छात्रावास नियम, अभिभावक सहमति, और अन्य सहमति रिकॉर्ड')}
               </p>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -198,7 +200,7 @@ export default function AdminAuditLogsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-900 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading audit logs...</p>
+          <p className="text-gray-500">{t('Loading audit logs...', 'लेखा परीक्षा लॉग लोड हो रहे हैं...')}</p>
         </div>
       </div>
     );
@@ -211,7 +213,7 @@ export default function AdminAuditLogsPage() {
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-red-500 mb-2">{error}</p>
           <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
-            Retry
+            {t('Retry', 'पुनः प्रयास करें')}
           </Button>
         </div>
       </div>
@@ -224,15 +226,15 @@ export default function AdminAuditLogsPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Audit & Compliance
+            {t('Audit & Compliance', 'लेखा परीक्षा और अनुपालन')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Communication, approvals, and consent logs
+            {t('Communication, approvals, and consent logs', 'संचार, अनुमोदन, और सहमति लॉग')}
           </p>
         </div>
         <Button variant="secondary" size="sm" onClick={handleExport}>
           <Download className="w-4 h-4 mr-2" />
-          Export Logs
+          {t('Export Logs', 'लॉग निर्यात करें')}
         </Button>
       </div>
 

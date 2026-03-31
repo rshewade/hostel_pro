@@ -5,8 +5,9 @@ import { Input } from '@/components/forms/Input';
 import { DatePicker } from '@/components/forms/DatePicker';
 import { TimePicker } from '@/components/forms/TimePicker';
 import { Textarea } from '@/components/forms/Textarea';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type LeaveType = 'short' | 'night-out' | 'multi-day';
 type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
@@ -32,6 +33,7 @@ interface LeaveRule {
 }
 
 export default function LeaveManagementPage() {
+  const { t } = useLanguage();
   const [selectedType, setSelectedType] = useState<LeaveType | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [studentId, setStudentId] = useState<string | null>(null);
@@ -155,13 +157,13 @@ export default function LeaveManagementPage() {
   const getStatusBadge = (status: LeaveStatus) => {
     switch (status) {
       case 'PENDING':
-        return <Badge variant="warning">Pending</Badge>;
+        return <Badge variant="warning">{t('Pending', 'लंबित')}</Badge>;
       case 'APPROVED':
-        return <Badge variant="success">Approved</Badge>;
+        return <Badge variant="success">{t('Approved', 'स्वीकृत')}</Badge>;
       case 'REJECTED':
-        return <Badge variant="error">Rejected</Badge>;
+        return <Badge variant="error">{t('Rejected', 'अस्वीकृत')}</Badge>;
       case 'CANCELLED':
-        return <Badge variant="default">Cancelled</Badge>;
+        return <Badge variant="default">{t('Cancelled', 'रद्द')}</Badge>;
       default:
         return <Badge variant="default">{status}</Badge>;
     }
@@ -298,23 +300,23 @@ export default function LeaveManagementPage() {
       case 'short':
         return {
           icon: '📋',
-          title: 'Short Leave',
-          description: 'For absences up to 2 days within city limits',
-          duration: 'Max 2 days/month'
+          title: t('Short Leave', 'लघु अवकाश'),
+          description: t('For absences up to 2 days within city limits', 'शहर की सीमा के भीतर 2 दिन तक की अनुपस्थिति के लिए'),
+          duration: t('Max 2 days/month', 'अधिकतम 2 दिन/माह')
         };
       case 'night-out':
         return {
           icon: '🌙',
-          title: 'Night Out',
-          description: 'Evening outing returning same night',
-          duration: 'Return by 10:00 PM'
+          title: t('Night Out', 'नाइट आउट'),
+          description: t('Evening outing returning same night', 'शाम की सैर उसी रात वापसी'),
+          duration: t('Return by 10:00 PM', 'रात 10:00 बजे तक वापसी')
         };
       case 'multi-day':
         return {
           icon: '📅',
-          title: 'Multi-Day Leave',
-          description: 'Extended leave requiring prior approval',
-          duration: 'Max 7 days/semester'
+          title: t('Multi-Day Leave', 'बहु-दिवसीय अवकाश'),
+          description: t('Extended leave requiring prior approval', 'पूर्व अनुमोदन आवश्यक विस्तारित अवकाश'),
+          duration: t('Max 7 days/semester', 'अधिकतम 7 दिन/सेमेस्टर')
         };
     }
   };
@@ -325,17 +327,17 @@ export default function LeaveManagementPage() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-6">
             <h1 style={{ color: 'var(--text-primary)' }} className="text-3xl font-bold mb-2">
-              Leave Management
+              {t('Leave Management', 'अवकाश प्रबंधन')}
             </h1>
             <p style={{ color: 'var(--text-secondary)' }} className="text-body">
-              Request leave, view history, and check approval status
+              {t('Request leave, view history, and check approval status', 'अवकाश का अनुरोध करें, इतिहास देखें, और अनुमोदन स्थिति जांचें')}
             </p>
           </div>
 
           {!showForm && !selectedType && (
             <div className="space-y-6">
               <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-semibold mb-6">
-                Select Leave Type
+                {t('Select Leave Type', 'अवकाश प्रकार चुनें')}
               </h2>
               <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3 mb-8">
                 {(['short', 'night-out', 'multi-day'] as LeaveType[]).map((type) => {
@@ -371,15 +373,15 @@ export default function LeaveManagementPage() {
                   <span className="text-xl">📜</span>
                   <div>
                     <h3 style={{ color: 'var(--text-primary)' }} className="text-lg font-semibold mb-2">
-                      Leave Rules & Policies
+                      {t('Leave Rules & Policies', 'अवकाश नियम और नीतियां')}
                     </h3>
                   </div>
                 </div>
                 <div className="space-y-3">
                   {rulesLoading ? (
-                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>Loading rules...</p>
+                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>{t('Loading rules...', 'नियम लोड हो रहे हैं...')}</p>
                   ) : leaveRules.length === 0 ? (
-                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>No leave rules configured.</p>
+                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>{t('No leave rules configured.', 'कोई अवकाश नियम कॉन्फ़िगर नहीं किए गए।')}</p>
                   ) : leaveRules.map((rule, index) => (
                     <div key={index} className="flex items-start gap-3 pb-3 border-b" style={{ borderColor: 'var(--border-primary)' }}>
                       <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--bg-accent)' }}>
@@ -407,37 +409,37 @@ export default function LeaveManagementPage() {
                 className="text-sm mb-6"
                 style={{ color: 'var(--text-link)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
               >
-                ← Back to Leave Types
+                {t('← Back to Leave Types', '← अवकाश प्रकारों पर वापस जाएं')}
               </button>
 
               <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-bold mb-2">
-                {getLeaveTypeInfo(selectedType).title} Application
+                {getLeaveTypeInfo(selectedType).title} {t('Application', 'आवेदन')}
               </h2>
               <p style={{ color: 'var(--text-secondary)' }} className="text-body mb-6">
-                Fill in the required details to request {getLeaveTypeInfo(selectedType).title.toLowerCase()}
+                {t(`Fill in the required details to request ${getLeaveTypeInfo(selectedType).title.toLowerCase()}`, `${getLeaveTypeInfo(selectedType).title} का अनुरोध करने के लिए आवश्यक विवरण भरें`)}
               </p>
 
               <div className="card p-6 rounded-lg" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
                   <div>
                     <DatePicker
-                      label="From Date"
+                      label={t('From Date', 'तारीख से')}
                       value={formData.fromDate}
                       onChange={(e) => handleInputChange('fromDate', e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
                       error={formErrors.fromDate}
-                      helperText="Select the start date of your leave"
+                      helperText={t('Select the start date of your leave', 'अपने अवकाश की आरंभ तिथि चुनें')}
                       required
                     />
                   </div>
                   <div>
                     <DatePicker
-                      label="To Date"
+                      label={t('To Date', 'तारीख तक')}
                       value={formData.toDate}
                       onChange={(e) => handleInputChange('toDate', e.target.value)}
                       min={formData.fromDate}
                       error={formErrors.toDate}
-                      helperText="Select the end date of your leave"
+                      helperText={t('Select the end date of your leave', 'अपने अवकाश की अंतिम तिथि चुनें')}
                       required
                     />
                   </div>
@@ -446,28 +448,28 @@ export default function LeaveManagementPage() {
                 {(selectedType === 'short' || selectedType === 'night-out') && (
                   <div className="grid gap-6 md:grid-cols-2 mt-6">
                     <TimePicker
-                      label="From Time"
+                      label={t('From Time', 'समय से')}
                       value={formData.fromTime}
                       onChange={(e) => handleInputChange('fromTime', e.target.value)}
-                      helperText="Start time for your leave"
+                      helperText={t('Start time for your leave', 'आपके अवकाश का आरंभ समय')}
                     />
                     <TimePicker
-                      label="To Time"
+                      label={t('To Time', 'समय तक')}
                       value={formData.toTime}
                       onChange={(e) => handleInputChange('toTime', e.target.value)}
-                      helperText="End time for your leave"
+                      helperText={t('End time for your leave', 'आपके अवकाश का अंत समय')}
                     />
                   </div>
                 )}
 
                 <div className="mb-6 mt-6">
                   <Textarea
-                    label="Reason for Leave"
-                    placeholder="Please provide a detailed reason for your leave request"
+                    label={t('Reason for Leave', 'अवकाश का कारण')}
+                    placeholder={t('Please provide a detailed reason for your leave request', 'कृपया अपने अवकाश अनुरोध का विस्तृत कारण बताएं')}
                     value={formData.reason}
                     onChange={(e) => handleInputChange('reason', e.target.value)}
                     error={formErrors.reason}
-                    helperText="Minimum 10 characters required. Include all relevant details."
+                    helperText={t('Minimum 10 characters required. Include all relevant details.', 'न्यूनतम 10 अक्षर आवश्यक हैं। सभी प्रासंगिक विवरण शामिल करें।')}
                     required
                     rows={4}
                   />
@@ -477,12 +479,12 @@ export default function LeaveManagementPage() {
                   <div className="mb-6">
                     <Input
                       type="text"
-                      label="Destination"
-                      placeholder="Where will you be going during your leave?"
+                      label={t('Destination', 'गंतव्य')}
+                      placeholder={t('Where will you be going during your leave?', 'अवकाश के दौरान आप कहां जाएंगे?')}
                       value={formData.destination}
                       onChange={(e) => handleInputChange('destination', e.target.value)}
                       error={formErrors.toDate}
-                      helperText="Destination city or place is required for multi-day leave"
+                      helperText={t('Destination city or place is required for multi-day leave', 'बहु-दिवसीय अवकाश के लिए गंतव्य शहर या स्थान आवश्यक है')}
                       required
                     />
                   </div>
@@ -491,11 +493,11 @@ export default function LeaveManagementPage() {
                 <div className="mb-6">
                   <Input
                     type="tel"
-                    label="Emergency Contact Number (Optional)"
+                    label={t('Emergency Contact Number (Optional)', 'आपातकालीन संपर्क नंबर (वैकल्पिक)')}
                     placeholder="+91 XXXXX XXXXX"
                     value={formData.contactNumber}
                     onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                    helperText="Contact number for emergency during leave period"
+                    helperText={t('Contact number for emergency during leave period', 'अवकाश अवधि के दौरान आपातकालीन संपर्क नंबर')}
                   />
                 </div>
 
@@ -504,13 +506,13 @@ export default function LeaveManagementPage() {
                     variant="secondary"
                     onClick={handleCancel}
                   >
-                    Cancel
+                    {t('Cancel', 'रद्द करें')}
                   </Button>
                   <Button
                     variant="primary"
                     onClick={handleSubmit}
                   >
-                    Submit Leave Request
+                    {t('Submit Leave Request', 'अवकाश अनुरोध जमा करें')}
                   </Button>
                 </div>
               </div>
@@ -521,10 +523,10 @@ export default function LeaveManagementPage() {
             <div className="mb-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-semibold">
-                  Leave History
+                  {t('Leave History', 'अवकाश इतिहास')}
                 </h2>
                 <Button variant="ghost" size="sm" onClick={fetchLeaveHistory} disabled={historyLoading}>
-                  {historyLoading ? 'Loading...' : 'Refresh'}
+                  {historyLoading ? t('Loading...', 'लोड हो रहा है...') : t('Refresh', 'रिफ्रेश')}
                 </Button>
               </div>
 
@@ -532,30 +534,30 @@ export default function LeaveManagementPage() {
                 <div className="overflow-x-auto">
                   {historyLoading ? (
                     <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                      Loading leave history...
+                      {t('Loading leave history...', 'अवकाश इतिहास लोड हो रहा है...')}
                     </div>
                   ) : leaveHistory.length === 0 ? (
                     <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                      No leave requests found. Submit your first leave request above.
+                      {t('No leave requests found. Submit your first leave request above.', 'कोई अवकाश अनुरोध नहीं मिला। ऊपर अपना पहला अवकाश अनुरोध जमा करें।')}
                     </div>
                   ) : (
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b" style={{ borderColor: 'var(--border-primary)' }}>
                           <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            Type
+                            {t('Type', 'प्रकार')}
                           </th>
                           <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            Dates
+                            {t('Dates', 'तारीखें')}
                           </th>
                           <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            Reason
+                            {t('Reason', 'कारण')}
                           </th>
                           <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            Status
+                            {t('Status', 'स्थिति')}
                           </th>
                           <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            Remarks
+                            {t('Remarks', 'टिप्पणियां')}
                           </th>
                         </tr>
                       </thead>

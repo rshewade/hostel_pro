@@ -3,10 +3,12 @@
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, FileText, Home, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Suspense } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function SuccessContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const trackingNumber = searchParams.get('trackingNumber') || 'N/A';
 
@@ -23,15 +25,14 @@ function SuccessContent() {
           <Link href="/" className="flex items-center gap-3">
             <div>
               <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
-                Hirachand Gumanji Family
-              </h1>
-              <p className="text-caption">Charitable Trust</p>
+                {t('Hirachand Gumanji Family', 'हीराचंद गुमानजी परिवार')}</h1>
+              <p className="text-caption">{t('Charitable Trust', 'चैरिटेबल ट्रस्ट')}</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link">Apply Now</Link>
-            <Link href="/track" className="nav-link">Check Status</Link>
+            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+            <Link href="/track" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
           </nav>
         </div>
       </header>
@@ -46,12 +47,10 @@ function SuccessContent() {
           </div>
 
           <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-            Application Submitted Successfully!
-          </h1>
+            {t('Application Submitted Successfully!', 'आवेदन सफलतापूर्वक जमा हो गया!')}</h1>
 
           <p className="text-lg mb-8" style={{ color: 'var(--text-secondary)' }}>
-            Your application for Girls Ashram has been received. We will review your application and contact you soon.
-          </p>
+            {t('Your application for Girls Ashram has been received. We will review your application and contact you soon.', 'बालिका आश्रम के लिए आपका आवेदन प्राप्त हो गया है। हम आपके आवेदन की समीक्षा करेंगे और जल्द ही संपर्क करेंगे।')}</p>
 
           <div
             className="p-6 rounded-lg mb-8"
@@ -63,8 +62,7 @@ function SuccessContent() {
             <div className="flex items-center justify-center gap-3 mb-4">
               <FileText className="w-5 h-5" style={{ color: 'var(--color-blue-600)' }} />
               <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                Your Tracking Number
-              </span>
+                {t('Your Tracking Number', 'आपका ट्रैकिंग नंबर')}</span>
             </div>
             <div
               className="text-2xl font-bold font-mono p-4 rounded"
@@ -76,14 +74,12 @@ function SuccessContent() {
               {trackingNumber}
             </div>
             <p className="mt-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
-              Please save this tracking number. You will need it to check your application status.
-            </p>
+              {t('Please save this tracking number. You will need it to check your application status.', 'कृपया यह ट्रैकिंग नंबर सहेजें। आपको अपने आवेदन की स्थिति जांचने के लिए इसकी आवश्यकता होगी।')}</p>
           </div>
 
           <div className="space-y-4">
             <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-              What happens next?
-            </h3>
+              {t('What happens next?', 'आगे क्या होगा?')}</h3>
             <ol className="text-left space-y-3 max-w-md mx-auto">
               <li className="flex items-start gap-3">
                 <span
@@ -93,8 +89,7 @@ function SuccessContent() {
                   1
                 </span>
                 <span style={{ color: 'var(--text-secondary)' }}>
-                  Our team will review your application within 3-5 business days.
-                </span>
+                  {t('Our team will review your application within 3-5 business days.', 'हमारी टीम 3-5 कार्य दिवसों में आपके आवेदन की समीक्षा करेगी।')}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span
@@ -104,8 +99,7 @@ function SuccessContent() {
                   2
                 </span>
                 <span style={{ color: 'var(--text-secondary)' }}>
-                  You will receive an SMS/email notification about your interview schedule.
-                </span>
+                  {t('You will receive an SMS/email notification about your interview schedule.', 'आपको साक्षात्कार कार्यक्रम के बारे में एसएमएस/ईमेल सूचना प्राप्त होगी।')}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span
@@ -115,8 +109,7 @@ function SuccessContent() {
                   3
                 </span>
                 <span style={{ color: 'var(--text-secondary)' }}>
-                  After the interview, you will be notified of the final decision.
-                </span>
+                  {t('After the interview, you will be notified of the final decision.', 'साक्षात्कार के बाद, आपको अंतिम निर्णय की सूचना दी जाएगी।')}</span>
               </li>
             </ol>
           </div>
@@ -124,15 +117,14 @@ function SuccessContent() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <Link href={`/track/${trackingNumber}`}>
               <Button variant="primary">
-                Track Application
+                {t('Track Application', 'आवेदन ट्रैक करें')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
             <Link href="/">
               <Button variant="secondary">
                 <Home className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
+                {t('Back to Home', 'होम पर वापस जाएं')}</Button>
             </Link>
           </div>
         </div>

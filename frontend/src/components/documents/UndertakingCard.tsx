@@ -2,8 +2,8 @@
 
 import { forwardRef } from 'react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { 
   AlertCircle, 
   CheckCircle2, 

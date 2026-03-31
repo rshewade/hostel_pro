@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Stepper, Step } from './Stepper';
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { CheckCircle, Clock, AlertCircle, Ban, Edit3 } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ClearanceItem, ClearanceItemStatus, ClearanceOwnerRole } from './types';
 import { ClearanceItemHistory } from './ClearanceItemHistory';
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Lock, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ApprovalConsequences } from './types';
 
 interface ApprovalConfirmationModalProps {

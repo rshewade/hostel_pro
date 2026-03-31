@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Checkbox } from '@/components/forms/Checkbox';
 import { FormFieldWrapper } from '@/components/forms/InlineHelp';
 import {

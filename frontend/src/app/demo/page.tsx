@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Badge, Button } from '@/components/ui';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 import { Card } from '@/components/data/Card';
 import { 
   GraduationCap, 

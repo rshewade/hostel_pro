@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Input, Button, cn } from '@/components';
 import { OtpInput } from '@/components/forms/OtpInput';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Parent Login Flow
 // 1. Enter registered mobile number
@@ -14,6 +15,7 @@ import { OtpInput } from '@/components/forms/OtpInput';
 // Note: Backend must verify mobile number is linked to a student application
 
 export default function ParentLoginPage() {
+  const { t } = useLanguage();
   const [mobile, setMobile] = useState('');
   const [step, setStep] = useState<'input' | 'otp' | 'loading'>('input');
   const [otp, setOtp] = useState('');
@@ -32,12 +34,12 @@ export default function ParentLoginPage() {
   const handleMobileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mobile.trim()) {
-      setError('Please enter your registered mobile number');
+      setError(t('Please enter your registered mobile number', 'कृपया अपना पंजीकृत मोबाइल नंबर दर्ज करें'));
       return;
     }
 
     if (!/^[6-9]\d{9}$/.test(mobile)) {
-      setError('Please enter a valid 10-digit mobile number starting with 6-9');
+      setError(t('Please enter a valid 10-digit mobile number starting with 6-9', 'कृपया 6-9 से शुरू होने वाला एक वैध 10-अंकीय मोबाइल नंबर दर्ज करें'));
       return;
     }
 
@@ -59,11 +61,11 @@ export default function ParentLoginPage() {
         setResendTimer(60);
       } else {
         const data = await response.json();
-        setError(data.message || 'Failed to send OTP. Please try again.');
+        setError(data.message || t('Failed to send OTP. Please try again.', 'OTP भेजने में विफल। कृपया पुनः प्रयास करें।'));
         setStep('input');
       }
     } catch {
-      setError('Unable to connect. Please try again later.');
+      setError(t('Unable to connect. Please try again later.', 'कनेक्ट करने में असमर्थ। कृपया बाद में पुनः प्रयास करें।'));
       setStep('input');
     }
   };
@@ -73,7 +75,7 @@ export default function ParentLoginPage() {
     const otpToVerify = otpValue || otp;
 
     if (!otpToVerify || otpToVerify.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+      setError(t('Please enter a valid 6-digit OTP', 'कृपया एक वैध 6-अंकीय OTP दर्ज करें'));
       return;
     }
 
@@ -100,12 +102,12 @@ export default function ParentLoginPage() {
         window.location.href = `${redirectUrl}${separator}sessionToken=${encodeURIComponent(data.sessionToken)}`;
       } else {
         const data = await response.json();
-        setError(data.message || 'Invalid OTP. Please try again.');
+        setError(data.message || t('Invalid OTP. Please try again.', 'अमान्य OTP। कृपया पुनः प्रयास करें।'));
         setAttempts(prev => prev + 1);
         setStep('otp');
       }
     } catch {
-      setError('Failed to verify OTP. Please try again.');
+      setError(t('Failed to verify OTP. Please try again.', 'OTP सत्यापित करने में विफल। कृपया पुनः प्रयास करें।'));
       setAttempts(prev => prev + 1);
       setStep('otp');
     }
@@ -128,10 +130,10 @@ export default function ParentLoginPage() {
         setResendTimer(60);
         setError('');
       } else {
-        setError('Failed to resend OTP. Please try again.');
+        setError(t('Failed to resend OTP. Please try again.', 'OTP पुनः भेजने में विफल। कृपया पुनः प्रयास करें।'));
       }
     } catch {
-      setError('Failed to resend OTP. Please try again.');
+      setError(t('Failed to resend OTP. Please try again.', 'OTP पुनः भेजने में विफल। कृपया पुनः प्रयास करें।'));
     }
   };
 
@@ -150,12 +152,12 @@ export default function ParentLoginPage() {
               />
             </Link>
             <div>
-              <h1 className="text-lg font-semibold">Hirachand Gumanji Family</h1>
-              <p className="text-caption">Charitable Trust</p>
+              <h1 className="text-lg font-semibold">{t('Hirachand Gumanji Family', 'हीराचंद गुमानजी परिवार')}</h1>
+              <p className="text-caption">{t('Charitable Trust', 'धर्मार्थ ट्रस्ट')}</p>
             </div>
           </div>
           <Link href="/login" className="text-sm text-blue-600 hover:underline">
-            ← Back to Login
+            {t('← Back to Login', '← लॉगिन पर वापस जाएँ')}
           </Link>
         </div>
       </header>
@@ -169,15 +171,15 @@ export default function ParentLoginPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold mb-2">Parent/Guardian Login</h2>
-              <p className="text-gray-600">View your ward&apos;s hostel information and status</p>
+              <h2 className="text-2xl font-bold mb-2">{t('Parent/Guardian Login', 'अभिभावक लॉगिन')}</h2>
+              <p className="text-gray-600">{t("View your ward's hostel information and status", 'अपने वार्ड की छात्रावास जानकारी और स्थिति देखें')}</p>
             </div>
 
             {step === 'input' && (
               <form onSubmit={handleMobileSubmit} className="space-y-6">
                 <Input
                   id="mobile"
-                  label="Registered Mobile Number"
+                  label={t('Registered Mobile Number', 'पंजीकृत मोबाइल नंबर')}
                   type="tel"
                   inputMode="numeric"
                   placeholder="+91XXXXXXXXXX"
@@ -185,7 +187,7 @@ export default function ParentLoginPage() {
                   onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   maxLength={10}
                   required
-                  helperText="Enter the mobile number registered with your ward's hostel application"
+                  helperText={t("Enter the mobile number registered with your ward's hostel application", 'अपने वार्ड के छात्रावास आवेदन में पंजीकृत मोबाइल नंबर दर्ज करें')}
                   autoFocus
                 />
 
@@ -196,7 +198,7 @@ export default function ParentLoginPage() {
                 )}
 
                 <Button type="submit" className="w-full">
-                  Send OTP
+                  {t('Send OTP', 'OTP भेजें')}
                 </Button>
               </form>
             )}
@@ -205,7 +207,7 @@ export default function ParentLoginPage() {
               <div className="space-y-6">
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600">
-                    Enter OTP sent to <span className="font-semibold">{mobile}</span>
+                    {t('Enter OTP sent to', 'OTP दर्ज करें जो भेजा गया है')} <span className="font-semibold">{mobile}</span>
                   </p>
                 </div>
 
@@ -226,7 +228,7 @@ export default function ParentLoginPage() {
                     }}
                     className="text-sm text-gray-600 hover:underline"
                   >
-                    ← Change mobile number
+                    {t('← Change mobile number', '← मोबाइल नंबर बदलें')}
                   </button>
 
                   <button
@@ -238,7 +240,7 @@ export default function ParentLoginPage() {
                       resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:underline font-medium'
                     )}
                   >
-                    {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
+                    {resendTimer > 0 ? t(`Resend in ${resendTimer}s`, `${resendTimer}s में पुनः भेजें`) : t('Resend OTP', 'OTP पुनः भेजें')}
                   </button>
                 </div>
               </div>
@@ -247,7 +249,7 @@ export default function ParentLoginPage() {
             {step === 'loading' && (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Processing...</p>
+                <p className="mt-4 text-gray-600">{t('Processing...', 'प्रक्रिया हो रही है...')}</p>
               </div>
             )}
           </div>
@@ -259,10 +261,9 @@ export default function ParentLoginPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <h4 className="text-sm font-medium text-blue-900 mb-1">View-Only Access</h4>
+                  <h4 className="text-sm font-medium text-blue-900 mb-1">{t('View-Only Access', 'केवल देखने की पहुँच')}</h4>
                   <p className="text-sm text-blue-700">
-                    Parent accounts have read-only access to view your ward&apos;s hostel information.
-                    You cannot make changes or approve requests through this portal.
+                    {t("Parent accounts have read-only access to view your ward's hostel information. You cannot make changes or approve requests through this portal.", 'अभिभावक खातों में आपके वार्ड की छात्रावास जानकारी देखने के लिए केवल पढ़ने की पहुँच है। आप इस पोर्टल के माध्यम से परिवर्तन या अनुरोध स्वीकृत नहीं कर सकते।')}
                   </p>
                 </div>
               </div>
@@ -274,10 +275,9 @@ export default function ParentLoginPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Secure Login</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">{t('Secure Login', 'सुरक्षित लॉगिन')}</h4>
                   <p className="text-sm text-gray-600">
-                    Your mobile number is used only to verify your identity and retrieve your ward&apos;s information.
-                    All data transmission is encrypted and complies with DPDP Act, 2023.
+                    {t("Your mobile number is used only to verify your identity and retrieve your ward's information. All data transmission is encrypted and complies with DPDP Act, 2023.", 'आपका मोबाइल नंबर केवल आपकी पहचान सत्यापित करने और आपके वार्ड की जानकारी प्राप्त करने के लिए उपयोग किया जाता है। सभी डेटा संचरण एन्क्रिप्टेड है और DPDP अधिनियम, 2023 का अनुपालन करता है।')}
                   </p>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function ParentLoginPage() {
 
             <div className="text-center">
               <p className="text-sm text-gray-500">
-                Need help? Contact the hostel administration at{' '}
+                {t('Need help? Contact the hostel administration at', 'सहायता चाहिए? छात्रावास प्रशासन से संपर्क करें')}{' '}
                 <a href="tel:+912224141234" className="text-blue-600 hover:underline">+91 22 2414 1234</a>
               </p>
             </div>

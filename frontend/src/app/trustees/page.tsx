@@ -1,215 +1,179 @@
-import { Building, Users, Heart, GraduationCap } from "lucide-react";
-import PageHero from "@/components/public/PageHero";
+"use client";
+
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card";
+import { Avatar, AvatarFallback } from "@/components/shadcn/avatar";
+import { Users, Building, Heart, GraduationCap } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
-
-const heritageCards = [
-  {
-    icon: <Building className="w-8 h-8" />,
-    title: "Origins in Bhindar",
-    description:
-      "The Jhaveri family traces its roots to the historic town of Bhindar in Rajasthan, a region renowned for its rich Jain heritage and tradition of philanthropy. From these humble beginnings, the family established itself as a pillar of the community.",
-  },
-  {
-    icon: <Users className="w-8 h-8" />,
-    title: "Founding Figures",
-    description:
-      "The early patriarchs of the Jhaveri family laid the groundwork for what would become one of Mumbai's most respected charitable trusts. Their vision of community service and educational empowerment continues to guide the Trust's mission.",
-  },
-  {
-    icon: <Heart className="w-8 h-8" />,
-    title: "The Trust's Namesake",
-    description:
-      "Seth Hirachand Gumanji, whose name the Trust proudly bears, was a visionary leader who dedicated his life and resources to the welfare of the Jain community. His legacy of generosity and compassion remains the cornerstone of the institution.",
-  },
-  {
-    icon: <GraduationCap className="w-8 h-8" />,
-    title: "Generational Leadership",
-    description:
-      "Across multiple generations, the Jhaveri family has maintained an unwavering commitment to the Trust's founding principles. Each generation has built upon the work of its predecessors, expanding the reach and impact of the Trust's charitable activities.",
-  },
-];
-
-const managementMembers = [
-  {
-    name: "Seema Javeri",
-    role: "Executive Director",
-    initials: "SJ",
-    description:
-      "Seema Javeri has been leading the Trust's operations with dedication and vision for over a decade. Under her stewardship, the Trust has modernized its facilities, streamlined admissions processes, and strengthened its commitment to student welfare while preserving the institution's core values.",
-  },
-  {
-    name: "Asit Jhaveri",
-    role: "Trustee",
-    initials: "AJ",
-    description:
-      "Asit Jhaveri brings a wealth of experience in governance and community development to the Board of Trustees. His strategic guidance has been instrumental in the Trust's growth, particularly in expanding educational programs and ensuring financial sustainability for future generations.",
-  },
-];
+import PageHero from "@/components/public/PageHero";
 
 export default function TrusteesPage() {
+  const { t, language } = useLanguage();
+
+  const keyMembers = [
+    {
+      name: { en: 'Seema Javeri (Jhaveri)', hi: 'सीमा जावेरी (झावेरी)' },
+      role: { en: 'Executive Director', hi: 'कार्यकारी निदेशक' },
+      description: {
+        en: 'A key figure in the family\'s professional and philanthropic engagements. She has been involved in managing family interests including Sadhana Nitro Chem Limited.',
+        hi: 'परिवार की पेशेवर और परोपकारी गतिविधियों में एक प्रमुख व्यक्ति। वह साधना नाइट्रो केम लिमिटेड सहित पारिवारिक हितों के प्रबंधन में शामिल रही हैं।'
+      },
+    },
+    {
+      name: { en: 'Asit Jhaveri', hi: 'असित झावेरी' },
+      role: { en: 'Trustee', hi: 'न्यासी' },
+      description: {
+        en: 'Frequently cited alongside Seema Jhaveri in leadership roles within family-related corporate and charitable structures.',
+        hi: 'परिवार से संबंधित कॉर्पोरेट और धर्मार्थ संरचनाओं में नेतृत्व भूमिकाओं में सीमा झावेरी के साथ अक्सर उल्लेखित।'
+      },
+    },
+  ];
+
+  const heritageTimeline = [
+    {
+      icon: Building,
+      title: { en: 'Origins in Bhindar', hi: 'भींदर में उत्पत्ति' },
+      description: {
+        en: 'The family\'s philanthropic journey began in the 19th century. The lineage originates from Bhindar, Rajasthan, eventually migrating to Mumbai via Surat in 1851.',
+        hi: 'परिवार की परोपकारी यात्रा 19वीं शताब्दी में शुरू हुई। वंश का उद्गम भींदर, राजस्थान से हुआ, अंततः 1851 में सूरत के रास्ते मुंबई पहुंचे।'
+      }
+    },
+    {
+      icon: Users,
+      title: { en: 'Founding Figures', hi: 'संस्थापक व्यक्ति' },
+      description: {
+        en: 'The family\'s charitable reputation was established by Seth Panachand and Seth Manikchand JP. Starting as threaders of pearl necklaces, they grew a jewelry empire—"Manikchand Panachand Zaveri"—that expanded to international markets.',
+        hi: 'परिवार की धर्मार्थ प्रतिष्ठा सेठ पनाचंद और सेठ मनिकचंद जेपी द्वारा स्थापित की गई। मोती की मालाओं के धागा पिरोने वालों के रूप में शुरू करके, उन्होंने एक आभूषण साम्राज्य बनाया - "मनिकचंद पनाचंद जावेरी" - जो अंतर्राष्ट्रीय बाजारों तक फैला।'
+      }
+    },
+    {
+      icon: Heart,
+      title: { en: 'The Trust\'s Namesake', hi: 'ट्रस्ट का नाम' },
+      description: {
+        en: 'The trust is named after their father, Hirachand Gumanji, in whose memory several institutions were built.',
+        hi: 'ट्रस्ट का नाम उनके पिता हीराचंद गुमानजी के नाम पर रखा गया है, जिनकी स्मृति में कई संस्थाएं बनाई गईं।'
+      }
+    },
+    {
+      icon: GraduationCap,
+      title: { en: 'Generational Leadership', hi: 'पीढ़ीगत नेतृत्व' },
+      description: {
+        en: 'Today, the fifth generation of the family continues to manage these activities, maintaining a traditionally low profile while focusing on education and healthcare.',
+        hi: 'आज, परिवार की पांचवीं पीढ़ी इन गतिविधियों का प्रबंधन जारी रखती है, शिक्षा और स्वास्थ्य सेवा पर ध्यान केंद्रित करते हुए पारंपरिक रूप से कम प्रोफ़ाइल बनाए रखती है।'
+      }
+    },
+  ];
+
   return (
     <PublicLayout>
-      <PageHero title="Board of Trustees" />
+      {/* Hero */}
+      <PageHero
+        title={t('Board of Trustees', 'न्यासी मंडल')}
+        subtitle={t(
+          'Dedicated individuals guiding the trust with wisdom and commitment',
+          'बुद्धिमत्ता और प्रतिबद्धता के साथ ट्रस्ट का मार्गदर्शन करने वाले समर्पित व्यक्ति'
+        )}
+      />
 
       {/* Jhaveri Family Heritage */}
-      <section
-        className="py-16"
-        style={{ backgroundColor: "var(--bg-page)" }}
-      >
-        <div className="mx-auto max-w-6xl px-4">
-          <h2
-            className="text-3xl font-bold mb-4 text-center"
-            style={{
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-serif)",
-            }}
-          >
-            The Jhaveri Family Heritage
-          </h2>
-          <p
-            className="text-center mb-12 max-w-2xl mx-auto"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            A legacy of service, faith, and dedication spanning over a century
-            and a half.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {heritageCards.map((card) => (
-              <div
-                key={card.title}
-                className="rounded-xl p-8"
-                style={{
-                  backgroundColor: "var(--surface-primary)",
-                  border: "1px solid var(--border-primary)",
-                }}
-              >
-                <div
-                  className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-5"
-                  style={{
-                    backgroundColor: "var(--color-navy-50)",
-                    color: "var(--color-navy-700)",
-                  }}
-                >
-                  {card.icon}
-                </div>
-                <h3
-                  className="text-xl font-bold mb-3"
-                  style={{
-                    color: "var(--text-primary)",
-                    fontFamily: "var(--font-serif)",
-                  }}
-                >
-                  {card.title}
-                </h3>
-                <p
-                  className="leading-relaxed"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {card.description}
-                </p>
-              </div>
-            ))}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-heading font-bold text-foreground mb-4">
+                {t('The Jhaveri Family Heritage', 'झावेरी परिवार की विरासत')}
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                {t(
+                  'A legacy of philanthropy spanning over 150 years, rooted in Jain values of service and compassion.',
+                  '150 से अधिक वर्षों में फैली परोपकार की विरासत, सेवा और करुणा के जैन मूल्यों में निहित।'
+                )}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {heritageTimeline.map((item, index) => (
+                <Card key={index} className="hover:shadow-elegant transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <item.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <CardTitle className="font-heading text-lg">{item.title[language]}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed">{item.description[language]}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Key Management */}
-      <section
-        className="py-16"
-        style={{ backgroundColor: "var(--surface-secondary)" }}
-      >
-        <div className="mx-auto max-w-4xl px-4">
-          <h2
-            className="text-3xl font-bold mb-4 text-center"
-            style={{
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-serif)",
-            }}
-          >
-            Key Management
-          </h2>
-          <p
-            className="text-center mb-12 max-w-2xl mx-auto"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            The dedicated leaders who guide the Trust with wisdom and
-            commitment.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {managementMembers.map((member) => (
-              <div
-                key={member.name}
-                className="rounded-xl p-8 text-center"
-                style={{
-                  backgroundColor: "var(--surface-primary)",
-                  border: "1px solid var(--border-primary)",
-                }}
-              >
-                <div
-                  className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-5 text-2xl font-bold"
-                  style={{
-                    backgroundColor: "var(--color-navy-100)",
-                    color: "var(--color-navy-700)",
-                    fontFamily: "var(--font-serif)",
-                  }}
-                >
-                  {member.initials}
-                </div>
-                <h3
-                  className="text-xl font-bold mb-1"
-                  style={{
-                    color: "var(--text-primary)",
-                    fontFamily: "var(--font-serif)",
-                  }}
-                >
-                  {member.name}
-                </h3>
-                <p
-                  className="text-sm font-medium mb-4"
-                  style={{ color: "var(--bg-accent)" }}
-                >
-                  {member.role}
-                </p>
-                <p
-                  className="leading-relaxed text-sm"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {member.description}
-                </p>
-              </div>
-            ))}
+      {/* Key Management & Members */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-heading font-bold text-foreground mb-4">
+                {t('Key Management & Members', 'प्रमुख प्रबंधन और सदस्य')}
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                {t(
+                  'While the family is known for its privacy, certain members have been associated with the trust\'s activities and broader social initiatives.',
+                  'जबकि परिवार अपनी गोपनीयता के लिए जाना जाता है, कुछ सदस्य ट्रस्ट की गतिविधियों और व्यापक सामाजिक पहलों से जुड़े रहे हैं।'
+                )}
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {keyMembers.map((member, index) => (
+                <Card key={index} className="hover:shadow-elegant transition-shadow">
+                  <CardHeader className="text-center">
+                    <Avatar className="w-20 h-20 mx-auto mb-4">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
+                        {member.name[language].split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <CardTitle className="font-heading">{member.name[language]}</CardTitle>
+                    <p className="text-primary font-medium">{member.role[language]}</p>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{member.description[language]}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Note about family-run trust */}
+            <div className="mt-8 p-6 bg-muted/50 rounded-xl text-center max-w-2xl mx-auto">
+              <p className="text-muted-foreground text-sm">
+                {t(
+                  'Note: Traditionally, the trust is family-run, meaning direct descendants of the founders typically hold trustee positions.',
+                  'नोट: पारंपरिक रूप से, ट्रस्ट परिवार द्वारा संचालित है, जिसका अर्थ है कि संस्थापकों के प्रत्यक्ष वंशज आमतौर पर न्यासी पदों पर होते हैं।'
+                )}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Legacy Section */}
-      <section
-        className="py-16"
-        style={{ backgroundColor: "var(--bg-page)" }}
-      >
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2
-            className="text-3xl font-bold mb-8"
-            style={{
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-serif)",
-            }}
-          >
-            A Living Legacy
-          </h2>
-          <p
-            className="text-lg leading-relaxed"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            The Seth Hirachand Gumanji Jain Trust stands as a testament to the
-            enduring power of faith, service, and community. From its origins in
-            the small town of Bhindar to its present-day impact in Mumbai, the
-            Trust continues to honor its founders&apos; vision by empowering
-            students, supporting pilgrims, and preserving the rich cultural
-            heritage of the Jain community. As it embraces digital
-            transformation, the Trust remains steadfast in its commitment to the
-            values that have guided it for over 170 years.
-          </p>
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl font-heading font-bold text-foreground mb-4">
+              {t('Continuing a Noble Legacy', 'एक महान विरासत को जारी रखना')}
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              {t(
+                'Our trustees carry forward the vision of the founding Javeri family, ensuring that the trust continues to serve the Jain community with the same dedication and values that have guided us for over 125 years. Each trustee brings unique expertise and unwavering commitment to our mission of Vidya Daan and Jain Seva.',
+                'हमारे न्यासी संस्थापक जावेरी परिवार की दृष्टि को आगे बढ़ाते हैं, यह सुनिश्चित करते हुए कि ट्रस्ट उसी समर्पण और मूल्यों के साथ जैन समुदाय की सेवा करता रहे जो 125 से अधिक वर्षों से हमारा मार्गदर्शन करते रहे हैं। प्रत्येक न्यासी विद्या दान और जैन सेवा के हमारे मिशन में अद्वितीय विशेषज्ञता और अटूट प्रतिबद्धता लाता है।'
+              )}
+            </p>
+          </div>
         </div>
       </section>
     </PublicLayout>

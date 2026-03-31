@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 
 type ApplicationStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED' | 'PROVISIONALLY_APPROVED' | 'FINAL_APPROVED' | 'REJECTED';
 

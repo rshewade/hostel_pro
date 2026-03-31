@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input } from '@/components';
 import { Checkbox } from '@/components/forms/Checkbox';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type PasswordChangeFormData = {
   newPassword: string;
@@ -12,6 +13,7 @@ type PasswordChangeFormData = {
 };
 
 function FirstTimeSetupContent() {
+  const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') || '';
@@ -35,9 +37,9 @@ function FirstTimeSetupContent() {
 
   const getPasswordStrength = () => {
     const criteriaMet = Object.values(passwordStrength).filter(Boolean).length;
-    if (criteriaMet <= 2) return { label: 'Weak', color: 'bg-red-50 text-red-700' };
-    if (criteriaMet <= 3) return { label: 'Fair', color: 'bg-yellow-50 text-yellow-700' };
-    return { label: 'Strong', color: 'bg-green-50 text-green-700' };
+    if (criteriaMet <= 2) return { label: t('Weak', 'कमज़ोर'), color: 'bg-red-50 text-red-700' };
+    if (criteriaMet <= 3) return { label: t('Fair', 'ठीक'), color: 'bg-yellow-50 text-yellow-700' };
+    return { label: t('Strong', 'मज़बूत'), color: 'bg-green-50 text-green-700' };
   };
 
   const strength = getPasswordStrength();
@@ -161,10 +163,10 @@ function FirstTimeSetupContent() {
               className="text-heading-1 mb-2"
               style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
             >
-              Password Updated Successfully
+              {t('Password Updated Successfully', 'पासवर्ड सफलतापूर्वक अपडेट हुआ')}
             </h1>
             <p className="text-body mb-6" style={{ color: 'var(--text-secondary)' }}>
-              You will be redirected to your dashboard shortly...
+              {t('You will be redirected to your dashboard shortly...', 'आपको शीघ्र ही आपके डैशबोर्ड पर भेज दिया जाएगा...')}
             </p>
             <div className="w-16 h-1 mx-auto mb-6" style={{ background: 'var(--color-green-500)' }}></div>
           </div>
@@ -187,10 +189,10 @@ function FirstTimeSetupContent() {
             className="text-heading-1 mb-2"
             style={{ fontFamily: 'var(--font-serif)', color: 'var(--text-primary)' }}
           >
-            First-Time Password Change
+            {t('First-Time Password Change', 'पहली बार पासवर्ड बदलें')}
           </h1>
           <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
-            For security purposes, please set a new password before accessing your account
+            {t('For security purposes, please set a new password before accessing your account', 'सुरक्षा के लिए, कृपया अपने खाते तक पहुंचने से पहले एक नया पासवर्ड सेट करें')}
           </p>
         </div>
 
@@ -209,26 +211,26 @@ function FirstTimeSetupContent() {
           <Input
             id={newPasswordId}
             type="password"
-            label="New Password"
-            placeholder="Enter your new password"
+            label={t('New Password', 'नया पासवर्ड')}
+            placeholder={t('Enter your new password', 'अपना नया पासवर्ड दर्ज करें')}
             value={formData.newPassword}
             onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
             required
             autoComplete="new-password"
-            helperText="Minimum 8 characters with mix of uppercase, lowercase, numbers, and special characters"
+            helperText={t('Minimum 8 characters with mix of uppercase, lowercase, numbers, and special characters', 'न्यूनतम 8 अक्षर जिसमें बड़े, छोटे अक्षर, संख्याएं और विशेष वर्ण शामिल हों')}
           />
 
           {/* Confirm Password Field */}
           <Input
             id={confirmPasswordId}
             type="password"
-            label="Confirm New Password"
-            placeholder="Re-enter your new password"
+            label={t('Confirm New Password', 'नया पासवर्ड पुनः दर्ज करें')}
+            placeholder={t('Re-enter your new password', 'अपना नया पासवर्ड दोबारा दर्ज करें')}
             value={formData.confirmPassword}
             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             required
             autoComplete="new-password"
-            error={formData.newPassword !== formData.confirmPassword && formData.confirmPassword ? 'Passwords do not match' : undefined}
+            error={formData.newPassword !== formData.confirmPassword && formData.confirmPassword ? t('Passwords do not match', 'पासवर्ड मेल नहीं खाते') : undefined}
           />
 
           {/* Password Strength Indicator */}
@@ -236,7 +238,7 @@ function FirstTimeSetupContent() {
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-body-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                  Password Strength
+                  {t('Password Strength', 'पासवर्ड की मज़बूती')}
                 </span>
                 <span
                   className="px-3 py-1 rounded-full text-xs font-semibold"
@@ -250,31 +252,31 @@ function FirstTimeSetupContent() {
                   <span className={passwordStrength.hasMinLength ? 'text-green-600' : 'text-gray-400'}>
                     {passwordStrength.hasMinLength ? '✓' : '○'}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>Minimum 8 characters</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('Minimum 8 characters', 'न्यूनतम 8 अक्षर')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-body-sm">
                   <span className={passwordStrength.hasUpperCase ? 'text-green-600' : 'text-gray-400'}>
                     {passwordStrength.hasUpperCase ? '✓' : '○'}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>One uppercase letter</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('One uppercase letter', 'एक बड़ा अक्षर')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-body-sm">
                   <span className={passwordStrength.hasLowerCase ? 'text-green-600' : 'text-gray-400'}>
                     {passwordStrength.hasLowerCase ? '✓' : '○'}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>One lowercase letter</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('One lowercase letter', 'एक छोटा अक्षर')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-body-sm">
                   <span className={passwordStrength.hasNumber ? 'text-green-600' : 'text-gray-400'}>
                     {passwordStrength.hasNumber ? '✓' : '○'}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>One number</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('One number', 'एक संख्या')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-body-sm">
                   <span className={passwordStrength.hasSpecialChar ? 'text-green-600' : 'text-gray-400'}>
                     {passwordStrength.hasSpecialChar ? '✓' : '○'}
                   </span>
-                  <span style={{ color: 'var(--text-secondary)' }}>One special character (!@#$%^&*)</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{t('One special character (!@#$%^&*)', 'एक विशेष वर्ण (!@#$%^&*)')}</span>
                 </div>
               </div>
             </div>
@@ -292,17 +294,17 @@ function FirstTimeSetupContent() {
               </div>
               <div className="flex-1">
                 <span className="text-body font-medium mb-1 block" style={{ color: 'var(--text-primary)' }}>
-                  I accept the Data Protection and Privacy Principles
+                  {t('I accept the Data Protection and Privacy Principles', 'मैं डेटा सुरक्षा और गोपनीयता सिद्धांत स्वीकार करता/करती हूं')}
                 </span>
                 <p className="text-body-sm" style={{ color: 'var(--text-secondary)' }}>
-                  I consent to the collection, storage, and processing of my personal data as per the Digital Personal Data Protection (DPDP) Act. I understand that my data will be used for hostel management purposes and that I can withdraw this consent at any time.
+                  {t('I consent to the collection, storage, and processing of my personal data as per the Digital Personal Data Protection (DPDP) Act. I understand that my data will be used for hostel management purposes and that I can withdraw this consent at any time.', 'मैं डिजिटल व्यक्तिगत डेटा सुरक्षा (DPDP) अधिनियम के अनुसार अपने व्यक्तिगत डेटा के संग्रह, भंडारण और प्रसंस्करण के लिए सहमति देता/देती हूं। मैं समझता/समझती हूं कि मेरे डेटा का उपयोग छात्रावास प्रबंधन के उद्देश्यों के लिए किया जाएगा और मैं किसी भी समय यह सहमति वापस ले सकता/सकती हूं।')}
                 </p>
                 <Link
                   href="/dpdp-policy"
                   className="text-sm text-gold-600 hover:underline"
                   target="_blank"
                 >
-                  Read Full DPDP Policy →
+                  {t('Read Full DPDP Policy →', 'पूरी DPDP नीति पढ़ें →')}
                 </Link>
               </div>
             </div>
@@ -317,21 +319,21 @@ function FirstTimeSetupContent() {
             loading={loading}
             disabled={loading || !dpdpConsent || strength.label === 'Weak'}
           >
-            {loading ? 'Updating Password...' : 'Set New Password & Continue'}
+            {loading ? t('Updating Password...', 'पासवर्ड अपडेट हो रहा है...') : t('Set New Password & Continue', 'नया पासवर्ड सेट करें और जारी रखें')}
           </Button>
         </form>
 
         {/* Security Information */}
         <div className="mt-8 p-4 rounded-lg border" style={{ borderColor: 'var(--border-primary)' }}>
           <h3 className="text-heading-4 mb-3" style={{ color: 'var(--text-primary)' }}>
-            Security Guidelines
+            {t('Security Guidelines', 'सुरक्षा दिशानिर्देश')}
           </h3>
           <ul className="space-y-2 text-body-sm" style={{ color: 'var(--text-secondary)' }}>
-            <li>• Password must be at least 8 characters long</li>
-            <li>• Include uppercase and lowercase letters, numbers, and special characters</li>
-            <li>• Do not use easily guessable information (birthdays, phone numbers)</li>
-            <li>• Change your password regularly</li>
-            <li>• Never share your password with anyone</li>
+            <li>• {t('Password must be at least 8 characters long', 'पासवर्ड कम से कम 8 अक्षरों का होना चाहिए')}</li>
+            <li>• {t('Include uppercase and lowercase letters, numbers, and special characters', 'बड़े और छोटे अक्षर, संख्याएं और विशेष वर्ण शामिल करें')}</li>
+            <li>• {t('Do not use easily guessable information (birthdays, phone numbers)', 'आसानी से अनुमान लगाने योग्य जानकारी (जन्मदिन, फोन नंबर) का उपयोग न करें')}</li>
+            <li>• {t('Change your password regularly', 'अपना पासवर्ड नियमित रूप से बदलें')}</li>
+            <li>• {t('Never share your password with anyone', 'अपना पासवर्ड कभी किसी के साथ साझा न करें')}</li>
           </ul>
         </div>
 
@@ -342,7 +344,7 @@ function FirstTimeSetupContent() {
             className="text-body-sm"
             style={{ color: 'var(--text-link)' }}
           >
-            Need help? Contact Support
+            {t('Need help? Contact Support', 'मदद चाहिए? सहायता से संपर्क करें')}
           </Link>
         </div>
       </div>

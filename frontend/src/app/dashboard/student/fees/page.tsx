@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Card } from '@/components/data/Card';
-import { Badge } from '@/components/ui/Badge';
-import { IndianRupeeIcon } from '@/components/ui/IconIndianRupee';
-import { CreditCardIcon } from '@/components/ui/IconCreditCard';
-import { FileTextIcon } from '@/components/ui/IconFileText';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { IndianRupee as IndianRupeeIcon, CreditCard as CreditCardIcon, FileText as FileTextIcon } from 'lucide-react';
 import { PaymentFlowModal } from '@/components/fees/PaymentFlowModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FeeItem {
   id: string;
@@ -28,6 +27,7 @@ interface PaymentSummary {
 }
 
 export default function StudentFeesPage() {
+  const { t } = useLanguage();
   const [vertical] = useState('Boys Hostel');
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -160,13 +160,13 @@ export default function StudentFeesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'PAID':
-        return <Badge variant="success" size="md">Paid</Badge>;
+        return <Badge variant="success" size="md">{t('Paid', 'भुगतान हो गया')}</Badge>;
       case 'PENDING':
-        return <Badge variant="warning" size="md">Pending</Badge>;
+        return <Badge variant="warning" size="md">{t('Pending', 'लंबित')}</Badge>;
       case 'FAILED':
-        return <Badge variant="error" size="md">Failed</Badge>;
+        return <Badge variant="error" size="md">{t('Failed', 'विफल')}</Badge>;
       case 'OVERDUE':
-        return <Badge variant="error" size="md">Overdue</Badge>;
+        return <Badge variant="error" size="md">{t('Overdue', 'अतिदेय')}</Badge>;
       default:
         return <Badge variant="default" size="md">{status}</Badge>;
     }
@@ -216,20 +216,20 @@ export default function StudentFeesPage() {
           <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Fee Payments
+                {t('Fee Payments', 'शुल्क भुगतान')}
               </h1>
               <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
                 {vertical}
               </span>
             </div>
             <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-              Fee Overview
+              {t('Fee Overview', 'शुल्क अवलोकन')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <IndianRupeeIcon className="w-5 h-5" color="var(--color-blue-600)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Total Amount</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Total Amount', 'कुल राशि')}</span>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   ₹{paymentSummary.totalAmount.toLocaleString('en-IN')}
@@ -239,7 +239,7 @@ export default function StudentFeesPage() {
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <CreditCardIcon className="w-5 h-5" color="var(--color-green-600)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Amount Paid</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Amount Paid', 'भुगतान की गई राशि')}</span>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: 'var(--color-green-600)' }}>
                   ₹{paymentSummary.totalPaid.toLocaleString('en-IN')}
@@ -249,7 +249,7 @@ export default function StudentFeesPage() {
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <IndianRupeeIcon className="w-5 h-5" color="var(--color-gold-600)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Outstanding</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Outstanding', 'बकाया')}</span>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: 'var(--color-gold-600)' }}>
                   ₹{paymentSummary.outstanding.toLocaleString('en-IN')}
@@ -259,14 +259,14 @@ export default function StudentFeesPage() {
               <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <FileTextIcon className="w-5 h-5" color="var(--text-primary)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Next Due Date</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Next Due Date', 'अगली नियत तारीख')}</span>
                 </div>
                 <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {paymentSummary.nextDueDate !== 'N/A' ? new Date(paymentSummary.nextDueDate).toLocaleDateString('en-IN', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
-                  }) : 'No pending dues'}
+                  }) : t('No pending dues', 'कोई बकाया शुल्क नहीं')}
                 </p>
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function StudentFeesPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Fee Details
+                {t('Fee Details', 'शुल्क विवरण')}
               </h3>
             </div>
 
@@ -284,7 +284,7 @@ export default function StudentFeesPage() {
                 <div className="flex items-center justify-center py-8">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy-900 mx-auto mb-4"></div>
-                    <p style={{ color: 'var(--text-secondary)' }}>Loading fee information...</p>
+                    <p style={{ color: 'var(--text-secondary)' }}>{t('Loading fee information...', 'शुल्क जानकारी लोड हो रही है...')}</p>
                   </div>
                 </div>
               </Card>
@@ -294,7 +294,7 @@ export default function StudentFeesPage() {
                   <div className="text-center">
                     <p className="text-red-500 mb-2">{error}</p>
                     <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
-                      Retry
+                      {t('Retry', 'पुनः प्रयास करें')}
                     </Button>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function StudentFeesPage() {
             ) : feeItems.length === 0 ? (
               <Card padding="lg" shadow="md">
                 <div className="flex items-center justify-center py-8">
-                  <p style={{ color: 'var(--text-secondary)' }}>No fee items found.</p>
+                  <p style={{ color: 'var(--text-secondary)' }}>{t('No fee items found.', 'कोई शुल्क आइटम नहीं मिला।')}</p>
                 </div>
               </Card>
             ) : null}
@@ -333,7 +333,7 @@ export default function StudentFeesPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                       <div>
                         <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                          Total Amount
+                          {t('Total Amount', 'कुल राशि')}
                         </p>
                         <p className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                           ₹{item.amount.toLocaleString('en-IN')}
@@ -342,7 +342,7 @@ export default function StudentFeesPage() {
 
                       <div>
                         <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                          Paid
+                          {t('Paid', 'भुगतान हो गया')}
                         </p>
                         <p className="text-base font-semibold" style={{ color: 'var(--color-green-600)' }}>
                           ₹{item.paidAmount.toLocaleString('en-IN')}
@@ -351,7 +351,7 @@ export default function StudentFeesPage() {
 
                       <div>
                         <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                          Outstanding
+                          {t('Outstanding', 'बकाया')}
                         </p>
                         <p className="text-base font-semibold" style={{ color: item.status === 'PAID' ? 'var(--color-green-600)' : 'var(--color-gold-600)' }}>
                           ₹{(item.amount - item.paidAmount).toLocaleString('en-IN')}
@@ -360,7 +360,7 @@ export default function StudentFeesPage() {
 
                       <div>
                         <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-                          Due Date
+                          {t('Due Date', 'नियत तारीख')}
                         </p>
                         <p className="text-base font-medium" style={{ color: 'var(--text-primary)' }}>
                           {new Date(item.dueDate).toLocaleDateString('en-IN', {
@@ -380,7 +380,7 @@ export default function StudentFeesPage() {
                         size="md"
                         onClick={() => handlePayNow(item.id)}
                       >
-                        Pay Now
+                        {t('Pay Now', 'अभी भुगतान करें')}
                       </Button>
                     </div>
                   )}
@@ -392,10 +392,10 @@ export default function StudentFeesPage() {
           <div className="mt-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Payment History
+                {t('Payment History', 'भुगतान इतिहास')}
               </h3>
               <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Showing last 3 payments
+                {t('Showing last 3 payments', 'अंतिम 3 भुगतान दिखा रहे हैं')}
               </span>
             </div>
 
@@ -405,25 +405,25 @@ export default function StudentFeesPage() {
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--border-primary)' }}>
                       <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Transaction ID
+                        {t('Transaction ID', 'लेनदेन आईडी')}
                       </th>
                       <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Fee Name
+                        {t('Fee Name', 'शुल्क का नाम')}
                       </th>
                       <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Amount
+                        {t('Amount', 'राशि')}
                       </th>
                       <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Method
+                        {t('Method', 'तरीका')}
                       </th>
                       <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Date
+                        {t('Date', 'तारीख')}
                       </th>
                       <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Status
+                        {t('Status', 'स्थिति')}
                       </th>
                       <th className="text-center py-3 px-4 font-medium" style={{ color: 'var(--text-primary)' }}>
-                        Receipt
+                        {t('Receipt', 'रसीद')}
                       </th>
                     </tr>
                   </thead>
@@ -431,7 +431,7 @@ export default function StudentFeesPage() {
                     {paymentHistory.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                          No payment history found
+                          {t('No payment history found', 'कोई भुगतान इतिहास नहीं मिला')}
                         </td>
                       </tr>
                     ) : (
@@ -463,7 +463,7 @@ export default function StudentFeesPage() {
                           </td>
                           <td className="py-3 px-4 text-center">
                             <Button variant="ghost" size="xs" disabled={payment.status !== 'PAID'} onClick={() => {}}>
-                              {payment.status === 'PAID' ? 'Download' : 'Pending'}
+                              {payment.status === 'PAID' ? t('Download', 'डाउनलोड') : t('Pending', 'लंबित')}
                             </Button>
                           </td>
                         </tr>
@@ -480,10 +480,10 @@ export default function StudentFeesPage() {
               <FileTextIcon className="w-5 h-5 mt-0.5 flex-shrink-0" color="var(--color-blue-600)" />
               <div>
                 <h4 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-                  Data Protection and Financial Privacy Notice
+                  {t('Data Protection and Financial Privacy Notice', 'डेटा सुरक्षा और वित्तीय गोपनीयता सूचना')}
                 </h4>
                 <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  Your payment information is encrypted and processed securely in compliance with Data Protection and Privacy Principles (DPDP) Act. All transactions are logged with timestamps for audit purposes. Your financial data is stored securely and will only be used for fee management purposes. For any queries regarding your payments, please contact the Accounts department.
+                  {t('Your payment information is encrypted and processed securely in compliance with Data Protection and Privacy Principles (DPDP) Act. All transactions are logged with timestamps for audit purposes. Your financial data is stored securely and will only be used for fee management purposes. For any queries regarding your payments, please contact the Accounts department.', 'आपकी भुगतान जानकारी डेटा सुरक्षा और गोपनीयता सिद्धांत (DPDP) अधिनियम के अनुपालन में सुरक्षित रूप से एन्क्रिप्ट और संसाधित की जाती है। ऑडिट उद्देश्यों के लिए सभी लेनदेन टाइमस्टैम्प के साथ लॉग किए जाते हैं। आपका वित्तीय डेटा सुरक्षित रूप से संग्रहीत है और केवल शुल्क प्रबंधन उद्देश्यों के लिए उपयोग किया जाएगा। भुगतान संबंधी किसी भी प्रश्न के लिए कृपया लेखा विभाग से संपर्क करें।')}
                 </p>
               </div>
             </div>
@@ -491,7 +491,7 @@ export default function StudentFeesPage() {
 
           <div className="mt-4 text-center">
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              Need help? Contact <a href="mailto:accounts@jainhostel.edu" className="underline">accounts@jainhostel.edu</a> or call +91 12345 67890
+              {t('Need help? Contact', 'मदद चाहिए? संपर्क करें')} <a href="mailto:accounts@jainhostel.edu" className="underline">accounts@jainhostel.edu</a> {t('or call', 'या कॉल करें')} +91 12345 67890
             </p>
           </div>
         </div>

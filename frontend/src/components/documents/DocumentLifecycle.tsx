@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge } from '../ui/Badge';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { 
   Clock, 
   Upload, 

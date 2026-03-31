@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/feedback/Modal';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Card } from '@/components/data/Card';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { PaymentReceipt } from './PaymentReceipt';
 
 interface PaymentMethod {

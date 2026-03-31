@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Shield, Lock, Eye, Database, User, Clock, FileText, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 
 const DPDPPolicyPage: React.FC = () => {

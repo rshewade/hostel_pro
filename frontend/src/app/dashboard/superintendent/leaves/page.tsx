@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 import { Modal } from '@/components/feedback/Modal';
 import { SendMessagePanel, type SendMessageData, DEFAULT_TEMPLATES } from '@/components/communication/SendMessagePanel';
 import type { TableColumn } from '@/components/types';
@@ -11,6 +11,7 @@ import { Input } from '@/components/forms/Input';
 import { DatePicker } from '@/components/forms/DatePicker';
 import { Select, type SelectOption } from '@/components/forms/Select';
 import { Textarea } from '@/components/forms/Textarea';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
@@ -55,6 +56,7 @@ interface LeaveRule {
 }
 
 export default function SuperintendentLeaveManagement() {
+  const { t } = useLanguage();
   const [selectedFilter, setSelectedFilter] = useState<'pending' | 'all'>('pending');
   const [selectedLeaveType, setSelectedLeaveType] = useState<LeaveType | 'ALL'>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<LeaveStatus | 'ALL'>('ALL');
@@ -228,10 +230,10 @@ export default function SuperintendentLeaveManagement() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Leave Management
+            {t('Leave Management', 'अवकाश प्रबंधन')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Review and manage student leave requests
+            {t('Review and manage student leave requests', 'छात्र अवकाश अनुरोधों की समीक्षा और प्रबंधन करें')}
           </p>
         </div>
       </div>
@@ -248,7 +250,7 @@ export default function SuperintendentLeaveManagement() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               )}
             >
-              Pending Requests ({leaveRequests.filter(l => l.status === 'PENDING').length})
+              {t('Pending Requests', 'लंबित अनुरोध')} ({leaveRequests.filter(l => l.status === 'PENDING').length})
             </button>
             <button
               onClick={() => setSelectedFilter('all')}
@@ -259,7 +261,7 @@ export default function SuperintendentLeaveManagement() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               )}
             >
-              All Leaves ({leaveRequests.length})
+              {t('All Leaves', 'सभी अवकाश')} ({leaveRequests.length})
             </button>
           </div>
         </div>
@@ -305,7 +307,7 @@ export default function SuperintendentLeaveManagement() {
                 setSelectedStatus('ALL');
               }}
             >
-              Clear Filters
+              {t('Clear Filters', 'फ़िल्टर साफ़ करें')}
             </Button>
           </div>
         </div>
@@ -314,7 +316,7 @@ export default function SuperintendentLeaveManagement() {
         {isLoading ? (
           <div className="p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p>Loading leave requests...</p>
+            <p>{t('Loading leave requests...', 'अवकाश अनुरोध लोड हो रहे हैं...')}</p>
           </div>
         ) : (
         <div className="rounded-lg border" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
@@ -406,7 +408,7 @@ export default function SuperintendentLeaveManagement() {
                           size="sm"
                           onClick={() => setSelectedLeave(leave)}
                         >
-                          Review
+                          {t('Review', 'समीक्षा')}
                         </Button>
                         {leave.status === 'PENDING' && (
                           <Button
@@ -417,7 +419,7 @@ export default function SuperintendentLeaveManagement() {
                               setShowMessagePanel(true);
                             }}
                           >
-                            Message
+                            {t('Message', 'संदेश')}
                           </Button>
                         )}
                       </div>
@@ -430,8 +432,8 @@ export default function SuperintendentLeaveManagement() {
 
           {filteredLeaves.length === 0 && (
             <div className="p-12 text-center" style={{ color: 'var(--text-secondary)' }}>
-              <p className="text-lg mb-2">No leave requests found</p>
-              <p className="text-sm">Try adjusting your filters</p>
+              <p className="text-lg mb-2">{t('No leave requests found', 'कोई अवकाश अनुरोध नहीं मिला')}</p>
+              <p className="text-sm">{t('Try adjusting your filters', 'अपने फ़िल्टर बदलकर देखें')}</p>
             </div>
           )}
         </div>
@@ -627,7 +629,7 @@ export default function SuperintendentLeaveManagement() {
                     });
                   }}
                 >
-                  Approve Request
+                  {t('Approve Request', 'अनुरोध स्वीकृत करें')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -640,7 +642,7 @@ export default function SuperintendentLeaveManagement() {
                     });
                   }}
                 >
-                  Reject Request
+                  {t('Reject Request', 'अनुरोध अस्वीकृत करें')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -649,7 +651,7 @@ export default function SuperintendentLeaveManagement() {
                     setShowMessagePanel(true);
                   }}
                 >
-                  Send Message to Student/Parent
+                  {t('Send Message to Student/Parent', 'छात्र/अभिभावक को संदेश भेजें')}
                 </Button>
               </div>
             )}

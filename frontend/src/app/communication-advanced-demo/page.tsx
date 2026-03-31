@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/components/utils';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { SendMessagePanel, DEFAULT_TEMPLATES, SchedulePresetSelector, EscalationSelector, MessageLog, type Recipient, type Supervisor, type MessageLogEntry, type MessageStatus, type SendMessageData } from '@/components/communication';
 
 export default function CommunicationAdvancedDemoPage() {

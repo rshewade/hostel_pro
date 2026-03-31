@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle, RefreshCw, EyeOff } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function DharamshalaVerifyPage() {
+  const { t } = useLanguage();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -225,16 +227,15 @@ export default function DharamshalaVerifyPage() {
                 className="text-lg font-semibold"
                 style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}
               >
-                Dharamshala Booking
-              </h1>
-              <p className="text-caption">Step 3 of 4</p>
+                {t('Dharamshala Booking', 'धरमशाला बुकिंग')}</h1>
+              <p className="text-caption">{t('Step 3 of 4', 'चरण 3 का 4')}</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link">Apply Now</Link>
-            <Link href="/check-status" className="nav-link">Check Status</Link>
-            <Link href="/login" className="nav-link">Login</Link>
+            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+            <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+            <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
           </nav>
         </div>
       </header>
@@ -251,8 +252,7 @@ export default function DharamshalaVerifyPage() {
                   1
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  Select Type
-                </span>
+                  {t('Select Type', 'प्रकार चुनें')}</span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2">
@@ -263,8 +263,7 @@ export default function DharamshalaVerifyPage() {
                   2
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  Contact Details
-                </span>
+                  {t('Contact Details', 'संपर्क विवरण')}</span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2 opacity-50">
@@ -275,12 +274,11 @@ export default function DharamshalaVerifyPage() {
                   3
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  OTP Verification
-                </span>
+                  {t('OTP Verification', 'ओटीपी सत्यापन')}</span>
               </div>
             </div>
             <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              <span>Step 3 of 4</span>
+              <span>{t('Step 3 of 4', 'चरण 3 का 4')}</span>
               {timeLeft > 0 && (
                 <span className="ml-4" style={{ color: "var(--text-primary)" }}>
                   Expires in: {formatTime(timeLeft)}
@@ -295,17 +293,14 @@ export default function DharamshalaVerifyPage() {
         <div className="mx-auto max-w-2xl">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-              Enter OTP Code
-            </h2>
+              {t('Enter OTP Code', 'ओटीपी कोड दर्ज करें')}</h2>
             <p className="text-lg mb-8" style={{ color: "var(--text-secondary)" }}>
-              We have sent a 6-digit One-Time Password to your mobile number
-            </p>
+              {t('We have sent a 6-digit One-Time Password to your mobile number', 'हमने आपके मोबाइल नंबर पर 6 अंकों का ओटीपी भेजा है')}</p>
           </div>
 
           <div className="card p-8 mb-8">
             <h3 className="text-xl font-semibold mb-6" style={{ color: "var(--text-primary)" }}>
-              Enter the 6-digit code
-            </h3>
+              {t('Enter the 6-digit code', '6 अंकों का कोड दर्ज करें')}</h3>
             <div className="flex justify-center gap-3 mb-6">
               {otp.map((digit, index) => (
                 <div key={index} className="relative">
@@ -356,8 +351,8 @@ export default function DharamshalaVerifyPage() {
                   <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
                 ) : (
                   <>
-                    Verify &amp; Continue
-                    <ArrowRight className="w-5 h-5" />
+                    {t('Verify &amp; Continue', 'सत्यापित करें और आगे बढ़ें')}
+                <ArrowRight className="w-5 h-5" />
                   </>
                 )}
               </button>
@@ -379,8 +374,7 @@ export default function DharamshalaVerifyPage() {
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold mb-2" style={{ color: "var(--color-red-600)" }}>
-                    Verification Failed
-                  </h4>
+                    {t('Verification Failed', 'सत्यापन विफल')}</h4>
                   <ul className="space-y-1 text-sm">
                     {errors.map((error, index) => (
                       <li key={index} style={{ color: "var(--color-red-600)" }}>
@@ -395,24 +389,20 @@ export default function DharamshalaVerifyPage() {
 
           <div className="text-center">
             <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
-              Did not receive the OTP?
-            </p>
+              {t('Did not receive the OTP?', 'ओटीपी प्राप्त नहीं हुआ?')}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="tel:+91224141236"
                 className="text-amber-600 hover:text-amber-800 font-medium"
               >
-                Call Dharamshala Office: +91 22 2414 1236
-              </Link>
+                {t('Call Dharamshala Office: +91 22 2414 1236', 'धरमशाला कार्यालय: +91 22 2414 1236')}</Link>
               <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                or
-              </span>
+                {t('or', 'या')}</span>
               <button
                 onClick={() => window.location.href = '/apply/dharamshala/contact'}
                 className="text-amber-600 hover:text-amber-800 font-medium"
               >
-                Try Different Contact Method
-              </button>
+                {t('Try Different Contact Method', 'अन्य संपर्क माध्यम आज़माएं')}</button>
             </div>
           </div>
         </div>

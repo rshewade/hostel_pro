@@ -1,7 +1,12 @@
+'use client';
+
 import Link from "next/link";
 import { ArrowRight, Shield, Users, Clock } from "lucide-react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ApplyPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-page)" }}>
       {/* Header */}
@@ -17,7 +22,7 @@ export default function ApplyPage() {
             <Link href="/">
               <img
                 src="/logo.png"
-                alt="Hirachand Gumanji Family Charitable Trust"
+                alt={t("Hirachand Gumanji Family Charitable Trust", "हीराचंद गुमानजी परिवार चैरिटेबल ट्रस्ट")}
                 width={48}
                 height={48}
                 className="h-12 w-auto"
@@ -28,16 +33,16 @@ export default function ApplyPage() {
                 className="text-lg font-semibold"
                 style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}
               >
-                Hirachand Gumanji Family
+                {t("Hirachand Gumanji Family", "हीराचंद गुमानजी परिवार")}
               </h1>
-              <p className="text-caption">Charitable Trust</p>
+              <p className="text-caption">{t("Charitable Trust", "चैरिटेबल ट्रस्ट")}</p>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/apply" className="nav-link text-primary">Apply Now</Link>
-            <Link href="/track" className="nav-link">Check Status</Link>
-            <Link href="/login" className="nav-link">Login</Link>
+            <Link href="/" className="nav-link">{t("Home", "होम")}</Link>
+            <Link href="/apply" className="nav-link text-primary">{t("Apply Now", "अभी आवेदन करें")}</Link>
+            <Link href="/track" className="nav-link">{t("Check Status", "स्थिति जांचें")}</Link>
+            <Link href="/login" className="nav-link">{t("Login", "लॉगिन")}</Link>
           </nav>
         </div>
       </header>
@@ -55,7 +60,7 @@ export default function ApplyPage() {
                   1
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  Select Vertical
+                  {t("Select Vertical", "प्रकार चुनें")}
                 </span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
@@ -67,7 +72,7 @@ export default function ApplyPage() {
                   2
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  Contact Details
+                  {t("Contact Details", "संपर्क विवरण")}
                 </span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
@@ -79,7 +84,7 @@ export default function ApplyPage() {
                   3
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  OTP Verification
+                  {t("OTP Verification", "ओटीपी सत्यापन")}
                 </span>
               </div>
               <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
@@ -91,12 +96,12 @@ export default function ApplyPage() {
                   4
                 </div>
                 <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                  Application Form
+                  {t("Application Form", "आवेदन फॉर्म")}
                 </span>
               </div>
             </div>
             <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              <span>Step 1 of 4</span>
+              <span>{t("Step 1 of 4", "चरण 1 / 4")}</span>
             </div>
           </div>
         </div>
@@ -109,17 +114,19 @@ export default function ApplyPage() {
             <Shield className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-lg font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
-                Data Protection & Privacy
+                {t("Data Protection & Privacy", "डेटा सुरक्षा एवं गोपनीयता")}
               </h3>
               <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
-                Your personal information is protected under the Digital Personal Data Protection (DPDP) Act. 
-                By proceeding with your application, you consent to our data usage policies for admission processing.
+                {t(
+                  "Your personal information is protected under the Digital Personal Data Protection (DPDP) Act. By proceeding with your application, you consent to our data usage policies for admission processing.",
+                  "आपकी व्यक्तिगत जानकारी डिजिटल व्यक्तिगत डेटा सुरक्षा (DPDP) अधिनियम के तहत सुरक्षित है। आवेदन आगे बढ़ाकर, आप प्रवेश प्रक्रिया के लिए हमारी डेटा उपयोग नीतियों से सहमत होते हैं।"
+                )}
               </p>
               <Link
                 href="/privacy-policy"
                 className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
               >
-                Read our complete Privacy Policy →
+                {t("Read our complete Privacy Policy →", "हमारी संपूर्ण गोपनीयता नीति पढ़ें →")}
               </Link>
             </div>
           </div>
@@ -131,10 +138,13 @@ export default function ApplyPage() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-              Choose Your Accommodation Type
+              {t("Choose Your Accommodation Type", "अपना आवास प्रकार चुनें")}
             </h2>
             <p className="text-lg mb-8" style={{ color: "var(--text-secondary)" }}>
-              Select the hostel type you wish to apply for. Each option has specific requirements and facilities.
+              {t(
+                "Select the hostel type you wish to apply for. Each option has specific requirements and facilities.",
+                "वह छात्रावास प्रकार चुनें जिसके लिए आप आवेदन करना चाहते हैं। प्रत्येक विकल्प की विशिष्ट आवश्यकताएं और सुविधाएं हैं।"
+              )}
             </p>
           </div>
 
@@ -151,32 +161,34 @@ export default function ApplyPage() {
                     <Users className="w-10 h-10" style={{ color: "var(--color-blue-600)" }} />
                   </div>
                   <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-                    Boys Hostel
+                    {t("Boys Hostel", "बालक छात्रावास")}
                   </h3>
                   <p className="mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    Modern accommodation for male students with focus on academic excellence, 
-                    character building, and spiritual growth in a safe, disciplined environment.
+                    {t(
+                      "Modern accommodation for male students with focus on academic excellence, character building, and spiritual growth in a safe, disciplined environment.",
+                      "सुरक्षित, अनुशासित वातावरण में शैक्षिक उत्कृष्टता, चरित्र निर्माण और आध्यात्मिक विकास पर केंद्रित पुरुष छात्रों के लिए आधुनिक आवास।"
+                    )}
                   </p>
                   <ul className="space-y-3 text-left mb-6">
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>2-3 person sharing rooms</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("2-3 person sharing rooms", "2-3 व्यक्ति साझा कमरे")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Study hall & library access</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Study hall & library access", "अध्ययन कक्ष और पुस्तकालय सुविधा")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Sports & recreation facilities</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Sports & recreation facilities", "खेल और मनोरंजन सुविधाएं")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>24/7 security and warden supervision</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("24/7 security and warden supervision", "24/7 सुरक्षा और वार्डन निगरानी")}</span>
                     </li>
                   </ul>
                   <button className="btn-primary w-full mt-auto">
-                    Apply to Boys Hostel
+                    {t("Apply to Boys Hostel", "बालक छात्रावास में आवेदन करें")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>
                 </div>
@@ -194,32 +206,34 @@ export default function ApplyPage() {
                     <Users className="w-10 h-10" style={{ color: "var(--color-purple-600)" }} />
                   </div>
                   <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-                    Girls Ashram
+                    {t("Girls Ashram", "बालिका आश्रम")}
                   </h3>
                   <p className="mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    Safe and nurturing environment for female students with enhanced security, 
-                    dedicated study areas, and focus on holistic development.
+                    {t(
+                      "Safe and nurturing environment for female students with enhanced security, dedicated study areas, and focus on holistic development.",
+                      "उन्नत सुरक्षा, समर्पित अध्ययन क्षेत्र और समग्र विकास पर केंद्रित महिला छात्रों के लिए सुरक्षित और पोषणकारी वातावरण।"
+                    )}
                   </p>
                   <ul className="space-y-3 text-left mb-6">
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Enhanced security measures</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Enhanced security measures", "उन्नत सुरक्षा उपाय")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Women's study &amp; prayer areas</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Women's study & prayer areas", "महिला अध्ययन एवं प्रार्थना क्षेत्र")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Cultural &amp; spiritual activities</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Cultural & spiritual activities", "सांस्कृतिक एवं आध्यात्मिक गतिविधियां")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Matron &amp; warden care</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Matron & warden care", "मैट्रन एवं वार्डन देखभाल")}</span>
                     </li>
                   </ul>
                   <button className="btn-primary w-full mt-auto">
-                    Apply to Girls Ashram
+                    {t("Apply to Girls Ashram", "बालिका आश्रम में आवेदन करें")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>
                 </div>
@@ -237,32 +251,34 @@ export default function ApplyPage() {
                     <Shield className="w-10 h-10" style={{ color: "var(--color-amber-600)" }} />
                   </div>
                   <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-                    Dharamshala
+                    {t("Dharamshala", "धरमशाला")}
                   </h3>
                   <p className="mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    Spiritual retreat and temporary accommodation for pilgrims and visitors 
-                    seeking peaceful stay with simple amenities and community facilities.
+                    {t(
+                      "Spiritual retreat and temporary accommodation for pilgrims and visitors seeking peaceful stay with simple amenities and community facilities.",
+                      "तीर्थयात्रियों और आगंतुकों के लिए सरल सुविधाओं और सामुदायिक सुविधाओं के साथ शांतिपूर्ण प्रवास के लिए आध्यात्मिक विश्राम और अस्थायी आवास।"
+                    )}
                   </p>
                   <ul className="space-y-3 text-left mb-6">
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Prayer &amp; meditation halls</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Prayer & meditation halls", "प्रार्थना एवं ध्यान कक्ष")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Simple, clean accommodation</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Simple, clean accommodation", "सरल, स्वच्छ आवास")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Community kitchen facilities</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Community kitchen facilities", "सामुदायिक रसोई सुविधाएं")}</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <ArrowRight className="w-4 h-4 text-green-500" />
-                      <span style={{ color: "var(--text-secondary)" }}>Affordable short-term stay</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t("Affordable short-term stay", "किफायती अल्पकालिक प्रवास")}</span>
                     </li>
                   </ul>
                   <button className="btn-primary w-full mt-auto">
-                    Book Dharamshala
+                    {t("Book Dharamshala", "धरमशाला बुक करें")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </button>
                 </div>
@@ -274,18 +290,20 @@ export default function ApplyPage() {
           <div className="card p-8 bg-blue-50 border border-blue-200">
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
               <Clock className="w-5 h-5 text-blue-600" />
-              Important Information
+              {t("Important Information", "महत्वपूर्ण जानकारी")}
             </h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <span className="text-blue-600 font-semibold">•</span>
                 <div>
                   <h4 className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-                    No Account Required Yet
+                    {t("No Account Required Yet", "अभी खाता बनाने की आवश्यकता नहीं")}
                   </h4>
                   <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                    You don't need to create an account to apply. An account will be created 
-                    automatically only after final approval of your application.
+                    {t(
+                      "You don't need to create an account to apply. An account will be created automatically only after final approval of your application.",
+                      "आवेदन करने के लिए आपको खाता बनाने की आवश्यकता नहीं है। आपके आवेदन की अंतिम स्वीकृति के बाद ही स्वचालित रूप से खाता बनाया जाएगा।"
+                    )}
                   </p>
                 </div>
               </div>
@@ -293,11 +311,13 @@ export default function ApplyPage() {
                 <span className="text-blue-600 font-semibold">•</span>
                 <div>
                   <h4 className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-                    Track Your Application
+                    {t("Track Your Application", "अपना आवेदन ट्रैक करें")}
                   </h4>
                   <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                    After submission, you'll receive a tracking number via SMS/Email to monitor 
-                    your application status throughout the admission process.
+                    {t(
+                      "After submission, you'll receive a tracking number via SMS/Email to monitor your application status throughout the admission process.",
+                      "जमा करने के बाद, आपको प्रवेश प्रक्रिया के दौरान अपने आवेदन की स्थिति जानने के लिए SMS/ईमेल द्वारा एक ट्रैकिंग नंबर प्राप्त होगा।"
+                    )}
                   </p>
                 </div>
               </div>
@@ -305,11 +325,13 @@ export default function ApplyPage() {
                 <span className="text-blue-600 font-semibold">•</span>
                 <div>
                   <h4 className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-                    Document Preparation
+                    {t("Document Preparation", "दस्तावेज तैयारी")}
                   </h4>
                   <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                    Keep your documents ready: Birth Certificate, Educational Records, 
-                    Community Recommendation, and Recent Photographs.
+                    {t(
+                      "Keep your documents ready: Birth Certificate, Educational Records, Community Recommendation, and Recent Photographs.",
+                      "अपने दस्तावेज तैयार रखें: जन्म प्रमाण पत्र, शैक्षिक अभिलेख, सामुदायिक अनुशंसा, और हालिया तस्वीरें।"
+                    )}
                   </p>
                 </div>
               </div>

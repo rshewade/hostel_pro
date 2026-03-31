@@ -6,9 +6,11 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Container, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen, BarChart3 } from 'lucide-react';
 import { cn } from '@/components/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
+
 
 interface DashboardTemplateProps {
   title?: string;
@@ -18,6 +20,7 @@ interface DashboardTemplateProps {
 const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
   children,
 }) => {
+  const { t } = useLanguage();
   const { isMobile, isDesktop } = useResponsive();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
@@ -51,30 +54,30 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
       ];
     } else if (path.startsWith('/dashboard/superintendent')) {
       return [
-        { label: 'Applications', href: '/dashboard/superintendent', icon: <LayoutDashboard className="w-4 h-4" /> },
-        { label: 'Rooms', href: '/dashboard/superintendent/rooms', icon: <BedDouble className="w-4 h-4" /> },
-        { label: 'Leaves', href: '/dashboard/superintendent/leaves', icon: <CalendarDays className="w-4 h-4" /> },
-        { label: 'Clearance', href: '/dashboard/superintendent/clearance', icon: <FileCheck className="w-4 h-4" /> },
-        { label: 'Renewal', href: '/dashboard/superintendent/renewal', icon: <History className="w-4 h-4" /> },
-        { label: 'Audit', href: '/dashboard/superintendent/audit', icon: <ShieldAlert className="w-4 h-4" /> },
-        { label: 'Settings', href: '/dashboard/superintendent/config', icon: <Settings className="w-4 h-4" /> },
+        { label: t('Applications', 'आवेदन'), href: '/dashboard/superintendent', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: t('Rooms', 'कमरे'), href: '/dashboard/superintendent/rooms', icon: <BedDouble className="w-4 h-4" /> },
+        { label: t('Leaves', 'अवकाश'), href: '/dashboard/superintendent/leaves', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: t('Clearance', 'मंजूरी'), href: '/dashboard/superintendent/clearance', icon: <FileCheck className="w-4 h-4" /> },
+        { label: t('Renewal', 'नवीनीकरण'), href: '/dashboard/superintendent/renewal', icon: <History className="w-4 h-4" /> },
+        { label: t('Audit', 'लेखा परीक्षा'), href: '/dashboard/superintendent/audit', icon: <ShieldAlert className="w-4 h-4" /> },
+        { label: t('Settings', 'सेटिंग्स'), href: '/dashboard/superintendent/config', icon: <Settings className="w-4 h-4" /> },
       ];
     } else if (path.startsWith('/dashboard/trustee')) {
       return [
-        { label: 'Overview', href: '/dashboard/trustee', icon: <LayoutDashboard className="w-4 h-4" /> },
-        { label: 'Applications', href: '/dashboard/trustee/applications', icon: <FileText className="w-4 h-4" /> },
-        { label: 'Interviews', href: '/dashboard/trustee/interviews', icon: <CalendarDays className="w-4 h-4" /> },
-        { label: 'Allocations', href: '/dashboard/trustee/allocations', icon: <BedDouble className="w-4 h-4" /> },
-        { label: 'Reports', href: '/dashboard/trustee/reports', icon: <BarChart3 className="w-4 h-4" /> },
+        { label: t('Overview', 'अवलोकन'), href: '/dashboard/trustee', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: t('Applications', 'आवेदन'), href: '/dashboard/trustee/applications', icon: <FileText className="w-4 h-4" /> },
+        { label: t('Interviews', 'साक्षात्कार'), href: '/dashboard/trustee/interviews', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: t('Allocations', 'आवंटन'), href: '/dashboard/trustee/allocations', icon: <BedDouble className="w-4 h-4" /> },
+        { label: t('Reports', 'रिपोर्ट'), href: '/dashboard/trustee/reports', icon: <BarChart3 className="w-4 h-4" /> },
       ];
     } else if (path.startsWith('/dashboard/accounts')) {
       return [
-        { label: 'Overview', href: '/dashboard/accounts', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: t('Overview', 'अवलोकन'), href: '/dashboard/accounts', icon: <LayoutDashboard className="w-4 h-4" /> },
       ];
     } else if (path.startsWith('/dashboard/parent')) {
       return [
-        { label: 'Overview', href: '/dashboard/parent', icon: <LayoutDashboard className="w-4 h-4" /> },
-        { label: 'Leave', href: '/dashboard/parent/leave', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: t('Overview', 'अवलोकन'), href: '/dashboard/parent', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: t('Leave', 'अवकाश'), href: '/dashboard/parent/leave', icon: <CalendarDays className="w-4 h-4" /> },
       ];
     }
     return [];
@@ -183,7 +186,7 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
               onClick={handleLogout}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              {t('Logout', 'लॉगआउट')}
             </Button>
           </div>
         </div>

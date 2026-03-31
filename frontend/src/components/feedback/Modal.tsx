@@ -3,7 +3,7 @@
 import { useEffect, forwardRef, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ANIMATIONS, Z_INDEX } from '../constants';
 import type { ModalProps } from '../types';
 

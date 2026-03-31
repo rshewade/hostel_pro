@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { FileText, Award, AlertCircle, CheckCircle } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 
 interface ConductFormData {
   rating: 'EXCELLENT' | 'GOOD' | 'SATISFACTORY' | 'NEEDS_IMPROVEMENT';

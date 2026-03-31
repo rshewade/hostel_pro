@@ -2,8 +2,8 @@
 
 import { forwardRef } from 'react';
 import { cn } from '../utils';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 import { DocumentUploadCard, DocumentStatus, DocumentType, DocumentMetadata } from './DocumentUploadCard';
 import { FileText, CheckCircle2, AlertTriangle, Upload } from 'lucide-react';
 import type { BaseComponentProps } from '../types';

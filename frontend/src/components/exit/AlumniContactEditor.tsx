@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, User, Save, X, History, AlertCircle } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import type { AlumniContactInfo, ContactUpdateLog } from './types';
 
 interface AlumniContactEditorProps {

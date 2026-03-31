@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { cn } from '../utils';
 
 interface OtpVerificationProps {

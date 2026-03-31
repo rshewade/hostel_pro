@@ -2,8 +2,8 @@
 
 import { forwardRef, useState } from 'react';
 import { cn } from '../utils';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
+import { Badge } from '@/components/shadcn/badge-extended';
+import { Button } from '@/components/shadcn/button-extended';
 import { FileUpload } from '../forms/FileUpload';
 import { 
   FileText, 

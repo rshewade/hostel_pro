@@ -2,8 +2,8 @@
 
 import React, { useState, useCallback } from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/shadcn/button-extended';
+import { Badge } from '@/components/shadcn/badge-extended';
 import { FileUpload } from '@/components/forms/FileUpload';
 import { FormFieldWrapper } from '@/components/forms/InlineHelp';
 import { CheckCircle, Circle, Upload, FileText, AlertCircle, InfoIcon, X } from 'lucide-react';

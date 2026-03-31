@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { A4Page } from '../print';
 import { UndertakingType, UndertakingStatus } from './UndertakingCard';
 import type { BaseComponentProps } from '../types';

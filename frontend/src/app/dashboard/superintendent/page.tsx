@@ -1,15 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Badge, type BadgeVariant } from '@/components/ui/Badge';
-import { Chip } from '@/components/ui/Chip';
-import { Button } from '@/components/ui/Button';
+import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
+import { Chip } from '@/components/shadcn/chip';
+import { Button } from '@/components/shadcn/button-extended';
 import { Modal } from '@/components/feedback/Modal';
 import { Table } from '@/components/data/Table';
 import { SendMessagePanel, type SendMessageData, DEFAULT_TEMPLATES } from '@/components/communication/SendMessagePanel';
 import type { TableColumn } from '@/components/types';
 import { cn } from '@/components/utils';
 import { Spinner } from '@/components/feedback/Spinner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
@@ -49,6 +50,7 @@ interface Application {
 
 
 export default function SuperintendentDashboard() {
+  const { t } = useLanguage();
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | 'ALL'>('ALL');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -382,10 +384,10 @@ export default function SuperintendentDashboard() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Applications
+            {t('Applications', 'आवेदन')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Review and manage hostel admission applications
+            {t('Review and manage hostel admission applications', 'छात्रावास प्रवेश आवेदनों की समीक्षा और प्रबंधन करें')}
           </p>
         </div>
         <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
@@ -412,7 +414,7 @@ export default function SuperintendentDashboard() {
                         : 'border-gray-300 text-gray-700 hover:border-gray-400'
                     )}
                   >
-                    All Verticals
+                    {t('All Verticals', 'सभी वर्टिकल')}
                   </button>
                   <button
                     onClick={() => setSelectedVertical('BOYS')}
@@ -423,7 +425,7 @@ export default function SuperintendentDashboard() {
                         : 'border-blue-300 text-blue-700 hover:border-blue-400'
                     )}
                   >
-                    Boys Hostel
+                    {t('Boys Hostel', 'बालक छात्रावास')}
                   </button>
                   <button
                     onClick={() => setSelectedVertical('GIRLS')}
@@ -434,7 +436,7 @@ export default function SuperintendentDashboard() {
                         : 'border-pink-300 text-pink-700 hover:border-pink-400'
                     )}
                   >
-                    Girls Ashram
+                    {t('Girls Ashram', 'बालिका आश्रम')}
                   </button>
                   <button
                     onClick={() => setSelectedVertical('DHARAMSHALA')}
@@ -445,7 +447,7 @@ export default function SuperintendentDashboard() {
                         : 'border-yellow-300 text-yellow-700 hover:border-yellow-400'
                     )}
                   >
-                    Dharamshala
+                    {t('Dharamshala', 'धर्मशाला')}
                   </button>
                 </div>
 
@@ -463,7 +465,7 @@ export default function SuperintendentDashboard() {
                         : 'border-gray-300 text-gray-700 hover:border-gray-400'
                     )}
                   >
-                    All Statuses
+                    {t('All Statuses', 'सभी स्थितियां')}
                   </button>
                     <button
                       onClick={() => setSelectedStatus('SUBMITTED')}
@@ -474,7 +476,7 @@ export default function SuperintendentDashboard() {
                           : 'border-blue-200 text-blue-700 hover:border-blue-300'
                       )}
                     >
-                      New
+                      {t('New', 'नया')}
                     </button>
                     <button
                       onClick={() => setSelectedStatus('REVIEW')}
@@ -485,7 +487,7 @@ export default function SuperintendentDashboard() {
                           : 'border-yellow-200 text-yellow-700 hover:border-yellow-300'
                       )}
                     >
-                      Under Review
+                      {t('Under Review', 'समीक्षाधीन')}
                     </button>
                   <button
                     onClick={() => setSelectedStatus('APPROVED')}
@@ -496,7 +498,7 @@ export default function SuperintendentDashboard() {
                         : 'border-green-200 text-green-700 hover:border-green-300'
                     )}
                   >
-                    Approved
+                    {t('Approved', 'स्वीकृत')}
                   </button>
                   <button
                     onClick={() => setSelectedStatus('REJECTED')}
@@ -507,7 +509,7 @@ export default function SuperintendentDashboard() {
                         : 'border-red-200 text-red-700 hover:border-red-300'
                     )}
                   >
-                    Rejected
+                    {t('Rejected', 'अस्वीकृत')}
                   </button>
                 </div>
 
@@ -537,14 +539,14 @@ export default function SuperintendentDashboard() {
                       setSearchQuery('');
                     }}
                   >
-                    Clear Filters
+                    {t('Clear Filters', 'फ़िल्टर साफ़ करें')}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={fetchApplications}
                   >
-                    Refresh
+                    {t('Refresh', 'रीफ्रेश')}
                   </Button>
                 </div>
               </div>
@@ -554,11 +556,11 @@ export default function SuperintendentDashboard() {
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Spinner size="lg" />
-                <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>Loading applications...</span>
+                <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>{t('Loading applications...', 'आवेदन लोड हो रहे हैं...')}</span>
               </div>
             ) : error ? (
               <div className="p-4 rounded-lg border" style={{ background: 'var(--color-red-50)', borderColor: 'var(--color-red-200)' }}>
-                <p style={{ color: 'var(--color-red-700)' }} className="font-medium">Error loading applications</p>
+                <p style={{ color: 'var(--color-red-700)' }} className="font-medium">{t('Error loading applications', 'आवेदन लोड करने में त्रुटि')}</p>
                 <p style={{ color: 'var(--color-red-600)' }} className="text-sm">{error}</p>
                 <Button 
                   variant="secondary" 
@@ -566,13 +568,13 @@ export default function SuperintendentDashboard() {
                   className="mt-3"
                   onClick={fetchApplications}
                 >
-                  Retry
+                  {t('Retry', 'पुनः प्रयास करें')}
                 </Button>
               </div>
             ) : filteredApplications.length === 0 ? (
               <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-                <p className="text-gray-600 mb-2">No applications found</p>
-                <p className="text-sm text-gray-500">Try adjusting your filters or check back later.</p>
+                <p className="text-gray-600 mb-2">{t('No applications found', 'कोई आवेदन नहीं मिला')}</p>
+                <p className="text-sm text-gray-500">{t('Try adjusting your filters or check back later.', 'अपने फ़िल्टर बदलकर देखें या बाद में पुनः जांचें।')}</p>
               </div>
             ) : (
               <Table<Application>

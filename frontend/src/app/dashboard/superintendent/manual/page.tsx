@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Card } from '@/components/data/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   BookOpen, 
   LayoutDashboard, 
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function SuperintendentUserManual() {
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState('overview');
 
   const scrollToSection = (id: string) => {
@@ -40,10 +42,10 @@ export default function SuperintendentUserManual() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Superintendent User Manual
+              {t('Superintendent User Manual', 'अधीक्षक उपयोगकर्ता मैनुअल')}
             </h1>
             <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
-              Guide to managing hostel operations and student lifecycle
+              {t('Guide to managing hostel operations and student lifecycle', 'छात्रावास संचालन और छात्र जीवनचक्र प्रबंधन मार्गदर्शिका')}
             </p>
           </div>
 

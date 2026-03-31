@@ -1,10 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import { Button } from '@/components/ui/Button';
-import { IndianRupeeIcon } from '@/components/ui/IconIndianRupee';
-import { FileTextIcon } from '@/components/ui/IconFileText';
-import { CreditCardIcon } from '@/components/ui/IconCreditCard';
+import { Button } from '@/components/shadcn/button-extended';
+import { IndianRupee as IndianRupeeIcon, FileText as FileTextIcon, CreditCard as CreditCardIcon } from 'lucide-react';
 
 interface PaymentReceiptProps {
   receipt: {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Badge, Card, Tooltip } from '@/components';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface StudentData {
   id: string;
@@ -65,6 +66,7 @@ const formatStudent = (student: Partial<StudentData> & Record<string, unknown>):
 });
 
 export default function ParentDashboard() {
+  const { t } = useLanguage();
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -217,7 +219,7 @@ export default function ParentDashboard() {
           {loading && (
             <div className="text-center py-16">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading student information...</p>
+              <p className="text-gray-600">{t('Loading student information...', 'छात्र जानकारी लोड हो रही है...')}</p>
             </div>
           )}
 
@@ -227,13 +229,13 @@ export default function ParentDashboard() {
               <svg className="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <h3 className="text-lg font-semibold text-red-900 mb-2">Unable to Load Data</h3>
+              <h3 className="text-lg font-semibold text-red-900 mb-2">{t('Unable to Load Data', 'डेटा लोड करने में असमर्थ')}</h3>
               <p className="text-red-700 mb-4">{error}</p>
               <button
                 onClick={() => window.location.href = '/login/parent'}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
-                Return to Login
+                {t('Return to Login', 'लॉगिन पर वापस जाएं')}
               </button>
             </div>
           )}
@@ -242,9 +244,9 @@ export default function ParentDashboard() {
           {!loading && !error && (
             <>
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-2">Welcome, Parent</h2>
+            <h2 className="text-2xl font-bold mb-2">{t('Welcome, Parent', 'स्वागत है, अभिभावक')}</h2>
             <p className="text-gray-600">
-              View {studentData.name}&apos;s hostel information, fees, and leave status.
+              {t(`View ${studentData.name}'s hostel information, fees, and leave status.`, `${studentData.name} की छात्रावास जानकारी, शुल्क और अवकाश स्थिति देखें।`)}
             </p>
           </div>
 
@@ -261,17 +263,16 @@ export default function ParentDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-blue-900 mb-1">Data Protection & Privacy (DPDP Act, 2023)</h4>
+                <h4 className="text-sm font-medium text-blue-900 mb-1">{t('Data Protection & Privacy (DPDP Act, 2023)', 'डेटा संरक्षण और गोपनीयता (DPDP अधिनियम, 2023)')}</h4>
                 <p className="text-sm text-blue-700 mb-2">
-                  This dashboard displays your ward&apos;s information in compliance with DPDP Act, 2023.
-                  All data is encrypted and access is logged for audit purposes.
+                  {t("This dashboard displays your ward's information in compliance with DPDP Act, 2023. All data is encrypted and access is logged for audit purposes.", "यह डैशबोर्ड DPDP अधिनियम, 2023 के अनुपालन में आपके वार्ड की जानकारी प्रदर्शित करता है। सभी डेटा एन्क्रिप्टेड है और लेखा परीक्षा उद्देश्यों के लिए एक्सेस लॉग किया जाता है।")}
                 </p>
                 <Link 
                   href="/dpdp-policy" 
                   className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
                   aria-label="Read full DPDP policy document"
                 >
-                  Read Full DPDP Policy →
+                  {t('Read Full DPDP Policy', 'पूर्ण DPDP नीति पढ़ें')} →
                 </Link>
               </div>
             </div>
@@ -290,11 +291,11 @@ export default function ParentDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-amber-900 mb-1">View-Only Access</h4>
+                <h4 className="text-sm font-medium text-amber-900 mb-1">{t('View-Only Access', 'केवल देखने की पहुंच')}</h4>
                 <p className="text-sm text-amber-700">
-                  This dashboard provides read-only access to view your ward&apos;s information.
-                  <strong>You cannot make changes or approve requests through this portal.</strong>
-                  For any changes, please contact hostel administration.
+                  {t("This dashboard provides read-only access to view your ward's information.", "यह डैशबोर्ड आपके वार्ड की जानकारी देखने के लिए केवल-पठन पहुंच प्रदान करता है।")}
+                  <strong>{t('You cannot make changes or approve requests through this portal.', 'आप इस पोर्टल के माध्यम से बदलाव नहीं कर सकते या अनुरोध स्वीकृत नहीं कर सकते।')}</strong>
+                  {t('For any changes, please contact hostel administration.', 'किसी भी बदलाव के लिए, कृपया छात्रावास प्रशासन से संपर्क करें।')}
                 </p>
               </div>
             </div>
@@ -338,7 +339,7 @@ export default function ParentDashboard() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
                 <h3 id="student-overview-heading" className="text-xl font-semibold text-gray-900">
-                  Student Overview
+                  {t('Student Overview', 'छात्र अवलोकन')}
                 </h3>
                 <Tooltip 
                   content="View-only: Cannot edit student information"
@@ -376,20 +377,20 @@ export default function ParentDashboard() {
                 <h4 className="text-lg font-semibold text-gray-900 mb-3">{studentData.name}</h4>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Vertical</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">{t('Vertical', 'वर्टिकल')}</p>
                     <p className="text-sm font-medium text-gray-900">{studentData.vertical}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Room</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">{t('Room', 'कमरा')}</p>
                     <p className="text-sm font-medium text-gray-900">{studentData.room}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Joining Date</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">{t('Joining Date', 'प्रवेश तिथि')}</p>
                     <p className="text-sm font-medium text-gray-900">{studentData.joiningDate}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
-                    <p className="text-sm font-medium text-gray-900">Checked In</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">{t('Status', 'स्थिति')}</p>
+                    <p className="text-sm font-medium text-gray-900">{t('Checked In', 'चेक इन')}</p>
                   </div>
                 </div>
               </div>
@@ -401,7 +402,7 @@ export default function ParentDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <h3 id="fee-status-heading" className="text-xl font-semibold text-gray-900">
-                  Fee Status
+                  {t('Fee Status', 'शुल्क स्थिति')}
                 </h3>
                 <Tooltip content="View-only: Can view and download receipts, cannot process payments">
                   <button
@@ -420,15 +421,15 @@ export default function ParentDashboard() {
             
             <div className="grid gap-4 sm:grid-cols-3 mb-6">
               <div className="bg-gray-50 rounded-lg p-4" role="status" aria-label={`Total fees: ₹${feeSummary.totalFees.toLocaleString()}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Fees</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Total Fees', 'कुल शुल्क')}</p>
                 <p className="text-2xl font-bold text-gray-900">₹{feeSummary.totalFees.toLocaleString()}</p>
               </div>
               <div className="bg-green-50 rounded-lg p-4" role="status" aria-label={`Paid: ₹${feeSummary.totalPaid.toLocaleString()}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Paid</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Paid', 'भुगतान किया')}</p>
                 <p className="text-2xl font-bold text-green-700">₹{feeSummary.totalPaid.toLocaleString()}</p>
               </div>
               <div className={feeSummary.outstanding > 0 ? "bg-amber-50 rounded-lg p-4" : "bg-green-50 rounded-lg p-4"} role="status" aria-label={`Outstanding: ₹${feeSummary.outstanding.toLocaleString()}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Outstanding</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Outstanding', 'बकाया')}</p>
                 <p className={feeSummary.outstanding > 0 ? "text-2xl font-bold text-amber-700" : "text-2xl font-bold text-green-700"}>
                   ₹{feeSummary.outstanding.toLocaleString()}
                 </p>
@@ -437,7 +438,7 @@ export default function ParentDashboard() {
 
             <div className="mb-6" role="progressbar" aria-label={`Payment progress: ${Math.round((feeSummary.totalPaid / feeSummary.totalFees) * 100)}%`}>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-600">Payment Progress</span>
+                <span className="text-gray-600">{t('Payment Progress', 'भुगतान प्रगति')}</span>
                 <span className="font-medium text-gray-900">
                   {Math.round((feeSummary.totalPaid / feeSummary.totalFees) * 100)}%
                 </span>
@@ -455,11 +456,11 @@ export default function ParentDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Fee Name</th>
-                    <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Amount</th>
-                    <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Date</th>
-                    <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Status</th>
-                    <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Receipt</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Fee Name', 'शुल्क नाम')}</th>
+                    <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Amount', 'राशि')}</th>
+                    <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Date', 'तिथि')}</th>
+                    <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Status', 'स्थिति')}</th>
+                    <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Receipt', 'रसीद')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -485,7 +486,7 @@ export default function ParentDashboard() {
                             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                             aria-label={`Download receipt for ${item.name}`}
                           >
-                            Download
+                            {t('Download', 'डाउनलोड')}
                           </button>
                         )}
                       </td>
@@ -523,7 +524,7 @@ export default function ParentDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <h3 id="leave-summary-heading" className="text-xl font-semibold text-gray-900">
-                  Leave Summary
+                  {t('Leave Summary', 'अवकाश सारांश')}
                 </h3>
                 <Tooltip content="View-only: Can view leave history, cannot submit new requests">
                   <button
@@ -542,19 +543,19 @@ export default function ParentDashboard() {
             
             <div className="grid gap-4 sm:grid-cols-3 mb-6">
               <div className="bg-blue-50 rounded-lg p-4" role="status" aria-label={`Upcoming leaves: ${leaveRequests.filter(l => l.status === 'PENDING').length}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Upcoming</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Upcoming', 'आगामी')}</p>
                 <p className="text-2xl font-bold text-blue-700">
                   {leaveRequests.filter(l => l.status === 'PENDING').length}
                 </p>
               </div>
               <div className="bg-green-50 rounded-lg p-4" role="status" aria-label={`Approved leaves: ${leaveRequests.filter(l => l.status === 'APPROVED').length}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Approved</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Approved', 'स्वीकृत')}</p>
                 <p className="text-2xl font-bold text-green-700">
                   {leaveRequests.filter(l => l.status === 'APPROVED').length}
                 </p>
               </div>
               <div className="bg-red-50 rounded-lg p-4" role="status" aria-label={`Rejected leaves: ${leaveRequests.filter(l => l.status === 'REJECTED').length}`}>
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Rejected</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Rejected', 'अस्वीकृत')}</p>
                 <p className="text-2xl font-bold text-red-700">
                   {leaveRequests.filter(l => l.status === 'REJECTED').length}
                 </p>
@@ -565,11 +566,11 @@ export default function ParentDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Type</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4 whitespace-nowrap">From</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4 whitespace-nowrap">To</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Reason</th>
-                    <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">Status</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Type', 'प्रकार')}</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4 whitespace-nowrap">{t('From', 'से')}</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4 whitespace-nowrap">{t('To', 'तक')}</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Reason', 'कारण')}</th>
+                    <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wide py-3 px-4">{t('Status', 'स्थिति')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -604,7 +605,7 @@ export default function ParentDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <h3 id="notifications-heading" className="text-xl font-semibold text-gray-900">
-                  Notifications
+                  {t('Notifications', 'सूचनाएं')}
                 </h3>
                 <Tooltip content="View-only: Can view notifications, cannot send messages">
                   <button
@@ -666,7 +667,7 @@ export default function ParentDashboard() {
           <div className="mt-8 text-center" role="complementary" aria-label="Help and contact information">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
               <p className="text-sm text-gray-600 mb-2">
-                Need help? Contact hostel administration
+                {t('Need help? Contact hostel administration', 'मदद चाहिए? छात्रावास प्रशासन से संपर्क करें')}
               </p>
               <a 
                 href="tel:+912224141234" 

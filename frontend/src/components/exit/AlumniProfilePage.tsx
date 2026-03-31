@@ -15,7 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { AlumniStatusBadge } from './AlumniStatusBadge';
 import { AlumniStayHistory } from './AlumniStayHistory';
 import { AlumniContactEditor } from './AlumniContactEditor';

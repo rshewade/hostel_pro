@@ -1,4 +1,7 @@
+'use client';
+
 import { FutureModulePage } from '@/components/future/ComingSoonPlaceholder';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const visitorIcon = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -6,21 +9,26 @@ const visitorIcon = (
   </svg>
 );
 
-const plannedFeatures = [
-  'Centralized visitor registration and approval workflow',
-  'Real-time visitor tracking dashboard',
-  'Gate pass generation and validation system',
-  'Blacklist management and access control',
-  'Visitor analytics and heat map reports',
-  'Emergency lockdown capability',
-];
-
 export default function AdminVisitorPage() {
+  const { t } = useLanguage();
+
+  const plannedFeatures = [
+    t('Centralized visitor registration and approval workflow', 'केंद्रीकृत आगंतुक पंजीकरण और अनुमोदन कार्यप्रवाह'),
+    t('Real-time visitor tracking dashboard', 'वास्तविक समय आगंतुक ट्रैकिंग डैशबोर्ड'),
+    t('Gate pass generation and validation system', 'गेट पास निर्माण और सत्यापन प्रणाली'),
+    t('Blacklist management and access control', 'ब्लैकलिस्ट प्रबंधन और पहुंच नियंत्रण'),
+    t('Visitor analytics and heat map reports', 'आगंतुक विश्लेषण और हीट मैप रिपोर्ट'),
+    t('Emergency lockdown capability', 'आपातकालीन लॉकडाउन क्षमता'),
+  ];
+
   return (
     <FutureModulePage
-      title="Visitor Management System"
-      description="Manage visitor registration, approvals, and security"
-      fullDescription="This module will provide comprehensive visitor management capabilities including pre-registration workflows, real-time tracking dashboards, gate pass validation, and security features like blacklist management and emergency lockdown capabilities."
+      title={t('Visitor Management System', 'आगंतुक प्रबंधन प्रणाली')}
+      description={t('Manage visitor registration, approvals, and security', 'आगंतुक पंजीकरण, अनुमोदन और सुरक्षा प्रबंधित करें')}
+      fullDescription={t(
+        'This module will provide comprehensive visitor management capabilities including pre-registration workflows, real-time tracking dashboards, gate pass validation, and security features like blacklist management and emergency lockdown capabilities.',
+        'यह मॉड्यूल पूर्व-पंजीकरण कार्यप्रवाह, वास्तविक समय ट्रैकिंग डैशबोर्ड, गेट पास सत्यापन और ब्लैकलिस्ट प्रबंधन और आपातकालीन लॉकडाउन क्षमताओं जैसी सुरक्षा सुविधाओं सहित व्यापक आगंतुक प्रबंधन क्षमताएं प्रदान करेगा।'
+      )}
       icon={visitorIcon}
       featureFlag="FEAT_VISITOR_MANAGEMENT"
       estimatedLaunch="Q3 2026"

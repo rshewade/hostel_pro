@@ -24,4 +24,7 @@ node_modules/
 # OS specific
 .DS_Store
 
+# Legacy webpages (Vite app - already migrated to Next.js)
+webpages/
+
 

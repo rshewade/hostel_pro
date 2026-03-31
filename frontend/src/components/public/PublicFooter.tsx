@@ -1,68 +1,58 @@
-import Link from "next/link";
+"use client";
 
-const quickLinks = [
-  { path: "/about", label: "About Us" },
-  { path: "/institutions/boys-hostel", label: "Boys' Hostel" },
-  { path: "/institutions/girls-hostel", label: "Girls' Hostel" },
-  { path: "/institutions/dharamshala", label: "Dharamshala" },
-  { path: "/donations", label: "Donate" },
-];
+import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Phone, Mail, MapPin, Heart } from 'lucide-react';
 
-export default function PublicFooter() {
+const PublicFooter = () => {
+  const { t } = useLanguage();
+
+  const quickLinks = [
+    { path: '/about', label: t('About Us', 'हमारे बारे में') },
+    { path: '/institutions/boys-hostel', label: t("Boys' Hostel", 'बालक छात्रावास') },
+    { path: '/institutions/girls-hostel', label: t("Girls' Hostel", 'बालिका छात्रावास') },
+    { path: '/institutions/dharamshala', label: t('Dharamshala', 'धर्मशाला') },
+    { path: '/donations', label: t('Donate', 'दान करें') },
+  ];
+
   return (
-    <footer style={{ backgroundColor: "var(--bg-inverse)" }}>
-      <div className="mx-auto max-w-6xl px-4 py-12">
+    <footer className="bg-primary text-primary-foreground">
+      <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "var(--color-navy-700)" }}
-              >
-                <span style={{ color: "var(--text-inverse)" }} className="font-bold">
-                  &#x0950;
-                </span>
+              <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center">
+                <span className="text-primary-foreground font-bold">&#x0950;</span>
               </div>
               <div>
-                <h3
-                  className="font-bold"
-                  style={{
-                    color: "var(--text-inverse)",
-                    fontFamily: "var(--font-serif)",
-                  }}
-                >
-                  Seth Hirachand Gumanji
+                <h3 className="font-heading font-bold">
+                  {t('Seth Hirachand Gumanji', 'सेठ हीराचंद गुमानजी')}
                 </h3>
-                <p className="text-sm" style={{ color: "var(--color-navy-300)" }}>
-                  Jain Trust, Mumbai
+                <p className="text-sm text-primary-foreground/70">
+                  {t('Jain Trust, Mumbai', 'जैन ट्रस्ट, मुंबई')}
                 </p>
               </div>
             </div>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--color-navy-300)" }}
-            >
-              Serving the Jain community through education, shelter, and
-              spiritual welfare since 1940.
+            <p className="text-sm text-primary-foreground/80 leading-relaxed">
+              {t(
+                'Serving the Jain community through education, shelter, and spiritual welfare since 1940.',
+                'शिक्षा, आश्रय और आध्यात्मिक कल्याण के माध्यम से 1940 से जैन समुदाय की सेवा में।'
+              )}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: "var(--text-inverse)" }}
-            >
-              Quick Links
+            <h4 className="font-heading font-semibold mb-4">
+              {t('Quick Links', 'त्वरित लिंक')}
             </h4>
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     href={link.path}
-                    className="text-sm transition-colors hover:opacity-100"
-                    style={{ color: "var(--color-navy-300)" }}
+                    className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -73,35 +63,25 @@ export default function PublicFooter() {
 
           {/* Contact */}
           <div>
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: "var(--text-inverse)" }}
-            >
-              Contact Us
+            <h4 className="font-heading font-semibold mb-4">
+              {t('Contact Us', 'संपर्क करें')}
             </h4>
             <ul className="space-y-3">
-              <li
-                className="flex items-start gap-2 text-sm"
-                style={{ color: "var(--color-navy-300)" }}
-              >
-                <span className="mt-0.5 shrink-0">&#x1F4CD;</span>
+              <li className="flex items-start gap-2 text-sm text-primary-foreground/80">
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>
-                  148, Lamington Road, Opp. Navjivan Society, Grant Road (E),
-                  Mumbai, Maharashtra – 400007
+                  {t(
+                    '148, Lamington Road, Opp. Navjivan Society, Grant Road (E), Mumbai, Maharashtra – 400007',
+                    '148, लेमिंग्टन रोड, नवजीवन सोसायटी के सामने, ग्रांट रोड (पूर्व), मुंबई, महाराष्ट्र – 400007'
+                  )}
                 </span>
               </li>
-              <li
-                className="flex items-center gap-2 text-sm"
-                style={{ color: "var(--color-navy-300)" }}
-              >
-                <span className="shrink-0">&#x1F4DE;</span>
+              <li className="flex items-center gap-2 text-sm text-primary-foreground/80">
+                <Phone className="h-4 w-4 shrink-0" />
                 <span>+91 22 2414 1234</span>
               </li>
-              <li
-                className="flex items-center gap-2 text-sm"
-                style={{ color: "var(--color-navy-300)" }}
-              >
-                <span className="shrink-0">&#x2709;&#xFE0F;</span>
+              <li className="flex items-center gap-2 text-sm text-primary-foreground/80">
+                <Mail className="h-4 w-4 shrink-0" />
                 <span>info@shgjaintrust.org</span>
               </li>
             </ul>
@@ -109,55 +89,36 @@ export default function PublicFooter() {
 
           {/* Support */}
           <div>
-            <h4
-              className="font-semibold mb-4"
-              style={{ color: "var(--text-inverse)" }}
-            >
-              Support Our Mission
+            <h4 className="font-heading font-semibold mb-4">
+              {t('Support Our Mission', 'हमारे मिशन का समर्थन करें')}
             </h4>
-            <p
-              className="text-sm mb-4"
-              style={{ color: "var(--color-navy-300)" }}
-            >
-              Your generous donations help us continue our service to the
-              community.
+            <p className="text-sm text-primary-foreground/80 mb-4">
+              {t(
+                'Your generous donations help us continue our service to the community.',
+                'आपका उदार दान हमें समुदाय की सेवा जारी रखने में मदद करता है।'
+              )}
             </p>
             <Link
               href="/donations"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors hover:opacity-90"
-              style={{
-                backgroundColor: "var(--bg-accent)",
-                color: "var(--text-on-accent)",
-              }}
+              className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-accent/90 transition-colors"
             >
-              Donate Now
+              <Heart className="h-4 w-4" />
+              {t('Donate Now', 'अभी दान करें')}
             </Link>
           </div>
         </div>
 
-        <div
-          className="mt-12 pt-8 border-t"
-          style={{ borderColor: "var(--color-navy-700)" }}
-        >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
-            <p style={{ color: "var(--color-navy-300)" }}>
-              &copy; {new Date().getFullYear()} Seth Hirachand Gumanji Jain
-              Trust. All rights reserved.
+        <div className="mt-12 pt-8 border-t border-primary-foreground/20">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-foreground/70">
+            <p>
+              &copy; {new Date().getFullYear()} {t('Seth Hirachand Gumanji Jain Trust. All rights reserved.', 'सेठ हीराचंद गुमानजी जैन ट्रस्ट। सर्वाधिकार सुरक्षित।')}
             </p>
             <div className="flex items-center gap-4">
-              <Link
-                href="/faq"
-                className="transition-colors hover:opacity-100"
-                style={{ color: "var(--color-navy-300)" }}
-              >
-                FAQ
+              <Link href="/faq" className="hover:text-primary-foreground transition-colors">
+                {t('FAQ', 'सामान्य प्रश्न')}
               </Link>
-              <Link
-                href="/facilities"
-                className="transition-colors hover:opacity-100"
-                style={{ color: "var(--color-navy-300)" }}
-              >
-                Rules &amp; Regulations
+              <Link href="/facilities" className="hover:text-primary-foreground transition-colors">
+                {t('Rules & Regulations', 'नियम और विनियम')}
               </Link>
             </div>
           </div>
@@ -165,4 +126,6 @@ export default function PublicFooter() {
       </div>
     </footer>
   );
-}
+};
+
+export default PublicFooter;

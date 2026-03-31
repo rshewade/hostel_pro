@@ -11,8 +11,10 @@ import {
   ClearanceItemStatus,
 } from '@/components/exit';
 import { ArrowLeft, Download, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SuperintendentClearancePage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [exitRequests, setExitRequests] = useState<ExitRequestSummary[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<ExitRequestSummary | null>(null);
@@ -150,7 +152,7 @@ export default function SuperintendentClearancePage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading exit clearance requests...</p>
+          <p style={{ color: 'var(--text-secondary)' }}>{t('Loading exit clearance requests...', 'निकास मंजूरी अनुरोध लोड हो रहे हैं...')}</p>
         </div>
       </div>
     );
@@ -165,15 +167,15 @@ export default function SuperintendentClearancePage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                Exit Clearance Dashboard
+                {t('Exit Clearance Dashboard', 'निकास मंजूरी डैशबोर्ड')}
               </h1>
               <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                Manage and process student exit clearances
+                {t('Manage and process student exit clearances', 'छात्र निकास मंजूरी का प्रबंधन और प्रक्रिया करें')}
               </p>
             </div>
             <Button variant="secondary" onClick={handleExportReport}>
               <Download className="w-4 h-4 mr-2" />
-              Export Report
+              {t('Export Report', 'रिपोर्ट निर्यात करें')}
             </Button>
           </div>
 
@@ -182,7 +184,7 @@ export default function SuperintendentClearancePage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-blue-900">Superintendent Responsibilities</h3>
+                <h3 className="text-sm font-semibold text-blue-900">{t('Superintendent Responsibilities', 'अधीक्षक की जिम्मेदारियां')}</h3>
                 <p className="text-sm text-blue-700 mt-1">
                   You are responsible for room inventory checks, key returns, and general clearance items.
                   Ensure all items are verified before marking as completed. All actions are logged in the audit trail.
@@ -219,7 +221,7 @@ export default function SuperintendentClearancePage() {
               <AlertCircle className="w-6 h-6 text-orange-600 flex-shrink-0" />
               <div>
                 <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  Confirm Bulk Action
+                  {t('Confirm Bulk Action', 'सामूहिक कार्रवाई की पुष्टि करें')}
                 </h3>
                 <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
                   Are you sure you want to perform this action on {bulkAction.requestIds.length} exit request(s)?
@@ -236,10 +238,10 @@ export default function SuperintendentClearancePage() {
                   setBulkAction(null);
                 }}
               >
-                Cancel
+                {t('Cancel', 'रद्द करें')}
               </Button>
               <Button variant="primary" onClick={executeBulkAction}>
-                Confirm
+                {t('Confirm', 'पुष्टि करें')}
               </Button>
             </div>
           </div>

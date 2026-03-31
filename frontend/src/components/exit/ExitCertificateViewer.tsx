@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Download, Printer, RefreshCcw, Eye, AlertTriangle, FileText } from 'lucide-react';
 import { cn } from '../utils';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/shadcn/button-extended';
 import { ExitCertificateTemplate } from './ExitCertificateTemplate';
 import type { CertificateViewerProps } from './types';
 
