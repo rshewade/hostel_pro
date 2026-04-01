@@ -37,7 +37,8 @@ export default function TrusteeApplications() {
       if (!response.ok) {
         throw new Error('Failed to fetch applications');
       }
-      const data = await response.json();
+      const responseData = await response.json();
+      const data = responseData?.data || responseData;
 
       const transformedApplications: Application[] = (Array.isArray(data) ? data : []).map((app: any) => {
         let applicantName = 'Unknown';
@@ -75,22 +76,30 @@ export default function TrusteeApplications() {
           paymentStatus: app.paymentStatus || 'PAID',
           interviewScheduled: status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED',
           flags: app.flags || [],
-          forwardedBy: app.remarks
+          forwardedBy: (app.remarks || app.data?.status_remarks || app.forwarded_by)
             ? {
-                superintendentId: 'u2',
-                superintendentName: 'Superintendent',
-                forwardedOn: new Date().toLocaleDateString('en-GB'),
-                recommendation: 'RECOMMEND' as const,
-                remarks: app.remarks,
+                superintendentId: app.forwarded_by?.superintendent_id || app.superintendent_id || '',
+                superintendentName: app.forwarded_by?.superintendent_name || app.superintendent_name || 'Not assigned',
+                forwardedOn: app.forwarded_at
+                  ? new Date(app.forwarded_at).toLocaleDateString('en-GB')
+                  : app.reviewed_at
+                  ? new Date(app.reviewed_at).toLocaleDateString('en-GB')
+                  : '',
+                recommendation: app.forwarded_by?.recommendation || app.recommendation || 'PENDING',
+                remarks: app.remarks || app.data?.status_remarks || '',
               }
             : undefined,
           interview:
             status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED'
               ? {
-                  id: 'int-1',
-                  scheduledDate: new Date().toLocaleDateString('en-GB'),
-                  scheduledTime: '10:00 AM',
-                  mode: 'ONLINE' as const,
+                  id: app.data?.interview?.id || app.id || '',
+                  scheduledDate: app.interview_scheduled_at
+                    ? new Date(app.interview_scheduled_at).toLocaleDateString('en-GB')
+                    : 'Not scheduled',
+                  scheduledTime: app.interview_scheduled_at
+                    ? new Date(app.interview_scheduled_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                    : 'TBD',
+                  mode: (app.data?.interview?.mode || 'IN_PERSON') as 'ONLINE' | 'PHYSICAL',
                   status: status === 'INTERVIEW_SCHEDULED' ? ('SCHEDULED' as const) : ('COMPLETED' as const),
                 }
               : undefined,

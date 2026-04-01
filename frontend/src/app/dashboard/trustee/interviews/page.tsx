@@ -68,40 +68,47 @@ export default function TrusteeInterviews() {
       setIsLoading(true);
       setError(null);
 
-      // Fetch applications with interview status
-      const response = await fetch('/api/applications');
+      // Fetch interviews from the dedicated interviews API
+      const response = await fetch('/api/interviews');
       if (!response.ok) {
         throw new Error('Failed to fetch interviews');
       }
-      const data = await response.json();
-      const applications = Array.isArray(data) ? data : [];
+      const responseData = await response.json();
+      const interviewsData = responseData?.data || [];
 
-      // Filter and transform to interviews
-      const interviewList: Interview[] = applications
-        .filter((app: any) => {
-          const status = app.status || app.currentStatus;
-          return status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED';
-        })
-        .map((app: any) => {
+      // Transform API response to Interview format
+      const interviewList: Interview[] = interviewsData.map((interview: any) => {
+          const app = interview.application || {};
           let applicantName = 'Unknown';
-          if (app.firstName) {
+          if (app.applicant_name) {
+            applicantName = app.applicant_name;
+          } else if (app.firstName) {
             applicantName = `${app.firstName} ${app.lastName || ''}`.trim();
           } else if (app.data?.personal_info?.full_name) {
             applicantName = app.data.personal_info.full_name;
           }
 
-          const status = app.status || app.currentStatus;
+          const scheduleTime = interview.schedule_time || app.interview_scheduled_at;
+          const interviewMode = app.data?.interview?.mode || interview.mode;
+
           return {
-            id: `int-${app.id}`,
-            applicationId: app.id,
+            id: interview.id || `int-${app.id}`,
+            applicationId: interview.application_id || app.id,
             applicantName,
-            trackingNumber: app.trackingNumber || app.tracking_number || app.id,
-            vertical: (app.vertical || 'BOYS').toUpperCase() as Vertical,
-            scheduledDate: new Date().toLocaleDateString('en-GB'),
-            scheduledTime: '10:00 AM',
-            mode: 'ONLINE' as InterviewMode,
-            meetingLink: 'https://meet.google.com/abc-defg-hij',
-            status: status === 'INTERVIEW_COMPLETED' ? ('COMPLETED' as InterviewStatus) : ('SCHEDULED' as InterviewStatus),
+            trackingNumber: app.tracking_number || app.trackingNumber || app.id || '',
+            vertical: (app.vertical || 'BOYS').toUpperCase().replace('_HOSTEL', '').replace('_ASHRAM', '') as Vertical,
+            scheduledDate: scheduleTime
+              ? new Date(scheduleTime).toLocaleDateString('en-GB')
+              : 'Not scheduled',
+            scheduledTime: scheduleTime
+              ? new Date(scheduleTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+              : 'TBD',
+            mode: (interviewMode || 'IN_PERSON') as InterviewMode,
+            meetingLink: app.data?.interview?.meeting_link || app.data?.interview?.location_or_link || '',
+            location: app.data?.interview?.location || '',
+            status: interview.status === 'COMPLETED' ? ('COMPLETED' as InterviewStatus) : ('SCHEDULED' as InterviewStatus),
+            score: app.data?.interview?.score,
+            notes: app.data?.interview?.remarks,
           };
         });
 

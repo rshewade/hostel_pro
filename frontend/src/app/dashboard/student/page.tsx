@@ -41,7 +41,7 @@ export default function StudentDashboard() {
           return;
         }
 
-        // Handle both JWT tokens (Supabase) and legacy base64 tokens
+        // Handle JWT tokens and legacy base64 tokens
         let userId: string;
         try {
           if (token.includes('.')) {
@@ -50,7 +50,7 @@ export default function StudentDashboard() {
             // JWT uses base64url encoding, convert to standard base64
             const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
             const tokenData = JSON.parse(atob(base64));
-            // Supabase JWT has 'sub' as user ID, but we store our userId separately
+            // JWT has 'sub' as user ID
             userId = localStorage.getItem('userId') || tokenData.sub;
           } else {
             // Legacy base64 encoded JSON token

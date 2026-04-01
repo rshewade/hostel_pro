@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Spinner } from '@/components/feedback/Spinner';
 import { RenewalCard } from '@/components/renewal/RenewalCard';
 import { RenewalStatusTracker, RenewalStatus } from '@/components/renewal/RenewalStatusTracker';
 import { InfoReviewStep } from '@/components/renewal/InfoReviewStep';
@@ -45,11 +46,92 @@ const STEPS = [
   },
 ];
 
+// Helper to calculate academic year from current date
+function getAcademicYear(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed
+  // Academic year starts in June (month 5)
+  if (month >= 5) {
+    return `${year}-${String(year + 1).slice(2)}`;
+  }
+  return `${year - 1}-${String(year).slice(2)}`;
+}
+
+// Helper to calculate semester period
+function getSemesterPeriod(): string {
+  const month = new Date().getMonth();
+  return month >= 5 && month <= 10 ? 'SEMESTER 1' : 'SEMESTER 2';
+}
+
+interface UserProfile {
+  id: string;
+  full_name: string;
+  vertical: string;
+}
+
+interface RenewalData {
+  id: string;
+  status: string;
+  days_remaining: number;
+}
+
 export default function StudentRenewalPage() {
   const { t } = useLanguage();
   const [currentStatus, setCurrentStatus] = useState<RenewalStatus>('IN_PROGRESS');
   const [renewalCompleted, setRenewalCompleted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [renewalInfo, setRenewalInfo] = useState<RenewalData | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    async function fetchProfileAndRenewal() {
+      try {
+        // Get userId from auth session
+        const sessionRes = await fetch('/api/auth/session');
+        const sessionData = await sessionRes.json();
+        const userId = sessionData?.data?.user?.id || sessionData?.user?.id || '';
+
+        if (userId) {
+          // Fetch profile
+          const profileRes = await fetch(`/api/users/profile?user_id=${userId}`);
+          const profileData = await profileRes.json();
+          if (profileData?.data) {
+            setProfile(profileData.data);
+          }
+
+          // Fetch renewal info
+          const renewalRes = await fetch(`/api/renewals?student_id=${userId}`);
+          const renewalData = await renewalRes.json();
+          const renewals = renewalData?.data || [];
+          if (renewals.length > 0) {
+            setRenewalInfo(renewals[0]);
+            // Map API renewal status to component status
+            const apiStatus = renewals[0].status;
+            if (apiStatus === 'SUBMITTED' || apiStatus === 'UNDER_REVIEW') {
+              setCurrentStatus('SUBMITTED');
+            } else if (apiStatus === 'APPROVED') {
+              setCurrentStatus('APPROVED');
+              setRenewalCompleted(true);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load profile/renewal data:', err);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    }
+    fetchProfileAndRenewal();
+  }, []);
+
+  const studentId = profile?.id || '';
+  const studentName = profile?.full_name || '';
+  const vertical = profile?.vertical || '';
+  const academicYear = getAcademicYear();
+  const period = getSemesterPeriod();
+  const daysRemaining = renewalInfo?.days_remaining ?? 0;
 
   const handleSubmit = async (data: any) => {
     console.log('Renewal submitted:', data);
@@ -68,7 +150,7 @@ export default function StudentRenewalPage() {
                   {t('6-Month Stay Renewal', '6 महीने का रहने का नवीनीकरण')}
                 </h1>
                 <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-                  Boys Hostel
+                  {vertical || 'Hostel'}
                 </span>
               </div>
             </div>
@@ -89,7 +171,7 @@ export default function StudentRenewalPage() {
               type="success"
               title="Application Received"
               message="Your renewal application has been submitted successfully. The administration will review your application and documents. You will be notified once a decision is made."
-              daysRemaining={15}
+              daysRemaining={daysRemaining}
               className="mb-6"
             />
 
@@ -162,21 +244,28 @@ export default function StudentRenewalPage() {
                 {t('6-Month Stay Renewal', '6 महीने का रहने का नवीनीकरण')}
               </h1>
               <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-                Boys Hostel | 2025-26 | SEMESTER 1
+                {vertical || 'Hostel'} | {academicYear} | {period}
               </span>
             </div>
           </div>
 
-          {currentStep === 0 && (
+          {isLoadingProfile ? (
+            <div className="flex items-center justify-center py-8">
+              <Spinner size="md" />
+              <span className="ml-3" style={{ color: 'var(--text-secondary)' }}>
+                {t('Loading your renewal info...', 'आपकी नवीनीकरण जानकारी लोड हो रही है...')}
+              </span>
+            </div>
+          ) : currentStep === 0 && (
             <div className="mb-6">
               <RenewalCard
-                studentId="STU001"
-                studentName="Amit Kumar Jain"
-                vertical="Boys Hostel"
+                studentId={studentId}
+                studentName={studentName}
+                vertical={vertical || 'Hostel'}
                 renewalStatus={currentStatus}
-                daysRemaining={30}
-                academicYear="2025-26"
-                period="SEMESTER 1"
+                daysRemaining={daysRemaining}
+                academicYear={academicYear}
+                period={period}
                 onContinueRenewal={() => {}}
               />
             </div>

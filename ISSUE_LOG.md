@@ -102,13 +102,13 @@
 - [ ] Open
 
 ### ISSUE-11: Hardcoded mock data in dashboard pages that should come from database
-- **Files & Details:**
-  1. **`dashboard/trustee/interviews/page.tsx`** (lines ~100-103) — Hardcoded interview date (`new Date()`), time (`'10:00 AM'`), mode (`'ONLINE'`), fake Google Meet link. Should fetch actual scheduled interview data from API.
-  2. **`dashboard/trustee/applications/page.tsx`** (lines ~80-93) — Hardcoded superintendent ID (`'u2'`), name (`'Superintendent'`), forwarding date (`new Date()`), recommendation (`'RECOMMEND'`), fake interview ID (`'int-1'`). Should fetch actual forwarding/recommendation data.
-  3. **`dashboard/student/renewal/page.tsx`** (lines ~173-175) — Hardcoded student ID (`'STU001'`), name (`'Amit Kumar Jain'`), vertical, academic year, period, days remaining (`30`). Should fetch from logged-in student profile and renewal API.
-  4. **`dashboard/superintendent/renewal/page.tsx`** (lines ~28-49) — Extensive hardcoded renewal record: student name, room (`'A-201'`), fake document filenames, payment amount (`60000`), consent timestamps. Should fetch actual renewal records from API.
-- **Fix:** Replace hardcoded data with API calls to the backend, which connects to Supabase.
-- [ ] Open
+- **Description:** 4 dashboard pages had hardcoded mock data instead of API-fetched data.
+- **Fix:**
+  1. `trustee/applications` — superintendent ID, name, interview details now from API data with fallbacks
+  2. `student/renewal` — fetches profile from `/api/auth/session` + `/api/users/profile`, renewal from `/api/renewals`
+  3. `superintendent/renewal` — fetches renewal records from `/api/renewals`, shows empty state if none
+  4. `trustee/interviews` — fetches from `/api/interviews`, uses actual dates/times/modes
+- [x] Resolved
 
 ### ISSUE-12: Supabase connection status and database readiness
 - **Status:** Supabase is **fully configured and active**.

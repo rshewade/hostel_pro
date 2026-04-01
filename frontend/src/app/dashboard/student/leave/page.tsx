@@ -81,7 +81,7 @@ export default function LeaveManagementPage() {
       setStudentId(userId);
     } else if (token) {
       try {
-        // Handle both JWT tokens (Supabase) and legacy base64 tokens
+        // Handle JWT tokens and legacy base64 tokens
         if (token.includes('.')) {
           const payload = token.split('.')[1];
           const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
