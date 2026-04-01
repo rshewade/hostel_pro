@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { createOtp } from '@/lib/auth';
 import {
   successResponse,
   badRequestResponse,
@@ -20,7 +21,6 @@ import { AuthAPI } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body: AuthAPI.ForgotPasswordRequest = await request.json();
     const { contact } = body;
 
@@ -46,26 +46,20 @@ export async function POST(request: NextRequest) {
     const normalizedContact = contact.toLowerCase().trim();
     const normalizedMobile = contact.replace(/\s/g, '');
 
-    // Query users and filter by email or mobile
-    const { data: users, error: userError } = await supabase
-      .from('users')
-      .select('*');
-
-    if (userError) {
-      console.error('Supabase error:', userError);
-    }
-
-    const user = (users || []).find((u: any) =>
-      u.email?.toLowerCase() === normalizedContact ||
-      u.mobile_no?.replace(/\s/g, '') === normalizedMobile
+    const userResult = await query(
+      `SELECT id, email, mobile FROM users
+       WHERE LOWER(email) = $1 OR mobile = $2
+       LIMIT 1`,
+      [normalizedContact, normalizedMobile]
     );
+
+    const user = userResult.rows[0];
 
     // For security, don't reveal if user exists or not
     // Always return success even if user not found
     if (!user) {
       console.log('Password reset requested for non-existent user:', contact);
 
-      // Return generic success message
       const mockToken = Buffer.from(
         JSON.stringify({
           contact,
@@ -82,29 +76,27 @@ export async function POST(request: NextRequest) {
       } as AuthAPI.ForgotPasswordResponse);
     }
 
-    // Generate OTP
-    const otp = generateOTP();
+    // Create OTP using DB-backed storage
+    const userContact = user.email || user.mobile;
+    const otp = await createOtp(userContact, 'password_reset');
 
     // Create reset token
     const resetToken = Buffer.from(
       JSON.stringify({
         userId: user.id,
-        contact: user.email || user.mobile_no,
-        otp,
+        contact: userContact,
         timestamp: Date.now(),
-        expiresAt: Date.now() + 600000, // 10 minutes
       })
     ).toString('base64');
 
-    // Mock OTP sending (in production, send via SMS/Email)
+    // In production, send OTP via SMS/Email service
     console.log('\n========================================');
     console.log('PASSWORD RESET OTP GENERATED');
     console.log('========================================');
     console.log('User ID:', user.id);
-    console.log('Contact:', user.email || user.mobile_no);
+    console.log('Contact:', userContact);
     console.log('OTP Code:', otp);
     console.log('Token:', resetToken);
-    console.log('Expires In: 600 seconds (10 minutes)');
     console.log('Timestamp:', new Date().toISOString());
     console.log('========================================\n');
 
@@ -113,7 +105,7 @@ export async function POST(request: NextRequest) {
       token: resetToken,
       message: user.email
         ? `Password reset OTP sent to ${user.email}`
-        : `Password reset OTP sent to ${user.mobile_no}`,
+        : `Password reset OTP sent to ${user.mobile}`,
       // Include OTP in development for easy testing
       ...(process.env.NODE_ENV === 'development' && { devOTP: otp }),
     };
@@ -123,21 +115,4 @@ export async function POST(request: NextRequest) {
     console.error('Error in /api/auth/forgot-password:', error);
     return serverErrorResponse('Failed to initiate password reset', error);
   }
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Generate 6-digit OTP
- */
-function generateOTP(): string {
-  // In production, generate random 6-digit code
-  // For prototyping, use static OTP for easy testing
-  if (process.env.NODE_ENV === 'development') {
-    return '123456';
-  }
-
-  return Math.floor(100000 + Math.random() * 900000).toString();
 }

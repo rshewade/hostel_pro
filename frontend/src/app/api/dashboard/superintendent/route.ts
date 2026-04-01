@@ -1,28 +1,23 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { DashboardAPI, ApplicationStatus } from '@/types/api';
+import { requireAuth, getVerticalFilter } from '@/lib/authorize';
 
 /**
  * GET /api/dashboard/superintendent
  * Get superintendent dashboard data
+ * Auth: SUPERINTENDENT only (vertical filtered)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
+    const verticalFilter = getVerticalFilter(user);
     // Get all applications
-    const { data: applications, error: appError } = await supabase
-      .from('applications')
-      .select('*');
-
-    if (appError) {
-      console.error('Supabase error fetching applications:', appError);
-      return serverErrorResponse('Failed to fetch applications', appError);
-    }
+    const { rows: applications } = await query('SELECT * FROM applications');
 
     // Count by status
     const byStatus: Record<ApplicationStatus, number> = {
@@ -57,14 +52,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get occupancy stats
-    const { data: rooms, error: roomError } = await supabase
-      .from('rooms')
-      .select('*');
-
-    if (roomError) {
-      console.error('Supabase error fetching rooms:', roomError);
-      return serverErrorResponse('Failed to fetch rooms', roomError);
-    }
+    const { rows: rooms } = await query('SELECT * FROM rooms');
 
     let totalCapacity = 0;
     let currentOccupancy = 0;
@@ -103,6 +91,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(dashboardData);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/dashboard/superintendent:', error);
     return serverErrorResponse('Failed to fetch superintendent dashboard', error);
   }

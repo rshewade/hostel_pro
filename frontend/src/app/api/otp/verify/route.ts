@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyOtp } from '@/lib/auth';
 
 /**
  * POST /api/otp/verify
  *
- * Mock endpoint for verifying OTP during prototyping phase.
- * In production, this would validate against stored OTP hash.
+ * Verify OTP for application or parent login flows.
+ * Uses DB-backed OTP verification via verifyOtp().
  *
  * Request body:
  * - code: string - 6-digit OTP code
  * - token: string - Token from /api/otp/send response
- * - attempts: number - Number of verification attempts
+ * - attempts: number - Number of verification attempts (client-side tracking)
  * - userAgent?: string - Browser user agent for logging
  *
  * Response:
@@ -44,53 +45,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check attempts limit
-    if (attempts >= 3) {
-      return NextResponse.json(
-        { message: 'Too many failed attempts. Please request a new OTP.' },
-        { status: 429 }
-      );
-    }
-
-    // Decode token
+    // Decode token to get contact and vertical
     let tokenData;
     try {
       const decoded = Buffer.from(token, 'base64').toString('utf-8');
       tokenData = JSON.parse(decoded);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
       );
     }
 
-    // Check token expiration (10 minutes)
-    const tokenAge = Date.now() - tokenData.timestamp;
-    const maxAge = 600000; // 10 minutes in milliseconds
+    // Verify OTP via DB
+    const otpResult = await verifyOtp(tokenData.contact, code, 'application');
 
-    if (tokenAge > maxAge) {
+    if (!otpResult.valid) {
       return NextResponse.json(
-        { message: 'OTP has expired. Please request a new one.' },
+        { message: otpResult.error || 'Invalid OTP code' },
         { status: 401 }
       );
     }
 
-    // Verify OTP (in development, accept '123456' or the stored mock OTP)
-    const isValidOTP = code === '123456' || code === tokenData.otp;
-
-    if (!isValidOTP) {
-      const remainingAttempts = 3 - (attempts + 1);
-      return NextResponse.json(
-        {
-          message: remainingAttempts > 0
-            ? `Invalid OTP. ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining.`
-            : 'Invalid OTP. Maximum attempts reached. Please request a new OTP.'
-        },
-        { status: 401 }
-      );
-    }
-
-    // Generate session token (in production, create JWT with user session)
+    // Generate session token (keeps existing contract)
     const sessionToken = Buffer.from(JSON.stringify({
       contact: tokenData.contact,
       vertical: tokenData.vertical,
@@ -99,23 +76,19 @@ export async function POST(request: NextRequest) {
       sessionId: Math.random().toString(36).substring(7)
     })).toString('base64');
 
-    // Mock logging (in production, log to database)
+    // Log verification
     console.log('\n========================================');
-    console.log('✅ OTP VERIFIED SUCCESSFULLY');
+    console.log('OTP VERIFIED SUCCESSFULLY (DB-backed)');
     console.log('========================================');
     console.log('Contact:', tokenData.contact);
     console.log('Vertical:', tokenData.vertical);
-    console.log('Attempts:', attempts + 1);
+    console.log('Attempts:', (attempts || 0) + 1);
     console.log('User Agent:', userAgent || 'Unknown');
-    console.log('Session Token:', sessionToken);
     console.log('========================================\n');
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-
     // Determine redirect based on vertical
-    const redirect = tokenData.vertical === 'parent' 
-      ? '/dashboard/parent' 
+    const redirect = tokenData.vertical === 'parent'
+      ? '/dashboard/parent'
       : `/apply/${tokenData.vertical}/form`;
 
     return NextResponse.json({

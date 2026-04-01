@@ -1,34 +1,29 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/audit/entity/[type]/[id]
  * Get audit logs for a specific entity
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff only)
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { type, id } = await params;
 
     // Query audit logs for the entity
-    const { data: logs, error } = await supabase
-      .from('audit_logs')
-      .select('*')
-      .eq('entity_type', type.toUpperCase())
-      .eq('entity_id', id)
-      .order('performed_at', { ascending: false });
-
-    if (error) {
-      console.error('Supabase error fetching audit logs:', error);
-      return serverErrorResponse('Failed to fetch audit logs', error);
-    }
+    const { rows: logs } = await query(
+      'SELECT * FROM audit_logs WHERE entity_type = $1 AND entity_id = $2 ORDER BY performed_at DESC',
+      [type.toUpperCase(), id]
+    );
 
     return successResponse({
       success: true,
@@ -39,6 +34,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/audit/entity/[type]/[id]:', error);
     return serverErrorResponse('Failed to fetch entity audit logs', error);
   }

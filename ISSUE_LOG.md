@@ -128,6 +128,37 @@
   4. Dashboard pages with hardcoded data (ISSUE-11) bypass this connection entirely
 - [ ] Open (needs verification that migrations are applied and RLS is enforced)
 
+### ISSUE-15: Add Swagger UI for Next.js API routes
+- **Description:** After removing the NestJS backend, we lost the Swagger interactive API docs that were at `localhost:3001/api/docs`. Need to add Swagger UI for the Next.js API routes for developer testing convenience.
+- **Fix:**
+  1. Install `next-swagger-doc` and `swagger-ui-react`
+  2. Create `/api/docs` page with Swagger UI
+  3. Add `@swagger` JSDoc comments to each API route handler
+  4. Auto-generate OpenAPI spec from the JSDoc comments
+- **Priority:** Low — developer convenience, not blocking any functionality
+- [ ] Open
+
+### ISSUE-13: Remove ADMIN role — not in PRD
+- **Description:** ADMIN role was not in PRD. Removed from application code and database.
+- **Fix:**
+  1. Deleted admin user from PG (nulled audit_logs references first)
+  2. Removed ADMIN from `sql/001_create_schema.sql` enum and `sql/002_seed_test_users.sql`
+  3. Removed ADMIN from accounts page `UserRole` type and filter dropdown
+  4. Removed ADMIN from `exit/types.ts` `ClearanceDepartment` type
+  5. PG enum still has ADMIN value (can't drop from enum) but no rows use it
+  6. Admin login now returns "Invalid credentials" — confirmed
+- [x] Resolved
+
+### ISSUE-14: Remove NestJS backend — consolidate on Next.js API routes
+- **Description:** The app had two API layers duplicating each other. Decision: keep only Next.js API routes.
+- **Fix:**
+  1. Deleted `backend/` directory entirely
+  2. Removed `dev:backend`, `dev:all`, `build:backend` scripts from root `package.json`
+  3. Added `backend/` to `.gitignore`
+  4. Updated `CLAUDE.md` — architecture section reflects single-tier (Next.js only)
+  5. Updated `MIGRATION.md` — Phase 5 marked as removed, Phase 6-7 scoped to frontend only
+- [x] Resolved
+
 ---
 
 ## Completed Milestones

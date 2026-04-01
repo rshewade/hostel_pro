@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -17,19 +17,19 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
     const { id } = await params;
 
     // Get application
-    const { data: application, error: fetchError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [id]
+    );
 
-    if (fetchError || !application) {
+    if (rows.length === 0) {
       return notFoundResponse('Application not found');
     }
+
+    const application = rows[0];
 
     // Check if application is in DRAFT status
     if (application.current_status !== 'DRAFT') {
@@ -47,38 +47,40 @@ export async function POST(
     }
 
     // Update status to SUBMITTED
-    const { data: updatedApplication, error: updateError } = await supabase
-      .from('applications')
-      .update({
-        current_status: 'SUBMITTED',
-        submitted_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    const submittedAt = new Date().toISOString();
+    const { rows: updatedRows } = await query(
+      `UPDATE applications SET current_status = 'SUBMITTED', submitted_at = $1
+       WHERE id = $2 RETURNING *`,
+      [submittedAt, id]
+    );
 
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to update application status', updateError);
+    if (updatedRows.length === 0) {
+      return serverErrorResponse('Failed to update application status');
     }
 
+    const updatedApplication = updatedRows[0];
+
     // Log submission
-    await supabase.from('audit_logs').insert({
-      entity_type: 'APPLICATION',
-      entity_id: id,
-      action: 'SUBMIT',
-      actor_id: application.student_user_id,
-      metadata: {
-        tracking_number: application.tracking_number,
-        vertical: application.vertical,
-        applicant_mobile: application.applicant_mobile,
-        old_status: ApplicationStatus.DRAFT,
-        new_status: ApplicationStatus.SUBMITTED,
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'APPLICATION',
+        id,
+        'SUBMIT',
+        application.student_user_id,
+        JSON.stringify({
+          tracking_number: application.tracking_number,
+          vertical: application.vertical,
+          applicant_mobile: application.applicant_mobile,
+          old_status: ApplicationStatus.DRAFT,
+          new_status: ApplicationStatus.SUBMITTED,
+        }),
+      ]
+    );
 
     console.log('\n========================================');
-    console.log('📝 APPLICATION SUBMITTED');
+    console.log('APPLICATION SUBMITTED');
     console.log('========================================');
     console.log('Application ID:', id);
     console.log('Tracking Number:', application.tracking_number);

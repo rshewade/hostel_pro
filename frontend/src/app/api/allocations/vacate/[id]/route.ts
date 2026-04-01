@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -7,29 +7,35 @@ import {
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { AllocationAPI } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * PUT /api/allocations/vacate/[id]
  * Vacate a room allocation
+ * Auth: SUPERINTENDENT only
  */
 export async function PUT(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(_request, ['SUPERINTENDENT']);
     const { id } = await params;
 
     // Get allocation with room info
-    const { data: allocation, error: fetchError } = await supabase
-      .from('room_allocations')
-      .select('*, rooms(*)')
-      .eq('id', id)
-      .single();
+    const { rows: allocationRows } = await query(
+      `SELECT ra.*, row_to_json(r.*) AS rooms
+       FROM room_allocations ra
+       LEFT JOIN rooms r ON r.id = ra.room_id
+       WHERE ra.id = $1`,
+      [id]
+    );
 
-    if (fetchError || !allocation) {
+    if (allocationRows.length === 0) {
       return notFoundResponse('Allocation not found');
     }
+
+    const allocation = allocationRows[0];
 
     if (allocation.status === 'CHECKED_OUT') {
       return badRequestResponse('Room has already been vacated');
@@ -38,51 +44,52 @@ export async function PUT(
     const room = allocation.rooms;
 
     // Update allocation
-    const { data: updatedAllocation, error: updateError } = await supabase
-      .from('room_allocations')
-      .update({
-        vacated_at: new Date().toISOString(),
-        status: 'CHECKED_OUT',
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    const { rows: updatedRows } = await query(
+      `UPDATE room_allocations
+       SET vacated_at = $1, status = $2
+       WHERE id = $3
+       RETURNING *`,
+      [new Date().toISOString(), 'CHECKED_OUT', id]
+    );
 
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to vacate room', updateError);
+    if (updatedRows.length === 0) {
+      return serverErrorResponse('Failed to vacate room');
     }
+
+    const updatedAllocation = updatedRows[0];
 
     // Update room occupancy
     if (room) {
-      await supabase
-        .from('rooms')
-        .update({
-          occupied_count: Math.max(0, room.occupied_count - 1),
-          status: room.occupied_count - 1 < room.capacity ? 'AVAILABLE' : 'OCCUPIED',
-        })
-        .eq('id', allocation.room_id);
+      const newOccupied = Math.max(0, room.occupied_count - 1);
+      await query(
+        `UPDATE rooms SET occupied_count = $1, status = $2 WHERE id = $3`,
+        [newOccupied, newOccupied < room.capacity ? 'AVAILABLE' : 'OCCUPIED', allocation.room_id]
+      );
     }
 
     // Log vacate action
-    await supabase.from('audit_logs').insert({
-      entity_type: 'ROOM_ALLOCATION',
-      entity_id: id,
-      action: 'VACATE',
-      metadata: {
-        student_id: allocation.student_user_id,
-        room_id: allocation.room_id,
-        room_number: room?.room_number,
-        old_status: allocation.status,
-        new_status: 'CHECKED_OUT',
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        'ROOM_ALLOCATION',
+        id,
+        'VACATE',
+        JSON.stringify({
+          student_id: allocation.student_id,
+          room_id: allocation.room_id,
+          room_number: room?.room_number,
+          old_status: allocation.status,
+          new_status: 'CHECKED_OUT',
+        }),
+      ]
+    );
 
     console.log('\n========================================');
-    console.log('👋 ROOM VACATED');
+    console.log('ROOM VACATED');
     console.log('========================================');
     console.log('Allocation ID:', id);
-    console.log('Student ID:', allocation.student_user_id);
+    console.log('Student ID:', allocation.student_id);
     console.log('Room:', room?.room_number);
     console.log('========================================\n');
 
@@ -90,6 +97,7 @@ export async function PUT(
       data: updatedAllocation,
     } as AllocationAPI.VacateResponse);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/allocations/vacate/[id]:', error);
     return serverErrorResponse('Failed to vacate room', error);
   }

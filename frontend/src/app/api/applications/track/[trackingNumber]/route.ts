@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -16,24 +16,24 @@ export async function GET(
   { params }: { params: Promise<{ trackingNumber: string }> }
 ) {
   try {
-    const supabase = createServerClient();
     const { trackingNumber } = await params;
 
     // Find application by tracking number
-    const { data: application, error } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('tracking_number', trackingNumber)
-      .single();
+    const { rows } = await query(
+      'SELECT * FROM applications WHERE tracking_number = $1',
+      [trackingNumber]
+    );
 
-    if (error || !application) {
+    if (rows.length === 0) {
       return notFoundResponse(
         `No application found with tracking number: ${trackingNumber}`
       );
     }
 
+    const application = rows[0];
+
     console.log('\n========================================');
-    console.log('🔍 APPLICATION TRACKED');
+    console.log('APPLICATION TRACKED');
     console.log('========================================');
     console.log('Tracking Number:', trackingNumber);
     console.log('Status:', application.current_status);

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createOtp } from '@/lib/auth';
 
 /**
  * POST /api/otp/resend
  *
- * Mock endpoint for resending OTP during prototyping phase.
- * In production, this would rate-limit resend attempts and send new OTP.
+ * Resend OTP for application or parent login flows.
+ * Uses DB-backed OTP storage via createOtp() (invalidates previous OTP).
  *
  * Request body:
  * - token: string - Original token from /api/otp/send response
@@ -32,15 +33,14 @@ export async function POST(request: NextRequest) {
     try {
       const decoded = Buffer.from(token, 'base64').toString('utf-8');
       tokenData = JSON.parse(decoded);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
       );
     }
 
-    // Mock rate limiting check (in production, check database for resend attempts)
-    // For now, we'll allow resends if more than 60 seconds have passed
+    // Rate limiting: require at least 60 seconds between resends
     const timeSinceOriginal = Date.now() - tokenData.timestamp;
     const minResendInterval = 60000; // 60 seconds
 
@@ -54,40 +54,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate new OTP
-    const mockOTP = '123456';
+    // Create new OTP in DB (invalidates the previous one for this contact+purpose)
+    const otp = await createOtp(tokenData.contact, 'application');
 
     // Generate new token with same contact info but new timestamp
     const newToken = Buffer.from(JSON.stringify({
       contact: tokenData.contact,
       vertical: tokenData.vertical,
       timestamp: Date.now(),
-      otp: mockOTP,
       resent: true
     })).toString('base64');
 
-    // Mock logging (in production, log to database and send SMS/Email)
+    // In production, send OTP via SMS/Email service
     console.log('\n========================================');
-    console.log('🔄 MOCK OTP RESENT');
+    console.log('OTP RESENT (DB-backed)');
     console.log('========================================');
     console.log('Contact:', tokenData.contact);
     console.log('Vertical:', tokenData.vertical);
     console.log('Reason:', reason || 'user_request');
-    console.log('New OTP Code:', mockOTP);
-    console.log('New Token:', newToken);
-    console.log('Expires In: 600 seconds (10 minutes)');
+    console.log('New OTP Code:', otp);
+    console.log('Expires In: 300 seconds (5 minutes)');
     console.log('========================================\n');
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
 
     return NextResponse.json({
       success: true,
       token: newToken,
-      expiresIn: 600, // 10 minutes
+      expiresIn: 300, // 5 minutes
       message: `New OTP sent to ${tokenData.contact}`,
       // Include OTP in development for easy testing
-      ...(process.env.NODE_ENV === 'development' && { devOTP: mockOTP })
+      ...(process.env.NODE_ENV === 'development' && { devOTP: otp })
     });
 
   } catch (error) {

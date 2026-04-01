@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -7,29 +7,32 @@ import {
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { LeaveStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * PUT /api/leaves/[id]/approve
  * Approve a leave request
+ * Auth: SUPERINTENDENT only
  */
 export async function PUT(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(_request, ['SUPERINTENDENT']);
     const { id } = await params;
 
     // Get leave request
-    const { data: leave, error: fetchError } = await supabase
-      .from('leave_requests')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows: leaveRows } = await query(
+      'SELECT * FROM leave_requests WHERE id = $1',
+      [id]
+    );
 
-    if (fetchError || !leave) {
+    if (leaveRows.length === 0) {
       return notFoundResponse('Leave request not found');
     }
+
+    const leave = leaveRows[0];
 
     if (leave.status !== 'PENDING') {
       return badRequestResponse(
@@ -38,47 +41,50 @@ export async function PUT(
     }
 
     // Update leave status
-    const { data: updatedLeave, error: updateError } = await supabase
-      .from('leave_requests')
-      .update({
-        status: 'APPROVED',
-        approved_at: new Date().toISOString(),
-        parent_notified: true,
-        parent_notified_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    const now = new Date().toISOString();
+    const { rows: updatedRows } = await query(
+      `UPDATE leave_requests
+       SET status = $1, approved_at = $2, parent_notified_at = $3
+       WHERE id = $4
+       RETURNING *`,
+      ['APPROVED', now, now, id]
+    );
 
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to approve leave', updateError);
+    if (updatedRows.length === 0) {
+      return serverErrorResponse('Failed to approve leave');
     }
 
+    const updatedLeave = updatedRows[0];
+
     // Log approval
-    await supabase.from('audit_logs').insert({
-      entity_type: 'LEAVE_REQUEST',
-      entity_id: id,
-      action: 'APPROVE',
-      metadata: {
-        student_id: leave.student_user_id,
-        leave_type: leave.type,
-        old_status: 'PENDING',
-        new_status: 'APPROVED',
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        'LEAVE_REQUEST',
+        id,
+        'APPROVE',
+        JSON.stringify({
+          student_id: leave.student_id,
+          leave_type: leave.leave_type,
+          old_status: 'PENDING',
+          new_status: 'APPROVED',
+        }),
+      ]
+    );
 
     console.log('\n========================================');
-    console.log('✅ LEAVE APPROVED');
+    console.log('LEAVE APPROVED');
     console.log('========================================');
     console.log('Leave ID:', id);
-    console.log('Student ID:', leave.student_user_id);
-    console.log('Type:', leave.type);
+    console.log('Student ID:', leave.student_id);
+    console.log('Type:', leave.leave_type);
     console.log('Parent Notified:', true);
     console.log('========================================\n');
 
     return successResponse({ data: updatedLeave });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/leaves/[id]/approve:', error);
     return serverErrorResponse('Failed to approve leave', error);
   }

@@ -1,42 +1,47 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/renewals
  * List renewal applications - students due for 6-month renewal
+ * Auth: STUDENT (own renewals) or SUPERINTENDENT (all)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['STUDENT', 'SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const vertical = searchParams.get('vertical');
 
-    // Get active allocations with student info
-    let query = supabase
-      .from('room_allocations')
-      .select(`
-        id,
-        student_user_id,
-        room_id,
-        allocated_at,
-        status,
-        check_in_confirmed,
-        rooms (id, room_number, vertical, floor),
-        users!student_user_id (id, full_name, email, mobile, vertical)
-      `)
-      .eq('status', 'ACTIVE');
-
-    const { data: allocations, error } = await query;
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch renewals', error);
-    }
+    // Get active allocations with student and room info via JOINs
+    const { rows: allocations } = await query(
+      `SELECT
+        ra.id,
+        ra.student_id,
+        ra.room_id,
+        ra.allocated_at,
+        ra.status,
+        ra.check_in_confirmed,
+        r.id AS room_db_id,
+        r.room_number,
+        r.vertical AS room_vertical,
+        r.floor,
+        u.id AS user_db_id,
+        u.full_name,
+        u.email,
+        u.mobile,
+        u.vertical AS user_vertical
+      FROM room_allocations ra
+      LEFT JOIN rooms r ON ra.room_id = r.id
+      LEFT JOIN users u ON ra.student_id = u.id
+      WHERE ra.status = 'ACTIVE'`,
+      []
+    );
 
     // Calculate renewal status for each allocation
     const now = new Date();
@@ -59,15 +64,12 @@ export async function GET(request: NextRequest) {
         renewalStatus = 'UPCOMING';
       }
 
-      const user = allocation.users || {};
-      const room = allocation.rooms || {};
-
       return {
         id: allocation.id,
-        student_id: allocation.student_user_id,
-        student_name: user.full_name || 'Unknown Student',
-        vertical: user.vertical || room.vertical || 'BOYS',
-        room: room.room_number || 'Unassigned',
+        student_id: allocation.student_id,
+        student_name: allocation.full_name || 'Unknown Student',
+        vertical: allocation.user_vertical || allocation.room_vertical || 'BOYS',
+        room: allocation.room_number || 'Unassigned',
         type: 'SEMESTER',
         status: renewalStatus,
         days_remaining: daysRemaining,
@@ -96,6 +98,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(filteredRenewals);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/renewals:', error);
     return serverErrorResponse('Failed to fetch renewals', error);
   }

@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -7,39 +7,39 @@ import {
   serverErrorResponse,
   notFoundResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/config/notification-rules
  * List all notification rules
+ * Auth: any authenticated user
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request);
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active') === 'true';
     const eventType = searchParams.get('eventType');
 
-    let query = supabase
-      .from('notification_rules')
-      .select('*')
-      .order('event_type');
+    let sql = 'SELECT * FROM notification_rules WHERE 1=1';
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (activeOnly) {
-      query = query.eq('is_active', true);
+      sql += ` AND is_active = $${paramIndex++}`;
+      params.push(true);
     }
     if (eventType) {
-      query = query.eq('event_type', eventType);
+      sql += ` AND event_type = $${paramIndex++}`;
+      params.push(eventType);
     }
 
-    const { data: rules, error } = await query;
+    sql += ' ORDER BY event_type';
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch notification rules', error);
-    }
+    const { rows: rules } = await query(sql, params);
 
     // Transform to frontend format
-    const transformed = rules?.map(rule => ({
+    const transformed = (rules || []).map((rule: any) => ({
       id: rule.id,
       eventType: rule.event_type,
       timing: rule.timing,
@@ -47,10 +47,11 @@ export async function GET(request: NextRequest) {
       verticals: rule.verticals || [],
       template: rule.template || '',
       active: rule.is_active,
-    })) || [];
+    }));
 
     return successResponse(transformed);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/config/notification-rules:', error);
     return serverErrorResponse('Failed to fetch notification rules', error);
   }
@@ -59,10 +60,11 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/config/notification-rules
  * Create a new notification rule
+ * Auth: SUPERINTENDENT only
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
     const { eventType, timing, channels, verticals, template, active } = body;
@@ -74,23 +76,25 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Message template is required');
     }
 
-    const { data: newRule, error } = await supabase
-      .from('notification_rules')
-      .insert({
-        event_type: eventType,
-        timing: timing || 'IMMEDIATE',
-        channels: channels || { sms: true, whatsapp: true, email: false },
-        verticals: verticals || ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-        template: template.trim(),
-        is_active: active ?? true,
-      })
-      .select()
-      .single();
+    const { rows } = await query(
+      `INSERT INTO notification_rules (event_type, timing, channels, verticals, template, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [
+        eventType,
+        timing || 'IMMEDIATE',
+        JSON.stringify(channels || { sms: true, whatsapp: true, email: false }),
+        JSON.stringify(verticals || ['BOYS', 'GIRLS', 'DHARAMSHALA']),
+        template.trim(),
+        active ?? true,
+      ]
+    );
 
-    if (error) {
-      console.error('Supabase insert error:', error);
-      return serverErrorResponse('Failed to create notification rule', error);
+    if (rows.length === 0) {
+      return serverErrorResponse('Failed to create notification rule');
     }
+
+    const newRule = rows[0];
 
     // Transform to frontend format
     const transformed = {
@@ -105,6 +109,7 @@ export async function POST(request: NextRequest) {
 
     return createdResponse(transformed, 'Notification rule created successfully');
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/config/notification-rules:', error);
     return serverErrorResponse('Failed to create notification rule', error);
   }
@@ -113,10 +118,11 @@ export async function POST(request: NextRequest) {
 /**
  * PUT /api/config/notification-rules
  * Update a notification rule
+ * Auth: SUPERINTENDENT only
  */
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
     const { id, eventType, timing, channels, verticals, template, active } = body;
@@ -125,28 +131,49 @@ export async function PUT(request: NextRequest) {
       return badRequestResponse('ID is required');
     }
 
-    const updateData: Record<string, any> = {};
-    if (eventType !== undefined) updateData.event_type = eventType;
-    if (timing !== undefined) updateData.timing = timing;
-    if (channels !== undefined) updateData.channels = channels;
-    if (verticals !== undefined) updateData.verticals = verticals;
-    if (template !== undefined) updateData.template = template.trim();
-    if (active !== undefined) updateData.is_active = active;
+    const setClauses: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
-    const { data: updatedRule, error } = await supabase
-      .from('notification_rules')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase update error:', error);
-      if (error.code === 'PGRST116') {
-        return notFoundResponse('Notification rule not found');
-      }
-      return serverErrorResponse('Failed to update notification rule', error);
+    if (eventType !== undefined) {
+      setClauses.push(`event_type = $${paramIndex++}`);
+      params.push(eventType);
     }
+    if (timing !== undefined) {
+      setClauses.push(`timing = $${paramIndex++}`);
+      params.push(timing);
+    }
+    if (channels !== undefined) {
+      setClauses.push(`channels = $${paramIndex++}`);
+      params.push(JSON.stringify(channels));
+    }
+    if (verticals !== undefined) {
+      setClauses.push(`verticals = $${paramIndex++}`);
+      params.push(JSON.stringify(verticals));
+    }
+    if (template !== undefined) {
+      setClauses.push(`template = $${paramIndex++}`);
+      params.push(template.trim());
+    }
+    if (active !== undefined) {
+      setClauses.push(`is_active = $${paramIndex++}`);
+      params.push(active);
+    }
+
+    if (setClauses.length === 0) {
+      return badRequestResponse('No fields to update');
+    }
+
+    params.push(id);
+    const sql = `UPDATE notification_rules SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const { rows } = await query(sql, params);
+
+    if (rows.length === 0) {
+      return notFoundResponse('Notification rule not found');
+    }
+
+    const updatedRule = rows[0];
 
     // Transform to frontend format
     const transformed = {
@@ -161,6 +188,7 @@ export async function PUT(request: NextRequest) {
 
     return successResponse(transformed);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/config/notification-rules:', error);
     return serverErrorResponse('Failed to update notification rule', error);
   }
@@ -169,10 +197,11 @@ export async function PUT(request: NextRequest) {
 /**
  * DELETE /api/config/notification-rules
  * Delete a notification rule
+ * Auth: SUPERINTENDENT only
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -180,18 +209,11 @@ export async function DELETE(request: NextRequest) {
       return badRequestResponse('ID is required');
     }
 
-    const { error } = await supabase
-      .from('notification_rules')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Supabase delete error:', error);
-      return serverErrorResponse('Failed to delete notification rule', error);
-    }
+    await query('DELETE FROM notification_rules WHERE id = $1', [id]);
 
     return successResponse({ message: 'Notification rule deleted successfully' });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in DELETE /api/config/notification-rules:', error);
     return serverErrorResponse('Failed to delete notification rule', error);
   }

@@ -1,50 +1,53 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
   badRequestResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { requireAuth, getVerticalFilter } from '@/lib/authorize';
 
 /**
  * GET /api/applications
  * Get all applications or filter by tracking_number, vertical, or status
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff only)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { searchParams } = new URL(request.url);
     const trackingNumber = searchParams.get('tracking_number');
     const vertical = searchParams.get('vertical');
     const status = searchParams.get('status');
 
-    let query = supabase.from('applications').select('*');
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
-    // Filter by tracking number if provided
     if (trackingNumber) {
-      query = query.eq('tracking_number', trackingNumber);
+      conditions.push(`tracking_number = $${paramIndex++}`);
+      params.push(trackingNumber);
     }
 
-    // Filter by vertical if provided
     if (vertical) {
-      query = query.eq('vertical', vertical);
+      conditions.push(`vertical = $${paramIndex++}`);
+      params.push(vertical);
     }
 
-    // Filter by status if provided
     if (status) {
-      query = query.eq('current_status', status);
+      conditions.push(`current_status = $${paramIndex++}`);
+      params.push(status);
     }
 
-    const { data: applications, error } = await query.order('created_at', { ascending: false });
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const sql = `SELECT * FROM applications ${whereClause} ORDER BY created_at DESC`;
 
-    if (error) {
-      console.error('Error fetching applications:', error);
-      return serverErrorResponse('Failed to fetch applications', error);
-    }
+    const { rows } = await query(sql, params);
 
-    return successResponse(applications || []);
+    return successResponse(rows || []);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/applications:', error);
     return serverErrorResponse('Failed to fetch applications', error);
   }
@@ -56,7 +59,6 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body = await request.json();
 
     // Map frontend vertical to database enum
@@ -75,12 +77,13 @@ export async function POST(request: NextRequest) {
     const year = new Date().getFullYear();
 
     // Get count of applications this year for this vertical to generate sequence
-    const { count } = await supabase
-      .from('applications')
-      .select('*', { count: 'exact', head: true })
-      .like('tracking_number', `${prefix}-${year}%`);
+    const { rows: countRows } = await query(
+      `SELECT COUNT(*) AS count FROM applications WHERE tracking_number LIKE $1`,
+      [`${prefix}-${year}%`]
+    );
 
-    const sequence = String((count || 0) + 1).padStart(5, '0');
+    const count = parseInt(countRows[0]?.count || '0', 10);
+    const sequence = String(count + 1).padStart(5, '0');
     const trackingNumber = `${prefix}-${year}-${sequence}`;
 
     // Construct applicant name from firstName, middleName, lastName
@@ -118,110 +121,113 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Gender is required');
     }
 
-    // Create new application - store all form data in the data JSONB column
-    const newApplication = {
-      tracking_number: trackingNumber,
-      type: body.type || 'NEW',
-      applicant_name: applicantName,
-      applicant_mobile: applicantMobile,
-      applicant_email: applicantEmail,
-      date_of_birth: dateOfBirth,
-      gender: gender,
-      vertical: vertical,
-      current_status: body.status || 'DRAFT',
-      data: {
-        // Personal info
-        personal_info: {
-          full_name: applicantName,
-          first_name: body.firstName,
-          middle_name: body.middleName,
-          last_name: body.lastName,
-          date_of_birth: dateOfBirth,
-          gender: gender,
-          blood_group: body.bloodGroup,
-        },
-        // Address
-        address: {
-          line1: body.addressLine1,
-          line2: body.addressLine2,
-          city: body.city,
-          state: body.state,
-          pin_code: body.pinCode,
-        },
-        // Guardian info
-        guardian_info: {
-          father_name: body.fatherName,
-          father_mobile: body.fatherMobile,
-          father_occupation: body.fatherOccupation,
-          father_email: body.fatherEmail,
-          mother_name: body.motherName,
-          mother_mobile: body.motherMobile,
-          mother_occupation: body.motherOccupation,
-          mother_email: body.motherEmail,
-          guardian_name: body.guardianName,
-          guardian_relationship: body.guardianRelationship,
-          guardian_mobile: body.guardianMobile,
-        },
-        // Emergency contact
-        emergency_contact: {
-          name: body.emergencyContactPerson,
-          mobile: body.emergencyMobile,
-          relationship: body.emergencyRelationship,
-        },
-        // Academic info
-        academic_info: {
-          institution: body.institution,
-          course: body.course,
-          year: body.year,
-          percentage: body.percentage,
-          qualification: body.qualification,
-          board: body.board,
-          passing_year: body.passingYear,
-        },
-        // Hostel preferences
-        hostel_preferences: {
-          vertical: vertical,
-          room_type: body.roomType,
-          duration: body.duration,
-          joining_date: body.joiningDate,
-          special_requirements: body.specialRequirements,
-        },
-        // References
-        references: [
-          {
-            name: body.ref1Name,
-            mobile: body.ref1Mobile,
-            year_of_stay: body.ref1Year,
-            relationship: body.ref1Relationship,
-          },
-          body.ref2Name ? {
-            name: body.ref2Name,
-            mobile: body.ref2Mobile,
-            year_of_stay: body.ref2Year,
-            relationship: body.ref2Relationship,
-          } : null,
-        ].filter(Boolean),
-        // Declaration
-        declaration_accepted: body.declarationAccepted,
-        declaration_timestamp: body.declarationAccepted ? new Date().toISOString() : null,
-        // Documents (uploaded to Supabase Storage)
-        documents: body.documents || [],
+    // Build the data JSONB object
+    const data = {
+      // Personal info
+      personal_info: {
+        full_name: applicantName,
+        first_name: body.firstName,
+        middle_name: body.middleName,
+        last_name: body.lastName,
+        date_of_birth: dateOfBirth,
+        gender: gender,
+        blood_group: body.bloodGroup,
       },
-      submitted_at: body.status === 'SUBMITTED' ? new Date().toISOString() : null,
+      // Address
+      address: {
+        line1: body.addressLine1,
+        line2: body.addressLine2,
+        city: body.city,
+        state: body.state,
+        pin_code: body.pinCode,
+      },
+      // Guardian info
+      guardian_info: {
+        father_name: body.fatherName,
+        father_mobile: body.fatherMobile,
+        father_occupation: body.fatherOccupation,
+        father_email: body.fatherEmail,
+        mother_name: body.motherName,
+        mother_mobile: body.motherMobile,
+        mother_occupation: body.motherOccupation,
+        mother_email: body.motherEmail,
+        guardian_name: body.guardianName,
+        guardian_relationship: body.guardianRelationship,
+        guardian_mobile: body.guardianMobile,
+      },
+      // Emergency contact
+      emergency_contact: {
+        name: body.emergencyContactPerson,
+        mobile: body.emergencyMobile,
+        relationship: body.emergencyRelationship,
+      },
+      // Academic info
+      academic_info: {
+        institution: body.institution,
+        course: body.course,
+        year: body.year,
+        percentage: body.percentage,
+        qualification: body.qualification,
+        board: body.board,
+        passing_year: body.passingYear,
+      },
+      // Hostel preferences
+      hostel_preferences: {
+        vertical: vertical,
+        room_type: body.roomType,
+        duration: body.duration,
+        joining_date: body.joiningDate,
+        special_requirements: body.specialRequirements,
+      },
+      // References
+      references: [
+        {
+          name: body.ref1Name,
+          mobile: body.ref1Mobile,
+          year_of_stay: body.ref1Year,
+          relationship: body.ref1Relationship,
+        },
+        body.ref2Name ? {
+          name: body.ref2Name,
+          mobile: body.ref2Mobile,
+          year_of_stay: body.ref2Year,
+          relationship: body.ref2Relationship,
+        } : null,
+      ].filter(Boolean),
+      // Declaration
+      declaration_accepted: body.declarationAccepted,
+      declaration_timestamp: body.declarationAccepted ? new Date().toISOString() : null,
+      // Documents
+      documents: body.documents || [],
     };
 
-    console.log('Creating application with data:', JSON.stringify(newApplication, null, 2));
+    const currentStatus = body.status || 'DRAFT';
+    const submittedAt = body.status === 'SUBMITTED' ? new Date().toISOString() : null;
 
-    const { data: application, error } = await supabase
-      .from('applications')
-      .insert(newApplication)
-      .select()
-      .single();
+    console.log('Creating application with tracking number:', trackingNumber);
 
-    if (error) {
-      console.error('Error creating application:', error);
-      return serverErrorResponse('Failed to create application', error);
-    }
+    const { rows } = await query(
+      `INSERT INTO applications (
+        tracking_number, type, applicant_name, applicant_mobile, applicant_email,
+        date_of_birth, gender, vertical, current_status, data, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *`,
+      [
+        trackingNumber,
+        body.type || 'NEW',
+        applicantName,
+        applicantMobile,
+        applicantEmail,
+        dateOfBirth,
+        gender,
+        vertical,
+        currentStatus,
+        JSON.stringify(data),
+        submittedAt,
+      ]
+    );
+
+    const application = rows[0];
 
     // Return with trackingNumber in root for frontend compatibility
     return createdResponse({
@@ -229,6 +235,7 @@ export async function POST(request: NextRequest) {
       trackingNumber: application.tracking_number,
     });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/applications:', error);
     return serverErrorResponse('Failed to create application', error);
   }

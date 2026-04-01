@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -7,31 +7,33 @@ import {
   serverErrorResponse,
 } from '@/lib/api/responses';
 import type { ApplicationAPI } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/applications/[id]
  * Get a single application by ID
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff only)
  */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(_request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { id } = await params;
 
-    const { data: application, error } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [id]
+    );
 
-    if (error || !application) {
+    if (rows.length === 0) {
       return notFoundResponse('Application not found');
     }
 
-    return successResponse({ data: application } as ApplicationAPI.GetResponse);
+    return successResponse({ data: rows[0] } as ApplicationAPI.GetResponse);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/applications/[id]:', error);
     return serverErrorResponse('Failed to fetch application', error);
   }
@@ -40,26 +42,28 @@ export async function GET(
 /**
  * PUT /api/applications/[id]
  * Update an application
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff only)
  */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { id } = await params;
     const body = await request.json() as any;
 
     // Get existing application
-    const { data: application, error: fetchError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows: existingRows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [id]
+    );
 
-    if (fetchError || !application) {
+    if (existingRows.length === 0) {
       return notFoundResponse('Application not found');
     }
+
+    const application = existingRows[0];
 
     // Only allow updates if application is in DRAFT status (for data changes)
     if (application.current_status !== 'DRAFT' && body.data) {
@@ -91,8 +95,6 @@ export async function PUT(
           break;
         case 'APPROVED':
           updateData.approved_at = now;
-          // approved_by should be set from the authenticated user, but we don't have that context here
-          // For now, store in metadata
           break;
         case 'REJECTED':
           updateData.rejected_at = now;
@@ -129,34 +131,46 @@ export async function PUT(
 
     console.log('Updating application:', id, 'with data:', JSON.stringify(updateData, null, 2));
 
-    // Update application
-    const { data: updatedApplication, error: updateError } = await supabase
-      .from('applications')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
+    // Build dynamic UPDATE query
+    const setClauses: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to update application', updateError);
+    for (const [key, value] of Object.entries(updateData)) {
+      setClauses.push(`${key} = $${paramIndex++}`);
+      values.push(key === 'data' ? JSON.stringify(value) : value);
     }
+
+    values.push(id);
+    const updateSql = `UPDATE applications SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const { rows: updatedRows } = await query(updateSql, values);
+
+    if (updatedRows.length === 0) {
+      return serverErrorResponse('Failed to update application');
+    }
+
+    let updatedApplication = updatedRows[0];
 
     // Log status change if status was updated
     if (updateData.current_status && updateData.current_status !== application.current_status) {
       try {
-        await supabase.from('audit_logs').insert({
-          entity_type: 'APPLICATION',
-          entity_id: id,
-          action: 'STATUS_CHANGE',
-          actor_id: application.student_user_id || null, // Can be NULL for new applications
-          metadata: {
-            tracking_number: application.tracking_number,
-            old_status: application.current_status,
-            new_status: updateData.current_status,
-            remarks: body.remarks || null,
-          },
-        });
+        await query(
+          `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            'APPLICATION',
+            id,
+            'STATUS_CHANGE',
+            application.student_user_id || null,
+            JSON.stringify({
+              tracking_number: application.tracking_number,
+              old_status: application.current_status,
+              new_status: updateData.current_status,
+              remarks: body.remarks || null,
+            }),
+          ]
+        );
       } catch (auditError) {
         // Log audit error but don't fail the request
         console.error('Failed to create audit log:', auditError);
@@ -174,149 +188,127 @@ export async function PUT(
         // Generate temporary password based on tracking number
         const tempPassword = `Hostel@${application.tracking_number}`;
 
-        // Step 1: Create Supabase Auth user
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-          email: application.applicant_email,
-          password: tempPassword,
-          email_confirm: true, // Skip email verification since this is admin-created
-          user_metadata: {
-            full_name: application.applicant_name,
-            role: 'STUDENT',
-            vertical: application.vertical,
-            tracking_number: application.tracking_number,
-          },
-        });
-
-        if (authError) {
-          console.error('Failed to create Supabase Auth user:', authError);
-          throw authError;
-        }
-
-        if (!authData.user) {
-          throw new Error('Auth user creation returned no user');
-        }
-
-        console.log('========================================');
-        console.log('✅ SUPABASE AUTH USER CREATED');
-        console.log('========================================');
-        console.log('Auth User ID:', authData.user.id);
-        console.log('Email:', authData.user.email);
-        console.log('Temp Password:', tempPassword);
-        console.log('========================================');
-
-        // Step 2: Create public.users record with auth_user_id link
-        const { data: newUser, error: userError } = await supabase
-          .from('users')
-          .insert({
-            auth_user_id: authData.user.id, // Link to Supabase Auth
-            role: 'STUDENT',
-            vertical: application.vertical,
-            full_name: application.applicant_name,
-            email: application.applicant_email,
-            mobile: application.applicant_mobile,
-            date_of_birth: application.date_of_birth,
-            parent_mobile: parentMobile,
-            is_active: true,
-            requires_password_change: true, // First login should prompt password setup
-            metadata: {
+        // Create public.users record
+        const { rows: userRows } = await query(
+          `INSERT INTO users (
+            role, vertical, full_name, email, mobile, date_of_birth,
+            parent_mobile, is_active, requires_password_change, metadata
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          RETURNING *`,
+          [
+            'STUDENT',
+            application.vertical,
+            application.applicant_name,
+            application.applicant_email,
+            application.applicant_mobile,
+            application.date_of_birth,
+            parentMobile,
+            true,
+            true,
+            JSON.stringify({
               application_id: id,
               tracking_number: application.tracking_number,
               approved_at: new Date().toISOString(),
               temp_password_hint: `Hostel@{tracking_number}`,
-            },
-          })
-          .select()
-          .single();
+            }),
+          ]
+        );
 
-        if (userError) {
-          console.error('Failed to create public.users record:', userError);
-          // Rollback: delete the auth user if public.users creation failed
-          await supabase.auth.admin.deleteUser(authData.user.id);
-          throw userError;
+        if (userRows.length === 0) {
+          throw new Error('Failed to create user record');
         }
 
-        // Link the new user to the application
-        await supabase
-          .from('applications')
-          .update({ student_user_id: newUser.id })
-          .eq('id', id);
+        const newUser = userRows[0];
 
-        // Step 3: Create students table record with detailed info from application
+        // Link the new user to the application
+        await query(
+          'UPDATE applications SET student_user_id = $1 WHERE id = $2',
+          [newUser.id, id]
+        );
+
+        // Create students table record with detailed info from application
         const personalInfo = application.data?.personal_info || {};
         const guardianInfo = application.data?.guardian_info || {};
         const academicInfo = application.data?.academic_info || {};
         const emergencyContact = application.data?.emergency_contact || {};
 
-        const { error: studentError } = await supabase
-          .from('students')
-          .insert({
-            user_id: newUser.id,
-            vertical: application.vertical,
-            status: 'PENDING', // Will change to CHECKED_IN after room check-in
-            // Personal Information
-            gender: personalInfo.gender || null,
-            date_of_birth: personalInfo.date_of_birth || null,
-            aadhar_number: personalInfo.aadhar_number || null,
-            native_place: personalInfo.native_place || null,
-            permanent_address: personalInfo.permanent_address || personalInfo.address || null,
-            // Guardian Information
-            father_name: guardianInfo.father_name || null,
-            father_mobile: guardianInfo.father_mobile || null,
-            mother_name: guardianInfo.mother_name || null,
-            mother_mobile: guardianInfo.mother_mobile || null,
-            guardian_name: guardianInfo.guardian_name || null,
-            guardian_mobile: guardianInfo.guardian_mobile || null,
-            guardian_relation: guardianInfo.guardian_relation || null,
-            // Academic Information
-            institution: academicInfo.institution || academicInfo.college || null,
-            course: academicInfo.course || null,
-            year_of_study: academicInfo.year_of_study || academicInfo.year || null,
-            enrollment_number: academicInfo.enrollment_number || null,
-            // Hostel Information
-            joining_date: new Date().toISOString().split('T')[0],
-            academic_year: academicInfo.academic_year || '2025-26',
-            // Emergency Contact
-            emergency_contact_name: emergencyContact.name || guardianInfo.father_name || null,
-            emergency_contact_phone: emergencyContact.mobile || guardianInfo.father_mobile || null,
-            emergency_contact_relation: emergencyContact.relation || 'Father',
-            // Medical Information
-            blood_group: personalInfo.blood_group || null,
-            medical_conditions: personalInfo.medical_conditions || null,
-            allergies: personalInfo.allergies || null,
-            // Metadata
-            metadata: {
-              application_id: id,
-              tracking_number: application.tracking_number,
-              created_from_application: true,
-            },
-          });
-
-        if (studentError) {
+        try {
+          await query(
+            `INSERT INTO students (
+              user_id, vertical, status, gender, date_of_birth, aadhar_number,
+              native_place, permanent_address, father_name, father_mobile,
+              mother_name, mother_mobile, guardian_name, guardian_mobile,
+              guardian_relation, institution, course, year_of_study,
+              enrollment_number, joining_date, academic_year,
+              emergency_contact_name, emergency_contact_phone,
+              emergency_contact_relation, blood_group, medical_conditions,
+              allergies, metadata
+            ) VALUES (
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+              $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+              $21, $22, $23, $24, $25, $26, $27, $28
+            )`,
+            [
+              newUser.id,
+              application.vertical,
+              'PENDING',
+              personalInfo.gender || null,
+              personalInfo.date_of_birth || null,
+              personalInfo.aadhar_number || null,
+              personalInfo.native_place || null,
+              personalInfo.permanent_address || personalInfo.address || null,
+              guardianInfo.father_name || null,
+              guardianInfo.father_mobile || null,
+              guardianInfo.mother_name || null,
+              guardianInfo.mother_mobile || null,
+              guardianInfo.guardian_name || null,
+              guardianInfo.guardian_mobile || null,
+              guardianInfo.guardian_relation || null,
+              academicInfo.institution || academicInfo.college || null,
+              academicInfo.course || null,
+              academicInfo.year_of_study || academicInfo.year || null,
+              academicInfo.enrollment_number || null,
+              new Date().toISOString().split('T')[0],
+              academicInfo.academic_year || '2025-26',
+              emergencyContact.name || guardianInfo.father_name || null,
+              emergencyContact.mobile || guardianInfo.father_mobile || null,
+              emergencyContact.relation || 'Father',
+              personalInfo.blood_group || null,
+              personalInfo.medical_conditions || null,
+              personalInfo.allergies || null,
+              JSON.stringify({
+                application_id: id,
+                tracking_number: application.tracking_number,
+                created_from_application: true,
+              }),
+            ]
+          );
+          console.log('STUDENTS RECORD CREATED for user:', newUser.id);
+        } catch (studentError) {
           console.error('Failed to create students record:', studentError);
           // Don't rollback - user is created, students record can be added manually
-        } else {
-          console.log('✅ STUDENTS RECORD CREATED for user:', newUser.id);
         }
 
         // Log user creation
-        await supabase.from('audit_logs').insert({
-          entity_type: 'USER',
-          entity_id: newUser.id,
-          action: 'CREATE',
-          metadata: {
-            application_id: id,
-            tracking_number: application.tracking_number,
-            auth_user_id: authData.user.id,
-            students_record_created: !studentError,
-            reason: 'Application approved - student account created with Supabase Auth',
-          },
-        });
+        await query(
+          `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+           VALUES ($1, $2, $3, $4)`,
+          [
+            'USER',
+            newUser.id,
+            'CREATE',
+            JSON.stringify({
+              application_id: id,
+              tracking_number: application.tracking_number,
+              reason: 'Application approved - student account created',
+            }),
+          ]
+        );
 
         console.log('========================================');
-        console.log('✅ STUDENT USER CREATED');
+        console.log('STUDENT USER CREATED');
         console.log('========================================');
         console.log('User ID:', newUser.id);
-        console.log('Auth User ID:', authData.user.id);
         console.log('Name:', newUser.full_name);
         console.log('Email:', newUser.email);
         console.log('Mobile:', newUser.mobile);
@@ -337,6 +329,7 @@ export async function PUT(
       data: updatedApplication,
     } as ApplicationAPI.UpdateResponse);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/applications/[id]:', error);
     return serverErrorResponse('Failed to update application', error);
   }
@@ -345,25 +338,27 @@ export async function PUT(
 /**
  * DELETE /api/applications/[id]
  * Delete an application (soft delete - mark as ARCHIVED)
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff only)
  */
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(_request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { id } = await params;
 
     // Get application
-    const { data: application, error: fetchError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [id]
+    );
 
-    if (fetchError || !application) {
+    if (rows.length === 0) {
       return notFoundResponse('Application not found');
     }
+
+    const application = rows[0];
 
     // Only allow deletion if application is in DRAFT status
     if (application.current_status !== 'DRAFT') {
@@ -373,26 +368,31 @@ export async function DELETE(
     }
 
     // Soft delete by marking as ARCHIVED
-    await supabase
-      .from('applications')
-      .update({ current_status: 'ARCHIVED' })
-      .eq('id', id);
+    await query(
+      "UPDATE applications SET current_status = 'ARCHIVED' WHERE id = $1",
+      [id]
+    );
 
     // Log deletion
-    await supabase.from('audit_logs').insert({
-      entity_type: 'APPLICATION',
-      entity_id: id,
-      action: 'DELETE',
-      actor_id: application.student_user_id,
-      metadata: {
-        tracking_number: application.tracking_number,
-        old_status: application.current_status,
-        new_status: 'ARCHIVED',
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'APPLICATION',
+        id,
+        'DELETE',
+        application.student_user_id,
+        JSON.stringify({
+          tracking_number: application.tracking_number,
+          old_status: application.current_status,
+          new_status: 'ARCHIVED',
+        }),
+      ]
+    );
 
     return successResponse({ success: true, message: 'Application deleted successfully' });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in DELETE /api/applications/[id]:', error);
     return serverErrorResponse('Failed to delete application', error);
   }

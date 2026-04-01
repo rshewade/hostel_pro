@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { getUserFromToken, hashPassword, createAuditLog } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -13,15 +14,14 @@ import { AuthAPI, UserRole } from '@/types/api';
  * POST /api/auth/first-time-setup
  *
  * Handle first-time password change after initial login.
- * Requires valid Supabase Auth token from login response.
- * Updates password in Supabase Auth and records DPDP consent.
+ * Requires valid JWT token from login response.
+ * Updates password hash in PostgreSQL and records DPDP consent.
  *
  * @see Task 7 - Student Login, First-Time Setup
  * @see .docs/api-routes-audit.md
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body: AuthAPI.FirstTimeSetupRequest = await request.json();
     const { token, newPassword, dpdpConsent } = body;
 
@@ -82,90 +82,67 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    // Verify token by getting the user from Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    // Verify token and get user
+    const user = await getUserFromToken(token);
 
-    if (authError || !authData.user) {
-      console.error('Token verification failed:', authError?.message);
+    if (!user) {
       return unauthorizedResponse('Invalid or expired token');
     }
 
-    // Find user in public.users by auth_user_id
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('auth_user_id', authData.user.id)
-      .single();
+    // Hash the new password
+    const newHash = await hashPassword(newPassword);
 
-    if (userError || !user) {
-      console.error('User not found for auth_user_id:', authData.user.id);
-      return unauthorizedResponse('User not found');
-    }
-
-    // Update password in Supabase Auth using admin API
-    const { error: passwordError } = await supabase.auth.admin.updateUserById(
-      user.auth_user_id,
-      { password: newPassword }
+    // Update user: set password_hash, clear requires_password_change, record DPDP consent
+    const now = new Date().toISOString();
+    const { rowCount } = await query(
+      `UPDATE users
+       SET password_hash = $1,
+           requires_password_change = false,
+           metadata = COALESCE(metadata, '{}'::jsonb)
+             || jsonb_build_object('password_changed_at', $2::text)
+             || jsonb_build_object('dpdp_consent', true)
+             || jsonb_build_object('dpdp_consent_at', $2::text),
+           updated_at = NOW()
+       WHERE id = $3`,
+      [newHash, now, user.id]
     );
 
-    if (passwordError) {
-      console.error('Failed to update password in Supabase Auth:', passwordError);
-      return serverErrorResponse('Failed to update password', passwordError);
-    }
-
-    // Update public.users - set requires_password_change to false and record DPDP consent
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({
-        requires_password_change: false,
-        metadata: {
-          ...(user.metadata || {}),
-          password_changed_at: new Date().toISOString(),
-          dpdp_consent: true,
-          dpdp_consent_at: new Date().toISOString(),
-        },
-      })
-      .eq('id', user.id);
-
-    if (updateError) {
-      console.error('Failed to update public.users:', updateError);
-      return serverErrorResponse('Failed to update user record', updateError);
+    if (rowCount === 0) {
+      return serverErrorResponse('Failed to update user record');
     }
 
     // Log DPDP consent
-    await supabase.from('audit_logs').insert({
-      entity_type: 'USER',
-      entity_id: user.id,
+    await createAuditLog({
+      entityType: 'USER',
+      entityId: user.id,
       action: 'DPDP_CONSENT',
-      actor_id: user.id,
+      performedBy: user.id,
+      ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
       metadata: {
         consent_type: 'first_login_setup',
         consent_value: 'ACCEPTED',
-        ip_address: request.headers.get('x-forwarded-for') || 'unknown',
-        user_agent: request.headers.get('user-agent') || 'unknown',
       },
     });
 
     // Log password change
-    await supabase.from('audit_logs').insert({
-      entity_type: 'USER',
-      entity_id: user.id,
+    await createAuditLog({
+      entityType: 'USER',
+      entityId: user.id,
       action: 'PASSWORD_CHANGE',
-      actor_id: user.id,
+      performedBy: user.id,
       metadata: {
         change_type: 'first_time_setup',
-        auth_user_id: user.auth_user_id,
       },
     });
 
     console.log('\n========================================');
-    console.log('✅ FIRST-TIME SETUP COMPLETED (Supabase Auth)');
+    console.log('FIRST-TIME SETUP COMPLETED (Custom JWT)');
     console.log('========================================');
     console.log('User ID:', user.id);
-    console.log('Auth User ID:', user.auth_user_id);
     console.log('Role:', user.role);
     console.log('DPDP Consent:', dpdpConsent);
-    console.log('Timestamp:', new Date().toISOString());
+    console.log('Timestamp:', now);
     console.log('========================================\n');
 
     const response: AuthAPI.FirstTimeSetupResponse = {

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { comparePassword, createSession, createAuditLog } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -13,34 +14,11 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
  * POST /api/auth/login
  *
  * Authenticate user with username/email/mobile and password.
- * Uses Supabase Auth for secure password verification.
- * Returns Supabase session token and user role for session management.
+ * Uses custom PostgreSQL + JWT for secure password verification.
+ * Returns JWT access token and user role for session management.
  */
 export async function POST(request: NextRequest) {
   try {
-    // Debug: Check environment variables
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    console.log('[LOGIN] ENV Check - SUPABASE_URL:', supabaseUrl ? supabaseUrl.substring(0, 40) + '...' : 'MISSING');
-    console.log('[LOGIN] ENV Check - SERVICE_ROLE_KEY:', serviceKey ? 'Present (' + serviceKey.length + ' chars)' : 'MISSING');
-
-    if (!supabaseUrl) {
-      return serverErrorResponse('Config error: SUPABASE_URL is missing');
-    }
-    if (!serviceKey) {
-      return serverErrorResponse('Config error: SUPABASE_SERVICE_ROLE_KEY is missing');
-    }
-
-    const supabase = createServerClient();
-
-    // Test Supabase connection before proceeding
-    const { error: connectionError } = await supabase.from('users').select('count').limit(1);
-    if (connectionError) {
-      console.error('[LOGIN] Supabase connection failed:', connectionError.message);
-      return serverErrorResponse('Database connection failed: ' + connectionError.message);
-    }
-    console.log('[LOGIN] Supabase connection OK');
-
     const body: AuthAPI.LoginRequest = await request.json();
     const { username, password } = body;
 
@@ -72,27 +50,24 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Validation failed', validation.errors);
     }
 
-    // Find user by email or mobile in public.users
+    // Find user by email or mobile in users table
     const normalizedInput = username.toLowerCase().trim();
+    const normalizedMobile = username.replace(/\s/g, '');
     console.log('[LOGIN] Attempting login for:', normalizedInput);
 
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .or(`email.ilike.${normalizedInput},mobile.eq.${username.replace(/\s/g, '')}`)
-      .single();
+    const userResult = await query(
+      `SELECT * FROM users WHERE LOWER(email) = $1 OR mobile = $2 LIMIT 1`,
+      [normalizedInput, normalizedMobile]
+    );
 
-    if (userError) {
-      console.error('[LOGIN] Database error:', userError.message, 'Code:', userError.code);
-      return serverErrorResponse('Database error: ' + userError.message);
-    }
+    const user = userResult.rows[0];
 
     if (!user) {
       console.error('[LOGIN] User not found:', normalizedInput);
-      return unauthorizedResponse('User not found: ' + normalizedInput);
+      return unauthorizedResponse('Invalid credentials');
     }
 
-    console.log('[LOGIN] User found:', user.id, user.email, 'auth_user_id:', user.auth_user_id);
+    console.log('[LOGIN] User found:', user.id, user.email);
 
     // Check user status
     if (!user.is_active) {
@@ -102,55 +77,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user has auth_user_id (linked to Supabase Auth)
-    if (!user.auth_user_id) {
-      console.error('[LOGIN] User missing auth_user_id:', user.id, user.email);
+    // Check if user has a password_hash set
+    if (!user.password_hash) {
+      console.error('[LOGIN] User missing password_hash:', user.id, user.email);
       return unauthorizedResponse(
-        'Account not configured - missing auth_user_id for: ' + user.email
+        'Account not configured. Please contact administration.'
       );
     }
 
-    // Verify password using Supabase Auth
-    console.log('[LOGIN] Verifying password with Supabase Auth for:', user.email);
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password: password,
-    });
+    // Verify password using bcrypt
+    console.log('[LOGIN] Verifying password for:', user.email);
+    const isPasswordValid = await comparePassword(password, user.password_hash);
 
-    if (authError || !authData.session) {
-      console.error('[LOGIN] Supabase Auth failed:', authError?.message, 'Code:', authError?.status);
-      return unauthorizedResponse('Auth failed: ' + (authError?.message || 'No session'));
+    if (!isPasswordValid) {
+      console.error('[LOGIN] Password mismatch for:', user.email);
+      return unauthorizedResponse('Invalid credentials');
     }
 
-    console.log('[LOGIN] Supabase Auth successful for:', user.email);
+    console.log('[LOGIN] Password verified for:', user.email);
 
     // Check if first-time login (password never changed)
     const requiresPasswordChange = user.requires_password_change || false;
 
-    // Use Supabase session access_token
-    const token = authData.session.access_token;
+    // Create JWT session
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const { accessToken } = await createSession(user.id, ip, userAgent);
 
     // Get user's vertical
     const vertical: Vertical | undefined = user.vertical as Vertical;
 
     // Log successful login
-    await supabase.from('audit_logs').insert({
-      entity_type: 'USER',
-      entity_id: user.id,
+    await createAuditLog({
+      entityType: 'USER',
+      entityId: user.id,
       action: 'LOGIN',
-      actor_id: user.id,
+      performedBy: user.id,
+      ipAddress: ip,
+      userAgent,
       metadata: {
         email: user.email,
         role: user.role,
-        auth_user_id: user.auth_user_id,
       },
     });
 
     console.log('\n========================================');
-    console.log('✅ LOGIN SUCCESSFUL (Supabase Auth)');
+    console.log('LOGIN SUCCESSFUL (Custom JWT)');
     console.log('========================================');
     console.log('User ID:', user.id);
-    console.log('Auth User ID:', user.auth_user_id);
     console.log('Role:', user.role);
     console.log('Email:', user.email);
     console.log('Requires Password Change:', requiresPasswordChange);
@@ -160,7 +134,7 @@ export async function POST(request: NextRequest) {
     const response: AuthAPI.LoginResponse = {
       success: true,
       role: user.role as UserRole,
-      token,
+      token: accessToken,
       userId: user.id,
       requiresPasswordChange,
       ...(vertical && { vertical }),

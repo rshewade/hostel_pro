@@ -588,120 +588,115 @@ CREATE TYPE consent_type AS ENUM ('RULES_ACCEPTANCE', 'TERMS_CONDITIONS', 'PRIVA
 
 ### Phase 1: Database Setup
 
-- [ ] Create fresh database on PG server called 'hostel_pro'
-- [ ] Run SQL migration script (Section 6) to create all tables
-- [ ] Verify all tables, indexes, and constraints created
-- [ ] Seed initial data: verticals (3 records), leave_types, fee_configuration, system_settings
+- [x] Create fresh database on PG server (`hostel_pro` created on `51.68.196.242`)
+- [x] Run SQL migration script (`sql/001_create_schema.sql`) — all 23 tables created
+- [x] Verify all tables, indexes, constraints, and triggers (23 tables, 60+ indexes, 8 triggers, 2 immutability rules)
+- [x] Seed initial data: verticals (3), leave_types (7), system_settings (8), fee_configuration (10)
 
 ### Phase 2: Auth Replacement
 
-- [ ] Install `jsonwebtoken`, `bcryptjs` in backend
-- [ ] Create auth service: login (password + OTP), JWT issue/verify, session management
-- [ ] Create OTP service: generate, store in `otp_verifications`, verify, expire
-- [ ] Integrate SMS provider (MSG91/Twilio) for OTP delivery
-- [ ] Update all API routes: replace `createServerClient()` with direct PG queries
-- [ ] Update JWT middleware: verify tokens against own secret (not Supabase)
-- [ ] Seed test users with hashed passwords
+- [x] Install `jsonwebtoken`, `bcryptjs`, `pg` in frontend and backend (+ @types)
+- [x] Create `frontend/src/lib/db.ts` — PG connection pool
+- [x] Create `frontend/src/lib/auth.ts` — JWT sign/verify, bcrypt hash/compare, OTP create/verify, session management, audit logging
+- [x] Rewrite 11 API routes removing all Supabase imports:
+  - [x] `auth/login` — bcrypt password verify + custom JWT
+  - [x] `auth/session` — JWT verify + PG user lookup
+  - [x] `auth/logout` — invalidate sessions in PG
+  - [x] `auth/first-time-setup` — bcrypt hash + PG update
+  - [x] `auth/forgot-password` — PG user lookup + DB-backed OTP
+  - [x] `auth/reset-password` — bcrypt hash + OTP verify from PG
+  - [x] `otp/send`, `otp/verify`, `otp/resend` — DB-backed OTP system
+  - [x] `admin/seed-auth-users` — direct PG insert with bcrypt
+  - [x] `health` — PG connection test
+- [ ] Integrate SMS provider (MSG91/Twilio) for OTP delivery (using dev mode OTP `123456` for now)
+- [x] Update frontend `.env` — `DATABASE_URL`, `JWT_SECRET` replacing all `SUPABASE_*` vars
+- [x] Seed 11 test users with hashed passwords (`sql/002_seed_test_users.sql`)
+- [x] Build passes successfully
 
 ### Phase 3: Storage Replacement
 
-- [ ] Create `uploads/` directory structure on web server:
-  ```
-  uploads/
-  ├── applications/     (application documents)
-  ├── students/         (post-admission documents)
-  ├── undertakings/     (generated legal PDFs)
-  ├── receipts/         (generated receipt PDFs)
-  └── system/           (bulk downloads, exports)
-  ```
-- [ ] Create file upload service: save to disk, return relative path
-- [ ] Create file serve endpoint: serve files with auth check (or signed temporary URLs)
-- [ ] Update all document upload/download API routes
-- [ ] Migrate existing files from Supabase Storage to `uploads/`
+- [x] Create `uploads/` directory structure: applications/, students/, undertakings/, receipts/, system/
+- [x] Create `frontend/src/lib/storage.ts` — saveFile, deleteFile, readFile, generateSignedToken, verifySignedToken
+- [x] Create file serve endpoint: `GET /api/files/serve?token=...` with HMAC-signed temporary URLs
+- [x] Rewrite 4 document API routes removing all Supabase Storage:
+  - [x] `applications/documents/upload` — saves to uploads/applications/
+  - [x] `applications/documents/url` — generates signed URL token
+  - [x] `student/documents/upload` — saves to uploads/students/ + creates DB record
+  - [x] `student/documents/[id]/url` — looks up DB record + generates signed URL
+- [x] Added `uploads/` to .gitignore
+- [ ] Migrate existing files from Supabase Storage to `uploads/` (defer — no production data yet)
+- [x] Build passes, zero Supabase storage references remain
 
 ### Phase 4: Client Migration (Frontend API Routes)
 
-- [ ] Install `pg` (node-postgres) or Prisma in frontend
-- [ ] Create database connection pool (`src/lib/db.ts`)
-- [ ] Replace every `createServerClient()` call with direct PG queries:
-  - [ ] Auth routes (6 files)
-  - [ ] Application routes (8 files)
-  - [ ] Interview routes (4 files)
-  - [ ] Room/allocation routes (5 files)
-  - [ ] Fee/payment routes (4 files)
-  - [ ] Leave routes (4 files)
-  - [ ] Dashboard routes (5 files)
-  - [ ] Parent routes (3 files)
-  - [ ] Document routes (4 files)
-  - [ ] Config routes (3 files)
-  - [ ] Audit routes (2 files)
-  - [ ] Admin routes (2 files)
-  - [ ] User routes (2 files)
-  - [ ] Health check (1 file)
-- [ ] Remove `@supabase/supabase-js` from frontend `package.json`
-- [ ] Remove `src/lib/supabase/` directory
+- [x] `pg` already installed in Phase 2; `src/lib/db.ts` already created
+- [x] Replaced ALL 37 `createServerClient()` calls with direct PG queries:
+  - [x] Auth routes (6 files) — done in Phase 2
+  - [x] Application routes (4 files) — applications CRUD, submit, tracking
+  - [x] Interview routes (4 files) — CRUD, complete, slots
+  - [x] Room/allocation routes (4 files) — rooms, allocations, vacate
+  - [x] Fee/payment routes (3 files) — fees, payments, verify
+  - [x] Leave routes (3 files) — CRUD, approve, reject
+  - [x] Dashboard routes (5 files) — student, parent, superintendent, trustee, accounts
+  - [x] Parent routes (3 files) — student, fees, leave
+  - [x] Document routes (4 files) — done in Phase 3
+  - [x] Config routes (3 files) — leave-types, blackout-dates, notification-rules
+  - [x] Audit routes (2 files) — auditLogs, entity audit
+  - [x] Admin routes (2 files) — seed-auth-users, reset-password
+  - [x] User routes (2 files) — list, profile (GET + PUT)
+  - [x] Health check (1 file) — done in Phase 2
+  - [x] Communications (1 file) — list, create
+  - [x] Renewals (1 file) — list with JOINs
+- [x] Removed `@supabase/supabase-js` from frontend `package.json`
+- [x] Removed `src/lib/supabase/` directory
+- [x] Zero Supabase references remain in frontend API routes
+- [x] Build passes successfully
 
-### Phase 5: Client Migration (Backend NestJS)
+### Phase 5: ~~Client Migration (Backend NestJS)~~ → REMOVED
 
-- [ ] Install TypeORM or Prisma in backend
-- [ ] Replace `SupabaseModule`/`SupabaseProvider` with database module
-- [ ] Update all services that inject `SUPABASE_CLIENT`:
-  - [ ] auth.service.ts
-  - [ ] users.service.ts
-  - [ ] applications.service.ts
-  - [ ] documents.service.ts, document-processor.service.ts, bulk-download.service.ts
-  - [ ] payments.service.ts, payment-gateway.service.ts, receipt.service.ts, reconciliation.service.ts
-  - [ ] leaves.service.ts
-  - [ ] rooms.service.ts
-  - [ ] audit.service.ts
-  - [ ] compliance services (audit, consent, data-retention)
-  - [ ] device-sessions.service.ts
-  - [ ] migration.service.ts, verification.service.ts
-- [ ] Remove `@supabase/supabase-js` from backend `package.json`
-- [ ] Remove `src/supabase/` directory
+**Decision:** NestJS backend removed entirely. All API logic consolidated in Next.js API routes.
+- [x] ~~Backend was migrated to PG~~ (work done but then removed)
+- [x] Deleted `backend/` directory
+- [x] Removed `dev:backend`, `dev:all`, `build:backend` scripts from root `package.json`
+- [x] Added `backend/` to `.gitignore`
+- [x] Updated `CLAUDE.md` to reflect single-tier architecture
+- **Reason:** Frontend Next.js API routes already handle all auth, CRUD, storage, and business logic. Running two API layers was redundant.
 
 ### Phase 6: Authorization Middleware (replaces RLS)
 
-- [ ] Create middleware that extracts user role/vertical from JWT
-- [ ] Implement authorization checks in each API route:
-  - Students can only access own data
-  - Parents can only access their children's data
-  - Superintendents see only their vertical
-  - Trustees see all approved applications
-  - Accounts see all financial data
-- [ ] Add vertical-scoping to all queries that need it
+- [x] Created `frontend/src/lib/authorize.ts` — `requireAuth(request, roles[])`, `optionalAuth()`, `canAccessStudent()`, `getVerticalFilter()`
+- [x] Added `requireAuth()` to 35 API route files (61 handler functions):
+  - [x] Unauthenticated requests → 401 "Authentication required"
+  - [x] Wrong role → 403 "Insufficient permissions"
+  - [x] Students forced to own data (fees, leaves, documents, renewals)
+  - [x] Parents restricted to parent routes only
+  - [x] Superintendents get vertical filtering
+  - [x] Trustees see all approved applications
+  - [x] Accounts see all financial data
+  - [x] Public routes (login, OTP, tracking, health) remain unauthenticated
+- [x] Verified: unauthenticated → 401, student → can't access staff routes, parent → can't access superintendent, public tracking → still works
+- [x] Build passes
 
 ### Phase 7: Environment Variables
 
-- [ ] Update frontend `.env`:
-  ```
-  DATABASE_URL=postgresql://db_user1:Raju987.@51.68.196.242:5432/hostel_pro
-  JWT_SECRET=<generate-new-secret>
-  JWT_EXPIRES_IN=1h
-  UPLOADS_DIR=./uploads
-  SMS_PROVIDER_API_KEY=<msg91-or-twilio-key>
-  ```
-- [ ] Update backend `.env`:
-  ```
-  DATABASE_URL=postgresql://db_user1:Raju987.@51.68.196.242:5432/hostel_pro
-  JWT_SECRET=<same-secret-as-frontend>
-  JWT_EXPIRES_IN=1h
-  UPLOADS_DIR=./uploads
-  SMS_API_KEY=<provider-key>
-  ```
-- [ ] Remove all `SUPABASE_*` env vars
+- [x] Frontend `.env` already configured with `DATABASE_URL`, `JWT_SECRET`
+- [x] All `SUPABASE_*` env vars removed
+- [ ] Generate production-strength JWT_SECRET before deployment
+- [ ] Configure SMS provider API key when ready
 
 ### Phase 8: Testing & Verification
 
-- [ ] Build passes (`npm run build`)
-- [ ] Login flow works (password + OTP)
-- [ ] Application submission flow works end-to-end
-- [ ] Document upload/download works
-- [ ] All dashboard pages load data from new PG
-- [ ] Leave request/approval flow works
-- [ ] Fee payment flow works
-- [ ] Audit logs are being written
-- [ ] Parent portal shows correct child data
+- [x] Build passes (`npm run build` — compiled successfully)
+- [x] Login works for all 5 roles (SUPERINTENDENT, TRUSTEE, ACCOUNTS, STUDENT, PARENT)
+- [x] OTP send + verify flow works (dev mode OTP 123456)
+- [x] Student fees: 4 items, ₹45,000 pending, ₹500 paid
+- [x] Rooms: 29 rooms loaded from PG
+- [x] Leave types: 7 types loaded from PG
+- [x] Document upload works (saved to disk + DB record)
+- [x] Auth enforcement: 401 for no token, 403 for wrong role
+- [x] PG data: 10 users, 29 rooms, 6 fees, 7 leave types, 33 audit logs, 26 sessions
+- [x] Zero Supabase references in entire codebase
+- [x] No backend process required (single Next.js process)
 
 ---
 

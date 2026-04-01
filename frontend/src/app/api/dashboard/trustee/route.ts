@@ -1,28 +1,22 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { DashboardAPI, InterviewStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/dashboard/trustee
  * Get trustee dashboard data
+ * Auth: TRUSTEE only
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
+    const user = await requireAuth(request, ['TRUSTEE']);
     // Get all interviews
-    const { data: interviews, error: interviewError } = await supabase
-      .from('interviews')
-      .select('*');
-
-    if (interviewError) {
-      console.error('Supabase error fetching interviews:', interviewError);
-      return serverErrorResponse('Failed to fetch interviews', interviewError);
-    }
+    const { rows: interviews } = await query('SELECT * FROM interviews');
 
     // Count scheduled interviews
     const scheduledInterviews = (interviews || []).filter(
@@ -57,15 +51,9 @@ export async function GET(request: NextRequest) {
       .slice(0, 5);
 
     // Count applications awaiting approval (in INTERVIEW status)
-    const { data: applications, error: appError } = await supabase
-      .from('applications')
-      .select('id')
-      .eq('current_status', 'INTERVIEW');
-
-    if (appError) {
-      console.error('Supabase error fetching applications:', appError);
-      return serverErrorResponse('Failed to fetch applications', appError);
-    }
+    const { rows: applications } = await query(
+      `SELECT id FROM applications WHERE current_status = 'INTERVIEW'`
+    );
 
     const dashboardData: DashboardAPI.TrusteeDashboard = {
       interviews: {
@@ -80,6 +68,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(dashboardData);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/dashboard/trustee:', error);
     return serverErrorResponse('Failed to fetch trustee dashboard', error);
   }

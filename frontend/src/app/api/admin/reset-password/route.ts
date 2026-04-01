@@ -1,11 +1,12 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   unauthorizedResponse,
   badRequestResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { hashPassword } from '@/lib/auth';
 
 /**
  * POST /api/admin/reset-password
@@ -21,7 +22,6 @@ import {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body = await request.json();
     const { adminSecret, email, newPassword } = body;
 
@@ -43,39 +43,27 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Password must be at least 6 characters');
     }
 
-    // First, find the user in public.users to get their auth_user_id
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id, email, full_name, role, auth_user_id')
-      .eq('email', email)
-      .single();
+    // Find the user in public.users
+    const { rows: userRows } = await query(
+      'SELECT id, email, full_name, role, auth_user_id FROM users WHERE email = $1',
+      [email]
+    );
 
-    if (userError || !user) {
+    if (userRows.length === 0) {
       return badRequestResponse(`User with email ${email} not found`);
     }
 
-    if (!user.auth_user_id) {
-      return badRequestResponse(`User ${email} does not have a Supabase Auth account. Run seed-auth-users first.`);
-    }
+    const user = userRows[0];
 
-    // Update the password using admin API
-    const { data: authData, error: authError } = await supabase.auth.admin.updateUserById(
-      user.auth_user_id,
-      { password: newPassword }
+    // Hash the new password and update
+    const hashedPassword = await hashPassword(newPassword);
+
+    await query(
+      'UPDATE users SET password_hash = $1, requires_password_change = false WHERE id = $2',
+      [hashedPassword, user.id]
     );
 
-    if (authError) {
-      console.error('Failed to reset password:', authError);
-      return serverErrorResponse('Failed to reset password: ' + authError.message, authError);
-    }
-
-    // Optionally clear the requires_password_change flag
-    await supabase
-      .from('users')
-      .update({ requires_password_change: false })
-      .eq('id', user.id);
-
-    console.log(`✅ Password reset for ${email} (${user.full_name})`);
+    console.log(`Password reset for ${email} (${user.full_name})`);
 
     return successResponse({
       success: true,

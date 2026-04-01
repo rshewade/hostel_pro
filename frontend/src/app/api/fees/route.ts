@@ -1,37 +1,42 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { FeeAPI, FeeStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/fees
  * List fees with optional filtering by student and status
+ * Auth: STUDENT (own fees only) or SUPERINTENDENT, TRUSTEE, ACCOUNTS (any)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request);
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('student_id');
+    // If student, force own ID; staff can query any
+    const studentId = user.role === 'STUDENT' ? user.id : searchParams.get('student_id');
     const status = searchParams.get('status') as FeeStatus | null;
 
-    let query = supabase.from('fees').select('*');
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (studentId) {
-      query = query.eq('student_user_id', studentId);
+      conditions.push(`student_id = $${paramIndex++}`);
+      params.push(studentId);
     }
     if (status) {
-      query = query.eq('status', status);
+      conditions.push(`status = $${paramIndex++}`);
+      params.push(status);
     }
 
-    const { data: fees, error } = await query.order('due_date', { ascending: false });
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const sql = `SELECT * FROM fees ${whereClause} ORDER BY due_date DESC`;
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch fees', error);
-    }
+    const { rows: fees } = await query(sql, params);
 
     // Calculate summary
     const summary = {
@@ -64,6 +69,7 @@ export async function GET(request: NextRequest) {
       summary,
     } as FeeAPI.ListResponse);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/fees:', error);
     return serverErrorResponse('Failed to fetch fees', error);
   }

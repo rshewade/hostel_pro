@@ -1,40 +1,44 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/users
  * List users with optional filtering by role and vertical
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff only)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
     const vertical = searchParams.get('vertical');
     const isActive = searchParams.get('is_active');
 
-    let query = supabase.from('users').select('*');
+    let sql = 'SELECT * FROM users WHERE 1=1';
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (role) {
-      query = query.eq('role', role.toUpperCase());
+      sql += ` AND role = $${paramIndex++}`;
+      params.push(role.toUpperCase());
     }
     if (vertical) {
-      query = query.eq('vertical', vertical.toUpperCase());
+      sql += ` AND vertical = $${paramIndex++}`;
+      params.push(vertical.toUpperCase());
     }
     if (isActive !== null) {
-      query = query.eq('is_active', isActive === 'true');
+      sql += ` AND is_active = $${paramIndex++}`;
+      params.push(isActive === 'true');
     }
 
-    const { data: users, error } = await query.order('created_at', { ascending: false });
+    sql += ' ORDER BY created_at DESC';
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch users', error);
-    }
+    const { rows: users } = await query(sql, params);
 
     // Return users without sensitive fields
     const sanitizedUsers = (users || []).map((user: any) => ({
@@ -51,6 +55,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(sanitizedUsers);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/users:', error);
     return serverErrorResponse('Failed to fetch users', error);
   }

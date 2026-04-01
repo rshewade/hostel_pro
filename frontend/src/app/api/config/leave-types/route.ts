@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -7,35 +7,33 @@ import {
   serverErrorResponse,
   notFoundResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/config/leave-types
  * List all leave types
+ * Auth: any authenticated user
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request);
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active') === 'true';
 
-    let query = supabase
-      .from('leave_types')
-      .select('*')
-      .order('name');
+    let sql = 'SELECT * FROM leave_types';
+    const params: any[] = [];
 
     if (activeOnly) {
-      query = query.eq('is_active', true);
+      sql += ' WHERE is_active = $1';
+      params.push(true);
     }
 
-    const { data: leaveTypes, error } = await query;
+    sql += ' ORDER BY name';
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch leave types', error);
-    }
+    const { rows: leaveTypes } = await query(sql, params);
 
     // Transform to frontend format
-    const transformed = leaveTypes?.map(lt => ({
+    const transformed = (leaveTypes || []).map((lt: any) => ({
       id: lt.id,
       name: lt.name,
       maxDaysPerMonth: lt.max_days_per_month,
@@ -43,10 +41,11 @@ export async function GET(request: NextRequest) {
       requiresApproval: lt.requires_approval,
       allowedVerticals: lt.allowed_verticals || [],
       active: lt.is_active,
-    })) || [];
+    }));
 
     return successResponse(transformed);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/config/leave-types:', error);
     return serverErrorResponse('Failed to fetch leave types', error);
   }
@@ -55,10 +54,11 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/config/leave-types
  * Create a new leave type
+ * Auth: SUPERINTENDENT only
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
     const { name, maxDaysPerMonth, maxDaysPerSemester, requiresApproval, allowedVerticals, active } = body;
@@ -67,23 +67,25 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Name is required');
     }
 
-    const { data: newLeaveType, error } = await supabase
-      .from('leave_types')
-      .insert({
-        name: name.trim(),
-        max_days_per_month: maxDaysPerMonth || 0,
-        max_days_per_semester: maxDaysPerSemester || 0,
-        requires_approval: requiresApproval ?? true,
-        allowed_verticals: allowedVerticals || ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-        is_active: active ?? true,
-      })
-      .select()
-      .single();
+    const { rows } = await query(
+      `INSERT INTO leave_types (name, max_days_per_month, max_days_per_semester, requires_approval, allowed_verticals, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [
+        name.trim(),
+        maxDaysPerMonth || 0,
+        maxDaysPerSemester || 0,
+        requiresApproval ?? true,
+        JSON.stringify(allowedVerticals || ['BOYS', 'GIRLS', 'DHARAMSHALA']),
+        active ?? true,
+      ]
+    );
 
-    if (error) {
-      console.error('Supabase insert error:', error);
-      return serverErrorResponse('Failed to create leave type', error);
+    if (rows.length === 0) {
+      return serverErrorResponse('Failed to create leave type');
     }
+
+    const newLeaveType = rows[0];
 
     // Transform to frontend format
     const transformed = {
@@ -98,6 +100,7 @@ export async function POST(request: NextRequest) {
 
     return createdResponse(transformed, 'Leave type created successfully');
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/config/leave-types:', error);
     return serverErrorResponse('Failed to create leave type', error);
   }
@@ -106,10 +109,11 @@ export async function POST(request: NextRequest) {
 /**
  * PUT /api/config/leave-types
  * Update a leave type
+ * Auth: SUPERINTENDENT only
  */
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
     const { id, name, maxDaysPerMonth, maxDaysPerSemester, requiresApproval, allowedVerticals, active } = body;
@@ -118,28 +122,49 @@ export async function PUT(request: NextRequest) {
       return badRequestResponse('ID is required');
     }
 
-    const updateData: Record<string, any> = {};
-    if (name !== undefined) updateData.name = name.trim();
-    if (maxDaysPerMonth !== undefined) updateData.max_days_per_month = maxDaysPerMonth;
-    if (maxDaysPerSemester !== undefined) updateData.max_days_per_semester = maxDaysPerSemester;
-    if (requiresApproval !== undefined) updateData.requires_approval = requiresApproval;
-    if (allowedVerticals !== undefined) updateData.allowed_verticals = allowedVerticals;
-    if (active !== undefined) updateData.is_active = active;
+    const setClauses: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
-    const { data: updatedLeaveType, error } = await supabase
-      .from('leave_types')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase update error:', error);
-      if (error.code === 'PGRST116') {
-        return notFoundResponse('Leave type not found');
-      }
-      return serverErrorResponse('Failed to update leave type', error);
+    if (name !== undefined) {
+      setClauses.push(`name = $${paramIndex++}`);
+      params.push(name.trim());
     }
+    if (maxDaysPerMonth !== undefined) {
+      setClauses.push(`max_days_per_month = $${paramIndex++}`);
+      params.push(maxDaysPerMonth);
+    }
+    if (maxDaysPerSemester !== undefined) {
+      setClauses.push(`max_days_per_semester = $${paramIndex++}`);
+      params.push(maxDaysPerSemester);
+    }
+    if (requiresApproval !== undefined) {
+      setClauses.push(`requires_approval = $${paramIndex++}`);
+      params.push(requiresApproval);
+    }
+    if (allowedVerticals !== undefined) {
+      setClauses.push(`allowed_verticals = $${paramIndex++}`);
+      params.push(JSON.stringify(allowedVerticals));
+    }
+    if (active !== undefined) {
+      setClauses.push(`is_active = $${paramIndex++}`);
+      params.push(active);
+    }
+
+    if (setClauses.length === 0) {
+      return badRequestResponse('No fields to update');
+    }
+
+    params.push(id);
+    const sql = `UPDATE leave_types SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const { rows } = await query(sql, params);
+
+    if (rows.length === 0) {
+      return notFoundResponse('Leave type not found');
+    }
+
+    const updatedLeaveType = rows[0];
 
     // Transform to frontend format
     const transformed = {
@@ -154,6 +179,7 @@ export async function PUT(request: NextRequest) {
 
     return successResponse(transformed);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/config/leave-types:', error);
     return serverErrorResponse('Failed to update leave type', error);
   }
@@ -162,10 +188,11 @@ export async function PUT(request: NextRequest) {
 /**
  * DELETE /api/config/leave-types
  * Delete a leave type
+ * Auth: SUPERINTENDENT only
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -173,18 +200,11 @@ export async function DELETE(request: NextRequest) {
       return badRequestResponse('ID is required');
     }
 
-    const { error } = await supabase
-      .from('leave_types')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Supabase delete error:', error);
-      return serverErrorResponse('Failed to delete leave type', error);
-    }
+    await query('DELETE FROM leave_types WHERE id = $1', [id]);
 
     return successResponse({ message: 'Leave type deleted successfully' });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in DELETE /api/config/leave-types:', error);
     return serverErrorResponse('Failed to delete leave type', error);
   }

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createOtp } from '@/lib/auth';
 
 /**
  * POST /api/otp/send
  *
- * Mock endpoint for sending OTP during prototyping phase.
- * In production, this would integrate with SMS/Email service.
+ * Send OTP for application or parent login flows.
+ * Uses DB-backed OTP storage via createOtp().
  *
  * Request body:
  * - phone?: string - Mobile number (for SMS OTP)
@@ -51,40 +52,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mock OTP generation (in production, generate random 6-digit code)
-    const mockOTP = '123456';
+    const contact = phone || email;
 
-    // Mock token generation (in production, create JWT with contact info and OTP hash)
-    const mockToken = Buffer.from(JSON.stringify({
-      contact: phone || email,
+    // Create OTP in DB
+    const otp = await createOtp(contact, 'application');
+
+    // Generate session token as base64 JSON (keeps existing contract)
+    const sessionToken = Buffer.from(JSON.stringify({
+      contact,
       vertical,
       timestamp: Date.now(),
-      otp: mockOTP // In production, store hashed OTP
     })).toString('base64');
 
-    // Mock logging (in production, log to database and send SMS/Email)
+    // In production, send OTP via SMS/Email service
     console.log('\n========================================');
-    console.log('📱 MOCK OTP SENT');
+    console.log('OTP SENT (DB-backed)');
     console.log('========================================');
-    console.log('Contact:', phone || email);
+    console.log('Contact:', contact);
     console.log('Vertical:', vertical);
-    console.log('OTP Code:', mockOTP);
-    console.log('Token:', mockToken);
-    console.log('Expires In: 600 seconds (10 minutes)');
+    console.log('OTP Code:', otp);
+    console.log('Expires In: 300 seconds (5 minutes)');
     console.log('========================================\n');
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
 
     return NextResponse.json({
       success: true,
-      token: mockToken,
-      expiresIn: 600, // 10 minutes
+      token: sessionToken,
+      expiresIn: 300, // 5 minutes (matches OTP_EXPIRY_MINUTES in auth.ts)
       message: phone
         ? `OTP sent to ${phone}. Check your SMS messages.`
         : `OTP sent to ${email}. Check your inbox.`,
       // Include OTP in development for easy testing
-      ...(process.env.NODE_ENV === 'development' && { devOTP: mockOTP })
+      ...(process.env.NODE_ENV === 'development' && { devOTP: otp })
     });
 
   } catch (error) {

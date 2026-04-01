@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -8,63 +8,82 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { LeaveAPI, LeaveStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/leaves
  * List all leave requests with optional filtering
+ * Auth: STUDENT (own leaves) or SUPERINTENDENT (all)
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['STUDENT', 'SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('student_id');
+    // If student, force own ID; superintendent can query any
+    const studentId = user.role === 'STUDENT' ? user.id : searchParams.get('student_id');
     const status = searchParams.get('status') as LeaveStatus | null;
     const vertical = searchParams.get('vertical');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = (page - 1) * limit;
 
-    // Build query with joins to get student info and room
-    let query = supabase
-      .from('leave_requests')
-      .select(`
-        *,
-        student:users!student_user_id(id, full_name, email, mobile, vertical)
-      `, { count: 'exact' });
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (studentId) {
-      query = query.eq('student_user_id', studentId);
+      conditions.push(`lr.student_id = $${paramIndex++}`);
+      params.push(studentId);
     }
     if (status) {
-      query = query.eq('status', status);
+      conditions.push(`lr.status = $${paramIndex++}`);
+      params.push(status);
     }
 
-    const { data: leaves, error, count } = await query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch leaves', error);
-    }
+    // Query leaves with student info
+    params.push(limit);
+    const limitParam = paramIndex++;
+    params.push(offset);
+    const offsetParam = paramIndex++;
+
+    const { rows: leaves } = await query(
+      `SELECT lr.*,
+              json_build_object('id', u.id, 'full_name', u.full_name, 'email', u.email, 'mobile', u.mobile, 'vertical', u.vertical) AS student
+       FROM leave_requests lr
+       LEFT JOIN users u ON u.id = lr.student_id
+       ${whereClause}
+       ORDER BY lr.created_at DESC
+       LIMIT $${limitParam} OFFSET $${offsetParam}`,
+      params
+    );
+
+    // Get total count
+    const countParams = params.slice(0, params.length - 2); // exclude limit/offset
+    const { rows: countRows } = await query(
+      `SELECT COUNT(*) AS total FROM leave_requests lr ${whereClause}`,
+      countParams
+    );
+    const total = parseInt(countRows[0]?.total || '0');
 
     // Get room allocations for all students in the leave requests
-    const studentIds = leaves?.map(l => l.student_user_id).filter(Boolean) || [];
+    const studentIds = leaves.map((l: any) => l.student_id).filter(Boolean);
     let roomMap: Record<string, string> = {};
 
     if (studentIds.length > 0) {
-      const { data: allocations } = await supabase
-        .from('room_allocations')
-        .select('student_user_id, rooms(room_number)')
-        .in('student_user_id', studentIds)
-        .eq('status', 'ACTIVE');
+      const placeholders = studentIds.map((_: any, i: number) => `$${i + 1}`).join(', ');
+      const { rows: allocations } = await query(
+        `SELECT ra.student_id, r.room_number
+         FROM room_allocations ra
+         LEFT JOIN rooms r ON r.id = ra.room_id
+         WHERE ra.student_id IN (${placeholders}) AND ra.status = $${studentIds.length + 1}`,
+        [...studentIds, 'ACTIVE']
+      );
 
-      if (allocations) {
-        for (const alloc of allocations) {
-          const roomNumber = (alloc.rooms as any)?.room_number;
-          if (roomNumber) {
-            roomMap[alloc.student_user_id] = `Room ${roomNumber}`;
-          }
+      for (const alloc of allocations) {
+        if (alloc.room_number) {
+          roomMap[alloc.student_id] = `Room ${alloc.room_number}`;
         }
       }
     }
@@ -79,13 +98,13 @@ export async function GET(request: NextRequest) {
     };
 
     // Transform data to match frontend expectations
-    const transformedLeaves = leaves?.map(leave => ({
+    const transformedLeaves = leaves.map((leave: any) => ({
       id: leave.id,
-      studentId: leave.student_user_id,
-      studentName: (leave.student as any)?.full_name || 'Unknown',
-      studentRoom: roomMap[leave.student_user_id] || 'Not Allocated',
-      vertical: (leave.student as any)?.vertical || 'BOYS_HOSTEL',
-      leaveType: leaveTypeMap[leave.type] || 'short',
+      studentId: leave.student_id,
+      studentName: leave.student?.full_name || 'Unknown',
+      studentRoom: roomMap[leave.student_id] || 'Not Allocated',
+      vertical: leave.student?.vertical || 'BOYS_HOSTEL',
+      leaveType: leaveTypeMap[leave.leave_type] || 'short',
       fromDate: leave.start_time?.split('T')[0] || '',
       toDate: leave.end_time?.split('T')[0] || '',
       fromTime: leave.start_time?.split('T')[1]?.substring(0, 5) || '',
@@ -98,13 +117,12 @@ export async function GET(request: NextRequest) {
       remarks: leave.rejection_reason || '',
       approvedBy: leave.approved_by || '',
       approvedAt: leave.approved_at || '',
-      parentContacted: leave.parent_notified || false,
-    })) || [];
-
-    const total = count || 0;
+      parentContacted: !!leave.parent_notified_at,
+    }));
 
     return successResponse(transformedLeaves);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/leaves:', error);
     return serverErrorResponse('Failed to fetch leaves', error);
   }
@@ -113,10 +131,11 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/leaves
  * Apply for a new leave
+ * Auth: STUDENT only
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['STUDENT']);
     const body: LeaveAPI.CreateRequest = await request.json();
     const { student_id, type, start_time, end_time, reason } = body;
 
@@ -169,39 +188,37 @@ export async function POST(request: NextRequest) {
     }
 
     // Create leave request
-    const { data: newLeave, error: insertError } = await supabase
-      .from('leave_requests')
-      .insert({
-        student_user_id: student_id,
-        type,
-        start_time,
-        end_time,
-        reason,
-        status: 'PENDING',
-        parent_notified: false,
-      })
-      .select()
-      .single();
+    const { rows: insertRows } = await query(
+      `INSERT INTO leave_requests (student_id, leave_type, start_time, end_time, reason, status)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [student_id, type, start_time, end_time, reason, 'PENDING']
+    );
 
-    if (insertError) {
-      console.error('Supabase insert error:', insertError);
-      return serverErrorResponse('Failed to create leave request', insertError);
+    if (insertRows.length === 0) {
+      return serverErrorResponse('Failed to create leave request');
     }
 
+    const newLeave = insertRows[0];
+
     // Log leave creation in audit_logs
-    await supabase.from('audit_logs').insert({
-      entity_type: 'LEAVE_REQUEST',
-      entity_id: newLeave.id,
-      action: 'CREATE',
-      actor_id: student_id,
-      metadata: {
-        type,
-        duration: `${start_time} to ${end_time}`,
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'LEAVE_REQUEST',
+        newLeave.id,
+        'CREATE',
+        student_id,
+        JSON.stringify({
+          type,
+          duration: `${start_time} to ${end_time}`,
+        }),
+      ]
+    );
 
     console.log('\n========================================');
-    console.log('📝 LEAVE REQUEST SUBMITTED');
+    console.log('LEAVE REQUEST SUBMITTED');
     console.log('========================================');
     console.log('Leave ID:', newLeave.id);
     console.log('Student ID:', student_id);
@@ -214,6 +231,7 @@ export async function POST(request: NextRequest) {
       'Leave request submitted successfully'
     );
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/leaves:', error);
     return serverErrorResponse('Failed to create leave request', error);
   }

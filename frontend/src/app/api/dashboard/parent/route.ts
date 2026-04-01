@@ -1,20 +1,21 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { DashboardAPI } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/dashboard/parent
  * Get parent dashboard data (view-only for student's information)
+ * Auth: PARENT only
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
+    const authUser = await requireAuth(request, ['PARENT']);
     // Get parent's associated student ID from query or token
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('student_id');
@@ -24,55 +25,46 @@ export async function GET(request: NextRequest) {
     }
 
     // Get student record
-    const { data: student, error: studentError } = await supabase
-      .from('students')
-      .select('*')
-      .eq('user_id', studentId)
-      .single();
+    const { rows: studentRows } = await query(
+      'SELECT * FROM students WHERE user_id = $1',
+      [studentId]
+    );
+    const student = studentRows.length > 0 ? studentRows[0] : null;
 
     // Get room allocation
-    const { data: allocation, error: allocError } = await supabase
-      .from('room_allocations')
-      .select('*')
-      .eq('student_user_id', studentId)
-      .eq('status', 'ACTIVE')
-      .single();
+    const { rows: allocationRows } = await query(
+      `SELECT * FROM room_allocations WHERE student_id = $1 AND status = 'ACTIVE'`,
+      [studentId]
+    );
+    const allocation = allocationRows.length > 0 ? allocationRows[0] : null;
 
     let roomNumber = 'Not Allocated';
     let vertical = 'N/A';
 
-    if (allocation && !allocError) {
-      const { data: room, error: roomError } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('id', allocation.room_id)
-        .single();
+    if (allocation) {
+      const { rows: roomRows } = await query(
+        'SELECT * FROM rooms WHERE id = $1',
+        [allocation.room_id]
+      );
+      const room = roomRows.length > 0 ? roomRows[0] : null;
 
-      if (room && !roomError) {
+      if (room) {
         roomNumber = room.room_number;
         vertical = room.vertical;
       }
     }
 
     // Get student fees
-    const { data: fees, error: feesError } = await supabase
-      .from('fees')
-      .select('*')
-      .eq('student_user_id', studentId);
-
-    if (feesError) {
-      console.error('Supabase error fetching fees:', feesError);
-    }
+    const { rows: fees } = await query(
+      'SELECT * FROM fees WHERE student_id = $1',
+      [studentId]
+    );
 
     // Get student leaves
-    const { data: leaves, error: leavesError } = await supabase
-      .from('leave_requests')
-      .select('*')
-      .eq('student_user_id', studentId);
-
-    if (leavesError) {
-      console.error('Supabase error fetching leaves:', leavesError);
-    }
+    const { rows: leaves } = await query(
+      'SELECT * FROM leave_requests WHERE student_id = $1',
+      [studentId]
+    );
 
     // Get notifications (mock - parent-specific notifications)
     const notifications = [
@@ -84,11 +76,11 @@ export async function GET(request: NextRequest) {
     ];
 
     // Get user details
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', studentId)
-      .single();
+    const { rows: userRows } = await query(
+      'SELECT * FROM users WHERE id = $1',
+      [studentId]
+    );
+    const user = userRows.length > 0 ? userRows[0] : null;
 
     const dashboardData: DashboardAPI.ParentDashboard = {
       student: {
@@ -104,6 +96,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(dashboardData);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/dashboard/parent:', error);
     return serverErrorResponse('Failed to fetch parent dashboard', error);
   }

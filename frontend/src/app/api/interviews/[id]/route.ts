@@ -1,32 +1,35 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/interviews/[id]
  * Get interview details for an application
+ * Auth: TRUSTEE, SUPERINTENDENT
  */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(_request, ['TRUSTEE', 'SUPERINTENDENT']);
     const { id } = await params;
 
-    const { data: application, error } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [id]
+    );
 
-    if (error || !application) {
+    if (rows.length === 0) {
       return notFoundResponse('Interview not found');
     }
+
+    const application = rows[0];
 
     // Format as interview data
     const interview = {
@@ -44,6 +47,7 @@ export async function GET(
 
     return successResponse({ data: interview });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/interviews/[id]:', error);
     return serverErrorResponse('Failed to fetch interview', error);
   }
@@ -52,37 +56,42 @@ export async function GET(
 /**
  * PUT /api/interviews/[id]
  * Update interview details
+ * Auth: TRUSTEE, SUPERINTENDENT
  */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
     const { id } = await params;
     const body = await request.json();
 
     // Get existing application
-    const { data: application, error: fetchError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', id)
-      .single();
+    const { rows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [id]
+    );
 
-    if (fetchError || !application) {
+    if (rows.length === 0) {
       return notFoundResponse('Interview not found');
     }
 
-    // Update interview data in application
-    const updateData: any = {};
+    const application = rows[0];
+
+    // Build update fields
+    const setClauses: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
     if (body.schedule_time) {
-      updateData.interview_scheduled_at = body.schedule_time;
+      setClauses.push(`interview_scheduled_at = $${paramIndex++}`);
+      values.push(body.schedule_time);
     }
 
     // Store additional interview data in the data JSONB field
     if (body.internal_remarks || body.final_score || body.mode || body.trustee_id) {
-      updateData.data = {
+      const updatedData = {
         ...application.data,
         interview: {
           ...application.data?.interview,
@@ -92,19 +101,24 @@ export async function PUT(
           ...(body.final_score !== undefined && { score: body.final_score }),
         },
       };
+      setClauses.push(`data = $${paramIndex++}`);
+      values.push(JSON.stringify(updatedData));
     }
 
-    const { data: updatedApplication, error: updateError } = await supabase
-      .from('applications')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to update interview', updateError);
+    if (setClauses.length === 0) {
+      return successResponse({ data: application });
     }
+
+    values.push(id);
+    const updateSql = `UPDATE applications SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const { rows: updatedRows } = await query(updateSql, values);
+
+    if (updatedRows.length === 0) {
+      return serverErrorResponse('Failed to update interview');
+    }
+
+    const updatedApplication = updatedRows[0];
 
     // Format response as interview
     const interview = {
@@ -121,6 +135,7 @@ export async function PUT(
 
     return successResponse({ data: interview });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/interviews/[id]:', error);
     return serverErrorResponse('Failed to update interview', error);
   }

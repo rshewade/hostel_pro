@@ -14,7 +14,7 @@ type Vertical = 'ALL' | 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 type Period = 'THIS_MONTH' | 'LAST_MONTH' | 'LAST_3_MONTHS' | 'LAST_6_MONTHS' | 'THIS_YEAR' | 'ALL_TIME';
 type Status = 'ALL' | 'PAID' | 'PENDING' | 'OVERDUE' | 'PARTIAL';
 type FeeComponent = 'ALL' | 'PROCESSING_FEE' | 'HOSTEL_FEES' | 'SECURITY_DEPOSIT' | 'KEY_DEPOSIT' | 'PARTIAL_PAYMENT';
-type UserRole = 'ALL' | 'SUPERINTENDENT' | 'ACCOUNTS' | 'TRUSTEE' | 'ADMIN';
+type UserRole = 'ALL' | 'SUPERINTENDENT' | 'ACCOUNTS' | 'TRUSTEE';
 
 interface Receivable {
   id: string;
@@ -79,7 +79,6 @@ export default function AccountsDashboard() {
 
   const userRoleOptions: SelectOption[] = [
     { value: 'ALL', label: 'All User Roles' },
-    { value: 'ADMIN', label: 'Admin' },
     { value: 'SUPERINTENDENT', label: 'Superintendent' },
     { value: 'ACCOUNTS', label: 'Accounts' },
     { value: 'TRUSTEE', label: 'Trustee' }

@@ -32,25 +32,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-**Note:** This project is in early stages. Package.json and source code directories have not yet been created. Commands will be added once the project structure is initialized.
-
-### Development Phases
-
-**Phase 1: Prototyping with db.json (Current)**
+### Development Commands
 
 ```bash
-npm run dev          # Next.js frontend (port 3000)
-npm run dev:api      # json-server mock API (port 3001)
-npm run dev:all      # Run both concurrently
+npm run dev          # Next.js frontend (port 3000) — includes API routes
+npm run build        # Production build
+npm run start        # Start production server
 ```
 
-**Phase 2: Hybrid Development**
+### Architecture Note
 
-- Supabase Auth for authentication
-- db.json for remaining data operations
-- Gradual backend migration
+This project uses a **single-tier architecture** with Next.js handling both UI and API:
+- **Frontend pages:** Next.js App Router (`frontend/src/app/`)
+- **API routes:** Next.js API routes (`frontend/src/app/api/`) — direct PostgreSQL queries
+- **Database:** PostgreSQL 18.3 at `51.68.196.242:5432/hostel_pro`
+- **Auth:** Custom JWT + bcrypt + OTP (no Supabase)
+- **Storage:** Local `uploads/` directory (no Supabase Storage)
+- **No separate backend** — NestJS backend was removed, all logic in Next.js API routes
 
-**Phase 3: Production Setup**
+### Previous Architecture (Removed)
 
 - Full Supabase PostgreSQL backend
 - NestJS API with RLS enabled

@@ -18,8 +18,7 @@ export type ClearanceOwnerRole =
   | 'SUPERINTENDENT'
   | 'ACCOUNTS'
   | 'LIBRARY'
-  | 'MESS'
-  | 'ADMIN';
+  | 'MESS';
 
 export interface ClearanceItemHistoryEntry {
   id: string;

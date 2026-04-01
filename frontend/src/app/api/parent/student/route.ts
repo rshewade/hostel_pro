@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/parent/student
@@ -15,10 +16,11 @@ import { createServerClient } from '@/lib/supabase/server';
  * - Error: 400/401/405 with { message: string }
  *
  * Permissions: READ-ONLY - No mutation allowed
+ * Auth: PARENT only
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['PARENT']);
     const { searchParams } = new URL(request.url);
     const sessionToken = searchParams.get('sessionToken');
 
@@ -71,20 +73,25 @@ export async function GET(request: NextRequest) {
     const students: any[] = [];
 
     // 1. Find students from students table where father/mother mobile matches
-    const { data: studentRecords, error: studentError } = await supabase
-      .from('students')
-      .select('*, users!inner(id, full_name, email, mobile)')
-      .or(`father_mobile.eq.${normalizedParentMobile},mother_mobile.eq.${normalizedParentMobile}`);
+    const { rows: studentRecords } = await query(
+      `SELECT s.*, u.id AS user_id_from_users, u.full_name, u.email, u.mobile
+       FROM students s
+       INNER JOIN users u ON s.user_id = u.id
+       WHERE s.father_mobile = $1 OR s.mother_mobile = $1`,
+      [normalizedParentMobile]
+    );
 
-    if (!studentError && studentRecords) {
+    if (studentRecords && studentRecords.length > 0) {
       for (const student of studentRecords) {
         // Get room allocation for this student
-        const { data: allocation } = await supabase
-          .from('room_allocations')
-          .select('*, rooms(*)')
-          .eq('student_user_id', student.user_id)
-          .eq('status', 'ACTIVE')
-          .single();
+        const { rows: allocationRows } = await query(
+          `SELECT ra.*, r.room_number, r.vertical AS room_vertical
+           FROM room_allocations ra
+           LEFT JOIN rooms r ON ra.room_id = r.id
+           WHERE ra.student_id = $1 AND ra.status = 'ACTIVE'`,
+          [student.user_id]
+        );
+        const allocation = allocationRows.length > 0 ? allocationRows[0] : null;
 
         const verticalMap: Record<string, string> = {
           'BOYS_HOSTEL': 'Boys Hostel',
@@ -94,10 +101,10 @@ export async function GET(request: NextRequest) {
 
         students.push({
           id: student.user_id,
-          name: student.users?.full_name || 'Unknown',
+          name: student.full_name || 'Unknown',
           photo: null,
           vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
-          room: allocation?.rooms?.room_number ? `Room ${allocation.rooms.room_number}` : 'Not Allocated',
+          room: allocation?.room_number ? `Room ${allocation.room_number}` : 'Not Allocated',
           joiningDate: student.joining_date || student.created_at,
           status: student.status || (allocation ? 'CHECKED_IN' : 'PENDING'),
           institution: student.institution,
@@ -109,21 +116,22 @@ export async function GET(request: NextRequest) {
 
     // 2. Fallback: Check users table parent_mobile (for backwards compatibility)
     if (students.length === 0) {
-      const { data: studentUsers } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'STUDENT');
+      const { rows: studentUsers } = await query(
+        `SELECT * FROM users WHERE role = 'STUDENT'`
+      );
 
       if (studentUsers) {
         for (const user of studentUsers) {
           const userParentMobile = normalizePhone(user.parent_mobile || '');
           if (userParentMobile === normalizedParentMobile) {
-            const { data: allocation } = await supabase
-              .from('room_allocations')
-              .select('*, rooms(*)')
-              .eq('student_user_id', user.id)
-              .eq('status', 'ACTIVE')
-              .single();
+            const { rows: allocationRows } = await query(
+              `SELECT ra.*, r.room_number, r.vertical AS room_vertical
+               FROM room_allocations ra
+               LEFT JOIN rooms r ON ra.room_id = r.id
+               WHERE ra.student_id = $1 AND ra.status = 'ACTIVE'`,
+              [user.id]
+            );
+            const allocation = allocationRows.length > 0 ? allocationRows[0] : null;
 
             const verticalMap: Record<string, string> = {
               'BOYS_HOSTEL': 'Boys Hostel',
@@ -136,7 +144,7 @@ export async function GET(request: NextRequest) {
               name: user.full_name,
               photo: null,
               vertical: verticalMap[user.vertical] || user.vertical || 'N/A',
-              room: allocation?.rooms?.room_number ? `Room ${allocation.rooms.room_number}` : 'Not Allocated',
+              room: allocation?.room_number ? `Room ${allocation.room_number}` : 'Not Allocated',
               joiningDate: user.created_at,
               status: allocation ? 'CHECKED_IN' : 'PENDING',
             });
@@ -145,12 +153,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 2. Also check applications where parent mobile matches (for pending applications)
-    const { data: applications, error: appError } = await supabase
-      .from('applications')
-      .select('*');
+    // 3. Also check applications where parent mobile matches (for pending applications)
+    const { rows: applications } = await query('SELECT * FROM applications');
 
-    if (!appError && applications) {
+    if (applications) {
       for (const app of applications) {
         const fatherMobile = normalizePhone(app.data?.guardian_info?.father_mobile || '');
         const motherMobile = normalizePhone(app.data?.guardian_info?.mother_mobile || '');
@@ -209,6 +215,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in /api/parent/student:', error);
     return NextResponse.json(
       { message: 'Internal server error' },

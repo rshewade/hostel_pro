@@ -111,12 +111,20 @@ export default function StudentFeesPage() {
         // API returns { success: true, data: { data: [...], summary: {...} } }
         const feesData = result.data?.data || result.data || [];
 
+        const feeHeadLabels: Record<string, string> = {
+          'HOSTEL_FEES': 'Hostel Fees',
+          'SECURITY_DEPOSIT': 'Security Deposit',
+          'KEY_DEPOSIT': 'Key Deposit',
+          'MESS_ADVANCE': 'Mess Advance',
+          'PROCESSING_FEE': 'Processing Fee',
+          'RENEWAL_FEE': 'Renewal Fee',
+        };
         const transformedFees: FeeItem[] = (Array.isArray(feesData) ? feesData : []).map((fee: any) => ({
           id: fee.id,
-          name: fee.name,
-          description: fee.description || `${fee.name} for current period`,
-          amount: fee.amount,
-          paidAmount: fee.paid_amount || 0,
+          name: fee.name || feeHeadLabels[fee.fee_head] || fee.fee_head || 'Fee',
+          description: fee.description || `${feeHeadLabels[fee.fee_head] || fee.fee_head} for current period`,
+          amount: parseFloat(fee.amount) || 0,
+          paidAmount: parseFloat(fee.paid_amount) || 0,
           status: fee.status,
           dueDate: fee.due_date,
         }));
@@ -225,48 +233,48 @@ export default function StudentFeesPage() {
             <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
               {t('Fee Overview', 'शुल्क अवलोकन')}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <IndianRupeeIcon className="w-5 h-5" color="var(--color-blue-600)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Total Amount', 'कुल राशि')}</span>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded-lg min-w-0" style={{ background: 'var(--bg-page)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <IndianRupeeIcon className="w-4 h-4 shrink-0" color="var(--color-blue-600)" />
+                  <span className="text-xs font-medium truncate" style={{ color: 'var(--text-secondary)' }}>{t('Total Amount', 'कुल राशि')}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                <p className="text-xl font-bold truncate" style={{ color: 'var(--text-primary)' }}>
                   ₹{paymentSummary.totalAmount.toLocaleString('en-IN')}
                 </p>
               </div>
 
-              <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <CreditCardIcon className="w-5 h-5" color="var(--color-green-600)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Amount Paid', 'भुगतान की गई राशि')}</span>
+              <div className="p-4 rounded-lg min-w-0" style={{ background: 'var(--bg-page)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <CreditCardIcon className="w-4 h-4 shrink-0" color="var(--color-green-600)" />
+                  <span className="text-xs font-medium truncate" style={{ color: 'var(--text-secondary)' }}>{t('Amount Paid', 'भुगतान राशि')}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: 'var(--color-green-600)' }}>
+                <p className="text-xl font-bold truncate" style={{ color: 'var(--color-green-600)' }}>
                   ₹{paymentSummary.totalPaid.toLocaleString('en-IN')}
                 </p>
               </div>
 
-              <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <IndianRupeeIcon className="w-5 h-5" color="var(--color-gold-600)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Outstanding', 'बकाया')}</span>
+              <div className="p-4 rounded-lg min-w-0" style={{ background: 'var(--bg-page)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <IndianRupeeIcon className="w-4 h-4 shrink-0" color="var(--color-gold-600)" />
+                  <span className="text-xs font-medium truncate" style={{ color: 'var(--text-secondary)' }}>{t('Outstanding', 'बकाया')}</span>
                 </div>
-                <p className="text-2xl font-bold" style={{ color: 'var(--color-gold-600)' }}>
+                <p className="text-xl font-bold truncate" style={{ color: 'var(--color-gold-600)' }}>
                   ₹{paymentSummary.outstanding.toLocaleString('en-IN')}
                 </p>
               </div>
 
-              <div className="p-4 rounded-lg" style={{ background: 'var(--bg-page)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <FileTextIcon className="w-5 h-5" color="var(--text-primary)" />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('Next Due Date', 'अगली नियत तारीख')}</span>
+              <div className="p-4 rounded-lg min-w-0" style={{ background: 'var(--bg-page)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <FileTextIcon className="w-4 h-4 shrink-0" color="var(--text-primary)" />
+                  <span className="text-xs font-medium truncate" style={{ color: 'var(--text-secondary)' }}>{t('Next Due Date', 'नियत तारीख')}</span>
                 </div>
-                <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                <p className="text-base font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
                   {paymentSummary.nextDueDate !== 'N/A' ? new Date(paymentSummary.nextDueDate).toLocaleDateString('en-IN', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
-                  }) : t('No pending dues', 'कोई बकाया शुल्क नहीं')}
+                  }) : t('No pending dues', 'कोई बकाया नहीं')}
                 </p>
               </div>
             </div>

@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -8,27 +8,30 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { AllocationAPI, AllocationStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/allocations
  * List all room allocations
+ * Auth: SUPERINTENDENT, TRUSTEE
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
-    const { data: allocations, error } = await supabase
-      .from('room_allocations')
-      .select('*, rooms(*), users!student_user_id(*)')
-      .order('allocated_at', { ascending: false });
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch allocations', error);
-    }
+    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE']);
+    const { rows: allocations } = await query(
+      `SELECT ra.*,
+              row_to_json(r.*) AS rooms,
+              row_to_json(u.*) AS users
+       FROM room_allocations ra
+       LEFT JOIN rooms r ON r.id = ra.room_id
+       LEFT JOIN users u ON u.id = ra.student_id
+       ORDER BY ra.allocated_at DESC`,
+      []
+    );
 
     return successResponse(allocations);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/allocations:', error);
     return serverErrorResponse('Failed to fetch allocations', error);
   }
@@ -37,10 +40,11 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/allocations
  * Create a new room allocation
+ * Auth: SUPERINTENDENT, TRUSTEE
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE']);
     const body: AllocationAPI.CreateRequest = await request.json();
     const { student_id, room_id } = body;
 
@@ -63,71 +67,70 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify room exists and has capacity
-    const { data: room, error: roomError } = await supabase
-      .from('rooms')
-      .select('*')
-      .eq('id', room_id)
-      .single();
+    const { rows: roomRows } = await query(
+      'SELECT * FROM rooms WHERE id = $1',
+      [room_id]
+    );
 
-    if (roomError || !room) {
+    if (roomRows.length === 0) {
       return badRequestResponse('Room not found');
     }
+
+    const room = roomRows[0];
 
     if (room.occupied_count >= room.capacity) {
       return badRequestResponse('Room is at full capacity');
     }
 
     // Check if student already has an active allocation
-    const { data: existingAllocation } = await supabase
-      .from('room_allocations')
-      .select('id')
-      .eq('student_user_id', student_id)
-      .eq('status', 'ACTIVE')
-      .single();
+    const { rows: existingRows } = await query(
+      'SELECT id FROM room_allocations WHERE student_id = $1 AND status = $2',
+      [student_id, 'ACTIVE']
+    );
 
-    if (existingAllocation) {
+    if (existingRows.length > 0) {
       return badRequestResponse('Student already has an active room allocation');
     }
 
     // Create allocation
-    const { data: newAllocation, error: insertError } = await supabase
-      .from('room_allocations')
-      .insert({
-        student_user_id: student_id,
-        room_id,
-        status: 'ACTIVE',
-      })
-      .select()
-      .single();
+    const { rows: insertRows } = await query(
+      `INSERT INTO room_allocations (student_id, room_id, status)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [student_id, room_id, 'ACTIVE']
+    );
 
-    if (insertError) {
-      console.error('Supabase insert error:', insertError);
-      return serverErrorResponse('Failed to create allocation', insertError);
+    if (insertRows.length === 0) {
+      return serverErrorResponse('Failed to create allocation');
     }
 
+    const newAllocation = insertRows[0];
+
     // Update room occupancy
-    await supabase
-      .from('rooms')
-      .update({
-        occupied_count: room.occupied_count + 1,
-        status: room.occupied_count + 1 >= room.capacity ? 'OCCUPIED' : 'AVAILABLE',
-      })
-      .eq('id', room_id);
+    const newOccupied = room.occupied_count + 1;
+    await query(
+      `UPDATE rooms SET occupied_count = $1, status = $2 WHERE id = $3`,
+      [newOccupied, newOccupied >= room.capacity ? 'OCCUPIED' : 'AVAILABLE', room_id]
+    );
 
     // Log allocation
-    await supabase.from('audit_logs').insert({
-      entity_type: 'ROOM_ALLOCATION',
-      entity_id: newAllocation.id,
-      action: 'CREATE',
-      metadata: {
-        student_id,
-        room_id,
-        room_number: room.room_number,
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        'ROOM_ALLOCATION',
+        newAllocation.id,
+        'CREATE',
+        JSON.stringify({
+          student_id,
+          room_id,
+          room_number: room.room_number,
+        }),
+      ]
+    );
 
     console.log('\n========================================');
-    console.log('🏠 ROOM ALLOCATED');
+    console.log('ROOM ALLOCATED');
     console.log('========================================');
     console.log('Allocation ID:', newAllocation.id);
     console.log('Student ID:', student_id);
@@ -139,6 +142,7 @@ export async function POST(request: NextRequest) {
       'Room allocated successfully'
     );
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/allocations:', error);
     return serverErrorResponse('Failed to create allocation', error);
   }

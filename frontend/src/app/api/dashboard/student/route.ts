@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { extractTokenFromHeader, getUserFromToken } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -13,48 +14,50 @@ import { DashboardAPI } from '@/types/api';
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
-    // Get student ID from auth token
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.substring(7);
-
+    const token = extractTokenFromHeader(request.headers.get('authorization'));
     if (!token) {
       return unauthorizedResponse('Authentication required');
     }
 
-    // Decode token to get user ID
-    const tokenData = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
-    const studentId = tokenData.userId;
+    const authUser = await getUserFromToken(token);
+    if (!authUser) {
+      return unauthorizedResponse('Invalid or expired token');
+    }
+
+    // Use userId from query param if provided, otherwise from token
+    const { searchParams } = new URL(request.url);
+    const studentId = searchParams.get('userId') || authUser.id;
 
     // Get user record
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', studentId)
-      .single();
+    const { rows: userRows } = await query(
+      'SELECT * FROM users WHERE id = $1',
+      [studentId]
+    );
+    const user = userRows.length > 0 ? userRows[0] : null;
 
     // Get room allocation with room details
-    const { data: allocation } = await supabase
-      .from('room_allocations')
-      .select('*, rooms(*)')
-      .eq('student_user_id', studentId)
-      .eq('status', 'ACTIVE')
-      .single();
+    const { rows: allocationRows } = await query(
+      `SELECT ra.*, r.room_number, r.vertical, r.capacity, r.occupied_count
+       FROM room_allocations ra
+       LEFT JOIN rooms r ON ra.room_id = r.id
+       WHERE ra.student_id = $1 AND ra.status = 'ACTIVE'`,
+      [studentId]
+    );
+    const allocation = allocationRows.length > 0 ? allocationRows[0] : null;
 
     let roomNumber = 'Not Allocated';
     let vertical = 'N/A';
 
-    if (allocation && allocation.rooms) {
-      roomNumber = allocation.rooms.room_number;
-      vertical = allocation.rooms.vertical;
+    if (allocation) {
+      roomNumber = allocation.room_number;
+      vertical = allocation.vertical;
     }
 
     // Get fee summary
-    const { data: fees } = await supabase
-      .from('fees')
-      .select('*')
-      .eq('student_user_id', studentId);
+    const { rows: fees } = await query(
+      'SELECT * FROM fees WHERE student_id = $1',
+      [studentId]
+    );
 
     let pendingAmount = 0;
     let overdueAmount = 0;
@@ -79,10 +82,10 @@ export async function GET(request: NextRequest) {
     });
 
     // Get leave summary
-    const { data: leaves } = await supabase
-      .from('leave_requests')
-      .select('*')
-      .eq('student_user_id', studentId);
+    const { rows: leaves } = await query(
+      'SELECT * FROM leave_requests WHERE student_id = $1',
+      [studentId]
+    );
 
     const approvedCount = (leaves || []).filter((l: any) => l.status === 'APPROVED').length;
     const pendingCount = (leaves || []).filter((l: any) => l.status === 'PENDING').length;

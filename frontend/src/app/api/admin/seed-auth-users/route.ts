@@ -1,5 +1,11 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import {
+  hashPassword,
+  extractTokenFromHeader,
+  getUserFromToken,
+  createAuditLog,
+} from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -9,11 +15,11 @@ import {
 /**
  * POST /api/admin/seed-auth-users
  *
- * Creates Supabase Auth users for existing users in public.users
- * who don't have auth_user_id set. This is a one-time migration script.
+ * Seeds password hashes for existing users who don't have one.
+ * Uses direct PostgreSQL INSERT with bcrypt hashing.
+ * No Supabase Auth — users.id is the sole identity.
  *
  * IMPORTANT: This endpoint should be protected in production.
- * For now, it requires an admin secret in the request body.
  *
  * Request body:
  * {
@@ -24,7 +30,6 @@ import {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body = await request.json();
     const { adminSecret, dryRun = true, userType = 'staff' } = body;
 
@@ -46,28 +51,24 @@ export async function POST(request: NextRequest) {
       rolesToProcess = ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'];
     }
 
-    // Find all users without auth_user_id
-    const { data: usersWithoutAuth, error: fetchError } = await supabase
-      .from('users')
-      .select('*')
-      .is('auth_user_id', null)
-      .in('role', rolesToProcess);
+    // Find all users without password_hash
+    const usersResult = await query(
+      `SELECT * FROM users WHERE password_hash IS NULL AND role = ANY($1)`,
+      [rolesToProcess]
+    );
 
-    if (fetchError) {
-      console.error('Failed to fetch users:', fetchError);
-      return serverErrorResponse('Failed to fetch users', fetchError);
-    }
+    const usersWithoutAuth = usersResult.rows;
 
-    if (!usersWithoutAuth || usersWithoutAuth.length === 0) {
+    if (usersWithoutAuth.length === 0) {
       return successResponse({
         success: true,
-        message: `No ${userType} users found without auth_user_id`,
+        message: `No ${userType} users found without password_hash`,
         usersProcessed: 0,
       });
     }
 
     console.log('\n========================================');
-    console.log(`${dryRun ? '🔍 DRY RUN:' : '🚀 EXECUTING:'} SEED AUTH USERS`);
+    console.log(`${dryRun ? 'DRY RUN:' : 'EXECUTING:'} SEED AUTH USERS`);
     console.log('========================================');
     console.log('User type:', userType);
     console.log('Users to process:', usersWithoutAuth.length);
@@ -84,16 +85,13 @@ export async function POST(request: NextRequest) {
     // For students, fetch their tracking numbers from applications
     const trackingNumberMap: Record<string, string> = {};
     if (userType === 'students' || userType === 'all') {
-      const { data: applications } = await supabase
-        .from('applications')
-        .select('student_user_id, tracking_number')
-        .not('student_user_id', 'is', null);
+      const appResult = await query(
+        `SELECT student_user_id, tracking_number FROM applications WHERE student_user_id IS NOT NULL`
+      );
 
-      if (applications) {
-        for (const app of applications) {
-          if (app.student_user_id && app.tracking_number) {
-            trackingNumberMap[app.student_user_id] = app.tracking_number;
-          }
+      for (const app of appResult.rows) {
+        if (app.student_user_id && app.tracking_number) {
+          trackingNumberMap[app.student_user_id] = app.tracking_number;
         }
       }
     }
@@ -122,64 +120,28 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        // Create Supabase Auth user
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-          email: user.email,
-          password: tempPassword,
-          email_confirm: true,
-          user_metadata: {
-            full_name: user.full_name,
-            role: user.role,
-            vertical: user.vertical,
-          },
-        });
+        // Hash the temporary password
+        const passwordHash = await hashPassword(tempPassword);
 
-        if (authError) {
-          console.error(`Failed to create auth user for ${user.email}:`, authError);
-          results.failed.push({
-            userId: user.id,
-            email: user.email,
-            role: user.role,
-            error: authError.message,
-          });
-          continue;
-        }
+        // Update user with password_hash
+        await query(
+          `UPDATE users
+           SET password_hash = $1,
+               requires_password_change = true,
+               metadata = COALESCE(metadata, '{}'::jsonb)
+                 || jsonb_build_object('seeded_at', $2::text),
+               updated_at = NOW()
+           WHERE id = $3`,
+          [passwordHash, new Date().toISOString(), user.id]
+        );
 
-        // Update public.users with auth_user_id
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({
-            auth_user_id: authData.user.id,
-            requires_password_change: true,
-            metadata: {
-              ...(user.metadata || {}),
-              migrated_to_supabase_auth: new Date().toISOString(),
-              temp_password_hint: `Staff@{role}2024`,
-            },
-          })
-          .eq('id', user.id);
-
-        if (updateError) {
-          console.error(`Failed to update user ${user.id}:`, updateError);
-          // Rollback: delete the auth user
-          await supabase.auth.admin.deleteUser(authData.user.id);
-          results.failed.push({
-            userId: user.id,
-            email: user.email,
-            role: user.role,
-            error: `Update failed: ${updateError.message}`,
-          });
-          continue;
-        }
-
-        // Log the migration
-        await supabase.from('audit_logs').insert({
-          entity_type: 'USER',
-          entity_id: user.id,
+        // Log the seeding
+        await createAuditLog({
+          entityType: 'USER',
+          entityId: user.id,
           action: 'AUTH_MIGRATION',
           metadata: {
-            auth_user_id: authData.user.id,
-            migration_type: 'staff_seed',
+            migration_type: 'password_seed',
             role: user.role,
           },
         });
@@ -188,11 +150,10 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           email: user.email,
           role: user.role,
-          authUserId: authData.user.id,
           tempPassword,
         });
 
-        console.log(`  ✅ Created auth user: ${authData.user.id}`);
+        console.log(`  Seeded password for: ${user.email}`);
       } catch (error: any) {
         console.error(`Error processing ${user.email}:`, error);
         results.failed.push({
@@ -215,8 +176,8 @@ export async function POST(request: NextRequest) {
       success: true,
       dryRun,
       message: dryRun
-        ? `Dry run complete. ${results.success.length} users would be migrated.`
-        : `Migration complete. ${results.success.length} users migrated.`,
+        ? `Dry run complete. ${results.success.length} users would be seeded.`
+        : `Seed complete. ${results.success.length} users seeded.`,
       results,
     });
   } catch (error: any) {
@@ -228,40 +189,43 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/admin/seed-auth-users
  *
- * Get count of staff users without auth_user_id
+ * Get count of users without password_hash
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
     // Check for authorization header
     const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const token = extractTokenFromHeader(authHeader);
+    if (!token) {
       return unauthorizedResponse('Authorization required');
     }
 
-    // Count users without auth_user_id
-    const { data: staffWithoutAuth } = await supabase
-      .from('users')
-      .select('id, full_name, email, role, vertical', { count: 'exact' })
-      .is('auth_user_id', null)
-      .in('role', ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
+    const user = await getUserFromToken(token);
+    if (!user) {
+      return unauthorizedResponse('Invalid or expired token');
+    }
 
-    const { data: studentsWithoutAuth } = await supabase
-      .from('users')
-      .select('id, full_name, email, role, vertical', { count: 'exact' })
-      .is('auth_user_id', null)
-      .eq('role', 'STUDENT');
+    // Count staff without password_hash
+    const staffResult = await query(
+      `SELECT id, full_name, email, role, vertical FROM users
+       WHERE password_hash IS NULL AND role IN ('SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS')`
+    );
+
+    // Count students without password_hash
+    const studentResult = await query(
+      `SELECT id, full_name, email, role, vertical FROM users
+       WHERE password_hash IS NULL AND role = 'STUDENT'`
+    );
 
     return successResponse({
       success: true,
       staffWithoutAuth: {
-        count: staffWithoutAuth?.length || 0,
-        users: staffWithoutAuth || [],
+        count: staffResult.rows.length,
+        users: staffResult.rows,
       },
       studentsWithoutAuth: {
-        count: studentsWithoutAuth?.length || 0,
-        users: studentsWithoutAuth || [],
+        count: studentResult.rows.length,
+        users: studentResult.rows,
       },
     });
   } catch (error: any) {

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { extractTokenFromHeader, getUserFromToken } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -10,40 +10,22 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
 /**
  * GET /api/auth/session
  *
- * Validate current Supabase Auth session and return user information.
+ * Validate current JWT session and return user information.
  * Used by frontend to check if user is authenticated.
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
-    // Get token from Authorization header
     const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader);
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return unauthorizedResponse('No authentication token provided');
     }
 
-    const token = authHeader.substring(7);
+    const user = await getUserFromToken(token);
 
-    // Verify token with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !authData.user) {
-      console.error('Session validation failed:', authError?.message);
+    if (!user) {
       return unauthorizedResponse('Invalid or expired session');
-    }
-
-    // Find user in public.users by auth_user_id
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('auth_user_id', authData.user.id)
-      .single();
-
-    if (userError || !user) {
-      console.error('User not found for auth_user_id:', authData.user.id);
-      return unauthorizedResponse('User not found');
     }
 
     if (!user.is_active) {
@@ -71,7 +53,6 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body = await request.json();
     const { token } = body;
 
@@ -79,24 +60,10 @@ export async function POST(request: NextRequest) {
       return unauthorizedResponse('Authentication token is required');
     }
 
-    // Verify token with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    const user = await getUserFromToken(token);
 
-    if (authError || !authData.user) {
-      console.error('Session validation failed:', authError?.message);
+    if (!user) {
       return unauthorizedResponse('Invalid or expired session');
-    }
-
-    // Find user in public.users by auth_user_id
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('auth_user_id', authData.user.id)
-      .single();
-
-    if (userError || !user) {
-      console.error('User not found for auth_user_id:', authData.user.id);
-      return unauthorizedResponse('User not found');
     }
 
     if (!user.is_active) {

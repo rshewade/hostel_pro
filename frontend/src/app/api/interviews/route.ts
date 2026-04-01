@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -9,15 +9,16 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { InterviewAPI, InterviewStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/interviews
  * List all applications with interviews (status = INTERVIEW or with interview data)
- * In Supabase, interviews are part of the applications table
+ * Auth: TRUSTEE, SUPERINTENDENT
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const applicationId = searchParams.get('application_id');
     const status = searchParams.get('status') as InterviewStatus | null;
@@ -25,30 +26,37 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
 
-    // Build query for applications with interviews
-    let query = supabase
-      .from('applications')
-      .select('*', { count: 'exact' })
-      .not('interview_scheduled_at', 'is', null);
+    const conditions: string[] = ['interview_scheduled_at IS NOT NULL'];
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (applicationId) {
-      query = query.eq('id', applicationId);
+      conditions.push(`id = $${paramIndex++}`);
+      params.push(applicationId);
     }
 
     if (status === 'SCHEDULED') {
-      query = query.eq('current_status', 'INTERVIEW');
+      conditions.push(`current_status = 'INTERVIEW'`);
     } else if (status === 'COMPLETED') {
-      query = query.not('interview_completed_at', 'is', null);
+      conditions.push('interview_completed_at IS NOT NULL');
     }
 
-    const { data: interviews, error, count } = await query
-      .order('interview_scheduled_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    const whereClause = `WHERE ${conditions.join(' AND ')}`;
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch interviews', error);
-    }
+    // Get total count
+    const { rows: countRows } = await query(
+      `SELECT COUNT(*) AS count FROM applications ${whereClause}`,
+      params
+    );
+    const total = parseInt(countRows[0]?.count || '0', 10);
+
+    // Get paginated results
+    const { rows: interviews } = await query(
+      `SELECT * FROM applications ${whereClause}
+       ORDER BY interview_scheduled_at DESC
+       LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
+      [...params, limit, offset]
+    );
 
     // Transform applications to interview format
     const formattedInterviews = (interviews || []).map((app: any) => ({
@@ -60,10 +68,9 @@ export async function GET(request: NextRequest) {
       application: app,
     }));
 
-    const total = count || 0;
-
     return paginatedResponse(formattedInterviews, page, limit, total);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/interviews:', error);
     return serverErrorResponse('Failed to fetch interviews', error);
   }
@@ -72,10 +79,11 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/interviews
  * Schedule an interview for an application
+ * Auth: TRUSTEE, SUPERINTENDENT
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
     const body: InterviewAPI.CreateRequest = await request.json();
     const { application_id, trustee_id, schedule_time, mode } = body;
 
@@ -103,69 +111,69 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate application exists
-    const { data: application, error: appError } = await supabase
-      .from('applications')
-      .select('*')
-      .eq('id', application_id)
-      .single();
+    const { rows: appRows } = await query(
+      'SELECT * FROM applications WHERE id = $1',
+      [application_id]
+    );
 
-    if (appError || !application) {
+    if (appRows.length === 0) {
       return badRequestResponse('Invalid application ID');
     }
 
+    const application = appRows[0];
+
     // Validate trustee exists if provided
     if (trustee_id) {
-      const { data: trustee, error: trusteeError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', trustee_id)
-        .eq('role', 'TRUSTEE')
-        .single();
+      const { rows: trusteeRows } = await query(
+        "SELECT id FROM users WHERE id = $1 AND role = 'TRUSTEE'",
+        [trustee_id]
+      );
 
-      if (trusteeError || !trustee) {
+      if (trusteeRows.length === 0) {
         return badRequestResponse('Invalid trustee ID');
       }
     }
 
     // Update application with interview data
-    const { data: updatedApplication, error: updateError } = await supabase
-      .from('applications')
-      .update({
-        current_status: 'INTERVIEW',
-        interview_scheduled_at: schedule_time,
-        data: {
-          ...application.data,
-          interview: {
-            trustee_id,
-            mode,
-            scheduled_at: schedule_time,
-          },
-        },
-      })
-      .eq('id', application_id)
-      .select()
-      .single();
+    const updatedData = {
+      ...application.data,
+      interview: {
+        trustee_id,
+        mode,
+        scheduled_at: schedule_time,
+      },
+    };
 
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to schedule interview', updateError);
+    const { rows: updatedRows } = await query(
+      `UPDATE applications
+       SET current_status = 'INTERVIEW', interview_scheduled_at = $1, data = $2
+       WHERE id = $3 RETURNING *`,
+      [schedule_time, JSON.stringify(updatedData), application_id]
+    );
+
+    if (updatedRows.length === 0) {
+      return serverErrorResponse('Failed to schedule interview');
     }
 
     // Log interview scheduling
-    await supabase.from('audit_logs').insert({
-      entity_type: 'APPLICATION',
-      entity_id: application_id,
-      action: 'INTERVIEW_SCHEDULED',
-      metadata: {
-        tracking_number: application.tracking_number,
-        schedule_time,
-        mode,
-        trustee_id,
-      },
-    });
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        'APPLICATION',
+        application_id,
+        'INTERVIEW_SCHEDULED',
+        JSON.stringify({
+          tracking_number: application.tracking_number,
+          schedule_time,
+          mode,
+          trustee_id,
+        }),
+      ]
+    );
 
     console.log('\n========================================');
-    console.log('📅 INTERVIEW SCHEDULED');
+    console.log('INTERVIEW SCHEDULED');
     console.log('========================================');
     console.log('Application ID:', application_id);
     console.log('Trustee ID:', trustee_id);
@@ -187,6 +195,7 @@ export async function POST(request: NextRequest) {
       'Interview scheduled successfully'
     );
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/interviews:', error);
     return serverErrorResponse('Failed to create interview', error);
   }

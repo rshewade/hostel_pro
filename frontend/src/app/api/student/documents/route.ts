@@ -1,27 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { requireAuth } from '@/lib/authorize';
 
+/**
+ * GET /api/student/documents
+ * Auth: STUDENT (own docs) or SUPERINTENDENT, TRUSTEE, ACCOUNTS (staff)
+ */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request);
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('studentId');
+    // If student, force own ID; staff can query any
+    const studentId = user.role === 'STUDENT' ? user.id : searchParams.get('studentId');
 
     if (!studentId) {
       return NextResponse.json([], { status: 200 }); // Return empty array if no studentId
     }
 
     // Query documents for the student
-    const { data: documents, error } = await supabase
-      .from('documents')
-      .select('*')
-      .eq('student_user_id', studentId);
+    const { rows: documents } = await query(
+      'SELECT * FROM documents WHERE student_user_id = $1',
+      [studentId]
+    );
 
-    if (error) {
-      console.error('Supabase error fetching documents:', error);
-    }
-
-    console.log(`📄 Fetching documents for student ${studentId}:`, documents?.length || 0, 'found');
+    console.log(`Fetching documents for student ${studentId}:`, documents?.length || 0, 'found');
 
     // Map database enum values to display info
     const documentTypeMap: Record<string, { title: string; category: string }> = {
@@ -60,6 +62,7 @@ export async function GET(request: NextRequest) {
     // Return actual documents (empty array if none found)
     return NextResponse.json(formattedDocuments);
   } catch (error) {
+    if (error instanceof NextResponse) return error;
     console.error('Error fetching documents:', error);
     return NextResponse.json(
       { message: 'Failed to fetch documents' },

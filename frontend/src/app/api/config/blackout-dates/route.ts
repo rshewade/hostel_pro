@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -7,46 +7,44 @@ import {
   serverErrorResponse,
   notFoundResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/config/blackout-dates
  * List all blackout dates
+ * Auth: any authenticated user
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request);
     const { searchParams } = new URL(request.url);
     const vertical = searchParams.get('vertical');
 
-    let query = supabase
-      .from('blackout_dates')
-      .select('*')
-      .order('start_date');
+    let sql = 'SELECT * FROM blackout_dates';
+    const params: any[] = [];
 
-    // Filter by vertical if specified
     if (vertical) {
-      query = query.contains('verticals', [vertical]);
+      sql += ' WHERE verticals @> $1';
+      params.push(JSON.stringify([vertical]));
     }
 
-    const { data: blackoutDates, error } = await query;
+    sql += ' ORDER BY start_date';
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return serverErrorResponse('Failed to fetch blackout dates', error);
-    }
+    const { rows: blackoutDates } = await query(sql, params);
 
     // Transform to frontend format
-    const transformed = blackoutDates?.map(bd => ({
+    const transformed = (blackoutDates || []).map((bd: any) => ({
       id: bd.id,
       name: bd.name,
       startDate: bd.start_date,
       endDate: bd.end_date,
       verticals: bd.verticals || [],
       reason: bd.reason || '',
-    })) || [];
+    }));
 
     return successResponse(transformed);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/config/blackout-dates:', error);
     return serverErrorResponse('Failed to fetch blackout dates', error);
   }
@@ -55,10 +53,11 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/config/blackout-dates
  * Create a new blackout date
+ * Auth: SUPERINTENDENT only
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
     const { name, startDate, endDate, verticals, reason } = body;
@@ -76,22 +75,24 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('End date must be after start date');
     }
 
-    const { data: newBlackoutDate, error } = await supabase
-      .from('blackout_dates')
-      .insert({
-        name: name.trim(),
-        start_date: startDate,
-        end_date: endDate,
-        verticals: verticals || ['BOYS', 'GIRLS', 'DHARAMSHALA'],
-        reason: reason || '',
-      })
-      .select()
-      .single();
+    const { rows } = await query(
+      `INSERT INTO blackout_dates (name, start_date, end_date, verticals, reason)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [
+        name.trim(),
+        startDate,
+        endDate,
+        JSON.stringify(verticals || ['BOYS', 'GIRLS', 'DHARAMSHALA']),
+        reason || '',
+      ]
+    );
 
-    if (error) {
-      console.error('Supabase insert error:', error);
-      return serverErrorResponse('Failed to create blackout date', error);
+    if (rows.length === 0) {
+      return serverErrorResponse('Failed to create blackout date');
     }
+
+    const newBlackoutDate = rows[0];
 
     // Transform to frontend format
     const transformed = {
@@ -105,6 +106,7 @@ export async function POST(request: NextRequest) {
 
     return createdResponse(transformed, 'Blackout date created successfully');
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/config/blackout-dates:', error);
     return serverErrorResponse('Failed to create blackout date', error);
   }
@@ -113,10 +115,11 @@ export async function POST(request: NextRequest) {
 /**
  * PUT /api/config/blackout-dates
  * Update a blackout date
+ * Auth: SUPERINTENDENT only
  */
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
     const { id, name, startDate, endDate, verticals, reason } = body;
@@ -129,27 +132,45 @@ export async function PUT(request: NextRequest) {
       return badRequestResponse('End date must be after start date');
     }
 
-    const updateData: Record<string, any> = {};
-    if (name !== undefined) updateData.name = name.trim();
-    if (startDate !== undefined) updateData.start_date = startDate;
-    if (endDate !== undefined) updateData.end_date = endDate;
-    if (verticals !== undefined) updateData.verticals = verticals;
-    if (reason !== undefined) updateData.reason = reason;
+    const setClauses: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
-    const { data: updatedBlackoutDate, error } = await supabase
-      .from('blackout_dates')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase update error:', error);
-      if (error.code === 'PGRST116') {
-        return notFoundResponse('Blackout date not found');
-      }
-      return serverErrorResponse('Failed to update blackout date', error);
+    if (name !== undefined) {
+      setClauses.push(`name = $${paramIndex++}`);
+      params.push(name.trim());
     }
+    if (startDate !== undefined) {
+      setClauses.push(`start_date = $${paramIndex++}`);
+      params.push(startDate);
+    }
+    if (endDate !== undefined) {
+      setClauses.push(`end_date = $${paramIndex++}`);
+      params.push(endDate);
+    }
+    if (verticals !== undefined) {
+      setClauses.push(`verticals = $${paramIndex++}`);
+      params.push(JSON.stringify(verticals));
+    }
+    if (reason !== undefined) {
+      setClauses.push(`reason = $${paramIndex++}`);
+      params.push(reason);
+    }
+
+    if (setClauses.length === 0) {
+      return badRequestResponse('No fields to update');
+    }
+
+    params.push(id);
+    const sql = `UPDATE blackout_dates SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const { rows } = await query(sql, params);
+
+    if (rows.length === 0) {
+      return notFoundResponse('Blackout date not found');
+    }
+
+    const updatedBlackoutDate = rows[0];
 
     // Transform to frontend format
     const transformed = {
@@ -163,6 +184,7 @@ export async function PUT(request: NextRequest) {
 
     return successResponse(transformed);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/config/blackout-dates:', error);
     return serverErrorResponse('Failed to update blackout date', error);
   }
@@ -171,10 +193,11 @@ export async function PUT(request: NextRequest) {
 /**
  * DELETE /api/config/blackout-dates
  * Delete a blackout date
+ * Auth: SUPERINTENDENT only
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
@@ -182,18 +205,11 @@ export async function DELETE(request: NextRequest) {
       return badRequestResponse('ID is required');
     }
 
-    const { error } = await supabase
-      .from('blackout_dates')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Supabase delete error:', error);
-      return serverErrorResponse('Failed to delete blackout date', error);
-    }
+    await query('DELETE FROM blackout_dates WHERE id = $1', [id]);
 
     return successResponse({ message: 'Blackout date deleted successfully' });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in DELETE /api/config/blackout-dates:', error);
     return serverErrorResponse('Failed to delete blackout date', error);
   }

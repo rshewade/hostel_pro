@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   createdResponse,
   badRequestResponse,
@@ -8,14 +8,16 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { PaymentAPI } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * POST /api/payments
  * Initiate a new payment
+ * Auth: STUDENT (own fees) or ACCOUNTS
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['STUDENT', 'ACCOUNTS']);
     const body: PaymentAPI.InitiateRequest = await request.json();
     const { fee_id, payment_method, amount } = body;
 
@@ -50,15 +52,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify fee exists
-    const { data: fee, error: feeError } = await supabase
-      .from('fees')
-      .select('*')
-      .eq('id', fee_id)
-      .single();
+    const { rows: feeRows } = await query(
+      'SELECT * FROM fees WHERE id = $1',
+      [fee_id]
+    );
 
-    if (feeError || !fee) {
+    if (feeRows.length === 0) {
       return notFoundResponse('Fee not found');
     }
+
+    const fee = feeRows[0];
 
     // Check if fee is already paid
     if (fee.status === 'PAID') {
@@ -75,47 +78,38 @@ export async function POST(request: NextRequest) {
 
     // Create payment record
     const transactionId = `TXN${Date.now()}`;
-    const { data: payment, error: insertError } = await supabase
-      .from('payments')
-      .insert({
-        fee_id,
-        student_user_id: fee.student_user_id,
-        amount,
-        payment_method: payment_method.toUpperCase(),
-        transaction_id: transactionId,
-        status: 'PENDING',
-      })
-      .select()
-      .single();
+    const { rows: insertRows } = await query(
+      `INSERT INTO payments (fee_id, student_user_id, amount, payment_method, transaction_id, status)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [fee_id, fee.student_id, amount, payment_method.toUpperCase(), transactionId, 'PENDING']
+    );
 
-    if (insertError) {
-      console.error('Supabase insert error:', insertError);
-      return serverErrorResponse('Failed to create payment', insertError);
+    if (insertRows.length === 0) {
+      return serverErrorResponse('Failed to create payment');
     }
+
+    const payment = insertRows[0];
 
     // For mock implementation in development, immediately mark as success
     if (process.env.NODE_ENV === 'development') {
+      const now = new Date().toISOString();
+
       // Auto-complete payment in development
-      await supabase
-        .from('payments')
-        .update({
-          status: 'PAID',
-          paid_at: new Date().toISOString(),
-        })
-        .eq('id', payment.id);
+      await query(
+        'UPDATE payments SET status = $1, paid_at = $2 WHERE id = $3',
+        ['PAID', now, payment.id]
+      );
 
       // Update fee status
-      await supabase
-        .from('fees')
-        .update({
-          status: 'PAID',
-          paid_at: new Date().toISOString(),
-        })
-        .eq('id', fee_id);
+      await query(
+        'UPDATE fees SET status = $1, paid_at = $2 WHERE id = $3',
+        ['PAID', now, fee_id]
+      );
     }
 
     console.log('\n========================================');
-    console.log('💰 PAYMENT INITIATED');
+    console.log('PAYMENT INITIATED');
     console.log('========================================');
     console.log('Transaction ID:', transactionId);
     console.log('Fee ID:', fee_id);
@@ -134,6 +128,7 @@ export async function POST(request: NextRequest) {
 
     return createdResponse(response, 'Payment initiated successfully');
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/payments:', error);
     return serverErrorResponse('Failed to initiate payment', error);
   }

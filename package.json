@@ -4,10 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npm --prefix frontend run dev",
-    "dev:backend": "npm --prefix backend run start:dev",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm --prefix frontend run dev\"",
     "build": "npm --prefix frontend run build",
-    "build:backend": "npm --prefix backend run build",
     "start": "npm --prefix frontend run start"
   },
   "devDependencies": {

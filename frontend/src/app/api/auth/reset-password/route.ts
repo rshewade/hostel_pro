@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { hashPassword, verifyOtp, createAuditLog } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -13,14 +14,13 @@ import { AuthAPI } from '@/types/api';
  * POST /api/auth/reset-password
  *
  * Complete password reset with OTP verification.
- * Validates OTP and updates user password.
+ * Validates OTP via DB and updates user password hash.
  *
  * @see Task 7 - Student Login (Forgot Password Flow)
  * @see .docs/api-routes-audit.md
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
     const body: AuthAPI.ResetPasswordRequest = await request.json();
     const { token, otp, newPassword } = body;
 
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     try {
       const decoded = Buffer.from(token, 'base64').toString('utf-8');
       tokenData = JSON.parse(decoded);
-    } catch (error) {
+    } catch {
       return unauthorizedResponse('Invalid reset token');
     }
 
@@ -99,60 +99,49 @@ export async function POST(request: NextRequest) {
       return unauthorizedResponse('Invalid reset token');
     }
 
-    // Check token expiration
-    if (tokenData.expiresAt && tokenData.expiresAt < Date.now()) {
-      return unauthorizedResponse('Reset token has expired. Please request a new one.');
-    }
+    // Verify OTP via DB-backed verification
+    const otpResult = await verifyOtp(tokenData.contact, otp, 'password_reset');
 
-    // Verify OTP
-    const isValidOTP = otp === '123456' || otp === tokenData.otp;
-
-    if (!isValidOTP) {
-      return unauthorizedResponse('Invalid OTP code');
+    if (!otpResult.valid) {
+      return unauthorizedResponse(otpResult.error || 'Invalid OTP code');
     }
 
     // Find user
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', tokenData.userId)
-      .single();
+    const userResult = await query(
+      `SELECT id, email, mobile FROM users WHERE id = $1`,
+      [tokenData.userId]
+    );
 
-    if (userError || !user) {
+    if (userResult.rows.length === 0) {
       return unauthorizedResponse('User not found');
     }
 
-    // Hash new password (mock implementation)
-    // In production, use: bcrypt.hash(newPassword, 10)
+    const user = userResult.rows[0];
+
+    // Hash new password with bcrypt
     const hashedPassword = await hashPassword(newPassword);
 
     // Update user password
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({
-        password_hash: hashedPassword,
-        password_changed_at: new Date().toISOString(),
-      })
-      .eq('id', user.id);
+    const updateResult = await query(
+      `UPDATE users SET password_hash = $1, password_changed_at = NOW(), updated_at = NOW() WHERE id = $2`,
+      [hashedPassword, user.id]
+    );
 
-    if (updateError) {
-      console.error('Supabase update error:', updateError);
-      return serverErrorResponse('Failed to reset password', updateError);
+    if (updateResult.rowCount === 0) {
+      return serverErrorResponse('Failed to reset password');
     }
 
     // Log password reset
-    await supabase.from('audit_logs').insert({
-      entity_type: 'USER',
-      entity_id: user.id,
+    await createAuditLog({
+      entityType: 'USER',
+      entityId: user.id,
       action: 'PASSWORD_RESET',
-      old_value: null,
-      new_value: 'RESET',
-      actor_id: user.id,
-      performed_at: new Date().toISOString(),
+      performedBy: user.id,
+      newValue: 'RESET',
+      ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
       metadata: {
         reset_method: 'OTP',
-        ip_address: request.headers.get('x-forwarded-for') || 'unknown',
-        user_agent: request.headers.get('user-agent') || 'unknown',
       },
     });
 
@@ -174,22 +163,4 @@ export async function POST(request: NextRequest) {
     console.error('Error in /api/auth/reset-password:', error);
     return serverErrorResponse('Failed to reset password', error);
   }
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Hash password (mock implementation)
- * In production, use: bcrypt.hash(password, 10)
- */
-async function hashPassword(password: string): Promise<string> {
-  // Mock hashing for prototyping
-  if (process.env.NODE_ENV === 'development') {
-    return `$mock$${password}`;
-  }
-
-  // In production: return await bcrypt.hash(password, 10);
-  return `$mock$${password}`;
 }

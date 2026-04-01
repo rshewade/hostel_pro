@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { query } from '@/lib/db';
+import { requireAuth } from '@/lib/authorize';
 
+/**
+ * GET /api/parent/fees
+ * Auth: PARENT only
+ */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const user = await requireAuth(request, ['PARENT']);
     const { searchParams } = new URL(request.url);
     const sessionToken = searchParams.get('sessionToken');
 
@@ -52,14 +57,13 @@ export async function GET(request: NextRequest) {
 
     if (selectedStudentId) {
       // Parent has selected a specific ward - use that student's user_id
-      const { data: student, error: studErr } = await supabase
-        .from('students')
-        .select('*')
-        .eq('id', selectedStudentId)
-        .single();
+      const { rows: studentRows } = await query(
+        'SELECT * FROM students WHERE id = $1',
+        [selectedStudentId]
+      );
 
-      if (student && !studErr) {
-        studentUserId = student.user_id;
+      if (studentRows.length > 0) {
+        studentUserId = studentRows[0].user_id;
         console.log('\n========================================');
         console.log('PARENT FEE DATA ACCESS (Selected Ward)');
         console.log('========================================');
@@ -68,10 +72,9 @@ export async function GET(request: NextRequest) {
       }
     } else {
       // No selection - fall back to first student in parent's linked_student_ids
-      const { data: parentUsers, error: parentErr } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'parent');
+      const { rows: parentUsers } = await query(
+        `SELECT * FROM users WHERE role = 'parent'`
+      );
 
       const parentUser = (parentUsers || []).find((u: any) =>
         normalizePhone(u.mobile_no) === normalizedParentMobile
@@ -79,13 +82,12 @@ export async function GET(request: NextRequest) {
 
       if (parentUser?.linked_student_ids && parentUser.linked_student_ids.length > 0) {
         const defaultStudentId = parentUser.linked_student_ids[0];
-        const { data: student, error: studErr } = await supabase
-          .from('students')
-          .select('*')
-          .eq('id', defaultStudentId)
-          .single();
+        const { rows: studentRows } = await query(
+          'SELECT * FROM students WHERE id = $1',
+          [defaultStudentId]
+        );
 
-        studentUserId = student?.user_id;
+        studentUserId = studentRows.length > 0 ? studentRows[0].user_id : null;
         console.log('\n========================================');
         console.log('PARENT FEE DATA ACCESS (Default Ward)');
         console.log('========================================');
@@ -96,10 +98,10 @@ export async function GET(request: NextRequest) {
 
     let fees: any[] = [];
     if (studentUserId) {
-      const { data: feeData, error: feeErr } = await supabase
-        .from('fees')
-        .select('*')
-        .eq('student_user_id', studentUserId);
+      const { rows: feeData } = await query(
+        'SELECT * FROM fees WHERE student_id = $1',
+        [studentUserId]
+      );
 
       fees = feeData || [];
       console.log('Fees Found:', fees.length);
@@ -149,6 +151,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in /api/parent/fees:', error);
     return NextResponse.json(
       { message: 'Internal server error' },

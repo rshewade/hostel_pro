@@ -1,28 +1,22 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { DashboardAPI, TransactionStatus, FeeStatus } from '@/types/api';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/dashboard/accounts
  * Get accounts dashboard data
+ * Auth: ACCOUNTS only
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
-
+    const user = await requireAuth(request, ['ACCOUNTS']);
     // Get all payments (transactions)
-    const { data: transactions, error: txnError } = await supabase
-      .from('payments')
-      .select('*');
-
-    if (txnError) {
-      console.error('Supabase error fetching payments:', txnError);
-      return serverErrorResponse('Failed to fetch payments', txnError);
-    }
+    const { rows: transactions } = await query('SELECT * FROM payments');
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -42,14 +36,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get fee summary
-    const { data: fees, error: feeError } = await supabase
-      .from('fees')
-      .select('*');
-
-    if (feeError) {
-      console.error('Supabase error fetching fees:', feeError);
-      return serverErrorResponse('Failed to fetch fees', feeError);
-    }
+    const { rows: fees } = await query('SELECT * FROM fees');
 
     let pendingAmount = 0;
     let overdueAmount = 0;
@@ -86,6 +73,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(dashboardData);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/dashboard/accounts:', error);
     return serverErrorResponse('Failed to fetch accounts dashboard', error);
   }
