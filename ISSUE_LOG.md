@@ -257,7 +257,8 @@
 ### ISSUE-57: Missing `/api/students` endpoint
 - **File:** `frontend/src/app/dashboard/table-template.tsx:42`
 - **Description:** Fetches from `/api/students` which doesn't exist. Note: `table-template.tsx` itself is an orphaned file not imported anywhere (see ISSUE-63), so this may be moot if the file is removed.
-- [ ] Open
+- **Fix:** Moot — the only caller (`table-template.tsx`) was removed in ISSUE-63.
+- [x] Resolved
 
 ---
 
@@ -269,7 +270,7 @@
   - `frontend/src/components/tracking/TrackingIdForm.tsx`
   - `frontend/src/components/tracking/TrackingPage.tsx`
 - **Description:** These components are never imported anywhere. The tracking flow logic is implemented directly in `/track/page.tsx`. These are dead code.
-- [ ] Open
+- [x] Resolved
 
 ### ISSUE-59: Remove unused shadcn components (3 files)
 - **Files:**
@@ -277,7 +278,7 @@
   - `frontend/src/components/shadcn/switch.tsx` — never imported
   - `frontend/src/components/shadcn/separator.tsx` — never imported
 - **Description:** These shadcn component wrappers were generated but never used in the app.
-- [ ] Open
+- [x] Resolved
 
 ### ISSUE-60: Remove unused document utility files (5 files)
 - **Files:**
@@ -287,51 +288,50 @@
   - `frontend/src/components/documents/retentionPolicies.ts`
   - `frontend/src/components/documents/auditMetadataTypes.ts`
 - **Description:** These files define permissions, print layouts, API helpers, retention policies, and audit types for the documents module but are never imported anywhere in the codebase. Dead code.
-- [ ] Open
+- [x] Resolved
 
-### ISSUE-61: Remove demo and design-system pages (4 pages)
+### ISSUE-61: Remove demo and design-system pages (4 pages + 1 subpage)
 - **Files:**
   - `frontend/src/app/demo/page.tsx` — persona selector demo
   - `frontend/src/app/design-system/page.tsx` — component showcase
+  - `frontend/src/app/design-system/architecture/page.tsx` — architecture subpage
   - `frontend/src/app/communication-demo/page.tsx` — communication module demo
   - `frontend/src/app/communication-advanced-demo/page.tsx` — advanced communication demo
-- **Description:** Internal development/testing pages not linked from app navigation. Should not ship to production. Publicly accessible at `/demo`, `/design-system`, etc.
-- [ ] Open
+- **Description:** Internal development/testing pages not linked from app navigation. Should not ship to production.
+- [x] Resolved
 
 ### ISSUE-62: Remove unreachable admin dashboard pages (3 pages)
 - **Files:**
   - `frontend/src/app/dashboard/admin/biometric/page.tsx`
   - `frontend/src/app/dashboard/admin/mess/page.tsx`
   - `frontend/src/app/dashboard/admin/visitor/page.tsx`
-- **Description:** These are `FutureModulePage` placeholders under `/dashboard/admin/` but the ADMIN role was removed (ISSUE-13). No navigation links to these pages. Unreachable dead routes.
-- [ ] Open
+- **Description:** These are `FutureModulePage` placeholders under `/dashboard/admin/` but the ADMIN role was removed (ISSUE-13). No navigation links to these pages. Unreachable dead routes. Entire `admin/` directory removed.
+- [x] Resolved
 
 ### ISSUE-63: Remove orphaned `table-template.tsx`
 - **File:** `frontend/src/app/dashboard/table-template.tsx`
 - **Description:** Not a page (not in a directory with `page.tsx`), not imported by any component. Appears to be a development reference template. Calls `/api/students` which also doesn't exist.
-- [ ] Open
+- [x] Resolved
 
 ### ISSUE-64: Remove unused `react-router-dom` dependency
 - **File:** `frontend/package.json`
-- **Description:** `react-router-dom@^7.11.0` is listed as a dependency but has zero imports in the source. Next.js uses its own built-in router (`next/navigation`).
-- [ ] Open
+- **Description:** `react-router-dom@^7.11.0` was listed as a dependency but had zero imports in the source. Next.js uses its own built-in router (`next/navigation`). Uninstalled via `npm uninstall`.
+- [x] Resolved
 
 ### ISSUE-65: Remove orphaned backup test file
-- **Files:**
-  - `frontend/tests/Task12/Task12-SuperintendentDashboard.test.tsx.backup`
-  - `.taskmaster/tasks/tasks.json.backup`
-- **Description:** Backup files checked into the repo. Should be removed and added to `.gitignore`.
-- [ ] Open
+- **File:** `frontend/tests/Task12/Task12-SuperintendentDashboard.test.tsx.backup`
+- **Description:** Backup file checked into the repo. Removed.
+- [x] Resolved
 
-### ISSUE-66: Remove duplicate AllocationModal at root components
+### ISSUE-66: ~~Remove duplicate AllocationModal at root components~~ NOT UNUSED
 - **File:** `frontend/src/components/AllocationModal.tsx`
-- **Description:** Appears to be an older version. The actively used one lives at `frontend/src/app/dashboard/trustee/_components/AllocationModal.tsx`. Root version is likely unused.
-- [ ] Open
+- **Description:** Initially flagged as unused, but it IS imported by `superintendent/rooms/page.tsx`. The root version and the trustee version serve different dashboards. **No action needed.**
+- [x] Resolved (false positive — kept)
 
 ### ISSUE-67: Remove Supabase references from Dockerfile
 - **File:** `frontend/Dockerfile:12-16`
-- **Description:** Build args `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are from the pre-migration era. Supabase was fully removed in commit `21f21b2`.
-- [ ] Open
+- **Description:** Build args `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` removed from Dockerfile. Supabase was fully removed in commit `21f21b2`.
+- [x] Resolved
 
 ---
 
