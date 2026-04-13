@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import {
   successResponse,
+  badRequestResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { requireAuth } from '@/lib/authorize';
@@ -101,5 +102,78 @@ export async function GET(request: NextRequest) {
     if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/renewals:', error);
     return serverErrorResponse('Failed to fetch renewals', error);
+  }
+}
+
+/**
+ * PUT /api/renewals
+ * Approve or reject a renewal (updates the room allocation status)
+ * Auth: SUPERINTENDENT
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const user = await requireAuth(request, ['SUPERINTENDENT']);
+    const body = await request.json();
+    const { id, action, remarks } = body;
+
+    if (!id || !action) {
+      return badRequestResponse('Renewal id and action are required');
+    }
+
+    if (!['APPROVE', 'REJECT'].includes(action)) {
+      return badRequestResponse('Action must be APPROVE or REJECT');
+    }
+
+    // Verify the allocation exists and is active
+    const { rows: allocationRows } = await query(
+      `SELECT ra.*, u.full_name, u.vertical
+       FROM room_allocations ra
+       LEFT JOIN users u ON u.id = ra.student_id
+       WHERE ra.id = $1`,
+      [id]
+    );
+
+    if (allocationRows.length === 0) {
+      return badRequestResponse('Allocation not found');
+    }
+
+    if (action === 'REJECT') {
+      // Mark allocation as vacated
+      await query(
+        `UPDATE room_allocations SET status = 'VACATED', updated_at = NOW() WHERE id = $1`,
+        [id]
+      );
+
+      // Update room occupancy
+      const allocation = allocationRows[0];
+      await query(
+        `UPDATE rooms SET occupied_count = GREATEST(occupied_count - 1, 0),
+                status = CASE WHEN GREATEST(occupied_count - 1, 0) < capacity THEN 'AVAILABLE' ELSE status END
+         WHERE id = $1`,
+        [allocation.room_id]
+      );
+    }
+
+    // Log the action
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'RENEWAL',
+        id,
+        action === 'APPROVE' ? 'RENEWAL_APPROVED' : 'RENEWAL_REJECTED',
+        user.id,
+        JSON.stringify({ remarks, action }),
+      ]
+    );
+
+    return successResponse(
+      { id, action, status: action === 'APPROVE' ? 'ACTIVE' : 'VACATED' },
+      `Renewal ${action.toLowerCase()}d successfully`
+    );
+  } catch (error: any) {
+    if (error instanceof NextResponse) return error;
+    console.error('Error in PUT /api/renewals:', error);
+    return serverErrorResponse('Failed to update renewal', error);
   }
 }

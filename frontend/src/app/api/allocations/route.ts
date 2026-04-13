@@ -12,22 +12,35 @@ import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/allocations
- * List all room allocations
- * Auth: SUPERINTENDENT, TRUSTEE
+ * List room allocations
+ * Auth: STUDENT (own only), SUPERINTENDENT, TRUSTEE
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE']);
-    const { rows: allocations } = await query(
-      `SELECT ra.*,
+    const user = await requireAuth(request, ['STUDENT', 'SUPERINTENDENT', 'TRUSTEE']);
+    const { searchParams } = new URL(request.url);
+    const studentIdParam = searchParams.get('student_id');
+
+    // Students can only see their own allocations
+    const isStudent = user.role === 'STUDENT';
+    const filterStudentId = isStudent ? user.id : studentIdParam;
+
+    let sql = `SELECT ra.*,
               row_to_json(r.*) AS rooms,
               row_to_json(u.*) AS users
        FROM room_allocations ra
        LEFT JOIN rooms r ON r.id = ra.room_id
-       LEFT JOIN users u ON u.id = ra.student_id
-       ORDER BY ra.allocated_at DESC`,
-      []
-    );
+       LEFT JOIN users u ON u.id = ra.student_id`;
+    const params: string[] = [];
+
+    if (filterStudentId) {
+      params.push(filterStudentId);
+      sql += ` WHERE ra.student_id = $${params.length}`;
+    }
+
+    sql += ` ORDER BY ra.allocated_at DESC`;
+
+    const { rows: allocations } = await query(sql, params);
 
     return successResponse(allocations);
   } catch (error: any) {

@@ -102,8 +102,12 @@ export default function AccountsDashboard() {
           throw new Error('Failed to fetch data');
         }
 
-        const receivablesData = await receivablesRes.json();
-        const transactionsData = await transactionsRes.json();
+        const receivablesJson = await receivablesRes.json();
+        const transactionsJson = await transactionsRes.json();
+
+        // Unwrap standard API response format { success, data }
+        const receivablesData = receivablesJson?.data ?? receivablesJson;
+        const transactionsData = transactionsJson?.data ?? transactionsJson;
 
         // Transform receivables data to match the expected format
         const transformedReceivables: Receivable[] = (Array.isArray(receivablesData) ? receivablesData : []).map((rec: any) => ({
