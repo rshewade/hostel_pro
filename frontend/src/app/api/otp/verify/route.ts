@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyOtp } from '@/lib/auth';
+import { verifyOtp } from '@/lib/msg91';
+import { createSignedSessionToken } from '@/lib/auth';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/otp/verify
  *
  * Verify OTP for application or parent login flows.
- * Uses DB-backed OTP verification via verifyOtp().
+ * Uses MSG91 OTP API for verification.
  *
  * Request body:
  * - code: string - 6-digit OTP code
@@ -19,8 +22,18 @@ import { verifyOtp } from '@/lib/auth';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 5 verify attempts per 15 minutes per IP
+    const ip = getClientIp(request);
+    const rateLimit = checkRateLimit(`otp-verify:${ip}`, { maxRequests: 5, windowSeconds: 900 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { message: `Too many verification attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.` },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) } }
+      );
+    }
+
     const body = await request.json();
-    const { code, token, attempts, userAgent } = body;
+    const { code, token } = body;
 
     // Validate input
     if (!code) {
@@ -38,9 +51,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate OTP format
-    if (!/^\d{6}$/.test(code)) {
+    if (!/^\d{4,6}$/.test(code)) {
       return NextResponse.json(
-        { message: 'OTP must be a 6-digit number' },
+        { message: 'OTP must be a 4 to 6-digit number' },
         { status: 400 }
       );
     }
@@ -57,34 +70,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify OTP via DB
-    const otpResult = await verifyOtp(tokenData.contact, code, 'application');
+    // Verify OTP via MSG91
+    const contact = tokenData.contact;
+    const msg91Result = await verifyOtp(contact, code);
 
-    if (!otpResult.valid) {
+    if (!msg91Result.success) {
       return NextResponse.json(
-        { message: otpResult.error || 'Invalid OTP code' },
+        { message: msg91Result.message || 'Invalid OTP code' },
         { status: 401 }
       );
     }
 
-    // Generate session token (keeps existing contract)
-    const sessionToken = Buffer.from(JSON.stringify({
+    // Generate cryptographically signed session token with 30-minute expiry
+    const sessionToken = createSignedSessionToken({
       contact: tokenData.contact,
       vertical: tokenData.vertical,
       verified: true,
-      timestamp: Date.now(),
-      sessionId: Math.random().toString(36).substring(7)
-    })).toString('base64');
-
-    // Log verification
-    console.log('\n========================================');
-    console.log('OTP VERIFIED SUCCESSFULLY (DB-backed)');
-    console.log('========================================');
-    console.log('Contact:', tokenData.contact);
-    console.log('Vertical:', tokenData.vertical);
-    console.log('Attempts:', (attempts || 0) + 1);
-    console.log('User Agent:', userAgent || 'Unknown');
-    console.log('========================================\n');
+    });
 
     // Determine redirect based on vertical
     const redirect = tokenData.vertical === 'parent'
@@ -98,8 +100,9 @@ export async function POST(request: NextRequest) {
       redirect
     });
 
-  } catch (error) {
-    console.error('Error in /api/otp/verify:', error);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('OTP verify failed', { route: '/api/otp/verify', error: errMsg });
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

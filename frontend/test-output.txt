@@ -1,5 +1,0 @@
-
-> frontend@0.1.0 test
-> vitest --run --reporter=json --outputFile=test-results-after-fix.json
-
-JSON report written to /workspace/repo/frontend/test-results-after-fix.json

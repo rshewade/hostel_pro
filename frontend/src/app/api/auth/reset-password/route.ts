@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { query } from '@/lib/db';
-import { hashPassword, verifyOtp, createAuditLog } from '@/lib/auth';
+import { hashPassword, verifyOtp, createAuditLog, validatePasswordStrength } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -51,38 +51,16 @@ export async function POST(request: NextRequest) {
           },
         ],
       },
-      {
-        field: 'newPassword',
-        value: newPassword,
-        rules: [
-          {
-            type: 'required',
-            message: 'New password is required',
-          },
-          {
-            type: 'min',
-            param: 8,
-            message: 'Password must be at least 8 characters long',
-          },
-          {
-            type: 'custom',
-            message:
-              'Password must contain uppercase, lowercase, number, and special character',
-            validator: (pwd: string) => {
-              return (
-                /[A-Z]/.test(pwd) &&
-                /[a-z]/.test(pwd) &&
-                /[0-9]/.test(pwd) &&
-                /[!@#$%^&*]/.test(pwd)
-              );
-            },
-          },
-        ],
-      },
     ]);
 
     if (!validation.isValid) {
       return badRequestResponse('Validation failed', validation.errors);
+    }
+
+    // Validate password strength
+    const passwordError = validatePasswordStrength(newPassword);
+    if (passwordError) {
+      return badRequestResponse(passwordError);
     }
 
     // Decode and verify token
@@ -144,14 +122,6 @@ export async function POST(request: NextRequest) {
         reset_method: 'OTP',
       },
     });
-
-    console.log('\n========================================');
-    console.log('PASSWORD RESET SUCCESSFUL');
-    console.log('========================================');
-    console.log('User ID:', user.id);
-    console.log('Email:', user.email);
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('========================================\n');
 
     const response: AuthAPI.ResetPasswordResponse = {
       success: true,

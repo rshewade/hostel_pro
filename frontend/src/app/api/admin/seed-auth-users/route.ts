@@ -1,43 +1,34 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import {
   hashPassword,
-  extractTokenFromHeader,
-  getUserFromToken,
   createAuditLog,
+  generateSecureTempPassword,
 } from '@/lib/auth';
 import {
   successResponse,
-  unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
+import { requireAuth } from '@/lib/authorize';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/admin/seed-auth-users
  *
  * Seeds password hashes for existing users who don't have one.
- * Uses direct PostgreSQL INSERT with bcrypt hashing.
- * No Supabase Auth — users.id is the sole identity.
- *
- * IMPORTANT: This endpoint should be protected in production.
+ * Auth: TRUSTEE only (highest authority since ADMIN role was removed)
  *
  * Request body:
  * {
- *   "adminSecret": "your-admin-secret",
  *   "dryRun": true/false (optional, defaults to true),
  *   "userType": "staff" | "students" | "all" (optional, defaults to "staff")
  * }
  */
 export async function POST(request: NextRequest) {
   try {
+    const authUser = await requireAuth(request, ['TRUSTEE']);
     const body = await request.json();
-    const { adminSecret, dryRun = true, userType = 'staff' } = body;
-
-    // Validate admin secret (use environment variable in production)
-    const expectedSecret = process.env.ADMIN_SEED_SECRET || 'hostel-admin-seed-2024';
-    if (adminSecret !== expectedSecret) {
-      return unauthorizedResponse('Invalid admin secret');
-    }
+    const { dryRun = true, userType = 'staff' } = body;
 
     // Determine which roles to process
     let rolesToProcess: string[] = [];
@@ -67,46 +58,24 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('\n========================================');
-    console.log(`${dryRun ? 'DRY RUN:' : 'EXECUTING:'} SEED AUTH USERS`);
-    console.log('========================================');
-    console.log('User type:', userType);
-    console.log('Users to process:', usersWithoutAuth.length);
-    console.log('========================================\n');
+    logger.info('Seed auth users started', {
+      dryRun,
+      userType,
+      count: usersWithoutAuth.length,
+      performedBy: authUser.id,
+    });
 
     const results: {
-      success: any[];
-      failed: any[];
+      success: Array<{ userId: string; email: string; role: string; tempPassword?: string; status?: string }>;
+      failed: Array<{ userId: string; email: string; role: string; error: string }>;
     } = {
       success: [],
       failed: [],
     };
 
-    // For students, fetch their tracking numbers from applications
-    const trackingNumberMap: Record<string, string> = {};
-    if (userType === 'students' || userType === 'all') {
-      const appResult = await query(
-        `SELECT student_user_id, tracking_number FROM applications WHERE student_user_id IS NOT NULL`
-      );
-
-      for (const app of appResult.rows) {
-        if (app.student_user_id && app.tracking_number) {
-          trackingNumberMap[app.student_user_id] = app.tracking_number;
-        }
-      }
-    }
-
     for (const user of usersWithoutAuth) {
-      // Generate temporary password based on role
-      let tempPassword: string;
-      if (user.role === 'STUDENT') {
-        const trackingNumber = trackingNumberMap[user.id];
-        tempPassword = trackingNumber ? `Hostel@${trackingNumber}` : `Hostel@Student${user.id.slice(-6)}`;
-      } else {
-        tempPassword = `Staff@${user.role}2024`;
-      }
-
-      console.log(`Processing: ${user.full_name} (${user.email}) - Role: ${user.role}`);
+      // Generate cryptographically secure temporary password per user
+      const tempPassword = generateSecureTempPassword();
 
       if (dryRun) {
         results.success.push({
@@ -140,6 +109,7 @@ export async function POST(request: NextRequest) {
           entityType: 'USER',
           entityId: user.id,
           action: 'AUTH_MIGRATION',
+          performedBy: authUser.id,
           metadata: {
             migration_type: 'password_seed',
             role: user.role,
@@ -152,10 +122,8 @@ export async function POST(request: NextRequest) {
           role: user.role,
           tempPassword,
         });
-
-        console.log(`  Seeded password for: ${user.email}`);
       } catch (error: any) {
-        console.error(`Error processing ${user.email}:`, error);
+        logger.error('Seed password failed for user', { userId: user.id, error: error.message });
         results.failed.push({
           userId: user.id,
           email: user.email,
@@ -165,12 +133,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('\n========================================');
-    console.log('SEED COMPLETE');
-    console.log('========================================');
-    console.log('Success:', results.success.length);
-    console.log('Failed:', results.failed.length);
-    console.log('========================================\n');
+    logger.info('Seed auth users complete', {
+      success: results.success.length,
+      failed: results.failed.length,
+      performedBy: authUser.id,
+    });
 
     return successResponse({
       success: true,
@@ -181,7 +148,8 @@ export async function POST(request: NextRequest) {
       results,
     });
   } catch (error: any) {
-    console.error('Error in /api/admin/seed-auth-users:', error);
+    if (error instanceof NextResponse) return error;
+    logger.error('Seed operation failed', { error: error.message });
     return serverErrorResponse('Seed operation failed', error);
   }
 }
@@ -190,20 +158,11 @@ export async function POST(request: NextRequest) {
  * GET /api/admin/seed-auth-users
  *
  * Get count of users without password_hash
+ * Auth: TRUSTEE only
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check for authorization header
-    const authHeader = request.headers.get('authorization');
-    const token = extractTokenFromHeader(authHeader);
-    if (!token) {
-      return unauthorizedResponse('Authorization required');
-    }
-
-    const user = await getUserFromToken(token);
-    if (!user) {
-      return unauthorizedResponse('Invalid or expired token');
-    }
+    await requireAuth(request, ['TRUSTEE']);
 
     // Count staff without password_hash
     const staffResult = await query(
@@ -229,7 +188,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Error in GET /api/admin/seed-auth-users:', error);
+    if (error instanceof NextResponse) return error;
     return serverErrorResponse('Failed to get user counts', error);
   }
 }

@@ -60,7 +60,7 @@ export type ExitProgressState =
   | 'COMPLETED'
   | 'OVERDUE';
 
-export type HostelVertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
+export type HostelVertical = 'BOYS_HOSTEL' | 'GIRLS_ASHRAM' | 'DHARAMSHALA';
 
 export interface ExitRequestSummary {
   id: string;

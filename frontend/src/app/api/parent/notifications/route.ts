@@ -106,27 +106,12 @@ export async function GET(request: NextRequest) {
       items: notifications,
     };
 
-    // Mock logging
-    console.log('\n========================================');
-    console.log('🔔 PARENT NOTIFICATIONS ACCESS');
-    console.log('========================================');
-    console.log('Endpoint: /api/parent/notifications');
-    console.log('Session ID:', tokenData.sessionId || 'unknown');
-    console.log('Total Notifications:', notificationSummary.total);
-    console.log('Unread:', notificationSummary.unread);
-    console.log('Access Type: READ-ONLY');
-    console.log('========================================\n');
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-
     return NextResponse.json({
       success: true,
       data: notificationData,
     });
 
   } catch (error) {
-    console.error('Error in /api/parent/notifications:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

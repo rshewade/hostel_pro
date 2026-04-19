@@ -1,35 +1,30 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import {
   successResponse,
-  unauthorizedResponse,
   badRequestResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
-import { hashPassword } from '@/lib/auth';
+import { hashPassword, validatePasswordStrength } from '@/lib/auth';
+import { requireAuth } from '@/lib/authorize';
 
 /**
  * POST /api/admin/reset-password
  *
  * Reset password for a user by email.
+ * Auth: TRUSTEE only (highest authority since ADMIN role was removed)
  *
  * Request body:
  * {
- *   "adminSecret": "your-admin-secret",
  *   "email": "user@example.com",
  *   "newPassword": "NewPassword123!"
  * }
  */
 export async function POST(request: NextRequest) {
   try {
+    const authUser = await requireAuth(request, ['TRUSTEE']);
     const body = await request.json();
-    const { adminSecret, email, newPassword } = body;
-
-    // Validate admin secret
-    const expectedSecret = process.env.ADMIN_SEED_SECRET || 'hostel-admin-seed-2024';
-    if (adminSecret !== expectedSecret) {
-      return unauthorizedResponse('Invalid admin secret');
-    }
+    const { email, newPassword } = body;
 
     if (!email) {
       return badRequestResponse('Email is required');
@@ -39,8 +34,9 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('New password is required');
     }
 
-    if (newPassword.length < 6) {
-      return badRequestResponse('Password must be at least 6 characters');
+    const passwordError = validatePasswordStrength(newPassword);
+    if (passwordError) {
+      return badRequestResponse(passwordError);
     }
 
     // Find the user in public.users
@@ -63,7 +59,18 @@ export async function POST(request: NextRequest) {
       [hashedPassword, user.id]
     );
 
-    console.log(`Password reset for ${email} (${user.full_name})`);
+    // Audit log
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'USER',
+        user.id,
+        'PASSWORD_RESET_BY_ADMIN',
+        authUser.id,
+        JSON.stringify({ target_email: email, target_role: user.role }),
+      ]
+    );
 
     return successResponse({
       success: true,
@@ -75,7 +82,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Error in /api/admin/reset-password:', error);
+    if (error instanceof NextResponse) return error;
     return serverErrorResponse('Password reset failed', error);
   }
 }

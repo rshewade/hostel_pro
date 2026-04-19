@@ -198,16 +198,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Mock logging
-    console.log('\n========================================');
-    console.log('PARENT DATA ACCESS');
-    console.log('========================================');
-    console.log('Endpoint: /api/parent/student');
-    console.log('Parent Mobile:', parentMobile);
-    console.log('Students Found:', students.length);
-    console.log('Access Type: READ-ONLY');
-    console.log('========================================\n');
-
     // Return first student (or array if multiple children)
     return NextResponse.json({
       success: true,
@@ -216,7 +206,6 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in /api/parent/student:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

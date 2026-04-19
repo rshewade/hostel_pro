@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       // Token invalid/expired — still return success for client-side cleanup
-      console.log('Token verification failed during logout, continuing anyway');
       return successResponse({
         success: true,
         message: 'Logged out successfully',
@@ -59,14 +58,6 @@ export async function POST(request: NextRequest) {
       ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
     });
-
-    console.log('\n========================================');
-    console.log('USER LOGGED OUT (Custom JWT)');
-    console.log('========================================');
-    console.log('User ID:', user.id);
-    console.log('Role:', user.role);
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('========================================\n');
 
     const response: AuthAPI.LogoutResponse = {
       success: true,

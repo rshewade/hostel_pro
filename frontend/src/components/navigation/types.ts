@@ -24,12 +24,6 @@ export interface NavigationProps {
   role: UserRole;
   vertical: HostelVertical;
   items: NavigationItemProps[];
-}
-
-export interface NavigationProps {
-  role: UserRole;
-  vertical: HostelVertical;
-  items: NavigationItemProps[];
   variant: 'top' | 'side' | 'breadcrumbs';
   className?: string;
   onVerticalChange?: (vertical: HostelVertical) => void;

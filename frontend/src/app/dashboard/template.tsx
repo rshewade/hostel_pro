@@ -8,6 +8,7 @@ import { Container, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/shadcn/button-extended';
 import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen, BarChart3 } from 'lucide-react';
+import { LanguageToggle } from '@/components/LanguageToggle';
 import { cn } from '@/components/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -179,9 +180,11 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
               </nav>
             )}
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <LanguageToggle />
+
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-gray-600 hover:text-red-600 hover:bg-red-50"
               onClick={handleLogout}
             >

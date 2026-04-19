@@ -7,6 +7,7 @@ import { Input } from '../../components/forms/Input';
 import { Button } from '@/components/shadcn/button-extended';
 import { cn } from '../../components/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function TrackingPage() {
   const { t } = useLanguage();
@@ -151,8 +152,11 @@ export default function TrackingPage() {
               <p className="text-caption">{t('Charitable Trust', 'चैरिटेबल ट्रस्ट')}</p>
             </div>
           </div>
-          <Link href="/" className="text-sm text-blue-600 hover:underline">
-            {t('← Back to Home', '← होम पर वापस')}</Link>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <Link href="/" className="text-sm text-blue-600 hover:underline">
+              {t('← Back to Home', '← होम पर वापस')}</Link>
+          </div>
         </div>
       </header>
 

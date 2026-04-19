@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle, RefreshCw, EyeOff } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function GirlsAshramVerifyPage() {
   const { t } = useLanguage();
@@ -231,19 +232,22 @@ export default function GirlsAshramVerifyPage() {
               <p className="text-caption">{t('Step 3 of 4', 'चरण 3 का 4')}</p>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
-            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
-            <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
-            <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+              <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+              <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+              <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
+            </nav>
+            <LanguageToggle />
+          </div>
         </div>
       </header>
 
       <section className="px-6 py-4" style={{ backgroundColor: "var(--surface-secondary)" }}>
         <div className="mx-auto max-w-4xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <div className="flex items-center gap-2">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
@@ -251,10 +255,10 @@ export default function GirlsAshramVerifyPage() {
                 >
                   1
                 </div>
-                <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                <span className="hidden md:inline text-sm font-medium" style={{ color: "var(--text-primary)" }}>
                   {t('Select Vertical', 'श्रेणी चुनें')}</span>
               </div>
-              <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
+              <div className="h-px w-8 md:w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
@@ -262,10 +266,10 @@ export default function GirlsAshramVerifyPage() {
                 >
                   2
                 </div>
-                <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                <span className="hidden md:inline text-sm font-medium" style={{ color: "var(--text-primary)" }}>
                   {t('Contact Details', 'संपर्क विवरण')}</span>
               </div>
-              <div className="h-px w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
+              <div className="h-px w-8 md:w-16" style={{ backgroundColor: "var(--border-primary)" }}></div>
               <div className="flex items-center gap-2 opacity-50">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
@@ -273,11 +277,11 @@ export default function GirlsAshramVerifyPage() {
                 >
                   3
                 </div>
-                <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+                <span className="hidden md:inline text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
                   {t('OTP Verification', 'ओटीपी सत्यापन')}</span>
               </div>
             </div>
-            <div className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            <div className="text-sm ml-4 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
               <span>{t('Step 3 of 4', 'चरण 3 का 4')}</span>
               {timeLeft > 0 && (
                 <span className="ml-4" style={{ color: "var(--text-primary)" }}>

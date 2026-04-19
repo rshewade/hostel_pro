@@ -32,18 +32,8 @@ export async function GET(
 
     const application = rows[0];
 
-    console.log('\n========================================');
-    console.log('APPLICATION TRACKED');
-    console.log('========================================');
-    console.log('Tracking Number:', trackingNumber);
-    console.log('Status:', application.current_status);
-    console.log('Vertical:', application.vertical);
-    console.log('Submitted At:', application.submitted_at || 'Not submitted');
-    console.log('========================================\n');
-
     return successResponse({ data: application } as ApplicationAPI.TrackResponse);
   } catch (error: any) {
-    console.error('Error in GET /api/applications/track/[trackingNumber]:', error);
     return serverErrorResponse('Failed to track application', error);
   }
 }

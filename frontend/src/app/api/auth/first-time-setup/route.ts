@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { query } from '@/lib/db';
-import { getUserFromToken, hashPassword, createAuditLog } from '@/lib/auth';
+import { getUserFromToken, hashPassword, createAuditLog, validatePasswordStrength } from '@/lib/auth';
 import {
   successResponse,
   unauthorizedResponse,
@@ -38,34 +38,6 @@ export async function POST(request: NextRequest) {
         ],
       },
       {
-        field: 'newPassword',
-        value: newPassword,
-        rules: [
-          {
-            type: 'required',
-            message: 'New password is required',
-          },
-          {
-            type: 'min',
-            param: 8,
-            message: 'Password must be at least 8 characters long',
-          },
-          {
-            type: 'custom',
-            message:
-              'Password must contain uppercase, lowercase, number, and special character',
-            validator: (pwd: string) => {
-              return (
-                /[A-Z]/.test(pwd) &&
-                /[a-z]/.test(pwd) &&
-                /[0-9]/.test(pwd) &&
-                /[!@#$%^&*]/.test(pwd)
-              );
-            },
-          },
-        ],
-      },
-      {
         field: 'dpdpConsent',
         value: dpdpConsent,
         rules: [
@@ -80,6 +52,12 @@ export async function POST(request: NextRequest) {
 
     if (!validation.isValid) {
       return badRequestResponse('Validation failed', validation.errors);
+    }
+
+    // Validate password strength
+    const passwordError = validatePasswordStrength(newPassword);
+    if (passwordError) {
+      return badRequestResponse(passwordError);
     }
 
     // Verify token and get user
@@ -135,15 +113,6 @@ export async function POST(request: NextRequest) {
         change_type: 'first_time_setup',
       },
     });
-
-    console.log('\n========================================');
-    console.log('FIRST-TIME SETUP COMPLETED (Custom JWT)');
-    console.log('========================================');
-    console.log('User ID:', user.id);
-    console.log('Role:', user.role);
-    console.log('DPDP Consent:', dpdpConsent);
-    console.log('Timestamp:', now);
-    console.log('========================================\n');
 
     const response: AuthAPI.FirstTimeSetupResponse = {
       success: true,

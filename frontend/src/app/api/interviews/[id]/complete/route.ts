@@ -99,20 +99,11 @@ export async function PUT(
       ]
     );
 
-    console.log('\n========================================');
-    console.log('INTERVIEW COMPLETED');
-    console.log('========================================');
-    console.log('Interview ID:', id);
-    console.log('Application ID:', interview.application_id);
-    console.log('Final Score:', final_score);
-    console.log('========================================\n');
-
     return successResponse({
       data: updatedInterview,
     } as InterviewAPI.CompleteResponse);
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in PUT /api/interviews/[id]/complete:', error);
     return serverErrorResponse('Failed to complete interview', error);
   }
 }

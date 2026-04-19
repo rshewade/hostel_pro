@@ -6,6 +6,7 @@ import { CheckCircle, FileText, Home, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/shadcn/button-extended';
 import { Suspense } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 function SuccessContent() {
   const { t } = useLanguage();
@@ -29,11 +30,14 @@ function SuccessContent() {
               <p className="text-caption">{t('Charitable Trust', 'चैरिटेबल ट्रस्ट')}</p>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
-            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
-            <Link href="/track" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+              <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+              <Link href="/track" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+            </nav>
+            <LanguageToggle />
+          </div>
         </div>
       </header>
 

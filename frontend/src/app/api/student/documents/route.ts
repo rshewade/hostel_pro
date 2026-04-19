@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       [studentId]
     );
 
-    console.log(`Fetching documents for student ${studentId}:`, documents?.length || 0, 'found');
+
 
     // Map database enum values to display info
     const documentTypeMap: Record<string, { title: string; category: string }> = {

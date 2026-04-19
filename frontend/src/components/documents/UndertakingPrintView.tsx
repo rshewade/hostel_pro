@@ -78,7 +78,8 @@ const UndertakingPrintView = forwardRef<HTMLDivElement, UndertakingPrintViewProp
       header={
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img 
+            {/* eslint-disable-next-line @next/next/no-img-element -- Print views require native img for reliable rendering */}
+            <img
               src={logoUrl || '/logo.png'}
               alt={organizationName}
               className="h-12 w-auto"

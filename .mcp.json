@@ -16,16 +16,6 @@
         "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
         "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
       }
-    },
-    "supabase": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://postgres:Raju987.@db.fteqtsoifrqigegdvqhx.supabase.co:5432/postgres"
-      ],
-      "env": {}
     }
   }
 }

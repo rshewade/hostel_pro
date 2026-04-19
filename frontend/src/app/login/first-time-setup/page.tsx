@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input } from '@/components';
 import { Checkbox } from '@/components/forms/Checkbox';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 type PasswordChangeFormData = {
   newPassword: string;
@@ -178,6 +179,11 @@ function FirstTimeSetupContent() {
   return (
     <div className="min-h-screen flex items-center justify-center py-8" style={{ background: 'var(--bg-page)' }}>
       <div className="w-full max-w-md mx-auto">
+        {/* Language Toggle */}
+        <div className="flex justify-end mb-4 px-6">
+          <LanguageToggle />
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <img

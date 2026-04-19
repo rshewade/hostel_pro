@@ -118,8 +118,6 @@ export function PaymentFlowModal({
   const simulatePaymentPolling = () => {
     // In real implementation, this would poll /payments/status every few seconds
     const pollInterval = setInterval(() => {
-      console.log('Polling payment status...');
-
       // Simulate payment completion after 5 seconds
       setTimeout(() => {
         clearInterval(pollInterval);

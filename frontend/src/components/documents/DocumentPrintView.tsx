@@ -85,9 +85,10 @@ const DocumentPrintView = forwardRef<HTMLDivElement, DocumentPrintViewProps>(({
         header={
           <div className="flex items-center justify-between border-b border-gray-200 print:border-black pb-4">
             <div className="flex items-center gap-4">
+              {/* eslint-disable-next-line @next/next/no-img-element -- Print views require native img for reliable rendering */}
               {logoUrl && (
-                <img 
-                  src={logoUrl} 
+                <img
+                  src={logoUrl}
                   alt={organizationName}
                   className="h-12 w-auto"
                 />

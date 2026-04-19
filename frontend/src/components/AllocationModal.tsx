@@ -60,7 +60,6 @@ export default function AllocationModal({ room, onClose, onSuccess }: Allocation
         setStudents(availableStudents);
       }
     } catch (error) {
-      console.error('Error fetching students:', error);
       setError('Failed to fetch available students');
     }
   };
@@ -94,7 +93,6 @@ export default function AllocationModal({ room, onClose, onSuccess }: Allocation
         setError(data.error || data.message || 'Failed to allocate room');
       }
     } catch (error) {
-      console.error('Error allocating room:', error);
       setError('Failed to allocate room. Please try again.');
     } finally {
       setLoading(false);

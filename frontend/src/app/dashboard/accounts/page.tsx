@@ -152,7 +152,6 @@ export default function AccountsDashboard() {
         setPaymentLogs(transformedPaymentLogs);
         setError(null);
       } catch (err) {
-        console.error('Error fetching accounts data:', err);
         setError('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
@@ -259,13 +258,11 @@ export default function AccountsDashboard() {
   };
 
   const handleBulkReminders = () => {
-    console.log('Sending reminders to:', Array.from(selectedRows));
     alert(`Sending reminders to ${selectedRows.size} recipients`);
     setSelectedRows(new Set());
   };
 
   const handleExportSelected = () => {
-    console.log('Exporting selected:', Array.from(selectedRows));
     alert(`Exporting ${selectedRows.size} selected records`);
     setSelectedRows(new Set());
   };
@@ -372,7 +369,7 @@ export default function AccountsDashboard() {
         row.communicationLogs && row.communicationLogs > 0 ? (
           <button
             className="text-xs text-blue-600 hover:underline"
-            onClick={() => console.log('View communication logs for', row.id)}
+            onClick={() => {}}
           >
             View ({row.communicationLogs})
           </button>
@@ -849,9 +846,7 @@ export default function AccountsDashboard() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => {
-                    console.log('Export payment logs');
-                  }}
+                  onClick={() => {}}
                 >
                   Export Logs
                 </Button>
@@ -875,7 +870,7 @@ export default function AccountsDashboard() {
                 pageSize: 20,
                 totalItems: filteredPaymentLogs.length,
                 totalPages: Math.ceil(filteredPaymentLogs.length / 20),
-                onPageChange: (page) => console.log('Page change:', page)
+                onPageChange: () => {}
               }}
               density="compact"
               striped={true}
@@ -934,10 +929,10 @@ export default function AccountsDashboard() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="primary" size="sm" onClick={() => console.log('Download CSV')}>
+                    <Button variant="primary" size="sm" onClick={() => {}}>
                       Download CSV
                     </Button>
-                    <Button variant="secondary" size="sm" onClick={() => console.log('Download XLS')}>
+                    <Button variant="secondary" size="sm" onClick={() => {}}>
                       Download XLS
                     </Button>
                   </div>
@@ -985,7 +980,7 @@ export default function AccountsDashboard() {
                   pageSize: 20,
                   totalItems: filteredReceivables.length,
                   totalPages: Math.ceil(filteredReceivables.length / 20),
-                  onPageChange: (page) => console.log('Page change:', page)
+                  onPageChange: () => {}
                 }}
                 density="compact"
                 striped={true}

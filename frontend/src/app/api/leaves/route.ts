@@ -88,13 +88,26 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Map leave type from database to frontend format
-    const leaveTypeMap: Record<string, string> = {
+    // Map leave type from database enum to frontend display category
+    const leaveTypeCategoryMap: Record<string, string> = {
       'SHORT_LEAVE': 'short',
       'NIGHT_OUT': 'night-out',
+      'MULTI_DAY': 'multi-day',
       'HOME_VISIT': 'multi-day',
       'MEDICAL': 'multi-day',
       'EMERGENCY': 'multi-day',
+      'EXTENDED': 'multi-day',
+    };
+
+    // Friendly labels for the original DB enum values
+    const leaveTypeLabelMap: Record<string, string> = {
+      'SHORT_LEAVE': 'Short Leave',
+      'NIGHT_OUT': 'Night Out',
+      'MULTI_DAY': 'Multi-Day',
+      'HOME_VISIT': 'Home Visit',
+      'MEDICAL': 'Medical Leave',
+      'EMERGENCY': 'Emergency',
+      'EXTENDED': 'Extended Leave',
     };
 
     // Transform data to match frontend expectations
@@ -104,7 +117,9 @@ export async function GET(request: NextRequest) {
       studentName: leave.student?.full_name || 'Unknown',
       studentRoom: roomMap[leave.student_id] || 'Not Allocated',
       vertical: leave.student?.vertical || 'BOYS_HOSTEL',
-      leaveType: leaveTypeMap[leave.leave_type] || 'short',
+      leaveType: leaveTypeCategoryMap[leave.leave_type] || 'short',
+      leaveTypeOriginal: leave.leave_type,
+      leaveTypeLabel: leaveTypeLabelMap[leave.leave_type] || leave.leave_type,
       fromDate: leave.start_time?.split('T')[0] || '',
       toDate: leave.end_time?.split('T')[0] || '',
       fromTime: leave.start_time?.split('T')[1]?.substring(0, 5) || '',
@@ -216,15 +231,6 @@ export async function POST(request: NextRequest) {
         }),
       ]
     );
-
-    console.log('\n========================================');
-    console.log('LEAVE REQUEST SUBMITTED');
-    console.log('========================================');
-    console.log('Leave ID:', newLeave.id);
-    console.log('Student ID:', student_id);
-    console.log('Type:', type);
-    console.log('Duration:', `${start_time} to ${end_time}`);
-    console.log('========================================\n');
 
     return createdResponse(
       { data: newLeave } as LeaveAPI.CreateResponse,

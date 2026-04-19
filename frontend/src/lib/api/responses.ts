@@ -30,10 +30,6 @@ export function createdResponse<T = any>(data: T, message?: string): NextRespons
   return successResponse(data, message, HTTP_STATUS.CREATED);
 }
 
-export function noContentResponse(): NextResponse {
-  return new NextResponse(null, { status: HTTP_STATUS.NO_CONTENT });
-}
-
 // ============================================================================
 // Error Responses
 // ============================================================================
@@ -41,7 +37,7 @@ export function noContentResponse(): NextResponse {
 export function errorResponse(
   message: string,
   status: number = HTTP_STATUS.BAD_REQUEST,
-  details?: any
+  details?: Record<string, unknown> | string
 ): NextResponse {
   return NextResponse.json(
     {
@@ -54,7 +50,7 @@ export function errorResponse(
   );
 }
 
-export function badRequestResponse(message: string, details?: any): NextResponse {
+export function badRequestResponse(message: string, details?: Record<string, unknown> | string): NextResponse {
   return errorResponse(message, HTTP_STATUS.BAD_REQUEST, details);
 }
 
@@ -70,30 +66,10 @@ export function notFoundResponse(message: string = 'Resource not found'): NextRe
   return errorResponse(message, HTTP_STATUS.NOT_FOUND);
 }
 
-export function conflictResponse(message: string, details?: any): NextResponse {
-  return errorResponse(message, HTTP_STATUS.CONFLICT, details);
-}
-
-export function validationErrorResponse(
-  message: string,
-  errors: Record<string, string[]>
-): NextResponse {
-  return errorResponse(message, HTTP_STATUS.UNPROCESSABLE_ENTITY, { errors });
-}
-
-export function rateLimitResponse(message: string = 'Too many requests'): NextResponse {
-  return errorResponse(message, HTTP_STATUS.TOO_MANY_REQUESTS);
-}
-
 export function serverErrorResponse(
   message: string = 'Internal server error',
-  error?: Error
+  _error?: Error
 ): NextResponse {
-  // Log error details server-side
-  if (error) {
-    console.error('Server Error:', error);
-  }
-
   // Don't expose error details to client in production
   const clientMessage =
     process.env.NODE_ENV === 'development'
@@ -134,6 +110,7 @@ export function paginatedResponse<T>(
 // Validation Helpers
 // ============================================================================
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type ValidationRule = {
   field: string;
   value: any;
@@ -144,6 +121,7 @@ export type ValidationRule = {
     validator?: (value: any) => boolean;
   }>;
 };
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function validateFields(rules: ValidationRule[]): {
   isValid: boolean;

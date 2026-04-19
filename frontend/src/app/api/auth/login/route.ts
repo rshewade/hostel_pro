@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { comparePassword, createSession, createAuditLog } from '@/lib/auth';
 import {
@@ -9,6 +9,8 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { AuthAPI, UserRole, Vertical } from '@/types/api';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/auth/login
@@ -19,6 +21,16 @@ import { AuthAPI, UserRole, Vertical } from '@/types/api';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 5 attempts per 15 minutes per IP
+    const ip = getClientIp(request);
+    const rateLimit = checkRateLimit(`login:${ip}`, { maxRequests: 5, windowSeconds: 900 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.` },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) } }
+      );
+    }
+
     const body: AuthAPI.LoginRequest = await request.json();
     const { username, password } = body;
 
@@ -53,7 +65,6 @@ export async function POST(request: NextRequest) {
     // Find user by email or mobile in users table
     const normalizedInput = username.toLowerCase().trim();
     const normalizedMobile = username.replace(/\s/g, '');
-    console.log('[LOGIN] Attempting login for:', normalizedInput);
 
     const userResult = await query(
       `SELECT * FROM users WHERE LOWER(email) = $1 OR mobile = $2 LIMIT 1`,
@@ -63,15 +74,11 @@ export async function POST(request: NextRequest) {
     const user = userResult.rows[0];
 
     if (!user) {
-      console.error('[LOGIN] User not found:', normalizedInput);
       return unauthorizedResponse('Invalid credentials');
     }
 
-    console.log('[LOGIN] User found:', user.id, user.email);
-
     // Check user status
     if (!user.is_active) {
-      console.error('[LOGIN] User inactive:', user.id);
       return unauthorizedResponse(
         'Account is inactive. Please contact administration.'
       );
@@ -79,28 +86,22 @@ export async function POST(request: NextRequest) {
 
     // Check if user has a password_hash set
     if (!user.password_hash) {
-      console.error('[LOGIN] User missing password_hash:', user.id, user.email);
       return unauthorizedResponse(
         'Account not configured. Please contact administration.'
       );
     }
 
     // Verify password using bcrypt
-    console.log('[LOGIN] Verifying password for:', user.email);
     const isPasswordValid = await comparePassword(password, user.password_hash);
 
     if (!isPasswordValid) {
-      console.error('[LOGIN] Password mismatch for:', user.email);
       return unauthorizedResponse('Invalid credentials');
     }
-
-    console.log('[LOGIN] Password verified for:', user.email);
 
     // Check if first-time login (password never changed)
     const requiresPasswordChange = user.requires_password_change || false;
 
     // Create JWT session
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
     const { accessToken } = await createSession(user.id, ip, userAgent);
 
@@ -121,16 +122,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log('\n========================================');
-    console.log('LOGIN SUCCESSFUL (Custom JWT)');
-    console.log('========================================');
-    console.log('User ID:', user.id);
-    console.log('Role:', user.role);
-    console.log('Email:', user.email);
-    console.log('Requires Password Change:', requiresPasswordChange);
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('========================================\n');
-
     const response: AuthAPI.LoginResponse = {
       success: true,
       role: user.role as UserRole,
@@ -145,7 +136,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse(response);
   } catch (error: any) {
-    console.error('Error in /api/auth/login:', error);
+    logger.error('Login failed', { route: '/api/auth/login', error: error.message });
     return serverErrorResponse('Login failed', error);
   }
 }

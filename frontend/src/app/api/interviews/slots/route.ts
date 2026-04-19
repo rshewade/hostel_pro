@@ -74,7 +74,6 @@ export async function GET(request: NextRequest) {
     } as InterviewAPI.SlotsResponse);
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in GET /api/interviews/slots:', error);
     return serverErrorResponse('Failed to fetch interview slots', error);
   }
 }

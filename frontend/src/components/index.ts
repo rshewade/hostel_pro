@@ -30,7 +30,6 @@ export * from './navigation';
 export * from './data/Table';
 export * from './data/Card';
 export * from './data/List';
-export * from './data/Stepper';
 export * from './data/Tabs';
 export * from './data/Accordion';
 

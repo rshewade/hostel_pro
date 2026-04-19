@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
     const currentStatus = body.status || 'DRAFT';
     const submittedAt = body.status === 'SUBMITTED' ? new Date().toISOString() : null;
 
-    console.log('Creating application with tracking number:', trackingNumber);
+
 
     const { rows } = await query(
       `INSERT INTO applications (

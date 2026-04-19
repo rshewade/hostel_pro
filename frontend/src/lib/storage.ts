@@ -3,7 +3,10 @@ import path from 'path';
 import crypto from 'crypto';
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads');
-const SIGNED_URL_SECRET = process.env.JWT_SECRET || 'dev-secret';
+if (!process.env.JWT_SECRET) {
+  throw new Error('FATAL: JWT_SECRET environment variable is not set (needed for signed URLs).');
+}
+const SIGNED_URL_SECRET = process.env.JWT_SECRET;
 
 /**
  * Ensure upload directory exists
@@ -120,10 +123,44 @@ export function verifySignedToken(token: string): { valid: boolean; filePath?: s
 }
 
 /**
- * Get the absolute path for a relative file path
+ * Get the absolute path for a relative file path (simple join, no symlink resolution).
  */
 export function getAbsolutePath(relPath: string): string {
   return path.join(UPLOADS_DIR, relPath);
+}
+
+/**
+ * Resolve a relative file path to its canonical absolute path and verify
+ * it stays within the uploads directory. Resolves symlinks via fs.realpath().
+ *
+ * Throws if the resolved path escapes the uploads root.
+ */
+export async function resolveAndValidatePath(relPath: string): Promise<string> {
+  // Resolve the candidate path (collapses .. and .)
+  const candidate = path.resolve(UPLOADS_DIR, relPath);
+
+  // Resolve symlinks to get the real filesystem path
+  let realCandidate: string;
+  try {
+    realCandidate = await fs.realpath(candidate);
+  } catch {
+    throw new Error('File not found');
+  }
+
+  // Resolve the uploads root (also following symlinks)
+  let realRoot: string;
+  try {
+    realRoot = await fs.realpath(UPLOADS_DIR);
+  } catch {
+    throw new Error('Uploads directory not found');
+  }
+
+  // Strict prefix check with path separator to prevent /uploads-evil bypass
+  if (!realCandidate.startsWith(realRoot + path.sep) && realCandidate !== realRoot) {
+    throw new Error('Path traversal detected');
+  }
+
+  return realCandidate;
 }
 
 /**

@@ -15,6 +15,14 @@ const DOCUMENT_TYPE_MAP: Record<string, string> = {
   'OTHER': 'OTHER',
 };
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+];
+
 /**
  * POST /api/student/documents/upload
  * Upload a document to local storage and create DB record
@@ -38,6 +46,24 @@ export async function POST(request: NextRequest) {
     }
     if (!documentType) {
       return NextResponse.json({ success: false, error: 'Document type is required' }, { status: 400 });
+    }
+
+    // Students can only upload their own documents
+    if (studentId !== user.id) {
+      return NextResponse.json({ success: false, error: 'Cannot upload documents for another student' }, { status: 403 });
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ success: false, error: 'File size exceeds 10 MB limit' }, { status: 400 });
+    }
+
+    // Validate MIME type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { success: false, error: `File type '${file.type}' not allowed. Accepted: PDF, JPEG, PNG` },
+        { status: 400 }
+      );
     }
 
     const dbDocumentType = DOCUMENT_TYPE_MAP[documentType] || 'OTHER';

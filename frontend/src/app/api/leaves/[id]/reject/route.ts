@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -63,47 +63,41 @@ export async function PUT(
       );
     }
 
-    // Update leave status
+    // Update leave status and log — in one transaction
     const now = new Date().toISOString();
-    const { rows: updatedRows } = await query(
-      `UPDATE leave_requests
-       SET status = $1, rejected_at = $2, rejection_reason = $3, parent_notified_at = $4
-       WHERE id = $5
-       RETURNING *`,
-      ['REJECTED', now, reason, now, id]
-    );
+    const updatedLeave = await withTransaction(async (client) => {
+      const { rows: updatedRows } = await client.query(
+        `UPDATE leave_requests
+         SET status = $1, rejected_at = $2, rejection_reason = $3, parent_notified_at = $4
+         WHERE id = $5
+         RETURNING *`,
+        ['REJECTED', now, reason, now, id]
+      );
 
-    if (updatedRows.length === 0) {
-      return serverErrorResponse('Failed to reject leave');
-    }
+      if (updatedRows.length === 0) {
+        throw new Error('Failed to reject leave');
+      }
 
-    const updatedLeave = updatedRows[0];
+      // Log rejection
+      await client.query(
+        `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+         VALUES ($1, $2, $3, $4)`,
+        [
+          'LEAVE_REQUEST',
+          id,
+          'REJECT',
+          JSON.stringify({
+            student_id: leave.student_id,
+            leave_type: leave.leave_type,
+            rejection_reason: reason,
+            old_status: 'PENDING',
+            new_status: 'REJECTED',
+          }),
+        ]
+      );
 
-    // Log rejection
-    await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
-       VALUES ($1, $2, $3, $4)`,
-      [
-        'LEAVE_REQUEST',
-        id,
-        'REJECT',
-        JSON.stringify({
-          student_id: leave.student_id,
-          leave_type: leave.leave_type,
-          rejection_reason: reason,
-          old_status: 'PENDING',
-          new_status: 'REJECTED',
-        }),
-      ]
-    );
-
-    console.log('\n========================================');
-    console.log('LEAVE REJECTED');
-    console.log('========================================');
-    console.log('Leave ID:', id);
-    console.log('Student ID:', leave.student_id);
-    console.log('Reason:', reason);
-    console.log('========================================\n');
+      return updatedRows[0];
+    });
 
     return successResponse({ data: updatedLeave });
   } catch (error: any) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import {
   successResponse,
   notFoundResponse,
@@ -129,8 +129,6 @@ export async function PUT(
       return badRequestResponse('No valid fields to update');
     }
 
-    console.log('Updating application:', id, 'with data:', JSON.stringify(updateData, null, 2));
-
     // Build dynamic UPDATE query
     const setClauses: string[] = [];
     const values: any[] = [];
@@ -144,18 +142,19 @@ export async function PUT(
     values.push(id);
     const updateSql = `UPDATE applications SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
 
-    const { rows: updatedRows } = await query(updateSql, values);
+    // Run all writes in a single transaction
+    const updatedApplication = await withTransaction(async (client) => {
+      const { rows: updatedRows } = await client.query(updateSql, values);
 
-    if (updatedRows.length === 0) {
-      return serverErrorResponse('Failed to update application');
-    }
+      if (updatedRows.length === 0) {
+        throw new Error('Failed to update application');
+      }
 
-    let updatedApplication = updatedRows[0];
+      let result = updatedRows[0];
 
-    // Log status change if status was updated
-    if (updateData.current_status && updateData.current_status !== application.current_status) {
-      try {
-        await query(
+      // Log status change if status was updated
+      if (updateData.current_status && updateData.current_status !== application.current_status) {
+        await client.query(
           `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
            VALUES ($1, $2, $3, $4, $5)`,
           [
@@ -171,25 +170,15 @@ export async function PUT(
             }),
           ]
         );
-      } catch (auditError) {
-        // Log audit error but don't fail the request
-        console.error('Failed to create audit log:', auditError);
       }
-    }
 
-    // Create student user when application is approved
-    if (updateData.current_status === 'APPROVED' && !application.student_user_id) {
-      try {
-        // Extract parent mobile from application data
+      // Create student user when application is approved
+      if (updateData.current_status === 'APPROVED' && !application.student_user_id) {
         const parentMobile = application.data?.guardian_info?.father_mobile ||
                             application.data?.guardian_info?.mother_mobile ||
                             application.data?.emergency_contact?.mobile || null;
 
-        // Generate temporary password based on tracking number
-        const tempPassword = `Hostel@${application.tracking_number}`;
-
-        // Create public.users record
-        const { rows: userRows } = await query(
+        const { rows: userRows } = await client.query(
           `INSERT INTO users (
             role, vertical, full_name, email, mobile, date_of_birth,
             parent_mobile, is_active, requires_password_change, metadata
@@ -209,7 +198,7 @@ export async function PUT(
               application_id: id,
               tracking_number: application.tracking_number,
               approved_at: new Date().toISOString(),
-              temp_password_hint: `Hostel@{tracking_number}`,
+              password_pending: true,
             }),
           ]
         );
@@ -221,76 +210,70 @@ export async function PUT(
         const newUser = userRows[0];
 
         // Link the new user to the application
-        await query(
+        await client.query(
           'UPDATE applications SET student_user_id = $1 WHERE id = $2',
           [newUser.id, id]
         );
 
-        // Create students table record with detailed info from application
+        // Create students table record
         const personalInfo = application.data?.personal_info || {};
         const guardianInfo = application.data?.guardian_info || {};
         const academicInfo = application.data?.academic_info || {};
         const emergencyContact = application.data?.emergency_contact || {};
 
-        try {
-          await query(
-            `INSERT INTO students (
-              user_id, vertical, status, gender, date_of_birth, aadhar_number,
-              native_place, permanent_address, father_name, father_mobile,
-              mother_name, mother_mobile, guardian_name, guardian_mobile,
-              guardian_relation, institution, course, year_of_study,
-              enrollment_number, joining_date, academic_year,
-              emergency_contact_name, emergency_contact_phone,
-              emergency_contact_relation, blood_group, medical_conditions,
-              allergies, metadata
-            ) VALUES (
-              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-              $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-              $21, $22, $23, $24, $25, $26, $27, $28
-            )`,
-            [
-              newUser.id,
-              application.vertical,
-              'PENDING',
-              personalInfo.gender || null,
-              personalInfo.date_of_birth || null,
-              personalInfo.aadhar_number || null,
-              personalInfo.native_place || null,
-              personalInfo.permanent_address || personalInfo.address || null,
-              guardianInfo.father_name || null,
-              guardianInfo.father_mobile || null,
-              guardianInfo.mother_name || null,
-              guardianInfo.mother_mobile || null,
-              guardianInfo.guardian_name || null,
-              guardianInfo.guardian_mobile || null,
-              guardianInfo.guardian_relation || null,
-              academicInfo.institution || academicInfo.college || null,
-              academicInfo.course || null,
-              academicInfo.year_of_study || academicInfo.year || null,
-              academicInfo.enrollment_number || null,
-              new Date().toISOString().split('T')[0],
-              academicInfo.academic_year || '2025-26',
-              emergencyContact.name || guardianInfo.father_name || null,
-              emergencyContact.mobile || guardianInfo.father_mobile || null,
-              emergencyContact.relation || 'Father',
-              personalInfo.blood_group || null,
-              personalInfo.medical_conditions || null,
-              personalInfo.allergies || null,
-              JSON.stringify({
-                application_id: id,
-                tracking_number: application.tracking_number,
-                created_from_application: true,
-              }),
-            ]
-          );
-          console.log('STUDENTS RECORD CREATED for user:', newUser.id);
-        } catch (studentError) {
-          console.error('Failed to create students record:', studentError);
-          // Don't rollback - user is created, students record can be added manually
-        }
+        await client.query(
+          `INSERT INTO students (
+            user_id, vertical, status, gender, date_of_birth, aadhar_number,
+            native_place, permanent_address, father_name, father_mobile,
+            mother_name, mother_mobile, guardian_name, guardian_mobile,
+            guardian_relation, institution, course, year_of_study,
+            enrollment_number, joining_date, academic_year,
+            emergency_contact_name, emergency_contact_phone,
+            emergency_contact_relation, blood_group, medical_conditions,
+            allergies, metadata
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+            $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+            $21, $22, $23, $24, $25, $26, $27, $28
+          )`,
+          [
+            newUser.id,
+            application.vertical,
+            'PENDING',
+            personalInfo.gender || null,
+            personalInfo.date_of_birth || null,
+            personalInfo.aadhar_number || null,
+            personalInfo.native_place || null,
+            personalInfo.permanent_address || personalInfo.address || null,
+            guardianInfo.father_name || null,
+            guardianInfo.father_mobile || null,
+            guardianInfo.mother_name || null,
+            guardianInfo.mother_mobile || null,
+            guardianInfo.guardian_name || null,
+            guardianInfo.guardian_mobile || null,
+            guardianInfo.guardian_relation || null,
+            academicInfo.institution || academicInfo.college || null,
+            academicInfo.course || null,
+            academicInfo.year_of_study || academicInfo.year || null,
+            academicInfo.enrollment_number || null,
+            new Date().toISOString().split('T')[0],
+            academicInfo.academic_year || '2025-26',
+            emergencyContact.name || guardianInfo.father_name || null,
+            emergencyContact.mobile || guardianInfo.father_mobile || null,
+            emergencyContact.relation || 'Father',
+            personalInfo.blood_group || null,
+            personalInfo.medical_conditions || null,
+            personalInfo.allergies || null,
+            JSON.stringify({
+              application_id: id,
+              tracking_number: application.tracking_number,
+              created_from_application: true,
+            }),
+          ]
+        );
 
         // Log user creation
-        await query(
+        await client.query(
           `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
            VALUES ($1, $2, $3, $4)`,
           [
@@ -305,25 +288,12 @@ export async function PUT(
           ]
         );
 
-        console.log('========================================');
-        console.log('STUDENT USER CREATED');
-        console.log('========================================');
-        console.log('User ID:', newUser.id);
-        console.log('Name:', newUser.full_name);
-        console.log('Email:', newUser.email);
-        console.log('Mobile:', newUser.mobile);
-        console.log('Application:', application.tracking_number);
-        console.log('Temp Password:', tempPassword);
-        console.log('========================================');
-
-        // Update the response with the new user info
-        (updatedApplication as any).student_user_id = newUser.id;
-        (updatedApplication as any).student_user = newUser;
-      } catch (userCreationError) {
-        console.error('Error creating student user:', userCreationError);
-        // Don't fail the request - approval succeeded, just user creation failed
+        result.student_user_id = newUser.id;
+        result.student_user = newUser;
       }
-    }
+
+      return result;
+    });
 
     return successResponse({
       data: updatedApplication,

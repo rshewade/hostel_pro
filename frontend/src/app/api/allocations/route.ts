@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -105,50 +105,46 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Student already has an active room allocation');
     }
 
-    // Create allocation
-    const { rows: insertRows } = await query(
-      `INSERT INTO room_allocations (student_id, room_id, status)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [student_id, room_id, 'ACTIVE']
-    );
+    // Create allocation, update room occupancy, and log — all in one transaction
+    const newAllocation = await withTransaction(async (client) => {
+      const { rows: insertRows } = await client.query(
+        `INSERT INTO room_allocations (student_id, room_id, status)
+         VALUES ($1, $2, $3)
+         RETURNING *`,
+        [student_id, room_id, 'ACTIVE']
+      );
 
-    if (insertRows.length === 0) {
-      return serverErrorResponse('Failed to create allocation');
-    }
+      if (insertRows.length === 0) {
+        throw new Error('Failed to create allocation');
+      }
 
-    const newAllocation = insertRows[0];
+      const allocation = insertRows[0];
 
-    // Update room occupancy
-    const newOccupied = room.occupied_count + 1;
-    await query(
-      `UPDATE rooms SET occupied_count = $1, status = $2 WHERE id = $3`,
-      [newOccupied, newOccupied >= room.capacity ? 'OCCUPIED' : 'AVAILABLE', room_id]
-    );
+      // Update room occupancy
+      const newOccupied = room.occupied_count + 1;
+      await client.query(
+        `UPDATE rooms SET occupied_count = $1, status = $2 WHERE id = $3`,
+        [newOccupied, newOccupied >= room.capacity ? 'OCCUPIED' : 'AVAILABLE', room_id]
+      );
 
-    // Log allocation
-    await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
-       VALUES ($1, $2, $3, $4)`,
-      [
-        'ROOM_ALLOCATION',
-        newAllocation.id,
-        'CREATE',
-        JSON.stringify({
-          student_id,
-          room_id,
-          room_number: room.room_number,
-        }),
-      ]
-    );
+      // Log allocation
+      await client.query(
+        `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
+         VALUES ($1, $2, $3, $4)`,
+        [
+          'ROOM_ALLOCATION',
+          allocation.id,
+          'CREATE',
+          JSON.stringify({
+            student_id,
+            room_id,
+            room_number: room.room_number,
+          }),
+        ]
+      );
 
-    console.log('\n========================================');
-    console.log('ROOM ALLOCATED');
-    console.log('========================================');
-    console.log('Allocation ID:', newAllocation.id);
-    console.log('Student ID:', student_id);
-    console.log('Room:', room.room_number);
-    console.log('========================================\n');
+      return allocation;
+    });
 
     return createdResponse(
       { data: newAllocation } as AllocationAPI.CreateResponse,

@@ -134,7 +134,6 @@ export default function StudentRenewalPage() {
   const daysRemaining = renewalInfo?.days_remaining ?? 0;
 
   const handleSubmit = async (data: any) => {
-    console.log('Renewal submitted:', data);
     setRenewalCompleted(true);
     setCurrentStatus('SUBMITTED');
   };

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button, Input } from '@/components';
 import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function ForgotPasswordPage() {
   const { t } = useLanguage();
@@ -43,9 +44,12 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md mx-auto p-6">
         <div className="card p-8 rounded-lg shadow-sm" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
           
-          <Link href="/login" className="flex items-center text-sm mb-6 hover:underline" style={{ color: 'var(--text-secondary)' }}>
-            <ArrowLeft className="w-4 h-4 mr-1" /> {t('Back to Login', 'लॉगिन पर वापस जाएं')}
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/login" className="flex items-center text-sm hover:underline" style={{ color: 'var(--text-secondary)' }}>
+              <ArrowLeft className="w-4 h-4 mr-1" /> {t('Back to Login', 'लॉगिन पर वापस जाएं')}
+            </Link>
+            <LanguageToggle />
+          </div>
 
           <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
             {t('Reset Password', 'पासवर्ड रीसेट करें')}

@@ -64,11 +64,6 @@ export async function GET(request: NextRequest) {
 
       if (studentRows.length > 0) {
         studentUserId = studentRows[0].user_id;
-        console.log('\n========================================');
-        console.log('PARENT FEE DATA ACCESS (Selected Ward)');
-        console.log('========================================');
-        console.log('Selected Ward ID:', selectedStudentId);
-        console.log('Ward User ID:', studentUserId);
       }
     } else {
       // No selection - fall back to first student in parent's linked_student_ids
@@ -88,11 +83,6 @@ export async function GET(request: NextRequest) {
         );
 
         studentUserId = studentRows.length > 0 ? studentRows[0].user_id : null;
-        console.log('\n========================================');
-        console.log('PARENT FEE DATA ACCESS (Default Ward)');
-        console.log('========================================');
-        console.log('Default Ward ID:', defaultStudentId);
-        console.log('Ward User ID:', studentUserId);
       }
     }
 
@@ -104,14 +94,6 @@ export async function GET(request: NextRequest) {
       );
 
       fees = feeData || [];
-      console.log('Fees Found:', fees.length);
-      console.log('========================================\n');
-    } else {
-      console.log('\n========================================');
-      console.log('PARENT FEE DATA ACCESS');
-      console.log('========================================');
-      console.log('No student found for parent');
-      console.log('========================================\n');
     }
 
     const totalFees = fees.reduce((sum: number, f: any) => sum + (f.amount || 0), 0);
@@ -152,7 +134,6 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in /api/parent/fees:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

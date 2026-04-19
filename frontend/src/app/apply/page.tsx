@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Shield, Users, Clock } from "lucide-react";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function ApplyPage() {
   const { t } = useLanguage();
@@ -38,12 +39,15 @@ export default function ApplyPage() {
               <p className="text-caption">{t("Charitable Trust", "चैरिटेबल ट्रस्ट")}</p>
             </div>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">{t("Home", "होम")}</Link>
-            <Link href="/apply" className="nav-link text-primary">{t("Apply Now", "अभी आवेदन करें")}</Link>
-            <Link href="/track" className="nav-link">{t("Check Status", "स्थिति जांचें")}</Link>
-            <Link href="/login" className="nav-link">{t("Login", "लॉगिन")}</Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/" className="nav-link">{t("Home", "होम")}</Link>
+              <Link href="/apply" className="nav-link text-primary">{t("Apply Now", "अभी आवेदन करें")}</Link>
+              <Link href="/track" className="nav-link">{t("Check Status", "स्थिति जांचें")}</Link>
+              <Link href="/login" className="nav-link">{t("Login", "लॉगिन")}</Link>
+            </nav>
+            <LanguageToggle />
+          </div>
         </div>
       </header>
 

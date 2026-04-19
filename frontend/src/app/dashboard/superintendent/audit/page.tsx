@@ -101,17 +101,11 @@ export default function AdminAuditLogsPage() {
 
     fetchAuditData();
   }, []);
-  const handleExport = () => {
-    console.log('Exporting logs...');
-  };
+  const handleExport = () => {};
 
-  const handleViewDetails = (id: string) => {
-    console.log('View details for:', id);
-  };
+  const handleViewDetails = (_id: string) => {};
 
-  const handleViewStudent = (studentId: string) => {
-    console.log('View student:', studentId);
-  };
+  const handleViewStudent = (_studentId: string) => {};
 
   const tabs = [
     {

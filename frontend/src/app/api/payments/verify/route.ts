@@ -36,21 +36,12 @@ export async function POST(request: NextRequest) {
 
     const payment = rows[0];
 
-    console.log('\n========================================');
-    console.log('PAYMENT VERIFIED');
-    console.log('========================================');
-    console.log('Transaction ID:', transaction_id);
-    console.log('Status:', payment.status);
-    console.log('Amount:', payment.amount);
-    console.log('========================================\n');
-
     return successResponse({
       status: payment.status,
       data: payment,
     } as PaymentAPI.VerifyResponse);
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in POST /api/payments/verify:', error);
     return serverErrorResponse('Failed to verify payment', error);
   }
 }

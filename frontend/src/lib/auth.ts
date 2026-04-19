@@ -3,7 +3,10 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { query } from './db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+if (!process.env.JWT_SECRET) {
+  throw new Error('FATAL: JWT_SECRET environment variable is not set. Refusing to start with insecure defaults.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = 86400; // 24 hours in seconds
 const JWT_REFRESH_EXPIRES_IN = 604800; // 7 days in seconds
 const OTP_EXPIRY_MINUTES = 5;
@@ -45,6 +48,94 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function comparePassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
+}
+
+/**
+ * Validate password strength. Single source of truth for all endpoints.
+ * Returns null if valid, or an error message string if invalid.
+ */
+export function validatePasswordStrength(password: string): string | null {
+  if (!password) return 'Password is required';
+  if (password.length < 8) return 'Password must be at least 8 characters long';
+  if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter';
+  if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter';
+  if (!/[0-9]/.test(password)) return 'Password must contain at least one number';
+  if (!/[!@#$%^&*]/.test(password)) return 'Password must contain at least one special character (!@#$%^&*)';
+  return null;
+}
+
+/**
+ * Generate a cryptographically secure temporary password that satisfies
+ * the password policy (8+ chars, uppercase, lowercase, number, special).
+ */
+export function generateSecureTempPassword(): string {
+  // Guarantee one of each required character class
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghjkmnpqrstuvwxyz';
+  const digits = '23456789';
+  const special = '!@#$%^&*';
+
+  const pick = (chars: string) => chars[crypto.randomInt(chars.length)];
+
+  // Start with one from each required class
+  const required = [pick(upper), pick(lower), pick(digits), pick(special)];
+
+  // Fill remaining 8 chars from the full pool
+  const pool = upper + lower + digits + special;
+  const remaining = Array.from({ length: 8 }, () => pick(pool));
+
+  // Shuffle all 12 chars using Fisher-Yates
+  const all = [...required, ...remaining];
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(i + 1);
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+
+  return all.join('');
+}
+
+/**
+ * Generate a cryptographically signed session token with expiry.
+ * Used for OTP-verified guest sessions (applicants, parents).
+ */
+export function createSignedSessionToken(
+  data: Record<string, unknown>,
+  expirySeconds: number = 1800 // 30 minutes
+): string {
+  const expires = Math.floor(Date.now() / 1000) + expirySeconds;
+  const payload = { ...data, exp: expires, sid: crypto.randomBytes(16).toString('hex') };
+  const payloadStr = JSON.stringify(payload);
+  const signature = crypto
+    .createHmac('sha256', JWT_SECRET)
+    .update(payloadStr)
+    .digest('hex');
+
+  return Buffer.from(JSON.stringify({ p: payloadStr, s: signature })).toString('base64url');
+}
+
+/**
+ * Verify a signed session token. Returns the payload if valid, or null.
+ */
+export function verifySignedSessionToken(token: string): Record<string, unknown> | null {
+  try {
+    const { p: payloadStr, s: signature } = JSON.parse(Buffer.from(token, 'base64url').toString());
+
+    const expectedSig = crypto
+      .createHmac('sha256', JWT_SECRET)
+      .update(payloadStr)
+      .digest('hex');
+
+    if (signature !== expectedSig) return null;
+
+    const payload = JSON.parse(payloadStr);
+
+    // Check expiry
+    if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) return null;
+
+    return payload;
+  } catch {
+    return null;
+  }
 }
 
 // ============================================================================

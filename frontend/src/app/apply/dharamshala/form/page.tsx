@@ -6,6 +6,7 @@ import { ArrowLeft, Save, FileText, User, GraduationCap, Home, Users, Upload, Ch
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function ApplicationFormPage() {
   const { t } = useLanguage();
@@ -1028,12 +1029,15 @@ export default function ApplicationFormPage() {
               <p className="text-caption">{t('Application Form', 'आवेदन पत्र')}</p>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
-            <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
-            <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
-            <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+              <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+              <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+              <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
+            </nav>
+            <LanguageToggle />
+          </div>
         </div>
       </header>
 

@@ -79,21 +79,11 @@ export async function POST(
       ]
     );
 
-    console.log('\n========================================');
-    console.log('APPLICATION SUBMITTED');
-    console.log('========================================');
-    console.log('Application ID:', id);
-    console.log('Tracking Number:', application.tracking_number);
-    console.log('Vertical:', application.vertical);
-    console.log('Submitted At:', updatedApplication?.submitted_at);
-    console.log('========================================\n');
-
     return successResponse({
       data: updatedApplication,
       message: `Application ${application.tracking_number} submitted successfully. You will be notified about the next steps.`,
     } as ApplicationAPI.SubmitResponse);
   } catch (error: any) {
-    console.error('Error in POST /api/applications/[id]/submit:', error);
     return serverErrorResponse('Failed to submit application', error);
   }
 }

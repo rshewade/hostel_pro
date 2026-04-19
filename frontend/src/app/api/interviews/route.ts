@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import {
-  successResponse,
   createdResponse,
   badRequestResponse,
   serverErrorResponse,
@@ -13,12 +12,12 @@ import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/interviews
- * List all applications with interviews (status = INTERVIEW or with interview data)
+ * List all interviews with application details
  * Auth: TRUSTEE, SUPERINTENDENT
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
+    await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const applicationId = searchParams.get('application_id');
     const status = searchParams.get('status') as InterviewStatus | null;
@@ -26,52 +25,74 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
 
-    const conditions: string[] = ['interview_scheduled_at IS NOT NULL'];
+    const conditions: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
 
     if (applicationId) {
-      conditions.push(`id = $${paramIndex++}`);
+      conditions.push(`i.application_id = $${paramIndex++}`);
       params.push(applicationId);
     }
 
     if (status === 'SCHEDULED') {
-      conditions.push(`current_status = 'INTERVIEW'`);
+      conditions.push(`i.status = 'SCHEDULED'`);
     } else if (status === 'COMPLETED') {
-      conditions.push('interview_completed_at IS NOT NULL');
+      conditions.push(`i.status = 'COMPLETED'`);
     }
 
-    const whereClause = `WHERE ${conditions.join(' AND ')}`;
+    const whereClause = conditions.length > 0
+      ? `WHERE ${conditions.join(' AND ')}`
+      : '';
 
     // Get total count
     const { rows: countRows } = await query(
-      `SELECT COUNT(*) AS count FROM applications ${whereClause}`,
+      `SELECT COUNT(*) AS count FROM interviews i ${whereClause}`,
       params
     );
     const total = parseInt(countRows[0]?.count || '0', 10);
 
-    // Get paginated results
+    // Get paginated results with application details
     const { rows: interviews } = await query(
-      `SELECT * FROM applications ${whereClause}
-       ORDER BY interview_scheduled_at DESC
+      `SELECT i.*,
+              a.tracking_number, a.applicant_name, a.vertical,
+              a.current_status AS application_status, a.data AS application_data,
+              u.full_name AS trustee_name
+       FROM interviews i
+       JOIN applications a ON i.application_id = a.id
+       LEFT JOIN users u ON i.trustee_id = u.id
+       ${whereClause}
+       ORDER BY i.scheduled_date DESC, i.scheduled_time DESC
        LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
       [...params, limit, offset]
     );
 
-    // Transform applications to interview format
-    const formattedInterviews = (interviews || []).map((app: any) => ({
-      id: app.id,
-      application_id: app.id,
-      schedule_time: app.interview_scheduled_at,
-      completed_at: app.interview_completed_at,
-      status: app.interview_completed_at ? 'COMPLETED' : 'SCHEDULED',
-      application: app,
+    // Transform to expected format
+    const formattedInterviews = (interviews || []).map((row: any) => ({
+      id: row.id,
+      application_id: row.application_id,
+      trustee_id: row.trustee_id,
+      schedule_time: row.scheduled_date && row.scheduled_time
+        ? `${row.scheduled_date}T${row.scheduled_time}`
+        : null,
+      mode: row.mode,
+      status: row.status,
+      score: row.score,
+      internal_remarks: row.internal_remarks,
+      location_or_link: row.location_or_link,
+      created_at: row.created_at,
+      application: {
+        id: row.application_id,
+        tracking_number: row.tracking_number,
+        applicant_name: row.applicant_name,
+        vertical: row.vertical,
+        current_status: row.application_status,
+        data: row.application_data,
+      },
     }));
 
     return paginatedResponse(formattedInterviews, page, limit, total);
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in GET /api/interviews:', error);
     return serverErrorResponse('Failed to fetch interviews', error);
   }
 }
@@ -83,7 +104,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
+    await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
     const body: InterviewAPI.CreateRequest = await request.json();
     const { application_id, trustee_id, schedule_time, mode } = body;
 
@@ -123,72 +144,84 @@ export async function POST(request: NextRequest) {
     const application = appRows[0];
 
     // Validate trustee exists if provided
-    if (trustee_id) {
+    const effectiveTrusteeId = trustee_id || (await query(
+      "SELECT id FROM users WHERE role = 'TRUSTEE' LIMIT 1"
+    )).rows[0]?.id;
+
+    if (effectiveTrusteeId) {
       const { rows: trusteeRows } = await query(
         "SELECT id FROM users WHERE id = $1 AND role = 'TRUSTEE'",
-        [trustee_id]
+        [effectiveTrusteeId]
       );
-
       if (trusteeRows.length === 0) {
         return badRequestResponse('Invalid trustee ID');
       }
     }
 
-    // Update application with interview data
-    const updatedData = {
-      ...application.data,
-      interview: {
-        trustee_id,
-        mode,
-        scheduled_at: schedule_time,
-      },
-    };
+    // Parse schedule_time into date and time
+    const scheduleDate = new Date(schedule_time);
+    const dateStr = scheduleDate.toISOString().split('T')[0];
+    const timeStr = scheduleDate.toTimeString().split(' ')[0].substring(0, 5);
 
-    const { rows: updatedRows } = await query(
-      `UPDATE applications
-       SET current_status = 'INTERVIEW', interview_scheduled_at = $1, data = $2
-       WHERE id = $3 RETURNING *`,
-      [schedule_time, JSON.stringify(updatedData), application_id]
+    // Map mode to DB enum
+    const modeMap: Record<string, string> = {
+      'IN_PERSON': 'IN_PERSON',
+      'PHYSICAL': 'IN_PERSON',
+      'ONLINE': 'ZOOM',
+      'VIDEO_CALL': 'ZOOM',
+      'ZOOM': 'ZOOM',
+      'GOOGLE_MEET': 'GOOGLE_MEET',
+      'WHATSAPP_VIDEO': 'WHATSAPP_VIDEO',
+      'PHONE_CALL': 'PHONE_CALL',
+    };
+    const dbMode = modeMap[mode] || 'IN_PERSON';
+
+    // Insert into interviews table
+    const { rows: insertedRows } = await query(
+      `INSERT INTO interviews (application_id, trustee_id, scheduled_date, scheduled_time, mode)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (application_id) DO UPDATE
+       SET scheduled_date = $3, scheduled_time = $4, mode = $5, status = 'SCHEDULED', updated_at = NOW()
+       RETURNING *`,
+      [application_id, effectiveTrusteeId, dateStr, timeStr, dbMode]
     );
 
-    if (updatedRows.length === 0) {
+    if (insertedRows.length === 0) {
       return serverErrorResponse('Failed to schedule interview');
     }
 
-    // Log interview scheduling
+    // Update application status to INTERVIEW
+    await query(
+      `UPDATE applications SET current_status = 'INTERVIEW', updated_at = NOW() WHERE id = $1`,
+      [application_id]
+    );
+
+    // Audit log
     await query(
       `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
        VALUES ($1, $2, $3, $4)`,
       [
-        'APPLICATION',
-        application_id,
+        'INTERVIEW',
+        insertedRows[0].id,
         'INTERVIEW_SCHEDULED',
         JSON.stringify({
+          application_id,
           tracking_number: application.tracking_number,
           schedule_time,
-          mode,
-          trustee_id,
+          mode: dbMode,
+          trustee_id: effectiveTrusteeId,
         }),
       ]
     );
 
-    console.log('\n========================================');
-    console.log('INTERVIEW SCHEDULED');
-    console.log('========================================');
-    console.log('Application ID:', application_id);
-    console.log('Trustee ID:', trustee_id);
-    console.log('Schedule Time:', schedule_time);
-    console.log('Mode:', mode);
-    console.log('========================================\n');
-
     return createdResponse(
       {
         data: {
-          id: application_id,
+          id: insertedRows[0].id,
           application_id,
-          trustee_id,
+          trustee_id: effectiveTrusteeId,
           schedule_time,
-          mode,
+          mode: dbMode,
           status: InterviewStatus.SCHEDULED,
         },
       } as InterviewAPI.CreateResponse,
@@ -196,7 +229,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in POST /api/interviews:', error);
     return serverErrorResponse('Failed to create interview', error);
   }
 }

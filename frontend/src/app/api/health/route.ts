@@ -14,16 +14,13 @@ export async function GET() {
     checks: {},
   };
 
-  // Check environment variables
+  // Check environment variables (never expose values)
   checks.checks.DATABASE_URL = {
-    status: !!process.env.DATABASE_URL ? 'OK' : 'MISSING',
-    value: process.env.DATABASE_URL
-      ? process.env.DATABASE_URL.substring(0, 30) + '...'
-      : null,
+    status: process.env.DATABASE_URL ? 'OK' : 'MISSING',
   };
 
   checks.checks.JWT_SECRET = {
-    status: !!process.env.JWT_SECRET ? 'OK' : 'MISSING (using default)',
+    status: process.env.JWT_SECRET ? 'OK' : 'MISSING',
   };
 
   // Test PostgreSQL connection

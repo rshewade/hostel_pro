@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, Input } from '@/components';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 type LoginFormData = {
   username: string;
@@ -84,6 +85,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
       <div className="w-full max-w-md mx-auto p-6">
+        {/* Language Toggle */}
+        <div className="flex justify-end mb-4">
+          <LanguageToggle />
+        </div>
+
         {/* Header with branding */}
         <div className="text-center mb-8">
           <img

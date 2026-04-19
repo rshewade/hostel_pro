@@ -20,7 +20,7 @@ export async function GET(
     const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE']);
     const { id } = await props.params;
 
-    console.log(`GET /api/allocations/${id}`);
+
 
     const { rows } = await query(
       `SELECT ra.*,
@@ -59,8 +59,6 @@ export async function PUT(
     const { id } = await props.params;
     const body = await request.json();
 
-    console.log(`PUT /api/allocations/${id}`, body);
-
     // Check if allocation exists
     const { rows: existingRows } = await query(
       'SELECT id FROM room_allocations WHERE id = $1',
@@ -71,18 +69,26 @@ export async function PUT(
       return notFoundResponse('Allocation not found');
     }
 
-    // Build dynamic UPDATE from body keys
-    const keys = Object.keys(body);
-    if (keys.length === 0) {
+    // Only allow updating specific fields
+    const ALLOWED_FIELDS = ['check_in_confirmed', 'status'];
+    const setClauses: string[] = [];
+    const values: any[] = [];
+
+    for (const key of ALLOWED_FIELDS) {
+      if (key in body) {
+        values.push(body[key]);
+        setClauses.push(`${key} = $${values.length}`);
+      }
+    }
+
+    if (setClauses.length === 0) {
       return successResponse(existingRows[0]);
     }
 
-    const setClauses = keys.map((key, i) => `${key} = $${i + 1}`);
-    const values = keys.map((key) => body[key]);
     values.push(id);
 
     const { rows: updatedRows } = await query(
-      `UPDATE room_allocations SET ${setClauses.join(', ')} WHERE id = $${values.length} RETURNING *`,
+      `UPDATE room_allocations SET ${setClauses.join(', ')}, updated_at = NOW() WHERE id = $${values.length} RETURNING *`,
       values
     );
 

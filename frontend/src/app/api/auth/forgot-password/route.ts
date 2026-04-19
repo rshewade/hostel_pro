@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { query } from '@/lib/db';
-import { createOtp } from '@/lib/auth';
+import { sendOtp } from '@/lib/msg91';
 import {
   successResponse,
   badRequestResponse,
@@ -8,12 +8,13 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { AuthAPI } from '@/types/api';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/auth/forgot-password
  *
  * Initiate password reset process.
- * Sends OTP to user's registered email or mobile.
+ * Sends OTP to user's registered mobile via MSG91.
  * Returns token for password reset verification.
  *
  * @see Task 7 - Student Login (Forgot Password Flow)
@@ -58,7 +59,6 @@ export async function POST(request: NextRequest) {
     // For security, don't reveal if user exists or not
     // Always return success even if user not found
     if (!user) {
-      console.log('Password reset requested for non-existent user:', contact);
 
       const mockToken = Buffer.from(
         JSON.stringify({
@@ -76,9 +76,20 @@ export async function POST(request: NextRequest) {
       } as AuthAPI.ForgotPasswordResponse);
     }
 
-    // Create OTP using DB-backed storage
-    const userContact = user.email || user.mobile;
-    const otp = await createOtp(userContact, 'password_reset');
+    // Send OTP via MSG91
+    const userContact = user.mobile || user.email;
+    const msg91Result = await sendOtp(
+      user.mobile || undefined,
+      user.email || undefined
+    );
+
+    if (!msg91Result.success) {
+      logger.error('Forgot password OTP send failed via MSG91', {
+        userId: user.id,
+        error: msg91Result.message,
+      });
+      // Still return success to not reveal user existence
+    }
 
     // Create reset token
     const resetToken = Buffer.from(
@@ -89,30 +100,18 @@ export async function POST(request: NextRequest) {
       })
     ).toString('base64');
 
-    // In production, send OTP via SMS/Email service
-    console.log('\n========================================');
-    console.log('PASSWORD RESET OTP GENERATED');
-    console.log('========================================');
-    console.log('User ID:', user.id);
-    console.log('Contact:', userContact);
-    console.log('OTP Code:', otp);
-    console.log('Token:', resetToken);
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('========================================\n');
-
     const response: AuthAPI.ForgotPasswordResponse = {
       success: true,
       token: resetToken,
       message: user.email
         ? `Password reset OTP sent to ${user.email}`
         : `Password reset OTP sent to ${user.mobile}`,
-      // Include OTP in development for easy testing
-      ...(process.env.NODE_ENV === 'development' && { devOTP: otp }),
     };
 
     return successResponse(response);
-  } catch (error: any) {
-    console.error('Error in /api/auth/forgot-password:', error);
-    return serverErrorResponse('Failed to initiate password reset', error);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Error in /api/auth/forgot-password', { error: errMsg });
+    return serverErrorResponse('Failed to initiate password reset', error instanceof Error ? error : undefined);
   }
 }

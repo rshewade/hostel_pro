@@ -67,11 +67,6 @@ export async function GET(request: NextRequest) {
 
       if (studentRows.length > 0) {
         studentUserId = studentRows[0].user_id;
-        console.log('\n========================================');
-        console.log('PARENT LEAVE DATA ACCESS (Selected Ward)');
-        console.log('========================================');
-        console.log('Selected Ward ID:', selectedStudentId);
-        console.log('Ward User ID:', studentUserId);
       }
     } else {
       // No selection - fall back to first student in parent's linked_student_ids
@@ -91,11 +86,6 @@ export async function GET(request: NextRequest) {
         );
 
         studentUserId = studentRows.length > 0 ? studentRows[0].user_id : null;
-        console.log('\n========================================');
-        console.log('PARENT LEAVE DATA ACCESS (Default Ward)');
-        console.log('========================================');
-        console.log('Default Ward ID:', defaultStudentId);
-        console.log('Ward User ID:', studentUserId);
       }
     }
 
@@ -108,14 +98,6 @@ export async function GET(request: NextRequest) {
       );
 
       leaves = leaveData || [];
-      console.log('Leaves Found:', leaves.length);
-      console.log('========================================\n');
-    } else {
-      console.log('\n========================================');
-      console.log('PARENT LEAVE DATA ACCESS');
-      console.log('========================================');
-      console.log('No student found for parent');
-      console.log('========================================\n');
     }
 
     const typeMap: Record<string, string> = {
@@ -153,7 +135,6 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in /api/parent/leave:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

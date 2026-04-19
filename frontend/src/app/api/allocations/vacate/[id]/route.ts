@@ -85,14 +85,6 @@ export async function PUT(
       ]
     );
 
-    console.log('\n========================================');
-    console.log('ROOM VACATED');
-    console.log('========================================');
-    console.log('Allocation ID:', id);
-    console.log('Student ID:', allocation.student_id);
-    console.log('Room:', room?.room_number);
-    console.log('========================================\n');
-
     return successResponse({
       data: updatedAllocation,
     } as AllocationAPI.VacateResponse);

@@ -116,7 +116,6 @@ export default function SuperintendentDashboard() {
       
       setApplications(transformedApplications);
     } catch (err: any) {
-      console.error('Error fetching applications:', err);
       setError(err.message || 'Failed to load applications');
     } finally {
       setIsLoading(false);
@@ -149,7 +148,6 @@ export default function SuperintendentDashboard() {
 
       return { documents, interview };
     } catch (err) {
-      console.error('Error fetching application details:', err);
       return { documents: [], interview: { scheduleTime: null, mode: null } };
     } finally {
       setIsLoadingDetails(false);
@@ -171,7 +169,6 @@ export default function SuperintendentDashboard() {
       const result = await response.json();
       return result.url || null;
     } catch (err) {
-      console.error('Error getting document URL:', err);
       return null;
     }
   };
@@ -258,11 +255,9 @@ export default function SuperintendentDashboard() {
     setIsSending(true);
     try {
       // TODO: Implement actual message sending via API
-      console.log('Sending message:', data);
       // In a real implementation, this would call the communications API
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    } catch (error) {
-      console.error('Failed to send message:', error);
+    } catch {
     } finally {
       setIsSending(false);
     }
@@ -586,7 +581,7 @@ export default function SuperintendentDashboard() {
                   pageSize: 10,
                   totalItems: filteredApplications.length,
                   totalPages: Math.ceil(filteredApplications.length / 10),
-                  onPageChange: (page) => console.log('Page change:', page)
+                  onPageChange: () => {}
                 }}
                 density="normal"
                 striped={true}
@@ -878,7 +873,6 @@ export default function SuperintendentDashboard() {
               alert('Failed to update application status');
             }
           } catch (err) {
-            console.error('Error updating application:', err);
             alert('Failed to update application status');
           } finally {
             setIsActionLoading(false);

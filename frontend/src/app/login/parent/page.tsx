@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Input, Button, cn } from '@/components';
 import { OtpInput } from '@/components/forms/OtpInput';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 // Parent Login Flow
 // 1. Enter registered mobile number
@@ -156,9 +157,12 @@ export default function ParentLoginPage() {
               <p className="text-caption">{t('Charitable Trust', 'धर्मार्थ ट्रस्ट')}</p>
             </div>
           </div>
-          <Link href="/login" className="text-sm text-blue-600 hover:underline">
-            {t('← Back to Login', '← लॉगिन पर वापस जाएँ')}
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <Link href="/login" className="text-sm text-blue-600 hover:underline">
+              {t('← Back to Login', '← लॉगिन पर वापस जाएँ')}
+            </Link>
+          </div>
         </div>
       </header>
 

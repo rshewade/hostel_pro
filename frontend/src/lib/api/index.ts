@@ -72,7 +72,6 @@ export const API_ENDPOINTS = {
   // Rooms & Allocations
   ROOMS: {
     LIST: '/api/rooms',
-    BY_VERTICAL: (vertical: string) => `/api/rooms/${vertical}`,
   },
   ALLOCATIONS: {
     LIST: '/api/allocations',
@@ -90,7 +89,6 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/api/leaves/${id}`,
     APPROVE: (id: string) => `/api/leaves/${id}/approve`,
     REJECT: (id: string) => `/api/leaves/${id}/reject`,
-    NOTIFY_PARENT: '/api/leaves/notify-parent',
   },
 
   // Renewals
@@ -99,7 +97,6 @@ export const API_ENDPOINTS = {
     CREATE: '/api/renewals',
     GET: (id: string) => `/api/renewals/${id}`,
     APPROVE: (id: string) => `/api/renewals/${id}/approve`,
-    DUE: '/api/renewals/due',
   },
 
   // Dashboards
@@ -107,25 +104,18 @@ export const API_ENDPOINTS = {
     STUDENT: '/api/dashboard/student',
     SUPERINTENDENT: '/api/dashboard/superintendent',
     TRUSTEE: '/api/dashboard/trustee',
-    ACCOUNTS: '/api/dashboard/accounts',
     PARENT: '/api/dashboard/parent',
-    STATS: '/api/dashboard/stats',
   },
 
   // Documents
   DOCUMENTS: {
     UPLOAD: '/api/documents/upload',
     GET: (id: string) => `/api/documents/${id}`,
-    DELETE: (id: string) => `/api/documents/${id}`,
-    VERIFY: (id: string) => `/api/documents/verify/${id}`,
-    LIST: (applicationId: string) => `/api/documents/list/${applicationId}`,
   },
 
   // User Profile
   USERS: {
     PROFILE: '/api/users/profile',
-    UPDATE_PROFILE: '/api/users/profile/update',
-    CHANGE_PASSWORD: '/api/users/change-password',
   },
 
   // Audit
@@ -162,7 +152,7 @@ export class APIError extends Error {
   constructor(
     message: string,
     public statusCode: number,
-    public response?: any
+    public response?: unknown
   ) {
     super(message);
     this.name = 'APIError';
@@ -176,7 +166,7 @@ export class APIError extends Error {
 export type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
-  body?: any;
+  body?: Record<string, unknown> | FormData | string;
   timeout?: number;
 };
 
@@ -244,19 +234,19 @@ export async function apiRequest<T = any>(
 // ============================================================================
 
 export const api = {
-  get: <T = any>(endpoint: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
+  get: <T = unknown>(endpoint: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
     apiRequest<T>(endpoint, { ...options, method: 'GET' }),
 
-  post: <T = any>(endpoint: string, body?: any, options?: Omit<RequestOptions, 'method'>) =>
+  post: <T = unknown>(endpoint: string, body?: RequestOptions['body'], options?: Omit<RequestOptions, 'method'>) =>
     apiRequest<T>(endpoint, { ...options, method: 'POST', body }),
 
-  put: <T = any>(endpoint: string, body?: any, options?: Omit<RequestOptions, 'method'>) =>
+  put: <T = unknown>(endpoint: string, body?: RequestOptions['body'], options?: Omit<RequestOptions, 'method'>) =>
     apiRequest<T>(endpoint, { ...options, method: 'PUT', body }),
 
-  delete: <T = any>(endpoint: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
+  delete: <T = unknown>(endpoint: string, options?: Omit<RequestOptions, 'method' | 'body'>) =>
     apiRequest<T>(endpoint, { ...options, method: 'DELETE' }),
 
-  patch: <T = any>(endpoint: string, body?: any, options?: Omit<RequestOptions, 'method'>) =>
+  patch: <T = unknown>(endpoint: string, body?: RequestOptions['body'], options?: Omit<RequestOptions, 'method'>) =>
     apiRequest<T>(endpoint, { ...options, method: 'PATCH', body }),
 };
 
@@ -267,7 +257,7 @@ export const api = {
 /**
  * Validate API response structure
  */
-export function isApiResponse<T = any>(data: any): data is ApiResponse<T> {
+export function isApiResponse<T = unknown>(data: unknown): data is ApiResponse<T> {
   return (
     typeof data === 'object' &&
     data !== null &&

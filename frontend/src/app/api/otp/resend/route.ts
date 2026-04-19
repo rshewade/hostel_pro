@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOtp } from '@/lib/auth';
+import { resendOtp } from '@/lib/msg91';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/otp/resend
  *
  * Resend OTP for application or parent login flows.
- * Uses DB-backed OTP storage via createOtp() (invalidates previous OTP).
+ * Uses MSG91 retry API to resend via SMS or voice channel.
  *
  * Request body:
  * - token: string - Original token from /api/otp/send response
  * - reason: string - Reason for resending (user_request, expired, etc.)
+ * - retryType?: 'text' | 'voice' | 'email' - Channel for retry (default: 'text')
  *
  * Response:
  * - Success: 200 with { success: true, token: string, expiresIn: number }
@@ -18,7 +20,7 @@ import { createOtp } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { token, reason } = body;
+    const { token, retryType } = body;
 
     // Validate input
     if (!token) {
@@ -54,8 +56,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new OTP in DB (invalidates the previous one for this contact+purpose)
-    const otp = await createOtp(tokenData.contact, 'application');
+    const contact = tokenData.contact;
+
+    // Resend OTP via MSG91 retry API
+    const msg91Result = await resendOtp(contact, retryType || 'text');
+
+    if (!msg91Result.success) {
+      logger.error('OTP resend failed via MSG91', { contact, error: msg91Result.message });
+      return NextResponse.json(
+        { message: 'Failed to resend OTP. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     // Generate new token with same contact info but new timestamp
     const newToken = Buffer.from(JSON.stringify({
@@ -65,28 +77,16 @@ export async function POST(request: NextRequest) {
       resent: true
     })).toString('base64');
 
-    // In production, send OTP via SMS/Email service
-    console.log('\n========================================');
-    console.log('OTP RESENT (DB-backed)');
-    console.log('========================================');
-    console.log('Contact:', tokenData.contact);
-    console.log('Vertical:', tokenData.vertical);
-    console.log('Reason:', reason || 'user_request');
-    console.log('New OTP Code:', otp);
-    console.log('Expires In: 300 seconds (5 minutes)');
-    console.log('========================================\n');
-
     return NextResponse.json({
       success: true,
       token: newToken,
       expiresIn: 300, // 5 minutes
       message: `New OTP sent to ${tokenData.contact}`,
-      // Include OTP in development for easy testing
-      ...(process.env.NODE_ENV === 'development' && { devOTP: otp })
     });
 
-  } catch (error) {
-    console.error('Error in /api/otp/resend:', error);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('OTP resend failed', { route: '/api/otp/resend', error: errMsg });
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

@@ -132,7 +132,6 @@ export const USER_ROLES = {
   TRUSTEE: 'Trustee',
   ACCOUNTS: 'Accounts',
   PARENT: 'Parent',
-  ADMIN: 'Administrator',
 } as const;
 
 // Fee heads

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySignedToken, readFile, getAbsolutePath } from '@/lib/storage';
+import { verifySignedToken, resolveAndValidatePath } from '@/lib/storage';
+import fs from 'fs/promises';
 import path from 'path';
 
 const MIME_TYPES: Record<string, string> = {
@@ -32,13 +33,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: result.error || 'Invalid token' }, { status: 403 });
     }
 
-    // Prevent path traversal
-    const absPath = getAbsolutePath(result.filePath);
-    if (!absPath.startsWith(getAbsolutePath(''))) {
+    // Resolve path and validate it stays within uploads directory (prevents path traversal + symlink attacks)
+    let absPath: string;
+    try {
+      absPath = await resolveAndValidatePath(result.filePath);
+    } catch {
       return NextResponse.json({ error: 'Invalid file path' }, { status: 403 });
     }
 
-    const buffer = await readFile(result.filePath);
+    const buffer = await fs.readFile(absPath);
     const ext = path.extname(result.filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
     const fileName = path.basename(result.filePath);

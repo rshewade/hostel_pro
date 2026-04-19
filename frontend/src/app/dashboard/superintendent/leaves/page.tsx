@@ -163,10 +163,8 @@ export default function SuperintendentLeaveManagement() {
   const handleSendMessage = async (data: SendMessageData) => {
     setIsSending(true);
     try {
-      console.log('Sending message:', data);
       // Simulate message send
-    } catch (error) {
-      console.error('Failed to send message:', error);
+    } catch {
     } finally {
       setIsSending(false);
       setShowMessagePanel(false);

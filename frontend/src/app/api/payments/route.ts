@@ -108,16 +108,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('\n========================================');
-    console.log('PAYMENT INITIATED');
-    console.log('========================================');
-    console.log('Transaction ID:', transactionId);
-    console.log('Fee ID:', fee_id);
-    console.log('Amount:', amount);
-    console.log('Payment Method:', payment_method);
-    console.log('Status:', payment.status);
-    console.log('========================================\n');
-
     const response: PaymentAPI.InitiateResponse = {
       success: true,
       transaction_id: transactionId,
@@ -129,7 +119,6 @@ export async function POST(request: NextRequest) {
     return createdResponse(response, 'Payment initiated successfully');
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in POST /api/payments:', error);
     return serverErrorResponse('Failed to initiate payment', error);
   }
 }
