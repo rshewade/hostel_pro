@@ -71,6 +71,12 @@ export default function ContactOTPPage() {
       
       if (response.ok) {
         const data = await response.json();
+        // Store verified contact for use in application form
+        if (contactMethod === 'phone') {
+          localStorage.setItem('otp_verified_mobile', phoneNumber);
+        } else {
+          localStorage.setItem('otp_verified_email', email);
+        }
         // Success - navigate to OTP verification with token
         window.location.href = `/apply/boys-hostel/verify?token=${encodeURIComponent(data.token)}`;
       } else {
@@ -242,11 +248,19 @@ export default function ContactOTPPage() {
                   type="tel"
                   label={t('Mobile Number', 'मोबाइल नंबर')}
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setPhoneNumber(val);
+                    if (val && !/^[6-9]\d{9}$/.test(val)) {
+                      setErrors([t('Must be 10 digits starting with 6-9', '6-9 से शुरू होने वाले 10 अंक होने चाहिए')]);
+                    } else {
+                      setErrors([]);
+                    }
+                  }}
                   placeholder={t('Enter 10-digit mobile number', '10 अंकों का मोबाइल नंबर दर्ज करें')}
                   size="lg"
                   leftIcon={<Phone className="w-5 h-5" />}
-                  error={errors.some(e => e.includes('phone') || e.includes('Phone')) ? errors.find(e => e.includes('phone') || e.includes('Phone')) : undefined}
+                  error={errors.some(e => e.includes('phone') || e.includes('Phone') || e.includes('digit') || e.includes('अंक')) ? errors.find(e => e.includes('phone') || e.includes('Phone') || e.includes('digit') || e.includes('अंक')) : undefined}
                   helperText={t("We'll send a 6-digit OTP to this number", "हम इस नंबर पर 6 अंकों का ओटीपी भेजेंगे")}
                 />
               </div>
@@ -258,11 +272,18 @@ export default function ContactOTPPage() {
                   type="email"
                   label={t('Email Address', 'ईमेल पता')}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (e.target.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) {
+                      setErrors([t('Please enter a valid email address', 'कृपया एक मान्य ईमेल पता दर्ज करें')]);
+                    } else {
+                      setErrors([]);
+                    }
+                  }}
                   placeholder={t('Enter your email address', 'अपना ईमेल पता दर्ज करें')}
                   size="lg"
                   leftIcon={<Mail className="w-5 h-5" />}
-                  error={errors.some(e => e.includes('email') || e.includes('Email')) ? errors.find(e => e.includes('email') || e.includes('Email')) : undefined}
+                  error={errors.some(e => e.includes('email') || e.includes('Email') || e.includes('ईमेल')) ? errors.find(e => e.includes('email') || e.includes('Email') || e.includes('ईमेल')) : undefined}
                   helperText={t("We'll send a 6-digit OTP to this email", "हम इस ईमेल पर 6 अंकों का ओटीपी भेजेंगे")}
                 />
               </div>

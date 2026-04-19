@@ -42,9 +42,12 @@ export default function TrusteeAllocations() {
     try {
       setIsLoading(true);
       setError(null);
+      const token = localStorage.getItem('authToken');
 
       // Fetch approved applications pending allocation
-      const applicationsResponse = await fetch('/api/applications');
+      const applicationsResponse = await fetch('/api/applications', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const applicationsData = await applicationsResponse.json();
       const applications = Array.isArray(applicationsData) ? applicationsData : [];
 
@@ -66,7 +69,9 @@ export default function TrusteeAllocations() {
       setPendingAllocations(pending);
 
       // Fetch room summary
-      const roomsResponse = await fetch('/api/rooms');
+      const roomsResponse = await fetch('/api/rooms', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const roomsData = await roomsResponse.json();
       const rooms = Array.isArray(roomsData) ? roomsData : roomsData.data || [];
 
@@ -116,9 +121,10 @@ export default function TrusteeAllocations() {
   );
 
   const handleAllocate = async (applicationId: string, roomId: string) => {
+    const token = localStorage.getItem('authToken');
     const response = await fetch('/api/allocations', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         student_id: applicationId,
         room_id: roomId,
@@ -129,7 +135,7 @@ export default function TrusteeAllocations() {
       // Update application status
       await fetch(`/api/applications/${applicationId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           status: 'ALLOCATED',
           current_status: 'ALLOCATED',

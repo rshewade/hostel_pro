@@ -40,10 +40,19 @@ export default function TrackingPage() {
       }
 
       const appData = result.data.data || result.data;
-      const normalizedMobile = mobile.replace(/^\+?91/, '').trim();
-      const appMobileNormalized = (appData.applicant_mobile || '').replace(/^\+?91/, '').trim();
-      
-      if (appMobileNormalized !== normalizedMobile) {
+      const normalize = (m: string) => (m || '').replace(/[\s+\-]/g, '').slice(-10);
+      const normalizedMobile = normalize(mobile);
+
+      // Check all possible mobile fields in the application
+      const mobilesToCheck = [
+        appData.applicant_mobile,
+        appData.data?.guardian_info?.father_mobile,
+        appData.data?.guardian_info?.mother_mobile,
+        appData.data?.guardian_info?.guardian_mobile,
+        appData.data?.emergency_contact?.mobile,
+      ].map(normalize);
+
+      if (!mobilesToCheck.includes(normalizedMobile)) {
         setError('Mobile number does not match the application');
         setStep('input');
         return;

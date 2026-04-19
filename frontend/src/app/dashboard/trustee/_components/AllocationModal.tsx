@@ -46,6 +46,7 @@ export function AllocationModal({
   const fetchAvailableRooms = async (vertical: Vertical) => {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem('authToken');
       // Map display vertical to database vertical format
       const dbVerticalMap: Record<Vertical, string> = {
         'BOYS': 'BOYS_HOSTEL',
@@ -53,7 +54,9 @@ export function AllocationModal({
         'DHARAMSHALA': 'DHARAMSHALA',
       };
       const dbVertical = dbVerticalMap[vertical] || vertical;
-      const response = await fetch(`/api/rooms?vertical=${dbVertical}`);
+      const response = await fetch(`/api/rooms?vertical=${dbVertical}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       if (response.ok) {
         const data = await response.json();
         const roomsList = data.data || data || [];

@@ -35,8 +35,9 @@ export default function StudentExitPage() {
       try {
         setLoading(true);
 
-        // Mock API call - replace with actual API
-        const response = await fetch('/api/student/exit-request');
+        const token = localStorage.getItem('authToken');
+        const authHeaders: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const response = await fetch('/api/student/exit-request', { headers: authHeaders });
 
         if (response.ok) {
           const data = await response.json();
@@ -59,10 +60,10 @@ export default function StudentExitPage() {
 
   const handleSubmit = async (data: ExitRequestData) => {
     try {
-      // Mock API call - replace with actual API
+      const token = localStorage.getItem('authToken');
       const response = await fetch('/api/student/exit-request', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify(data),
       });
 
@@ -97,10 +98,10 @@ export default function StudentExitPage() {
 
   const handleSaveDraft = async (data: Partial<ExitRequestData>) => {
     try {
-      // Mock API call - replace with actual API
+      const token = localStorage.getItem('authToken');
       const response = await fetch('/api/student/exit-request/draft', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify(data),
       });
 
@@ -147,9 +148,10 @@ export default function StudentExitPage() {
 
     setWithdrawing(true);
     try {
-      // Mock API call - replace with actual API
+      const token = localStorage.getItem('authToken');
       const response = await fetch('/api/student/exit-request/withdraw', {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
       });
 
       if (response.ok) {

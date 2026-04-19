@@ -57,6 +57,7 @@ interface LeaveRule {
 
 export default function SuperintendentLeaveManagement() {
   const { t } = useLanguage();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   const [selectedFilter, setSelectedFilter] = useState<'pending' | 'all'>('pending');
   const [selectedLeaveType, setSelectedLeaveType] = useState<LeaveType | 'ALL'>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<LeaveStatus | 'ALL'>('ALL');
@@ -87,7 +88,9 @@ export default function SuperintendentLeaveManagement() {
   const fetchLeaveRequests = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/leaves');
+      const response = await fetch('/api/leaves', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       if (response.ok) {
         const result = await response.json();
         const data = result.data || result;
@@ -184,7 +187,7 @@ export default function SuperintendentLeaveManagement() {
       
       const response = await fetch(endpoint, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           remarks: actionModal.remarks,
           approved_by: 'superintendent' // In real app, get from session

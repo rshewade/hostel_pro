@@ -67,6 +67,11 @@ export default function GirlsAshramContactPage() {
       
       if (response.ok) {
         const data = await response.json();
+        if (contactMethod === 'phone') {
+          localStorage.setItem('otp_verified_mobile', phoneNumber);
+        } else {
+          localStorage.setItem('otp_verified_email', email);
+        }
         window.location.href = `/apply/girls-ashram/verify?token=${encodeURIComponent(data.token)}`;
       } else {
         const error = await response.json();
@@ -224,16 +229,27 @@ export default function GirlsAshramContactPage() {
                   <input
                     type="tel"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setPhoneNumber(val);
+                      if (val && !/^[6-9]\d{9}$/.test(val)) {
+                        setErrors([t('Must be 10 digits starting with 6-9', '6-9 से शुरू होने वाले 10 अंक होने चाहिए')]);
+                      } else {
+                        setErrors([]);
+                      }
+                    }}
                     placeholder={t('Enter 10-digit mobile number', '10 अंकों का मोबाइल नंबर दर्ज करें')}
                     className="w-full px-4 py-3 border rounded-lg text-lg"
                     style={{
-                      borderColor: errors.includes('Phone number') ? 'var(--color-red-500)' : 'var(--border-primary)',
+                      borderColor: errors.length > 0 ? 'var(--color-red-500)' : 'var(--border-primary)',
                       paddingLeft: '48px'
                     }}
                   />
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: "var(--color-gray-400)" }} />
                 </div>
+                {errors.length > 0 && contactMethod === 'phone' && (
+                  <p className="text-sm mt-1" style={{ color: 'var(--color-red-500)' }}>{errors[0]}</p>
+                )}
                 <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
                   {t('We\'ll send a 6-digit OTP to this number', 'हम इस नंबर पर 6 अंकों का ओटीपी भेजेंगे')}</p>
               </div>
@@ -247,16 +263,26 @@ export default function GirlsAshramContactPage() {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (e.target.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) {
+                        setErrors([t('Please enter a valid email address', 'कृपया एक मान्य ईमेल पता दर्ज करें')]);
+                      } else {
+                        setErrors([]);
+                      }
+                    }}
                     placeholder={t('Enter your email address', 'अपना ईमेल पता दर्ज करें')}
                     className="w-full px-4 py-3 border rounded-lg text-lg"
                     style={{
-                      borderColor: errors.includes('Email') ? 'var(--color-red-500)' : 'var(--border-primary)',
+                      borderColor: errors.length > 0 ? 'var(--color-red-500)' : 'var(--border-primary)',
                       paddingLeft: '48px'
                     }}
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: "var(--color-gray-400)" }} />
                 </div>
+                {errors.length > 0 && contactMethod === 'email' && (
+                  <p className="text-sm mt-1" style={{ color: 'var(--color-red-500)' }}>{errors[0]}</p>
+                )}
                 <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
                   {t('We\'ll send a 6-digit OTP to this email', 'हम इस ईमेल पर 6 अंकों का ओटीपी भेजेंगे')}</p>
               </div>

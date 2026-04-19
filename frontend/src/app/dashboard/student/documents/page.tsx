@@ -83,7 +83,10 @@ export default function StudentDocumentsPage() {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/student/documents?studentId=${studentId}`);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/student/documents?studentId=${studentId}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       if (response.ok) {
         const data = await response.json();
         // Handle both array and wrapped response
@@ -137,8 +140,10 @@ export default function StudentDocumentsPage() {
       const docTypeInfo = DOCUMENT_TYPES.find(d => d.value === selectedDocType);
       formData.append('category', docTypeInfo?.category || 'ADMISSION');
 
+      const token = localStorage.getItem('authToken');
       const response = await fetch('/api/student/documents/upload', {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         body: formData,
       });
 
@@ -331,16 +336,37 @@ export default function StudentDocumentsPage() {
           </div>
         )}
 
-        {/* Missing Documents Warning */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-          <div>
-            <h4 className="font-medium text-yellow-900">{t('Missing Required Documents', 'आवश्यक दस्तावेज़ अनुपलब्ध')}</h4>
-            <p className="text-sm text-yellow-800 mt-1">
-              {t('Please upload your updated Income Certificate before the next renewal cycle (July 2025).', 'कृपया अगले नवीनीकरण चक्र (जुलाई 2025) से पहले अपना अपडेट किया हुआ आय प्रमाण पत्र अपलोड करें।')}
-            </p>
-          </div>
-        </div>
+        {/* Required Documents Checklist */}
+        {!isLoading && (
+          <Card className="p-4">
+            <h3 className="font-semibold text-gray-900 mb-3">{t('Required Documents Checklist', 'आवश्यक दस्तावेज़ चेकलिस्ट')}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {DOCUMENT_TYPES.filter(dt => dt.value !== 'OTHER').map((docType) => {
+                const uploaded = documents.some(
+                  (d) => d.title === docType.label || d.title === docType.value?.replace(/_/g, ' ')
+                );
+                return (
+                  <div key={docType.value} className="flex items-center gap-2 py-1.5 px-2 rounded">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
+                      uploaded ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                    }`}>
+                      {uploaded ? '✓' : '✗'}
+                    </span>
+                    <span className={`text-sm ${uploaded ? 'text-gray-700' : 'text-gray-900 font-medium'}`}>
+                      {docType.label}
+                    </span>
+                    {uploaded && (
+                      <Badge variant="success" size="sm">{t('Uploaded', 'अपलोड किया')}</Badge>
+                    )}
+                    {!uploaded && (
+                      <Badge variant="warning" size="sm">{t('Missing', 'अनुपलब्ध')}</Badge>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Upload Modal */}

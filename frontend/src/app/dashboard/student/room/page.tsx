@@ -82,7 +82,9 @@ export default function StudentRoomPage() {
       setError(null);
 
       // Fetch student's allocation
-      const allocationsResponse = await fetch(`/api/allocations?student_id=${studentId}`);
+      const token = localStorage.getItem('authToken');
+      const authHeaders: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const allocationsResponse = await fetch(`/api/allocations?student_id=${studentId}`, { headers: authHeaders });
       const allocationsResult = await allocationsResponse.json();
       // API returns { success: true, data: [...] }
       const allocationsData = allocationsResult.data || allocationsResult || [];
@@ -100,7 +102,7 @@ export default function StudentRoomPage() {
       setAllocation(studentAllocation);
 
       // Fetch room details
-      const roomsResponse = await fetch('/api/rooms');
+      const roomsResponse = await fetch('/api/rooms', { headers: authHeaders });
       const roomsResult = await roomsResponse.json();
       const roomsList = roomsResult.data || roomsResult || [];
       const roomData = (Array.isArray(roomsList) ? roomsList : []).find((r: Room) => r.id === studentAllocation.room_id);
@@ -120,7 +122,7 @@ export default function StudentRoomPage() {
           .map(async (allocation: any, index: number) => {
             try {
               const oderId = allocation.student_user_id || allocation.student_id;
-              const response = await fetch(`/api/users/profile?user_id=${oderId}`);
+              const response = await fetch(`/api/users/profile?user_id=${oderId}`, { headers: authHeaders });
               if (response.ok) {
                 const data = await response.json();
                 const userData = data.data || data;

@@ -173,6 +173,15 @@ export type RequestOptions = {
 /**
  * Make an API request with standardized error handling
  */
+/**
+ * Get auth headers from localStorage token (client-side only)
+ */
+export function getAuthHeaders(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const token = localStorage.getItem('authToken');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestOptions = {}

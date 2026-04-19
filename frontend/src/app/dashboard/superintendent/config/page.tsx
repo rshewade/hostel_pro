@@ -53,6 +53,7 @@ interface NotificationRule {
 
 export default function SuperintendentConfig() {
   const { t } = useLanguage();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   const [selectedTab, setSelectedTab] = useState<'leave' | 'notification'>('leave');
   const [selectedVertical] = useState<Vertical | 'ALL'>('ALL');
 
@@ -77,10 +78,11 @@ export default function SuperintendentConfig() {
       setIsLoading(true);
       setError(null);
 
+      const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : undefined;
       const [leaveTypesRes, blackoutDatesRes, notificationRulesRes] = await Promise.all([
-        fetch('/api/config/leave-types'),
-        fetch('/api/config/blackout-dates'),
-        fetch('/api/config/notification-rules'),
+        fetch('/api/config/leave-types', { headers: authHeaders }),
+        fetch('/api/config/blackout-dates', { headers: authHeaders }),
+        fetch('/api/config/notification-rules', { headers: authHeaders }),
       ]);
 
       if (!leaveTypesRes.ok || !blackoutDatesRes.ok || !notificationRulesRes.ok) {
@@ -119,7 +121,7 @@ export default function SuperintendentConfig() {
 
       const response = await fetch('/api/config/leave-types', {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify(editingLeaveType),
       });
 
@@ -151,7 +153,7 @@ export default function SuperintendentConfig() {
     try {
       const response = await fetch('/api/config/leave-types', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({ id: leaveType.id, active: !leaveType.active }),
       });
 
@@ -179,7 +181,7 @@ export default function SuperintendentConfig() {
 
       const response = await fetch('/api/config/blackout-dates', {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify(editingBlackoutDate),
       });
 
@@ -213,6 +215,7 @@ export default function SuperintendentConfig() {
     try {
       const response = await fetch(`/api/config/blackout-dates?id=${id}`, {
         method: 'DELETE',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
       });
 
       if (!response.ok) {
@@ -237,7 +240,7 @@ export default function SuperintendentConfig() {
 
       const response = await fetch('/api/config/notification-rules', {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify(editingNotificationRule),
       });
 
@@ -269,7 +272,7 @@ export default function SuperintendentConfig() {
     try {
       const response = await fetch('/api/config/notification-rules', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({ id: rule.id, active: !rule.active }),
       });
 

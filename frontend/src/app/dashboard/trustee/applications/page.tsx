@@ -33,7 +33,10 @@ export default function TrusteeApplications() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/applications');
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/applications', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch applications');
       }
@@ -148,9 +151,10 @@ export default function TrusteeApplications() {
   };
 
   const handleProvisionalApprove = async (applicationId: string, requiresInterview: boolean, remarks: string) => {
+    const token = localStorage.getItem('authToken');
     const response = await fetch(`/api/applications/${applicationId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         status: 'PROVISIONALLY_APPROVED',
         current_status: 'PROVISIONALLY_APPROVED',
@@ -166,9 +170,10 @@ export default function TrusteeApplications() {
   };
 
   const handleProvisionalReject = async (applicationId: string, remarks: string) => {
+    const token = localStorage.getItem('authToken');
     const response = await fetch(`/api/applications/${applicationId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         status: 'REJECTED',
         current_status: 'REJECTED',
@@ -183,9 +188,10 @@ export default function TrusteeApplications() {
   };
 
   const handleFinalApprove = async (applicationId: string, remarks: string) => {
+    const token = localStorage.getItem('authToken');
     const response = await fetch(`/api/applications/${applicationId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         status: 'APPROVED',
         current_status: 'APPROVED',
@@ -200,9 +206,10 @@ export default function TrusteeApplications() {
   };
 
   const handleFinalReject = async (applicationId: string, remarks: string) => {
+    const token = localStorage.getItem('authToken');
     const response = await fetch(`/api/applications/${applicationId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         status: 'REJECTED',
         current_status: 'REJECTED',
@@ -224,9 +231,10 @@ export default function TrusteeApplications() {
     sendInvitation: boolean;
     sendReminder: boolean;
   }) => {
+    const token = localStorage.getItem('authToken');
     const response = await fetch('/api/interviews', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         application_id: data.applicationId,
         schedule_time: `${data.date}T${data.time}:00Z`,
@@ -239,7 +247,7 @@ export default function TrusteeApplications() {
     if (response.ok) {
       await fetch(`/api/applications/${data.applicationId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           status: 'INTERVIEW_SCHEDULED',
           current_status: 'INTERVIEW_SCHEDULED',

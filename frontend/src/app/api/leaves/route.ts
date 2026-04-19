@@ -111,35 +111,41 @@ export async function GET(request: NextRequest) {
     };
 
     // Transform data to match frontend expectations
-    const transformedLeaves = leaves.map((leave: any) => ({
-      id: leave.id,
-      studentId: leave.student_id,
-      studentName: leave.student?.full_name || 'Unknown',
-      studentRoom: roomMap[leave.student_id] || 'Not Allocated',
-      vertical: leave.student?.vertical || 'BOYS_HOSTEL',
-      leaveType: leaveTypeCategoryMap[leave.leave_type] || 'short',
-      leaveTypeOriginal: leave.leave_type,
-      leaveTypeLabel: leaveTypeLabelMap[leave.leave_type] || leave.leave_type,
-      fromDate: leave.start_time?.split('T')[0] || '',
-      toDate: leave.end_time?.split('T')[0] || '',
-      fromTime: leave.start_time?.split('T')[1]?.substring(0, 5) || '',
-      toTime: leave.end_time?.split('T')[1]?.substring(0, 5) || '',
-      reason: leave.reason || '',
-      destination: leave.destination || '',
-      contactNumber: leave.emergency_contact || '',
-      status: leave.status,
-      appliedDate: leave.created_at?.split('T')[0] || '',
-      remarks: leave.rejection_reason || '',
-      approvedBy: leave.approved_by || '',
-      approvedAt: leave.approved_at || '',
-      parentContacted: !!leave.parent_notified_at,
-    }));
+    const toISOStr = (d: any) => d instanceof Date ? d.toISOString() : (typeof d === 'string' ? d : '');
+    const transformedLeaves = leaves.map((leave: any) => {
+      const startISO = toISOStr(leave.start_time);
+      const endISO = toISOStr(leave.end_time);
+      const createdISO = toISOStr(leave.created_at);
+      return {
+        id: leave.id,
+        studentId: leave.student_id,
+        studentName: leave.student?.full_name || 'Unknown',
+        studentRoom: roomMap[leave.student_id] || 'Not Allocated',
+        vertical: leave.student?.vertical || 'BOYS_HOSTEL',
+        leaveType: leaveTypeCategoryMap[leave.leave_type] || 'short',
+        leaveTypeOriginal: leave.leave_type,
+        leaveTypeLabel: leaveTypeLabelMap[leave.leave_type] || leave.leave_type,
+        fromDate: startISO.split('T')[0] || '',
+        toDate: endISO.split('T')[0] || '',
+        fromTime: startISO.split('T')[1]?.substring(0, 5) || '',
+        toTime: endISO.split('T')[1]?.substring(0, 5) || '',
+        reason: leave.reason || '',
+        destination: leave.destination || '',
+        contactNumber: leave.emergency_contact || '',
+        status: leave.status,
+        appliedDate: createdISO.split('T')[0] || '',
+        remarks: leave.rejection_reason || '',
+        approvedBy: leave.approved_by || '',
+        approvedAt: leave.approved_at ? toISOStr(leave.approved_at) : '',
+        parentContacted: !!leave.parent_notified_at,
+      };
+    });
 
     return successResponse(transformedLeaves);
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
-    console.error('Error in GET /api/leaves:', error);
-    return serverErrorResponse('Failed to fetch leaves', error);
+    console.error('Error in GET /api/leaves:', error?.message || error);
+    return serverErrorResponse('Failed to fetch leaves: ' + (error?.message || 'Unknown error'), error);
   }
 }
 
@@ -151,7 +157,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth(request, ['STUDENT']);
-    const body: LeaveAPI.CreateRequest = await request.json();
+    const body = await request.json();
     const { student_id, type, start_time, end_time, reason } = body;
 
     // Validate input
@@ -202,12 +208,15 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('End time must be after start time');
     }
 
+    // Use authenticated user's ID for student role (security)
+    const effectiveStudentId = user.role === 'STUDENT' ? user.id : student_id;
+
     // Create leave request
     const { rows: insertRows } = await query(
-      `INSERT INTO leave_requests (student_id, leave_type, start_time, end_time, reason, status)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO leave_requests (student_id, leave_type, start_time, end_time, reason, destination, emergency_contact, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [student_id, type, start_time, end_time, reason, 'PENDING']
+      [effectiveStudentId, type, start_time, end_time, reason, body.destination || null, body.contact_number || null, 'PENDING']
     );
 
     if (insertRows.length === 0) {
@@ -218,13 +227,13 @@ export async function POST(request: NextRequest) {
 
     // Log leave creation in audit_logs
     await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+      `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
        VALUES ($1, $2, $3, $4, $5)`,
       [
         'LEAVE_REQUEST',
         newLeave.id,
         'CREATE',
-        student_id,
+        effectiveStudentId,
         JSON.stringify({
           type,
           duration: `${start_time} to ${end_time}`,

@@ -69,7 +69,8 @@ export default function StudentDashboard() {
         }
 
         // Fetch user profile
-        const profileResponse = await fetch(`/api/users/profile?user_id=${userId}`);
+        const authHeaders = { 'Authorization': `Bearer ${token}` };
+        const profileResponse = await fetch(`/api/users/profile?user_id=${userId}`, { headers: authHeaders });
         if (profileResponse.ok) {
           const profileResult = await profileResponse.json();
           const userData = profileResult.data || profileResult;
@@ -85,7 +86,7 @@ export default function StudentDashboard() {
         }
 
         // Fetch room allocation
-        const allocationsResponse = await fetch(`/api/allocations?student_id=${userId}`);
+        const allocationsResponse = await fetch(`/api/allocations?student_id=${userId}`, { headers: authHeaders });
         if (allocationsResponse.ok) {
           const allocationsResult = await allocationsResponse.json();
           const allocationsData = allocationsResult.data || allocationsResult || [];
@@ -98,7 +99,7 @@ export default function StudentDashboard() {
             setJoiningDate(activeAllocation.allocated_at);
 
             // Fetch room details
-            const roomsResponse = await fetch('/api/rooms');
+            const roomsResponse = await fetch('/api/rooms', { headers: authHeaders });
             if (roomsResponse.ok) {
               const roomsResult = await roomsResponse.json();
               const roomsList = roomsResult.data || roomsResult || [];
@@ -115,7 +116,7 @@ export default function StudentDashboard() {
         }
 
         // Fetch renewal data (academic year, period, days remaining)
-        const renewalsResponse = await fetch(`/api/renewals`);
+        const renewalsResponse = await fetch(`/api/renewals`, { headers: authHeaders });
         if (renewalsResponse.ok) {
           const renewalsResult = await renewalsResponse.json();
           const renewalsData = renewalsResult.data || renewalsResult || [];
@@ -129,7 +130,7 @@ export default function StudentDashboard() {
         }
 
         // Fetch fee data for notifications
-        const feesResponse = await fetch(`/api/fees?student_id=${userId}`);
+        const feesResponse = await fetch(`/api/fees?student_id=${userId}`, { headers: authHeaders });
         if (feesResponse.ok) {
           const feesResult = await feesResponse.json();
           const feesData = feesResult.data?.data || feesResult.data || [];

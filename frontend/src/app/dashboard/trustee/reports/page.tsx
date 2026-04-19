@@ -77,9 +77,12 @@ export default function TrusteeReports() {
     try {
       setIsLoading(true);
       setError(null);
+      const token = localStorage.getItem('authToken');
 
       // Fetch applications
-      const applicationsResponse = await fetch('/api/applications');
+      const applicationsResponse = await fetch('/api/applications', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const applicationsData = await applicationsResponse.json();
       const applications = applicationsData.data || (Array.isArray(applicationsData) ? applicationsData : []);
 
@@ -112,7 +115,9 @@ export default function TrusteeReports() {
       });
 
       // Fetch rooms for occupancy
-      const roomsResponse = await fetch('/api/rooms');
+      const roomsResponse = await fetch('/api/rooms', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const roomsData = await roomsResponse.json();
       const rooms = Array.isArray(roomsData) ? roomsData : roomsData.data || [];
 

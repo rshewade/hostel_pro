@@ -67,7 +67,10 @@ export default function SuperintendentDashboard() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/applications');
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/applications', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch applications');
       }
@@ -130,7 +133,10 @@ export default function SuperintendentDashboard() {
   const fetchApplicationDetails = useCallback(async (appId: string) => {
     try {
       setIsLoadingDetails(true);
-      const response = await fetch(`/api/applications/${appId}`);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/applications/${appId}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch application details');
       }
@@ -164,7 +170,10 @@ export default function SuperintendentDashboard() {
   // Get signed URL for viewing a document
   const getDocumentUrl = async (storagePath: string, bucketId: string): Promise<string | null> => {
     try {
-      const response = await fetch(`/api/applications/documents/url?path=${encodeURIComponent(storagePath)}&bucket=${encodeURIComponent(bucketId)}`);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/applications/documents/url?path=${encodeURIComponent(storagePath)}&bucket=${encodeURIComponent(bucketId)}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
       if (!response.ok) return null;
       const result = await response.json();
       return result.url || null;
@@ -354,20 +363,23 @@ export default function SuperintendentDashboard() {
       header: 'Actions',
       render: (_: any, row: Application) => (
         <div className="flex gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => handleViewApplication(row)}
-          >
-            Review
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleViewApplication(row)}
-          >
-            View Details
-          </Button>
+          {['SUBMITTED', 'REVIEW'].includes(row.status) ? (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleViewApplication(row)}
+            >
+              Review
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleViewApplication(row)}
+            >
+              View Details
+            </Button>
+          )}
         </div>
       )
     }
@@ -854,9 +866,10 @@ export default function SuperintendentDashboard() {
                               actionModal.type === 'reject' ? 'REJECTED' : 
                               'REVIEW';
             
+            const token = localStorage.getItem('authToken');
             const response = await fetch(`/api/applications/${actionModal.application.id}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
               body: JSON.stringify({
                 status: newStatus,
                 current_status: newStatus,

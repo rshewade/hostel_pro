@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/authorize';
 
 /**
  * GET /api/parent/leave
@@ -10,7 +9,6 @@ import { requireAuth } from '@/lib/authorize';
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request, ['PARENT']);
     const { searchParams } = new URL(request.url);
     const sessionToken = searchParams.get('sessionToken');
 

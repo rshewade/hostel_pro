@@ -47,37 +47,43 @@ export default function TrusteeOverview() {
       setError(null);
 
       // Fetch applications to calculate stats
-      const applicationsResponse = await fetch('/api/applications');
+      const token = localStorage.getItem('authToken');
+      const applicationsResponse = await fetch('/api/applications', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
       if (!applicationsResponse.ok) {
         throw new Error('Failed to fetch applications');
       }
-      const applicationsData = await applicationsResponse.json();
+      const applicationsResult = await applicationsResponse.json();
+      const applicationsData = applicationsResult.data || applicationsResult;
       const applications = Array.isArray(applicationsData) ? applicationsData : [];
 
       // Calculate stats from applications
-      const pending = applications.filter((app: any) =>
-        app.status === 'REVIEW' || app.status === 'FORWARDED' || app.currentStatus === 'REVIEW'
-      ).length;
+      const getStatus = (app: any) => app.current_status || app.status || app.currentStatus;
+      const pending = applications.filter((app: any) => {
+        const s = getStatus(app);
+        return s === 'REVIEW' || s === 'FORWARDED' || s === 'SUBMITTED';
+      }).length;
 
       const interviewScheduled = applications.filter((app: any) =>
-        app.status === 'INTERVIEW_SCHEDULED' || app.currentStatus === 'INTERVIEW_SCHEDULED'
+        getStatus(app) === 'INTERVIEW_SCHEDULED'
       ).length;
 
       const pendingAllocation = applications.filter((app: any) =>
-        app.status === 'APPROVED' || app.currentStatus === 'APPROVED'
+        getStatus(app) === 'APPROVED'
       ).length;
 
       const thisMonth = new Date();
       thisMonth.setDate(1);
 
       const approvedThisMonth = applications.filter((app: any) => {
-        const updatedAt = new Date(app.updatedAt || app.updated_at);
-        return (app.status === 'APPROVED' || app.currentStatus === 'APPROVED') && updatedAt >= thisMonth;
+        const updatedAt = new Date(app.updated_at || app.updatedAt);
+        return getStatus(app) === 'APPROVED' && updatedAt >= thisMonth;
       }).length;
 
       const rejectedThisMonth = applications.filter((app: any) => {
-        const updatedAt = new Date(app.updatedAt || app.updated_at);
-        return (app.status === 'REJECTED' || app.currentStatus === 'REJECTED') && updatedAt >= thisMonth;
+        const updatedAt = new Date(app.updated_at || app.updatedAt);
+        return getStatus(app) === 'REJECTED' && updatedAt >= thisMonth;
       }).length;
 
       setStats({
@@ -95,10 +101,10 @@ export default function TrusteeOverview() {
         .map((app: any) => ({
           id: app.id,
           type: 'application' as const,
-          description: `Application ${app.trackingNumber || app.tracking_number || app.id} - ${app.firstName || 'Applicant'}`,
-          timestamp: app.updatedAt || app.updated_at || app.createdAt || app.created_at,
-          status: app.status === 'APPROVED' ? 'completed' as const :
-                  app.status === 'INTERVIEW_SCHEDULED' ? 'scheduled' as const :
+          description: `Application ${app.tracking_number || app.trackingNumber || app.id} - ${app.applicant_name || app.firstName || 'Applicant'}`,
+          timestamp: app.updated_at || app.updatedAt || app.created_at || app.createdAt,
+          status: getStatus(app) === 'APPROVED' ? 'completed' as const :
+                  getStatus(app) === 'INTERVIEW_SCHEDULED' ? 'scheduled' as const :
                   'pending' as const,
         }));
 

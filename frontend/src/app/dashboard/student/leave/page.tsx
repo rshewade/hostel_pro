@@ -47,7 +47,9 @@ export default function LeaveManagementPage() {
     const fetchLeaveRules = async () => {
       try {
         setRulesLoading(true);
-        const response = await fetch('/api/config/leave-types?active=true');
+        const token = localStorage.getItem('authToken');
+        const authHeaders: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const response = await fetch('/api/config/leave-types?active=true', { headers: authHeaders });
         if (response.ok) {
           const result = await response.json();
           const data = result.data || result || [];
@@ -109,7 +111,10 @@ export default function LeaveManagementPage() {
 
     try {
       setHistoryLoading(true);
-      const response = await fetch(`/api/leaves?student_id=${studentId}`);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/leaves?student_id=${studentId}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       if (response.ok) {
         const result = await response.json();
         const data = result.data || result || [];
@@ -243,9 +248,10 @@ export default function LeaveManagementPage() {
           'multi-day': 'MULTI_DAY'
         };
 
+        const token = localStorage.getItem('authToken');
         const response = await fetch('/api/leaves', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
           body: JSON.stringify({
             student_id: studentId,
             type: leaveTypeMap[selectedType!],
@@ -265,8 +271,8 @@ export default function LeaveManagementPage() {
           fetchLeaveHistory();
         } else {
           const errorData = await response.json().catch(() => ({}));
-          console.error('Leave request error:', errorData);
-          alert('Failed to submit leave request: ' + (errorData.message || errorData.error || 'Unknown error'));
+          console.error('Leave request error:', response.status, errorData);
+          alert('Failed to submit leave request: ' + (errorData.message || errorData.error || `Server error (${response.status})`));
         }
       } catch (err) {
         console.error('Error submitting leave request:', err);

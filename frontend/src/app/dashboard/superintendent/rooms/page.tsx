@@ -37,6 +37,7 @@ type Student = {
 
 export default function RoomAllocationPage() {
   const { t } = useLanguage();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   const [rooms, setRooms] = useState<Room[]>([]);
   const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +57,9 @@ export default function RoomAllocationPage() {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch('/api/rooms');
+      const response = await fetch('/api/rooms', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const data = await response.json();
       setRooms(data.data || []);
     } catch (error) {
@@ -68,7 +71,9 @@ export default function RoomAllocationPage() {
 
   const fetchAllocations = async () => {
     try {
-      const response = await fetch('/api/allocations');
+      const response = await fetch('/api/allocations', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const data = await response.json();
       setAllocations(data.data || []);
     } catch (error) {
@@ -334,6 +339,7 @@ function RoomDetailPanel({
 }) {
   const [occupants, setOccupants] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
   useEffect(() => {
     fetchOccupants();
@@ -347,7 +353,9 @@ function RoomDetailPanel({
           // Handle both student_id and student_user_id field names
           const studentId = allocation.student_user_id || allocation.student_id;
           try {
-            const response = await fetch(`/api/users/profile?user_id=${studentId}`);
+            const response = await fetch(`/api/users/profile?user_id=${studentId}`, {
+              headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+            });
             if (response.ok) {
               const result = await response.json();
               const userData = result.data || result;

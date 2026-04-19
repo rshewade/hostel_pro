@@ -88,21 +88,21 @@ export default function StudentRenewalPage() {
   useEffect(() => {
     async function fetchProfileAndRenewal() {
       try {
-        // Get userId from auth session
-        const sessionRes = await fetch('/api/auth/session');
-        const sessionData = await sessionRes.json();
-        const userId = sessionData?.data?.user?.id || sessionData?.user?.id || '';
+        // Get userId from localStorage
+        const token = localStorage.getItem('authToken');
+        const authHeaders: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const userId = localStorage.getItem('userId') || '';
 
         if (userId) {
           // Fetch profile
-          const profileRes = await fetch(`/api/users/profile?user_id=${userId}`);
+          const profileRes = await fetch(`/api/users/profile?user_id=${userId}`, { headers: authHeaders });
           const profileData = await profileRes.json();
           if (profileData?.data) {
             setProfile(profileData.data);
           }
 
           // Fetch renewal info
-          const renewalRes = await fetch(`/api/renewals?student_id=${userId}`);
+          const renewalRes = await fetch(`/api/renewals?student_id=${userId}`, { headers: authHeaders });
           const renewalData = await renewalRes.json();
           const renewals = renewalData?.data || [];
           if (renewals.length > 0) {

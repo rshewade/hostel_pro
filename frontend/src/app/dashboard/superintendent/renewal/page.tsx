@@ -43,12 +43,15 @@ export default function AdminRenewalPage() {
   const [currentVertical, setCurrentVertical] = useState('BOYS');
   const [renewalDetail, setRenewalDetail] = useState<RenewalRecord | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
   // Fetch renewal detail when a renewal is selected
   const fetchRenewalDetail = useCallback(async (renewalId: string) => {
     setIsLoadingDetail(true);
     try {
-      const res = await fetch('/api/renewals');
+      const res = await fetch('/api/renewals', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const data = await res.json();
       const renewals = data?.data || [];
       const found = renewals.find((r: RenewalRecord) => r.id === renewalId);
@@ -73,7 +76,7 @@ export default function AdminRenewalPage() {
     try {
       await fetch(`/api/renewals`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({ id, action: 'APPROVE', remarks, notify_student: notifyStudent, notify_parent: notifyParent }),
       });
     } catch (err) {
@@ -86,7 +89,7 @@ export default function AdminRenewalPage() {
     try {
       await fetch(`/api/renewals`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({ id, action: 'REJECT', remarks, notify_student: notifyStudent, notify_parent: notifyParent }),
       });
     } catch (err) {

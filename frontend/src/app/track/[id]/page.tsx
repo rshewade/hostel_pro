@@ -172,39 +172,39 @@ export default function TrackingDetailPage() {
         setLoading(true);
         setError('');
 
-        // Fetch application by tracking number
-        const response = await fetch(`/api/applications?tracking_number=${trackingId}`);
+        // Fetch application by tracking number (public track endpoint)
+        const response = await fetch(`/api/applications/track/${trackingId}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch application');
         }
 
-        const data = await response.json();
-        const applications = Array.isArray(data) ? data : [data];
+        const result = await response.json();
+        // Track API returns { success, data: { data: application } }
+        const appData = result.data?.data || result.data;
 
-        if (applications.length === 0) {
+        if (!appData) {
           throw new Error('Application not found');
         }
 
-        const appData = applications[0];
-
         // Transform data to match component structure
+        const personalInfo = appData.data?.personal_info || {};
         const transformedApp: Application = {
           id: appData.id || trackingId,
-          tracking_number: appData.trackingNumber || appData.tracking_number || trackingId,
+          tracking_number: appData.tracking_number || appData.trackingNumber || trackingId,
           type: appData.type || 'NEW',
-          applicant_mobile: appData.personalDetails?.phone || appData.applicant_mobile || '',
-          current_status: appData.status || appData.current_status || 'SUBMITTED',
+          applicant_mobile: appData.applicant_mobile || personalInfo.mobile || '',
+          current_status: appData.current_status || appData.status || 'SUBMITTED',
           vertical: appData.vertical || 'BOYS_HOSTEL',
           data: {
             personal_info: {
-              full_name: appData.name || `${appData.personalDetails?.firstName || ''} ${appData.personalDetails?.lastName || ''}`.trim(),
-              email: appData.personalDetails?.email || '',
-              mobile: appData.personalDetails?.phone || '',
+              full_name: appData.applicant_name || personalInfo.full_name || '',
+              email: appData.applicant_email || personalInfo.email || '',
+              mobile: appData.applicant_mobile || personalInfo.mobile || '',
             }
           },
-          submitted_at: appData.appliedDate || appData.submitted_at || new Date().toISOString(),
-          created_at: appData.created_at || appData.appliedDate || new Date().toISOString(),
+          submitted_at: appData.submitted_at || appData.created_at || new Date().toISOString(),
+          created_at: appData.created_at || new Date().toISOString(),
         };
 
         setApplication(transformedApp);

@@ -80,9 +80,11 @@ export default function StudentFeesPage() {
           return;
         }
 
+        const authHeaders: Record<string, string> = { 'Authorization': `Bearer ${token}` };
+
         // Fetch profile for receipt data
         try {
-          const profileRes = await fetch(`/api/users/profile?user_id=${studentId}`);
+          const profileRes = await fetch(`/api/users/profile?user_id=${studentId}`, { headers: authHeaders });
           if (profileRes.ok) {
             const profileResult = await profileRes.json();
             const userData = profileResult.data || profileResult;
@@ -101,7 +103,7 @@ export default function StudentFeesPage() {
           // Non-critical - receipt will show blank fields
         }
 
-        const response = await fetch(`/api/fees?student_id=${studentId}`);
+        const response = await fetch(`/api/fees?student_id=${studentId}`, { headers: authHeaders });
 
         if (!response.ok) {
           throw new Error('Failed to fetch fees');
@@ -133,7 +135,7 @@ export default function StudentFeesPage() {
 
         // Also fetch payment history
         try {
-          const paymentsResponse = await fetch(`/api/payments?student_id=${studentId}`);
+          const paymentsResponse = await fetch(`/api/payments?student_id=${studentId}`, { headers: authHeaders });
           if (paymentsResponse.ok) {
             const paymentsResult = await paymentsResponse.json();
             const paymentsData = paymentsResult.data?.data || paymentsResult.data || [];

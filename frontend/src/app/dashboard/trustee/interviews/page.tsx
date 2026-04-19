@@ -67,9 +67,12 @@ export default function TrusteeInterviews() {
     try {
       setIsLoading(true);
       setError(null);
+      const token = localStorage.getItem('authToken');
 
       // Fetch interviews from the dedicated interviews API
-      const response = await fetch('/api/interviews');
+      const response = await fetch('/api/interviews', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch interviews');
       }
@@ -166,9 +169,10 @@ export default function TrusteeInterviews() {
     setIsSavingEvaluation(true);
     setEvaluationError(null);
     try {
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/applications/${selectedInterview.applicationId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           status: 'INTERVIEW_COMPLETED',
           current_status: 'INTERVIEW_COMPLETED',

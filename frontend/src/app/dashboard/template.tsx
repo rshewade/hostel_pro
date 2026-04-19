@@ -27,17 +27,31 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
-    // In a real app, we would call the logout API here
-    // await fetch('/api/auth/logout', { method: 'POST' });
-
-    // Clear parent session token if on parent dashboard
+  const handleLogout = async () => {
     if (pathname.startsWith('/dashboard/parent')) {
       localStorage.removeItem('parentSessionToken');
       router.push('/login/parent');
       return;
     }
 
+    // Call server to invalidate sessions
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+      } catch {
+        // Proceed with client-side logout even if server call fails
+      }
+    }
+
+    // Clear all auth data from localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
     router.push('/login');
   };
 

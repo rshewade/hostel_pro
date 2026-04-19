@@ -37,6 +37,7 @@ const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(({
   const uploadId = id || `file-upload-${generatedId}`;
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [internalError, setInternalError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = useCallback((file: File): string | null => {
@@ -52,12 +53,14 @@ const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(({
   const handleFile = useCallback((file: File) => {
     const validationError = validateFile(file);
     if (validationError) {
+      setInternalError(validationError);
       if (onValidationError) {
         onValidationError(validationError);
       }
       return;
     }
 
+    setInternalError(null);
     onChange?.(file);
 
     // Create preview
@@ -169,7 +172,7 @@ const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(({
             disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-500',
             error ? 'border-red-500' : ''
           )}
-          style={{ borderColor: error ? 'var(--color-red-500)' : 'var(--border-primary)' }}
+          style={{ borderColor: (error || internalError) ? 'var(--color-red-500)' : 'var(--border-primary)' }}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -213,10 +216,10 @@ const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(({
         </div>
       )}
 
-      {error && (
+      {(error || internalError) && (
         <p className="text-sm flex items-center gap-1" style={{ color: 'var(--color-red-600)' }}>
           <AlertCircle className="w-4 h-4" />
-          {error}
+          {error || internalError}
         </p>
       )}
 

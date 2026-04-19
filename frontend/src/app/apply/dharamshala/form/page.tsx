@@ -335,7 +335,16 @@ export default function ApplicationFormPage() {
         const errors: any = {};
         if (!data.firstName?.trim()) errors.firstName = 'First name is required';
         if (!data.lastName?.trim()) errors.lastName = 'Last name is required';
-        if (!data.dob) errors.dob = 'Date of birth is required';
+        if (!data.dob) {
+          errors.dob = 'Date of birth is required';
+        } else {
+          const dob = new Date(data.dob);
+          const today = new Date();
+          let age = today.getFullYear() - dob.getFullYear();
+          const monthDiff = today.getMonth() - dob.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--;
+          if (age < 18) errors.dob = 'Applicant must be at least 18 years old';
+        }
         if (!data.gender) errors.gender = 'Gender is required';
         if (!data.bloodGroup) errors.bloodGroup = 'Blood group is required';
         if (!data.addressLine1?.trim()) errors.addressLine1 = 'Address line 1 is required';
@@ -461,7 +470,11 @@ export default function ApplicationFormPage() {
         if (!data.percentage?.trim()) errors.percentage = 'Percentage/CGPA is required';
         if (!data.qualification?.trim()) errors.qualification = 'Qualification is required';
         if (!data.board?.trim()) errors.board = 'Board/University is required';
-        if (!data.passingYear) errors.passingYear = 'Passing year is required';
+        if (!data.passingYear) {
+          errors.passingYear = 'Passing year is required';
+        } else if (parseInt(data.passingYear) > new Date().getFullYear()) {
+          errors.passingYear = 'Passing year cannot be in the future';
+        }
         return Object.keys(errors).length > 0 ? errors : null;
       },
     },
@@ -719,6 +732,41 @@ export default function ApplicationFormPage() {
             </ul>
           </div>
 
+          {/* Required Documents Checklist */}
+          <div className="card p-4 border-2" style={{ backgroundColor: 'var(--color-gray-50)', borderColor: 'var(--border-primary)' }}>
+            <h3 className="text-base font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <CheckCircle className="w-5 h-5" />
+              {t('Required Documents Checklist', 'आवश्यक दस्तावेज़ चेकलिस्ट')}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                { key: 'photoFile', label: t('Passport Size Photo', 'पासपोर्ट आकार का फोटो'), required: true },
+                { key: 'birthCertificate', label: t('Birth Certificate', 'जन्म प्रमाण पत्र'), required: true },
+                { key: 'marksheet', label: t('Educational Marksheet', 'शैक्षणिक अंकपत्र'), required: true },
+                { key: 'recommendationLetter', label: t('Recommendation Letter', 'अनुशंसा पत्र'), required: false },
+              ].map((doc) => {
+                const uploaded = !!data[doc.key];
+                return (
+                  <div key={doc.key} className="flex items-center gap-2 py-1.5 px-2 rounded" style={{ backgroundColor: uploaded ? 'var(--color-green-50, #f0fdf4)' : 'transparent' }}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
+                      uploaded ? 'bg-green-200 text-green-800' : doc.required ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-500'
+                    }`}>
+                      {uploaded ? '✓' : doc.required ? '!' : '—'}
+                    </span>
+                    <span className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                      {doc.label}
+                    </span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                      uploaded ? 'bg-green-100 text-green-700' : doc.required ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {uploaded ? t('Uploaded', 'अपलोड') : doc.required ? t('Required', 'आवश्यक') : t('Optional', 'वैकल्पिक')}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="space-y-6">
             <FileUpload
               label={t('Recent Passport Size Photo', 'हालिया पासपोर्ट आकार का फोटो')}
@@ -934,48 +982,27 @@ export default function ApplicationFormPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      // Generate a temporary ID for this application's documents
-      const tempId = `app_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-
-      // Document fields that need to be uploaded
+      // Prepare submission data - remove File objects (not JSON-serializable)
       const documentFields = ['photoFile', 'birthCertificate', 'marksheet', 'recommendationLetter'];
-      const uploadedDocuments: Record<string, any> = {};
-
-      // Upload all documents first
-      for (const fieldName of documentFields) {
-        const file = data[fieldName];
-        if (file instanceof File) {
-          try {
-            const uploadResult = await uploadDocument(file, fieldName, tempId);
-            uploadedDocuments[fieldName] = uploadResult;
-          } catch (uploadError: any) {
-            console.error(`Failed to upload ${fieldName}:`, uploadError);
-            throw new Error(`Failed to upload ${fieldName}: ${uploadError.message}`);
-          }
-        }
-      }
-
-      // Prepare submission data - replace File objects with upload info
       const submissionData = { ...data };
       for (const fieldName of documentFields) {
-        if (uploadedDocuments[fieldName]) {
-          submissionData[fieldName] = uploadedDocuments[fieldName];
-        } else {
+        if (submissionData[fieldName] instanceof File) {
           delete submissionData[fieldName];
         }
       }
 
-      // Add documents array for the API
-      submissionData.documents = Object.entries(uploadedDocuments).map(([fieldName, docInfo]) => ({
-        type: fieldName,
-        ...docInfo,
-      }));
+      // Use OTP-verified mobile as applicant_mobile for tracking
+      const verifiedMobile = localStorage.getItem('otp_verified_mobile');
+      const verifiedEmail = localStorage.getItem('otp_verified_email');
 
+      // 1. Create the application first
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...submissionData,
+          ...(verifiedMobile ? { applicant_mobile: verifiedMobile } : {}),
+          ...(verifiedEmail ? { applicant_email: verifiedEmail } : {}),
           vertical: 'dharamshala',
           status: 'SUBMITTED',
           submittedAt: new Date().toISOString(),
@@ -989,9 +1016,23 @@ export default function ApplicationFormPage() {
       }
 
       const result = await response.json();
+      const application = result.data || result;
+      const applicationId = application.id;
+      const trackingNumber = application.trackingNumber || application.tracking_number;
+
+      // 2. Upload documents in the background (non-blocking)
+      for (const fieldName of documentFields) {
+        const file = data[fieldName];
+        if (file instanceof File) {
+          try {
+            await uploadDocument(file, fieldName, applicationId);
+          } catch (uploadError: any) {
+            console.warn(`Document upload for ${fieldName} failed (can be re-uploaded later):`, uploadError);
+          }
+        }
+      }
+
       localStorage.removeItem('application_draft_dharamshala');
-      // API response wraps data in { success: true, data: {...} }
-      const trackingNumber = result.data?.trackingNumber || result.data?.tracking_number || result.trackingNumber;
       window.location.href = `/apply/dharamshala/success?trackingNumber=${trackingNumber}`;
     } catch (error: any) {
       console.error('Failed to submit application:', error);

@@ -25,6 +25,8 @@ export default function SuperintendentClearancePage() {
     action: string;
   } | null>(null);
 
+  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
   // Fetch exit requests on mount
   useEffect(() => {
     const fetchExitRequests = async () => {
@@ -32,7 +34,9 @@ export default function SuperintendentClearancePage() {
         setLoading(true);
 
         // Mock API call - replace with actual API
-        const response = await fetch('/api/superintendent/exit-clearance');
+        const response = await fetch('/api/superintendent/exit-clearance', {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -64,13 +68,15 @@ export default function SuperintendentClearancePage() {
       // Mock API call - replace with actual API
       const response = await fetch(`/api/clearance-items/${itemId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status: newStatus, remarks }),
       });
 
       if (response.ok) {
         // Refresh exit requests data
-        const refreshResponse = await fetch('/api/superintendent/exit-clearance');
+        const refreshResponse = await fetch('/api/superintendent/exit-clearance', {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+        });
         if (refreshResponse.ok) {
           const data = await refreshResponse.json();
           setExitRequests(data.requests || []);
@@ -98,7 +104,7 @@ export default function SuperintendentClearancePage() {
       // Mock API call - replace with actual API
       const response = await fetch('/api/clearance-items/bulk', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           requestIds: bulkAction.requestIds,
           action: bulkAction.action,
@@ -107,7 +113,9 @@ export default function SuperintendentClearancePage() {
 
       if (response.ok) {
         // Refresh exit requests data
-        const refreshResponse = await fetch('/api/superintendent/exit-clearance');
+        const refreshResponse = await fetch('/api/superintendent/exit-clearance', {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+        });
         if (refreshResponse.ok) {
           const data = await refreshResponse.json();
           setExitRequests(data.requests || []);
@@ -128,7 +136,9 @@ export default function SuperintendentClearancePage() {
   const handleExportReport = async () => {
     try {
       // Mock API call - replace with actual API
-      const response = await fetch('/api/superintendent/exit-clearance/export');
+      const response = await fetch('/api/superintendent/exit-clearance/export', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
 
       if (response.ok) {
         const blob = await response.blob();

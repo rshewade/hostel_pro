@@ -77,8 +77,23 @@ const FormWizard: React.FC<FormWizardProps> = ({
     const validationErrors = validate(formData);
     if (validationErrors) {
       setErrors(validationErrors);
+      // Scroll to first error field
+      setTimeout(() => {
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        const errorEl = document.querySelector(`[name="${firstErrorKey}"], [id*="${firstErrorKey}"], [data-field="${firstErrorKey}"]`);
+        if (errorEl) {
+          errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // Fallback: scroll to first visible error message
+          const errorMsg = document.querySelector('[style*="color: var(--color-red"]');
+          if (errorMsg) {
+            errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 100);
       return false;
     }
+    setErrors({});
     return true;
   }, [currentStep, steps, formData]);
 
@@ -119,8 +134,9 @@ const FormWizard: React.FC<FormWizardProps> = ({
         if (onSubmit) {
           await onSubmit(formData);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to submit:', error);
+        setErrors({ _submit: error.message || 'Submission failed. Please try again.' });
       } finally {
         setSubmitting(false);
       }
@@ -170,7 +186,6 @@ const FormWizard: React.FC<FormWizardProps> = ({
         : 'pending',
   }));
 
-  const canGoNext = stepValidity[currentStep] && Object.keys(errors).length === 0;
   const isLastStep = currentStep === steps.length - 1;
 
   return (
@@ -189,6 +204,12 @@ const FormWizard: React.FC<FormWizardProps> = ({
             <div className="mb-4 flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
               <Save className="w-4 h-4 text-green-600" />
               <span>Saved as draft at {lastSavedTime.toLocaleTimeString()}</span>
+            </div>
+          )}
+
+          {errors._submit && (
+            <div className="mb-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: 'var(--color-red-50, #fef2f2)', borderLeftColor: 'var(--color-red-500, #ef4444)' }}>
+              <p className="text-sm font-medium" style={{ color: 'var(--color-red-700, #b91c1c)' }}>{errors._submit}</p>
             </div>
           )}
 
@@ -233,7 +254,7 @@ const FormWizard: React.FC<FormWizardProps> = ({
               <Button
                 variant="primary"
                 onClick={handleSubmit}
-                disabled={!canGoNext || submitting}
+                disabled={submitting}
                 loading={submitting}
                 rightIcon={<ChevronRight className="w-4 h-4" />}
               >
@@ -243,7 +264,7 @@ const FormWizard: React.FC<FormWizardProps> = ({
               <Button
                 variant="primary"
                 onClick={handleNext}
-                disabled={!canGoNext || submitting}
+                disabled={submitting}
                 rightIcon={<ChevronRight className="w-4 h-4" />}
               >
                 Next

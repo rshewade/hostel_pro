@@ -11,7 +11,7 @@ export default function GirlsAshramVerifyPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState(600);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -154,7 +154,7 @@ export default function GirlsAshramVerifyPage() {
       });
 
       if (response.ok) {
-        setTimeLeft(600);
+        setTimeLeft(60);
         setOtp(['', '', '', '', '', '']);
         setErrors([]);
         setAttempts(0);
@@ -355,7 +355,7 @@ export default function GirlsAshramVerifyPage() {
                   <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
                 ) : (
                   <>
-                    {t('Verify &amp; Continue', 'सत्यापित करें और आगे बढ़ें')}
+                    {t('Verify & Continue', 'सत्यापित करें और आगे बढ़ें')}
                 <ArrowRight className="w-5 h-5" />
                   </>
                 )}
