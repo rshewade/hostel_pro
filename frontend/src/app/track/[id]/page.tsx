@@ -33,45 +33,27 @@ interface Interview {
   internal_remarks?: string;
 }
 
-const statusConfig = {
-  DRAFT: {
-    label: 'Draft',
-    color: 'gray',
-    description: 'Application is being prepared'
-  },
-  SUBMITTED: {
-    label: 'Submitted',
-    color: 'blue',
-    description: 'Application submitted and under initial review'
-  },
-  REVIEW: {
-    label: 'Under Review',
-    color: 'yellow',
-    description: 'Application is being reviewed by superintendent'
-  },
-  APPROVED: {
-    label: 'Approved',
-    color: 'green',
-    description: 'Application approved, awaiting final processing'
-  },
-  REJECTED: {
-    label: 'Rejected',
-    color: 'red',
-    description: 'Application has been rejected'
-  },
-  WITHDRAWN: {
-    label: 'Withdrawn',
-    color: 'gray',
-    description: 'Application has been withdrawn by applicant'
-  }
+const statusConfig: Record<string, { label: string; color: string; description: string }> = {
+  DRAFT: { label: 'Draft', color: 'gray', description: 'Application is being prepared' },
+  SUBMITTED: { label: 'Submitted', color: 'blue', description: 'Application submitted and under initial review' },
+  REVIEW: { label: 'Under Review', color: 'yellow', description: 'Application is being reviewed by the superintendent' },
+  INTERVIEW: { label: 'Interview Scheduled', color: 'blue', description: 'An interview has been scheduled for your application' },
+  TRUSTEE_REVIEW: { label: 'Trustee Review', color: 'yellow', description: 'Application is under review by the trustee committee' },
+  TRUSTEE_INTERVIEW: { label: 'Trustee Interview', color: 'blue', description: 'A trustee interview has been scheduled' },
+  APPROVED: { label: 'Approved', color: 'green', description: 'Application approved — student account created' },
+  REJECTED: { label: 'Rejected', color: 'red', description: 'Application has been rejected' },
+  WITHDRAWN: { label: 'Withdrawn', color: 'gray', description: 'Application has been withdrawn by applicant' },
+  ARCHIVED: { label: 'Archived', color: 'gray', description: 'Application has been archived' },
 };
 
 const statusSteps = [
   { status: 'DRAFT', label: 'Draft', order: 1 },
   { status: 'SUBMITTED', label: 'Submitted', order: 2 },
   { status: 'REVIEW', label: 'Under Review', order: 3 },
-  { status: 'APPROVED', label: 'Approved', order: 4 },
-  { status: 'REJECTED', label: 'Rejected', order: 5 }
+  { status: 'INTERVIEW', label: 'Interview', order: 4 },
+  { status: 'TRUSTEE_REVIEW', label: 'Trustee Review', order: 5 },
+  { status: 'TRUSTEE_INTERVIEW', label: 'Trustee Interview', order: 6 },
+  { status: 'APPROVED', label: 'Approved', order: 7 },
 ];
 
 // Helper function to get the order of current status in the application flow
@@ -81,9 +63,12 @@ function getCurrentStepOrder(status: string): number {
     'SUBMITTED': 2,
     'REVIEW': 3,
     'INTERVIEW': 4,
-    'APPROVED': 5,
-    'REJECTED': 5,
-    'ARCHIVED': 6
+    'TRUSTEE_REVIEW': 5,
+    'TRUSTEE_INTERVIEW': 6,
+    'APPROVED': 7,
+    'REJECTED': 7,
+    'WITHDRAWN': 0,
+    'ARCHIVED': 0,
   };
   return statusOrder[status] || 0;
 }

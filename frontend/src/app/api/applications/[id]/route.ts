@@ -31,7 +31,39 @@ export async function GET(
       return notFoundResponse('Application not found');
     }
 
-    return successResponse({ data: rows[0] } as ApplicationAPI.GetResponse);
+    const application = rows[0];
+
+    // Fetch documents from documents table (linked by application_id or student_user_id)
+    const { rows: docs } = await query(
+      `SELECT id, document_type, category, file_name, file_path, file_size, mime_type, verification_status, uploaded_at
+       FROM documents
+       WHERE application_id = $1 OR ($2::uuid IS NOT NULL AND student_user_id = $2)
+       ORDER BY uploaded_at DESC`,
+      [id, application.student_user_id]
+    );
+
+    // Add documents to application response
+    const formattedDocs = docs.map((doc: any) => ({
+      id: doc.id,
+      type: doc.document_type,
+      documentType: doc.document_type,
+      dbDocumentType: doc.document_type,
+      category: doc.category,
+      originalFileName: doc.file_name,
+      fileSize: doc.file_size,
+      mimeType: doc.mime_type,
+      storagePath: doc.file_path,
+      status: doc.verification_status,
+      uploadedAt: doc.uploaded_at,
+    }));
+
+    // Put documents both at root level and inside data for compatibility
+    application.documents = formattedDocs;
+    if (application.data) {
+      application.data.documents = formattedDocs;
+    }
+
+    return successResponse({ data: application } as ApplicationAPI.GetResponse);
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/applications/[id]:', error);
@@ -89,9 +121,14 @@ export async function PUT(
           }
           break;
         case 'REVIEW':
+        case 'TRUSTEE_REVIEW':
           if (!application.reviewed_at) {
             updateData.reviewed_at = now;
           }
+          break;
+        case 'INTERVIEW':
+        case 'TRUSTEE_INTERVIEW':
+          // interview timestamp stored in interview_scheduled_at
           break;
         case 'APPROVED':
           updateData.approved_at = now;
@@ -101,6 +138,9 @@ export async function PUT(
           if (body.remarks) {
             updateData.rejection_reason = body.remarks;
           }
+          break;
+        case 'WITHDRAWN':
+          // Store withdrawn_at in data JSONB
           break;
       }
     }
@@ -115,12 +155,13 @@ export async function PUT(
     if (body.interview_completed_at !== undefined) updateData.interview_completed_at = body.interview_completed_at;
     if (body.student_user_id !== undefined) updateData.student_user_id = body.student_user_id;
 
-    // Store remarks in the data JSON if provided (for all status changes)
-    if (body.remarks) {
+    // Store remarks and workflow metadata in the data JSON
+    if (body.remarks || newStatus === 'WITHDRAWN') {
       updateData.data = {
         ...(application.data || {}),
-        status_remarks: body.remarks,
+        ...(body.remarks ? { status_remarks: body.remarks } : {}),
         last_status_update: new Date().toISOString(),
+        ...(newStatus === 'WITHDRAWN' ? { withdrawn_at: new Date().toISOString() } : {}),
       };
     }
 
@@ -155,13 +196,13 @@ export async function PUT(
       // Log status change if status was updated
       if (updateData.current_status && updateData.current_status !== application.current_status) {
         await client.query(
-          `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+          `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
            VALUES ($1, $2, $3, $4, $5)`,
           [
             'APPLICATION',
             id,
             'STATUS_CHANGE',
-            application.student_user_id || null,
+            user.id,
             JSON.stringify({
               tracking_number: application.tracking_number,
               old_status: application.current_status,
@@ -174,14 +215,25 @@ export async function PUT(
 
       // Create student user when application is approved
       if (updateData.current_status === 'APPROVED' && !application.student_user_id) {
-        const parentMobile = application.data?.guardian_info?.father_mobile ||
-                            application.data?.guardian_info?.mother_mobile ||
-                            application.data?.emergency_contact?.mobile || null;
+        const bcrypt = require('bcryptjs');
+        // Temp password = {LastName}@{last4ofTracking}#{DDMMYYYY}
+        // e.g. Joshi@0006#12092004
+        const nameParts = (application.applicant_name || '').trim().split(/\s+/);
+        const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0] || 'User';
+        const last4 = (application.tracking_number || '').slice(-4);
+        const dob = application.date_of_birth
+          ? new Date(application.date_of_birth)
+          : null;
+        const dobStr = dob
+          ? `${String(dob.getDate()).padStart(2, '0')}${String(dob.getMonth() + 1).padStart(2, '0')}${dob.getFullYear()}`
+          : '01011990';
+        const tempPassword = `${lastName}@${last4}#${dobStr}`;
+        const passwordHash = await bcrypt.hash(tempPassword, 10);
 
         const { rows: userRows } = await client.query(
           `INSERT INTO users (
             role, vertical, full_name, email, mobile, date_of_birth,
-            parent_mobile, is_active, requires_password_change, metadata
+            password_hash, is_active, requires_password_change, profile_data
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
           RETURNING *`,
           [
@@ -190,15 +242,15 @@ export async function PUT(
             application.applicant_name,
             application.applicant_email,
             application.applicant_mobile,
-            application.date_of_birth,
-            parentMobile,
+            application.date_of_birth || null,
+            passwordHash,
             true,
             true,
             JSON.stringify({
               application_id: id,
               tracking_number: application.tracking_number,
               approved_at: new Date().toISOString(),
-              password_pending: true,
+              guardian_info: application.data?.guardian_info || {},
             }),
           ]
         );
@@ -215,71 +267,15 @@ export async function PUT(
           [newUser.id, id]
         );
 
-        // Create students table record
-        const personalInfo = application.data?.personal_info || {};
-        const guardianInfo = application.data?.guardian_info || {};
-        const academicInfo = application.data?.academic_info || {};
-        const emergencyContact = application.data?.emergency_contact || {};
-
-        await client.query(
-          `INSERT INTO students (
-            user_id, vertical, status, gender, date_of_birth, aadhar_number,
-            native_place, permanent_address, father_name, father_mobile,
-            mother_name, mother_mobile, guardian_name, guardian_mobile,
-            guardian_relation, institution, course, year_of_study,
-            enrollment_number, joining_date, academic_year,
-            emergency_contact_name, emergency_contact_phone,
-            emergency_contact_relation, blood_group, medical_conditions,
-            allergies, metadata
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-            $21, $22, $23, $24, $25, $26, $27, $28
-          )`,
-          [
-            newUser.id,
-            application.vertical,
-            'PENDING',
-            personalInfo.gender || null,
-            personalInfo.date_of_birth || null,
-            personalInfo.aadhar_number || null,
-            personalInfo.native_place || null,
-            personalInfo.permanent_address || personalInfo.address || null,
-            guardianInfo.father_name || null,
-            guardianInfo.father_mobile || null,
-            guardianInfo.mother_name || null,
-            guardianInfo.mother_mobile || null,
-            guardianInfo.guardian_name || null,
-            guardianInfo.guardian_mobile || null,
-            guardianInfo.guardian_relation || null,
-            academicInfo.institution || academicInfo.college || null,
-            academicInfo.course || null,
-            academicInfo.year_of_study || academicInfo.year || null,
-            academicInfo.enrollment_number || null,
-            new Date().toISOString().split('T')[0],
-            academicInfo.academic_year || '2025-26',
-            emergencyContact.name || guardianInfo.father_name || null,
-            emergencyContact.mobile || guardianInfo.father_mobile || null,
-            emergencyContact.relation || 'Father',
-            personalInfo.blood_group || null,
-            personalInfo.medical_conditions || null,
-            personalInfo.allergies || null,
-            JSON.stringify({
-              application_id: id,
-              tracking_number: application.tracking_number,
-              created_from_application: true,
-            }),
-          ]
-        );
-
         // Log user creation
         await client.query(
-          `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
-           VALUES ($1, $2, $3, $4)`,
+          `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
+           VALUES ($1, $2, $3, $4, $5)`,
           [
             'USER',
             newUser.id,
             'CREATE',
+            user.id,
             JSON.stringify({
               application_id: id,
               tracking_number: application.tracking_number,
@@ -345,13 +341,13 @@ export async function DELETE(
 
     // Log deletion
     await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, metadata)
+      `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
        VALUES ($1, $2, $3, $4, $5)`,
       [
         'APPLICATION',
         id,
         'DELETE',
-        application.student_user_id,
+        user.id,
         JSON.stringify({
           tracking_number: application.tracking_number,
           old_status: application.current_status,

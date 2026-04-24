@@ -166,7 +166,13 @@ export default function ParentDashboard() {
         const feesResult = await feesResponse.json();
         if (feesResult.success && feesResult.data) {
           if (feesResult.data.summary) {
-            setFeeSummary(feesResult.data.summary);
+            setFeeSummary({
+              totalFees: feesResult.data.summary.totalFees ?? 0,
+              totalPaid: feesResult.data.summary.totalPaid ?? 0,
+              outstanding: feesResult.data.summary.outstanding ?? 0,
+              nextDueDate: feesResult.data.summary.nextDueDate ?? 'N/A',
+              status: feesResult.data.summary.status ?? 'PAID',
+            });
           }
           setFeeItems(feesResult.data.items || []);
         }
@@ -390,7 +396,7 @@ export default function ParentDashboard() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">{t('Status', 'स्थिति')}</p>
-                    <p className="text-sm font-medium text-gray-900">{t('Checked In', 'चेक इन')}</p>
+                    <div className="mt-1">{getStatusBadge(studentData.status)}</div>
                   </div>
                 </div>
               </div>
@@ -419,18 +425,18 @@ export default function ParentDashboard() {
               </div>
             </div>
             
-            <div className="grid gap-4 sm:grid-cols-3 mb-6">
-              <div className="bg-gray-50 rounded-lg p-4" role="status" aria-label={`Total fees: ₹${feeSummary.totalFees.toLocaleString()}`}>
+            <div className="grid gap-3 grid-cols-3 mb-6">
+              <div className="bg-gray-50 rounded-lg p-3" role="status" aria-label={`Total fees: ₹${feeSummary.totalFees.toLocaleString()}`}>
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Total Fees', 'कुल शुल्क')}</p>
-                <p className="text-2xl font-bold text-gray-900">₹{feeSummary.totalFees.toLocaleString()}</p>
+                <p className="text-base sm:text-xl font-bold text-gray-900 truncate">₹{feeSummary.totalFees.toLocaleString()}</p>
               </div>
-              <div className="bg-green-50 rounded-lg p-4" role="status" aria-label={`Paid: ₹${feeSummary.totalPaid.toLocaleString()}`}>
+              <div className="bg-green-50 rounded-lg p-3" role="status" aria-label={`Paid: ₹${feeSummary.totalPaid.toLocaleString()}`}>
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Paid', 'भुगतान किया')}</p>
-                <p className="text-2xl font-bold text-green-700">₹{feeSummary.totalPaid.toLocaleString()}</p>
+                <p className="text-base sm:text-xl font-bold text-green-700 truncate">₹{feeSummary.totalPaid.toLocaleString()}</p>
               </div>
-              <div className={feeSummary.outstanding > 0 ? "bg-amber-50 rounded-lg p-4" : "bg-green-50 rounded-lg p-4"} role="status" aria-label={`Outstanding: ₹${feeSummary.outstanding.toLocaleString()}`}>
+              <div className={feeSummary.outstanding > 0 ? "bg-amber-50 rounded-lg p-3" : "bg-green-50 rounded-lg p-3"} role="status" aria-label={`Outstanding: ₹${feeSummary.outstanding.toLocaleString()}`}>
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Outstanding', 'बकाया')}</p>
-                <p className={feeSummary.outstanding > 0 ? "text-2xl font-bold text-amber-700" : "text-2xl font-bold text-green-700"}>
+                <p className={feeSummary.outstanding > 0 ? "text-base sm:text-xl font-bold text-amber-700 truncate" : "text-base sm:text-xl font-bold text-green-700 truncate"}>
                   ₹{feeSummary.outstanding.toLocaleString()}
                 </p>
               </div>

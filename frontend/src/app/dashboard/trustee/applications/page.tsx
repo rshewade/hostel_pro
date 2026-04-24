@@ -19,7 +19,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TrusteeApplications() {
   const { t } = useLanguage();
-  const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'FORWARDED' | 'PROVISIONALLY_APPROVED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED'>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<'PENDING' | 'ALL' | 'TRUSTEE_REVIEW' | 'TRUSTEE_INTERVIEW' | 'APPROVED' | 'REJECTED'>('PENDING');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [applications, setApplications] = useState<Application[]>([]);
@@ -51,33 +51,26 @@ export default function TrusteeApplications() {
           applicantName = app.data.personal_info.full_name;
         }
 
-        let status: ApplicationStatus = 'SUBMITTED';
-        const appStatus = app.status || app.currentStatus || app.current_status;
-        if (appStatus === 'REVIEW' || appStatus === 'FORWARDED') {
-          status = 'FORWARDED';
-        } else if (appStatus === 'PROVISIONALLY_APPROVED') {
-          status = 'PROVISIONALLY_APPROVED';
-        } else if (appStatus === 'INTERVIEW_SCHEDULED') {
-          status = 'INTERVIEW_SCHEDULED';
-        } else if (appStatus === 'INTERVIEW_COMPLETED') {
-          status = 'INTERVIEW_COMPLETED';
-        } else if (appStatus === 'APPROVED') {
-          status = 'APPROVED';
-        } else if (appStatus === 'REJECTED') {
-          status = 'REJECTED';
-        }
+        const appStatus = (app.status || app.currentStatus || app.current_status || 'SUBMITTED') as ApplicationStatus;
+        const status: ApplicationStatus = appStatus;
 
         return {
           id: app.id,
           trackingNumber: app.trackingNumber || app.tracking_number || app.id,
           applicantName,
-          vertical: (app.vertical || 'BOYS').toUpperCase().replace('-HOSTEL', '').replace('_', '') as Vertical,
+          vertical: ((): Vertical => {
+            const v = (app.vertical || 'BOYS_HOSTEL').toUpperCase();
+            if (v.includes('BOYS')) return 'BOYS';
+            if (v.includes('GIRLS')) return 'GIRLS';
+            if (v.includes('DHARAMSHALA')) return 'DHARAMSHALA';
+            return 'BOYS';
+          })(),
           status,
           applicationDate: app.createdAt
             ? new Date(app.createdAt).toLocaleDateString('en-GB')
             : new Date().toLocaleDateString('en-GB'),
           paymentStatus: app.paymentStatus || 'PAID',
-          interviewScheduled: status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED',
+          interviewScheduled: status === 'TRUSTEE_INTERVIEW',
           flags: app.flags || [],
           forwardedBy: (app.remarks || app.data?.status_remarks || app.forwarded_by)
             ? {
@@ -93,7 +86,7 @@ export default function TrusteeApplications() {
               }
             : undefined,
           interview:
-            status === 'INTERVIEW_SCHEDULED' || status === 'INTERVIEW_COMPLETED'
+            status === 'TRUSTEE_INTERVIEW'
               ? {
                   id: app.data?.interview?.id || app.id || '',
                   scheduledDate: app.interview_scheduled_at
@@ -103,7 +96,7 @@ export default function TrusteeApplications() {
                     ? new Date(app.interview_scheduled_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
                     : 'TBD',
                   mode: (app.data?.interview?.mode || 'IN_PERSON') as 'ONLINE' | 'PHYSICAL',
-                  status: status === 'INTERVIEW_SCHEDULED' ? ('SCHEDULED' as const) : ('COMPLETED' as const),
+                  status: 'SCHEDULED' as const,
                 }
               : undefined,
         };
@@ -124,8 +117,9 @@ export default function TrusteeApplications() {
   const filteredApplications = applications.filter((app) => {
     const matchesStatus =
       selectedStatus === 'ALL' ||
-      app.status === selectedStatus ||
-      (selectedStatus === 'FORWARDED' && (app.status === 'FORWARDED' || app.status === 'REVIEW'));
+      (selectedStatus === 'PENDING'
+        ? app.status === 'TRUSTEE_REVIEW' || app.status === 'TRUSTEE_INTERVIEW'
+        : app.status === selectedStatus);
     const matchesVertical = selectedVertical === 'ALL' || app.vertical === selectedVertical;
     const matchesSearch =
       app.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,39 +127,27 @@ export default function TrusteeApplications() {
     return matchesStatus && matchesVertical && matchesSearch;
   });
 
-  const getStatusVariant = (status: ApplicationStatus): BadgeVariant => {
-    switch (status) {
-      case 'FORWARDED':
-        return 'info';
-      case 'PROVISIONALLY_APPROVED':
-      case 'INTERVIEW_SCHEDULED':
-      case 'INTERVIEW_COMPLETED':
-        return 'warning';
-      case 'APPROVED':
-        return 'success';
-      case 'REJECTED':
-        return 'error';
-      default:
-        return 'default';
-    }
+  const STATUS_LABELS: Record<string, string> = {
+    DRAFT: 'Draft',
+    SUBMITTED: 'Submitted',
+    REVIEW: 'Under Review',
+    INTERVIEW: 'Interview',
+    TRUSTEE_REVIEW: 'Trustee Review',
+    TRUSTEE_INTERVIEW: 'Trustee Interview',
+    APPROVED: 'Approved',
+    REJECTED: 'Rejected',
+    WITHDRAWN: 'Withdrawn',
+    ARCHIVED: 'Archived',
   };
 
-  const handleProvisionalApprove = async (applicationId: string, requiresInterview: boolean, remarks: string) => {
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`/api/applications/${applicationId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
-      body: JSON.stringify({
-        status: 'PROVISIONALLY_APPROVED',
-        current_status: 'PROVISIONALLY_APPROVED',
-        remarks,
-        requires_interview: requiresInterview,
-      }),
-    });
-    if (response.ok) {
-      await fetchApplications();
-    } else {
-      throw new Error('Failed to approve application');
+  const getStatusVariant = (status: ApplicationStatus): BadgeVariant => {
+    switch (status) {
+      case 'TRUSTEE_REVIEW': return 'info';
+      case 'TRUSTEE_INTERVIEW': return 'warning';
+      case 'APPROVED': return 'success';
+      case 'REJECTED':
+      case 'WITHDRAWN': return 'error';
+      default: return 'default';
     }
   };
 
@@ -249,8 +231,8 @@ export default function TrusteeApplications() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
-          status: 'INTERVIEW_SCHEDULED',
-          current_status: 'INTERVIEW_SCHEDULED',
+          status: 'TRUSTEE_INTERVIEW',
+          current_status: 'TRUSTEE_INTERVIEW',
         }),
       });
       await fetchApplications();
@@ -295,18 +277,22 @@ export default function TrusteeApplications() {
       sortable: true,
       render: (value: ApplicationStatus) => (
         <Badge variant={getStatusVariant(value)} size="sm">
-          {value.replace(/_/g, ' ')}
+          {STATUS_LABELS[value as string] || value.replace(/_/g, ' ')}
         </Badge>
       ),
     },
     {
       key: 'interviewScheduled',
       header: 'Interview',
-      render: (value: boolean, row: Application) => (
-        <Badge variant={value ? 'success' : 'default'} size="sm" rounded={true}>
-          {value && row.interview ? `${row.interview.mode}` : 'Not Scheduled'}
-        </Badge>
-      ),
+      render: (_: boolean, row: Application) => {
+        if (row.status === 'TRUSTEE_INTERVIEW') {
+          return <Badge variant="success" size="sm" rounded={true}>Scheduled</Badge>;
+        }
+        if (row.status === 'APPROVED' || row.status === 'REJECTED') {
+          return <Badge variant="default" size="sm" rounded={true}>-</Badge>;
+        }
+        return <Badge variant="default" size="sm" rounded={true}>N/A</Badge>;
+      },
     },
     {
       key: 'flags',
@@ -382,22 +368,27 @@ export default function TrusteeApplications() {
             <label className="text-sm font-medium mr-2" style={{ color: 'var(--text-secondary)' }}>
               Status:
             </label>
-            {(['ALL', 'FORWARDED', 'PROVISIONALLY_APPROVED', 'INTERVIEW_SCHEDULED', 'INTERVIEW_COMPLETED'] as const).map(
-              (status) => (
+            {([
+              { value: 'PENDING', label: 'Pending Action' },
+              { value: 'TRUSTEE_REVIEW', label: 'Trustee Review' },
+              { value: 'TRUSTEE_INTERVIEW', label: 'Trustee Interview' },
+              { value: 'APPROVED', label: 'Approved' },
+              { value: 'REJECTED', label: 'Rejected' },
+              { value: 'ALL', label: 'All' },
+            ] as const).map(({ value, label }) => (
                 <button
-                  key={status}
-                  onClick={() => setSelectedStatus(status)}
+                  key={value}
+                  onClick={() => setSelectedStatus(value)}
                   className={cn(
                     'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                    selectedStatus === status
+                    selectedStatus === value
                       ? 'border-navy-900 bg-navy-900 text-white'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   )}
                 >
-                  {status === 'ALL' ? 'All' : status.replace(/_/g, ' ')}
+                  {label}
                 </button>
-              )
-            )}
+              ))}
           </div>
 
           {/* Vertical Filter Chips */}
@@ -441,7 +432,7 @@ export default function TrusteeApplications() {
               variant="secondary"
               size="sm"
               onClick={() => {
-                setSelectedStatus('ALL');
+                setSelectedStatus('PENDING');
                 setSelectedVertical('ALL');
                 setSearchQuery('');
               }}
@@ -480,7 +471,6 @@ export default function TrusteeApplications() {
         isOpen={selectedApplication !== null}
         onClose={() => setSelectedApplication(null)}
         application={selectedApplication}
-        onProvisionalApprove={handleProvisionalApprove}
         onProvisionalReject={handleProvisionalReject}
         onFinalApprove={handleFinalApprove}
         onFinalReject={handleFinalReject}

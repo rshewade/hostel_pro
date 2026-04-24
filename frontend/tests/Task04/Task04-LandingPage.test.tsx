@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import '@testing-library/user-event';
 import userEvent from '@testing-library/user-event';
+// @ts-expect-error - react-router-dom used for test wrappers only
 import { BrowserRouter } from 'react-router-dom';
 import Home from '../../src/app/page';
 

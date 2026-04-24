@@ -21,7 +21,7 @@ const mockCertificateData: CertificateData = {
   studentName: 'John Doe',
   studentId: 'STU001',
   fatherName: 'Richard Doe',
-  vertical: 'Boys Hostel',
+  vertical: 'BOYS_HOSTEL',
   roomNumber: 'B-201',
   admissionDate: '2023-07-01T00:00:00Z',
   exitDate: '2025-01-15T00:00:00Z',

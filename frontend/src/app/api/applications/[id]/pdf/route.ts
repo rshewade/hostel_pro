@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const dbPath = process.env.DB_FILE_PATH || path.join(process.cwd(), '../db.json');
-
-async function readDb() {
-  const data = await fs.readFile(dbPath, 'utf-8');
-  return JSON.parse(data);
-}
+import { query } from '@/lib/db';
+import { extractTokenFromHeader, getUserFromToken } from '@/lib/auth';
 
 /**
  * GET /api/applications/[id]/pdf
- * Generate and download application PDF
+ * Generate and download application as printable HTML
+ * Auth: SUPERINTENDENT, TRUSTEE, ACCOUNTS
  */
 export async function GET(
   request: NextRequest,
@@ -19,50 +13,57 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const db = await readDb();
 
-    // Find application by ID or tracking number
-    const application = db.applications?.find(
-      (app: any) => app.id === id || app.tracking_number === id || app.trackingNumber === id
+    // Try auth — staff get full access, guests can access by tracking number
+    const { searchParams } = new URL(request.url);
+    const queryToken = searchParams.get('token');
+    const authHeader = request.headers.get('authorization');
+    const token = extractTokenFromHeader(authHeader) || queryToken;
+    let isStaff = false;
+
+    if (token) {
+      const user = await getUserFromToken(token);
+      if (user && ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'].includes(user.role)) {
+        isStaff = true;
+      }
+    }
+
+    // Find by UUID or tracking number
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const { rows } = await query(
+      isUuid
+        ? 'SELECT * FROM applications WHERE id = $1'
+        : 'SELECT * FROM applications WHERE tracking_number = $1',
+      [id]
     );
 
-    if (!application) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
 
-    // Extract data with fallbacks for different field naming conventions
-    const trackingNumber = application.tracking_number || application.trackingNumber || id;
-    const vertical = application.vertical || 'N/A';
-    const status = application.current_status || application.status || application.currentStatus || 'N/A';
-    const submittedAt = application.submitted_at || application.submittedAt || application.createdAt || new Date().toISOString();
+    const application = rows[0];
+    const data = application.data || {};
+    const personalInfo = data.personal_info || {};
+    const guardianInfo = data.guardian_info || {};
+    const academicInfo = data.academic_info || {};
+    const hostelPrefs = data.hostel_preferences || {};
+    const emergencyContact = data.emergency_contact || {};
 
-    // Personal info
-    const personalInfo = application.data?.personal_info || {};
-    const fullName = personalInfo.full_name ||
-      `${application.firstName || ''} ${application.middleName || ''} ${application.lastName || ''}`.trim() ||
-      application.applicantName || 'N/A';
-    const age = personalInfo.age || application.age || 'N/A';
-    const nativePlace = personalInfo.native_place || application.nativePlace ||
-      `${application.city || ''}, ${application.state || ''}`.trim() || 'N/A';
-    const mobile = personalInfo.mobile || application.applicant_mobile || application.applicantMobile || 'N/A';
-    const email = personalInfo.email || application.applicantEmail || application.email || 'N/A';
+    const trackingNumber = application.tracking_number;
+    const vertical = (application.vertical || '').replace(/_/g, ' ');
+    const status = application.current_status || 'DRAFT';
+    const submittedAt = application.submitted_at || application.created_at;
+    const fullName = application.applicant_name || personalInfo.full_name || 'N/A';
+    const dob = application.date_of_birth || personalInfo.date_of_birth || 'N/A';
+    const gender = application.gender || personalInfo.gender || 'N/A';
+    const mobile = application.applicant_mobile || 'N/A';
+    const email = application.applicant_email || personalInfo.email || 'N/A';
+    const bloodGroup = personalInfo.blood_group || 'N/A';
 
-    // Guardian info
-    const guardianInfo = application.data?.guardian_info || {};
-    const fatherName = guardianInfo.father_name || application.fatherName || 'N/A';
-    const fatherMobile = guardianInfo.father_mobile || application.fatherMobile || 'N/A';
-    const motherName = guardianInfo.mother_name || application.motherName || 'N/A';
-    const motherMobile = guardianInfo.mother_mobile || application.motherMobile || 'N/A';
-    const address = guardianInfo.address ||
-      `${application.addressLine1 || ''} ${application.addressLine2 || ''}, ${application.city || ''}, ${application.state || ''} - ${application.pinCode || ''}`.trim() || 'N/A';
+    const address = data.address
+      ? [data.address.line1, data.address.line2, data.address.city, data.address.state, data.address.pin_code].filter(Boolean).join(', ')
+      : 'N/A';
 
-    // Education info
-    const education = application.data?.education || {};
-    const institution = education.institution || application.institution || 'N/A';
-    const course = education.course || application.course || 'N/A';
-    const year = education.year || application.year || 'N/A';
-
-    // Generate HTML for PDF
     const html = `
 <!DOCTYPE html>
 <html>
@@ -153,84 +154,68 @@ export async function GET(
     <p>Application Tracking Number</p>
     <strong>${trackingNumber}</strong>
     <br><br>
-    <span class="status status-${status}">${status}</span>
+    <span class="status status-${status}">${status.replace(/_/g, ' ')}</span>
   </div>
 
   <div class="section">
     <div class="section-title">Application Details</div>
-    <div class="row">
-      <div class="label">Vertical</div>
-      <div class="value">${vertical.replace(/_/g, ' ')}</div>
-    </div>
-    <div class="row">
-      <div class="label">Submitted On</div>
-      <div class="value">${new Date(submittedAt).toLocaleString('en-IN')}</div>
-    </div>
+    <div class="row"><div class="label">Vertical</div><div class="value">${vertical}</div></div>
+    <div class="row"><div class="label">Submitted On</div><div class="value">${submittedAt ? new Date(submittedAt).toLocaleString('en-IN') : 'N/A'}</div></div>
+    <div class="row"><div class="label">Application Type</div><div class="value">${application.type || 'NEW'}</div></div>
   </div>
 
   <div class="section">
     <div class="section-title">Personal Information</div>
-    <div class="row">
-      <div class="label">Full Name</div>
-      <div class="value">${fullName}</div>
-    </div>
-    <div class="row">
-      <div class="label">Age</div>
-      <div class="value">${age}</div>
-    </div>
-    <div class="row">
-      <div class="label">Native Place</div>
-      <div class="value">${nativePlace}</div>
-    </div>
-    <div class="row">
-      <div class="label">Mobile Number</div>
-      <div class="value">${mobile}</div>
-    </div>
-    <div class="row">
-      <div class="label">Email</div>
-      <div class="value">${email}</div>
-    </div>
+    <div class="row"><div class="label">Full Name</div><div class="value">${fullName}</div></div>
+    <div class="row"><div class="label">Date of Birth</div><div class="value">${dob}</div></div>
+    <div class="row"><div class="label">Gender</div><div class="value">${gender}</div></div>
+    <div class="row"><div class="label">Blood Group</div><div class="value">${bloodGroup}</div></div>
+    <div class="row"><div class="label">Mobile Number</div><div class="value">${mobile}</div></div>
+    <div class="row"><div class="label">Email</div><div class="value">${email}</div></div>
+    <div class="row"><div class="label">Address</div><div class="value">${address}</div></div>
   </div>
 
   <div class="section">
     <div class="section-title">Guardian Information</div>
-    <div class="row">
-      <div class="label">Father's Name</div>
-      <div class="value">${fatherName}</div>
-    </div>
-    <div class="row">
-      <div class="label">Father's Mobile</div>
-      <div class="value">${fatherMobile}</div>
-    </div>
-    <div class="row">
-      <div class="label">Mother's Name</div>
-      <div class="value">${motherName}</div>
-    </div>
-    <div class="row">
-      <div class="label">Mother's Mobile</div>
-      <div class="value">${motherMobile}</div>
-    </div>
-    <div class="row">
-      <div class="label">Address</div>
-      <div class="value">${address}</div>
-    </div>
+    <div class="row"><div class="label">Father's Name</div><div class="value">${guardianInfo.father_name || 'N/A'}</div></div>
+    <div class="row"><div class="label">Father's Occupation</div><div class="value">${guardianInfo.father_occupation || 'N/A'}</div></div>
+    <div class="row"><div class="label">Father's Mobile</div><div class="value">${guardianInfo.father_mobile || 'N/A'}</div></div>
+    <div class="row"><div class="label">Mother's Name</div><div class="value">${guardianInfo.mother_name || 'N/A'}</div></div>
+    <div class="row"><div class="label">Mother's Occupation</div><div class="value">${guardianInfo.mother_occupation || 'N/A'}</div></div>
+    <div class="row"><div class="label">Mother's Mobile</div><div class="value">${guardianInfo.mother_mobile || 'N/A'}</div></div>
+    <div class="row"><div class="label">Emergency Contact</div><div class="value">${emergencyContact.name || 'N/A'} (${emergencyContact.mobile || 'N/A'})</div></div>
   </div>
 
   <div class="section">
     <div class="section-title">Education Details</div>
-    <div class="row">
-      <div class="label">Institution</div>
-      <div class="value">${institution}</div>
-    </div>
-    <div class="row">
-      <div class="label">Course</div>
-      <div class="value">${course}</div>
-    </div>
-    <div class="row">
-      <div class="label">Year</div>
-      <div class="value">${year}</div>
-    </div>
+    <div class="row"><div class="label">Institution</div><div class="value">${academicInfo.institution || 'N/A'}</div></div>
+    <div class="row"><div class="label">Course</div><div class="value">${academicInfo.course || 'N/A'}</div></div>
+    <div class="row"><div class="label">Year</div><div class="value">${academicInfo.year || 'N/A'}</div></div>
+    <div class="row"><div class="label">Previous Qualification</div><div class="value">${academicInfo.qualification || 'N/A'}</div></div>
+    <div class="row"><div class="label">Board/University</div><div class="value">${academicInfo.board || 'N/A'}</div></div>
+    <div class="row"><div class="label">Passing Year</div><div class="value">${academicInfo.passing_year || 'N/A'}</div></div>
   </div>
+
+  <div class="section">
+    <div class="section-title">Hostel Preferences</div>
+    <div class="row"><div class="label">Room Type</div><div class="value">${hostelPrefs.room_type || 'N/A'}</div></div>
+    <div class="row"><div class="label">Duration</div><div class="value">${hostelPrefs.duration || 'N/A'}</div></div>
+    <div class="row"><div class="label">Joining Date</div><div class="value">${hostelPrefs.joining_date || 'N/A'}</div></div>
+    ${hostelPrefs.special_requirements ? `<div class="row"><div class="label">Special Requirements</div><div class="value">${hostelPrefs.special_requirements}</div></div>` : ''}
+  </div>
+
+  ${data.declaration_accepted ? `
+  <div class="section">
+    <div class="section-title">Declaration</div>
+    <p style="padding: 10px 0; font-size: 14px;">
+      I hereby declare that all the information provided above is true and correct to the best of my knowledge.
+      I understand that any false information may result in rejection of my application.
+    </p>
+    <p style="padding: 5px 0; font-size: 12px; color: #666;">
+      Declaration accepted on: ${data.declaration_timestamp ? new Date(data.declaration_timestamp).toLocaleString('en-IN') : 'N/A'}
+    </p>
+  </div>
+  ` : ''}
 
   <div class="footer">
     <p>This is a computer-generated document. For official use, please contact the hostel administration.</p>
@@ -250,6 +235,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error generating PDF:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to generate PDF' },

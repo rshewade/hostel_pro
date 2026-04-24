@@ -8,7 +8,7 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { AllocationAPI, AllocationStatus } from '@/types/api';
-import { requireAuth } from '@/lib/authorize';
+import { requireAuth, getVerticalFilter } from '@/lib/authorize';
 
 /**
  * GET /api/allocations
@@ -32,10 +32,22 @@ export async function GET(request: NextRequest) {
        LEFT JOIN rooms r ON r.id = ra.room_id
        LEFT JOIN users u ON u.id = ra.student_id`;
     const params: string[] = [];
+    const conditions: string[] = [];
 
     if (filterStudentId) {
       params.push(filterStudentId);
-      sql += ` WHERE ra.student_id = $${params.length}`;
+      conditions.push(`ra.student_id = $${params.length}`);
+    }
+
+    // Superintendents only see their vertical's allocations
+    const verticalFilter = getVerticalFilter(user);
+    if (verticalFilter) {
+      params.push(verticalFilter);
+      conditions.push(`r.vertical = $${params.length}`);
+    }
+
+    if (conditions.length > 0) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
     }
 
     sql += ` ORDER BY ra.allocated_at DESC`;
@@ -91,8 +103,26 @@ export async function POST(request: NextRequest) {
 
     const room = roomRows[0];
 
+    // Enforce vertical scope for superintendents
+    const verticalFilter = getVerticalFilter(user);
+    if (verticalFilter && room.vertical !== verticalFilter) {
+      return badRequestResponse('You can only allocate rooms in your own vertical');
+    }
+
     if (room.occupied_count >= room.capacity) {
       return badRequestResponse('Room is at full capacity');
+    }
+
+    // Verify student belongs to same vertical as room
+    const { rows: studentRows } = await query(
+      'SELECT vertical FROM users WHERE id = $1 AND role = $2',
+      [student_id, 'STUDENT']
+    );
+    if (studentRows.length === 0) {
+      return badRequestResponse('Student not found');
+    }
+    if (studentRows[0].vertical !== room.vertical) {
+      return badRequestResponse('Student and room must belong to the same vertical');
     }
 
     // Check if student already has an active allocation
@@ -122,9 +152,12 @@ export async function POST(request: NextRequest) {
 
       // Update room occupancy
       const newOccupied = room.occupied_count + 1;
+      const newStatus =
+        newOccupied >= room.capacity ? 'FULL' :
+        newOccupied > 0 ? 'PARTIAL' : 'AVAILABLE';
       await client.query(
         `UPDATE rooms SET occupied_count = $1, status = $2 WHERE id = $3`,
-        [newOccupied, newOccupied >= room.capacity ? 'OCCUPIED' : 'AVAILABLE', room_id]
+        [newOccupied, newStatus, room_id]
       );
 
       // Log allocation

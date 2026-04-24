@@ -1,9 +1,8 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { extractTokenFromHeader, getUserFromToken } from '@/lib/auth';
+import { requireAuth } from '@/lib/authorize';
 import {
   successResponse,
-  unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { DashboardAPI } from '@/types/api';
@@ -11,22 +10,17 @@ import { DashboardAPI } from '@/types/api';
 /**
  * GET /api/dashboard/student
  * Get student dashboard data
+ * Auth: STUDENT (own data only), SUPERINTENDENT/TRUSTEE (any student)
  */
 export async function GET(request: NextRequest) {
   try {
-    const token = extractTokenFromHeader(request.headers.get('authorization'));
-    if (!token) {
-      return unauthorizedResponse('Authentication required');
-    }
+    const authUser = await requireAuth(request, ['STUDENT', 'SUPERINTENDENT', 'TRUSTEE']);
 
-    const authUser = await getUserFromToken(token);
-    if (!authUser) {
-      return unauthorizedResponse('Invalid or expired token');
-    }
-
-    // Use userId from query param if provided, otherwise from token
+    // Students can only access their own data
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('userId') || authUser.id;
+    const studentId = authUser.role === 'STUDENT'
+      ? authUser.id
+      : searchParams.get('userId') || authUser.id;
 
     // Get user record
     const { rows: userRows } = await query(
@@ -127,6 +121,7 @@ export async function GET(request: NextRequest) {
 
     return successResponse(dashboardData);
   } catch (error: any) {
+    if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/dashboard/student:', error);
     return serverErrorResponse('Failed to fetch student dashboard', error);
   }

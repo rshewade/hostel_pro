@@ -13,7 +13,7 @@ import { Spinner } from '@/components/feedback/Spinner';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
-type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
+type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'INTERVIEW' | 'TRUSTEE_REVIEW' | 'TRUSTEE_INTERVIEW' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN' | 'ARCHIVED';
 type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 
 interface ApplicationDocument {
@@ -24,7 +24,6 @@ interface ApplicationDocument {
   fileSize: number;
   mimeType: string;
   storagePath: string;
-  bucketId: string;
 }
 
 interface InterviewDetails {
@@ -51,7 +50,7 @@ interface Application {
 
 export default function SuperintendentDashboard() {
   const { t } = useLanguage();
-  const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | 'ALL'>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | 'ALL' | 'PENDING'>('PENDING');
   const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -144,7 +143,7 @@ export default function SuperintendentDashboard() {
       const appData = result.data || result;
 
       // Extract documents from the application data
-      const documents: ApplicationDocument[] = appData.data?.documents || [];
+      const documents: ApplicationDocument[] = appData.documents || appData.data?.documents || [];
 
       // Extract interview details
       const interview: InterviewDetails = {
@@ -167,28 +166,25 @@ export default function SuperintendentDashboard() {
     setSelectedApplication(prev => prev ? { ...prev, documents, interview } : null);
   }, [fetchApplicationDetails]);
 
-  // Get signed URL for viewing a document
-  const getDocumentUrl = async (storagePath: string, bucketId: string): Promise<string | null> => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/applications/documents/url?path=${encodeURIComponent(storagePath)}&bucket=${encodeURIComponent(bucketId)}`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      });
-      if (!response.ok) return null;
-      const result = await response.json();
-      return result.url || null;
-    } catch (err) {
-      return null;
-    }
-  };
-
   // View document in new tab
   const handleViewDocument = async (doc: ApplicationDocument) => {
-    const url = await getDocumentUrl(doc.storagePath, doc.bucketId);
-    if (url) {
-      window.open(url, '_blank');
-    } else {
-      alert('Failed to get document URL');
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/applications/documents/url?path=${encodeURIComponent(doc.storagePath)}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
+      if (!response.ok) {
+        alert('Failed to get document URL');
+        return;
+      }
+      const result = await response.json();
+      if (result.url) {
+        window.open(result.url, '_blank');
+      } else {
+        alert('Document URL not available');
+      }
+    } catch (err) {
+      alert('Failed to open document');
     }
   };
 
@@ -211,6 +207,67 @@ export default function SuperintendentDashboard() {
   });
   const [isActionLoading, setIsActionLoading] = useState(false);
 
+  // Interview scheduling state
+  const [interviewModal, setInterviewModal] = useState<{
+    isOpen: boolean;
+    application: Application | null;
+    mode: 'ONLINE' | 'PHYSICAL';
+    date: string;
+    time: string;
+    isScheduling: boolean;
+    error: string | null;
+  }>({
+    isOpen: false,
+    application: null,
+    mode: 'ONLINE',
+    date: '',
+    time: '',
+    isScheduling: false,
+    error: null,
+  });
+
+  const handleScheduleInterview = async () => {
+    const { application, date, time, mode } = interviewModal;
+    if (!application || !date || !time) {
+      setInterviewModal(prev => ({ ...prev, error: 'Please select date and time' }));
+      return;
+    }
+    setInterviewModal(prev => ({ ...prev, isScheduling: true, error: null }));
+    try {
+      const token = localStorage.getItem('authToken');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/interviews', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          application_id: application.id,
+          schedule_time: `${date}T${time}:00Z`,
+          mode: mode === 'PHYSICAL' ? 'IN_PERSON' : 'ZOOM',
+        }),
+      });
+
+      if (res.ok) {
+        // Update application status to REVIEW/INTERVIEW
+        await fetch(`/api/applications/${application.id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ status: 'INTERVIEW', current_status: 'INTERVIEW' }),
+        });
+        setInterviewModal({ isOpen: false, application: null, mode: 'ONLINE', date: '', time: '', isScheduling: false, error: null });
+        setSelectedApplication(null);
+        await fetchApplications();
+        alert('Interview scheduled successfully');
+      } else {
+        const data = await res.json();
+        setInterviewModal(prev => ({ ...prev, isScheduling: false, error: data.error || 'Failed to schedule interview' }));
+      }
+    } catch {
+      setInterviewModal(prev => ({ ...prev, isScheduling: false, error: 'Failed to schedule interview' }));
+    }
+  };
+
   // Status mapping functions
   const mapApplicationStatus = (status: string): ApplicationStatus => {
     const statusMap: Record<string, ApplicationStatus> = {
@@ -219,10 +276,13 @@ export default function SuperintendentDashboard() {
       'REVIEW': 'REVIEW',
       'UNDER_REVIEW': 'REVIEW',
       'NEW': 'SUBMITTED',
+      'INTERVIEW': 'INTERVIEW',
+      'TRUSTEE_REVIEW': 'TRUSTEE_REVIEW',
+      'TRUSTEE_INTERVIEW': 'TRUSTEE_INTERVIEW',
       'APPROVED': 'APPROVED',
       'REJECTED': 'REJECTED',
+      'WITHDRAWN': 'WITHDRAWN',
       'ARCHIVED': 'ARCHIVED',
-      'INTERVIEW': 'REVIEW'
     };
     return statusMap[status] || 'DRAFT';
   };
@@ -238,13 +298,19 @@ export default function SuperintendentDashboard() {
     return verticalMap[vertical] || 'BOYS';
   };
 
-  // Filter applications from API data
+  // Filter applications (vertical already filtered by API for superintendents)
   const filteredApplications = applications.filter(app => {
-    const matchesStatus = selectedStatus === 'ALL' || app.status === selectedStatus;
-    const matchesVertical = selectedVertical === 'ALL' || app.vertical === selectedVertical;
+    let matchesStatus = false;
+    if (selectedStatus === 'ALL') {
+      matchesStatus = true;
+    } else if (selectedStatus === 'PENDING') {
+      matchesStatus = ['SUBMITTED', 'REVIEW', 'INTERVIEW'].includes(app.status);
+    } else {
+      matchesStatus = app.status === selectedStatus;
+    }
     const matchesSearch = app.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                        app.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesVertical && matchesSearch;
+    return matchesStatus && matchesSearch;
   });
 
   // Status badge variants
@@ -252,12 +318,32 @@ export default function SuperintendentDashboard() {
     switch (status) {
       case 'DRAFT': return 'default';
       case 'SUBMITTED':
-      case 'REVIEW': return 'warning';
+      case 'REVIEW':
+      case 'INTERVIEW': return 'warning';
+      case 'TRUSTEE_REVIEW':
+      case 'TRUSTEE_INTERVIEW': return 'info';
       case 'APPROVED': return 'success';
-      case 'REJECTED': return 'error';
+      case 'REJECTED':
+      case 'WITHDRAWN': return 'error';
       case 'ARCHIVED': return 'default';
       default: return 'default';
     }
+  };
+
+  const getStatusLabel = (status: ApplicationStatus): string => {
+    const labels: Record<ApplicationStatus, string> = {
+      DRAFT: 'Draft',
+      SUBMITTED: 'Submitted',
+      REVIEW: 'Under Review',
+      INTERVIEW: 'Interview',
+      TRUSTEE_REVIEW: 'Trustee Review',
+      TRUSTEE_INTERVIEW: 'Trustee Interview',
+      APPROVED: 'Approved',
+      REJECTED: 'Rejected',
+      WITHDRAWN: 'Withdrawn',
+      ARCHIVED: 'Archived',
+    };
+    return labels[status] || status;
   };
 
   const handleSendMessage = async (data: SendMessageData) => {
@@ -311,7 +397,7 @@ export default function SuperintendentDashboard() {
       sortable: true,
       render: (value: ApplicationStatus) => (
         <Badge variant={getStatusVariant(value)} size="sm">
-          {value.replace('_', ' ')}
+          {getStatusLabel(value)}
         </Badge>
       )
     },
@@ -363,7 +449,7 @@ export default function SuperintendentDashboard() {
       header: 'Actions',
       render: (_: any, row: Application) => (
         <div className="flex gap-2">
-          {['SUBMITTED', 'REVIEW'].includes(row.status) ? (
+          {['SUBMITTED', 'REVIEW', 'INTERVIEW'].includes(row.status) ? (
             <Button
               variant="primary"
               size="sm"
@@ -397,127 +483,73 @@ export default function SuperintendentDashboard() {
             {t('Review and manage hostel admission applications', 'छात्रावास प्रवेश आवेदनों की समीक्षा और प्रबंधन करें')}
           </p>
         </div>
-        <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--bg-accent)', color: 'var(--text-on-accent)' }}>
-          {selectedVertical === 'ALL' ? 'All Verticals' : selectedVertical}
-        </span>
+        <Button variant="secondary" size="sm" onClick={fetchApplications}>
+          {t('Refresh', 'रिफ्रेश')}
+        </Button>
       </div>
+
+      {/* Overview Stats */}
+      {!isLoading && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Total Applications', 'कुल आवेदन')}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{applications.length}</p>
+          </div>
+          <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Pending Review', 'समीक्षा लंबित')}</p>
+            <p className="text-2xl font-bold text-amber-600">
+              {applications.filter(a => ['SUBMITTED', 'REVIEW', 'INTERVIEW'].includes(a.status)).length}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Approved', 'स्वीकृत')}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {applications.filter(a => a.status === 'APPROVED').length}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Interviews', 'साक्षात्कार')}</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {applications.filter(a => a.interviewScheduled).length}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Applications Content */}
       <div>
             {/* Filters - Enhanced with Filter Chips */}
             <div className="mb-6 p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
               <div className="flex flex-col gap-4">
-                {/* Vertical Filter Chips */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <label className="text-sm font-medium mr-2" style={{ color: 'var(--text-secondary)' }}>
-                    Vertical:
-                  </label>
-                  <button
-                    onClick={() => setSelectedVertical('ALL')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedVertical === 'ALL'
-                        ? 'border-navy-900 bg-navy-900 text-white'
-                        : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                    )}
-                  >
-                    {t('All Verticals', 'सभी वर्टिकल')}
-                  </button>
-                  <button
-                    onClick={() => setSelectedVertical('BOYS')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedVertical === 'BOYS'
-                        ? 'border-blue-600 bg-blue-600 text-white'
-                        : 'border-blue-300 text-blue-700 hover:border-blue-400'
-                    )}
-                  >
-                    {t('Boys Hostel', 'बालक छात्रावास')}
-                  </button>
-                  <button
-                    onClick={() => setSelectedVertical('GIRLS')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedVertical === 'GIRLS'
-                        ? 'border-pink-600 bg-pink-600 text-white'
-                        : 'border-pink-300 text-pink-700 hover:border-pink-400'
-                    )}
-                  >
-                    {t('Girls Ashram', 'बालिका आश्रम')}
-                  </button>
-                  <button
-                    onClick={() => setSelectedVertical('DHARAMSHALA')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedVertical === 'DHARAMSHALA'
-                        ? 'border-yellow-600 bg-yellow-600 text-white'
-                        : 'border-yellow-300 text-yellow-700 hover:border-yellow-400'
-                    )}
-                  >
-                    {t('Dharamshala', 'धर्मशाला')}
-                  </button>
-                </div>
-
                 {/* Status Filter Chips */}
                 <div className="flex flex-wrap items-center gap-2">
                   <label className="text-sm font-medium mr-2" style={{ color: 'var(--text-secondary)' }}>
                     Status:
                   </label>
-                  <button
-                    onClick={() => setSelectedStatus('ALL')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedStatus === 'ALL'
-                        ? 'border-navy-900 bg-navy-900 text-white'
-                        : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                    )}
-                  >
-                    {t('All Statuses', 'सभी स्थितियां')}
-                  </button>
+                  {[
+                    { value: 'PENDING', label: t('Pending Action', 'कार्रवाई लंबित') },
+                    { value: 'ALL', label: t('All', 'सभी') },
+                    { value: 'APPROVED', label: t('Approved', 'स्वीकृत') },
+                    { value: 'REJECTED', label: t('Rejected', 'अस्वीकृत') },
+                  ].map((filter) => (
                     <button
-                      onClick={() => setSelectedStatus('SUBMITTED')}
+                      key={filter.value}
+                      onClick={() => setSelectedStatus(filter.value as any)}
                       className={cn(
                         'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                        selectedStatus === 'SUBMITTED'
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-blue-200 text-blue-700 hover:border-blue-300'
+                        selectedStatus === filter.value
+                          ? 'border-navy-900 bg-navy-900 text-white'
+                          : 'border-gray-300 text-gray-700 hover:border-gray-400'
                       )}
                     >
-                      {t('New', 'नया')}
-                    </button>
-                    <button
-                      onClick={() => setSelectedStatus('REVIEW')}
-                      className={cn(
-                        'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                        selectedStatus === 'REVIEW'
-                          ? 'border-yellow-500 bg-yellow-500 text-white'
-                          : 'border-yellow-200 text-yellow-700 hover:border-yellow-300'
+                      {filter.label}
+                      {filter.value === 'PENDING' && (
+                        <span className="ml-1.5 px-1.5 py-0.5 bg-white text-navy-900 rounded-full text-xs">
+                          {applications.filter(a => ['SUBMITTED', 'REVIEW', 'INTERVIEW'].includes(a.status)).length}
+                        </span>
                       )}
-                    >
-                      {t('Under Review', 'समीक्षाधीन')}
                     </button>
-                  <button
-                    onClick={() => setSelectedStatus('APPROVED')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedStatus === 'APPROVED'
-                        ? 'border-green-500 bg-green-500 text-white'
-                        : 'border-green-200 text-green-700 hover:border-green-300'
-                    )}
-                  >
-                    {t('Approved', 'स्वीकृत')}
-                  </button>
-                  <button
-                    onClick={() => setSelectedStatus('REJECTED')}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                      selectedStatus === 'REJECTED'
-                        ? 'border-red-500 bg-red-500 text-white'
-                        : 'border-red-200 text-red-700 hover:border-red-300'
-                    )}
-                  >
-                    {t('Rejected', 'अस्वीकृत')}
-                  </button>
+                  ))}
                 </div>
 
                 {/* Search and Clear */}
@@ -790,9 +822,28 @@ export default function SuperintendentDashboard() {
               />
             </div>
 
-            {/* Action Buttons */}
+            {/* Download PDF */}
+            <div className="pt-4 border-t" style={{ borderColor: 'var(--border-gray-200)' }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  const token = localStorage.getItem('authToken');
+                  if (!token) {
+                    alert('Please login again');
+                    return;
+                  }
+                  window.open(`/api/applications/${selectedApplication?.id}/pdf?token=${encodeURIComponent(token)}`, '_blank');
+                }}
+              >
+                Download Application PDF
+              </Button>
+            </div>
+
+            {/* Action Buttons - only for applications that need review */}
+            {selectedApplication && ['SUBMITTED', 'REVIEW', 'INTERVIEW'].includes(selectedApplication.status) && (
             <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t" style={{ borderColor: 'var(--border-gray-200)' }}>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Button
                   variant="primary"
                   onClick={() => {
@@ -830,8 +881,27 @@ export default function SuperintendentDashboard() {
                     });
                   }}
                 >
-                  Forward to Trustees
+                  Forward to Trustee
                 </Button>
+                {/* Schedule Interview only available when not already in INTERVIEW status */}
+                {selectedApplication.status !== 'INTERVIEW' && (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setInterviewModal({
+                      isOpen: true,
+                      application: selectedApplication,
+                      mode: 'ONLINE',
+                      date: '',
+                      time: '',
+                      isScheduling: false,
+                      error: null,
+                    });
+                  }}
+                >
+                  Schedule Interview
+                </Button>
+                )}
               </div>
               <Button
                 variant="secondary"
@@ -843,6 +913,7 @@ export default function SuperintendentDashboard() {
                 Send Message
               </Button>
             </div>
+            )}
           </div>
         )}
       </Modal>
@@ -862,9 +933,9 @@ export default function SuperintendentDashboard() {
           
           setIsActionLoading(true);
           try {
-            const newStatus = actionModal.type === 'approve' ? 'APPROVED' : 
-                              actionModal.type === 'reject' ? 'REJECTED' : 
-                              'REVIEW';
+            const newStatus = actionModal.type === 'approve' ? 'APPROVED' :
+                              actionModal.type === 'reject' ? 'REJECTED' :
+                              'TRUSTEE_REVIEW';
             
             const token = localStorage.getItem('authToken');
             const response = await fetch(`/api/applications/${actionModal.application.id}`, {
@@ -963,7 +1034,7 @@ export default function SuperintendentDashboard() {
                 placeholder={actionModal.type === 'approve'
                   ? 'Enter approval remarks (e.g., Documents verified, interview completed successfully)'
                   : actionModal.type === 'reject'
-                  ? 'Enter rejection reason (e.g., Incomplete documents,不符合条件)'
+                  ? 'Enter rejection reason (e.g., Incomplete documents, does not meet eligibility criteria)'
                   : 'Enter remarks for trustees (e.g., Recommendation, additional notes)'
                 }
                 className="w-full rounded border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 min-h-[100px]"
@@ -1024,6 +1095,139 @@ export default function SuperintendentDashboard() {
         isLoading={isSending}
         showContextWarning={!!selectedApplication}
       />
+
+      {/* Interview Schedule Modal */}
+      <Modal
+        isOpen={interviewModal.isOpen}
+        onClose={() => setInterviewModal(prev => ({ ...prev, isOpen: false }))}
+        title="Schedule Interview"
+        size="md"
+      >
+        {interviewModal.application && (
+          <div className="space-y-6">
+            {/* Application Summary */}
+            <div className="p-4 rounded border" style={{ background: 'var(--bg-page)', borderColor: 'var(--border-gray-200)' }}>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <label className="text-gray-600">Applicant</label>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                    {interviewModal.application.applicantName}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-gray-600">Tracking #</label>
+                  <p className="font-mono font-medium" style={{ color: 'var(--text-primary)' }}>
+                    {interviewModal.application.trackingNumber}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-gray-600">Vertical</label>
+                  <Badge
+                    variant={interviewModal.application.vertical === 'BOYS' ? 'success' : interviewModal.application.vertical === 'GIRLS' ? 'warning' : 'info'}
+                    size="sm"
+                    className="mt-1"
+                  >
+                    {interviewModal.application.vertical}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Interview Mode */}
+            <div>
+              <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                Interview Mode
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="supt-interview-mode"
+                    value="ONLINE"
+                    checked={interviewModal.mode === 'ONLINE'}
+                    onChange={() => setInterviewModal(prev => ({ ...prev, mode: 'ONLINE' }))}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Online (Zoom/Google Meet)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="supt-interview-mode"
+                    value="PHYSICAL"
+                    checked={interviewModal.mode === 'PHYSICAL'}
+                    onChange={() => setInterviewModal(prev => ({ ...prev, mode: 'PHYSICAL' }))}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Physical (In-person)</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Date and Time */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                  Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={interviewModal.date}
+                  onChange={(e) => setInterviewModal(prev => ({ ...prev, date: e.target.value }))}
+                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                  Time <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="time"
+                  value={interviewModal.time}
+                  onChange={(e) => setInterviewModal(prev => ({ ...prev, time: e.target.value }))}
+                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
+                  style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Online mode info */}
+            {interviewModal.mode === 'ONLINE' && (
+              <div className="p-3 rounded border-l-4 bg-blue-50 border-blue-500">
+                <p className="text-sm text-blue-800">
+                  A meeting link will be generated automatically and sent to the applicant.
+                </p>
+              </div>
+            )}
+
+            {/* Error */}
+            {interviewModal.error && (
+              <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+                <p className="text-sm text-red-800">{interviewModal.error}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4 border-t" style={{ borderColor: 'var(--border-gray-200)' }}>
+              <Button
+                variant="primary"
+                onClick={handleScheduleInterview}
+                loading={interviewModal.isScheduling}
+                disabled={!interviewModal.date || !interviewModal.time}
+              >
+                Schedule Interview
+              </Button>
+              <Button variant="secondary" onClick={() => setInterviewModal(prev => ({ ...prev, isOpen: false }))}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

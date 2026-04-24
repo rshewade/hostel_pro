@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { verifySignedSessionToken } from '@/lib/auth';
 
 /**
  * GET /api/parent/leave
@@ -19,71 +20,42 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let tokenData;
-    try {
-      const decoded = Buffer.from(sessionToken, 'base64').toString('utf-8');
-      tokenData = JSON.parse(decoded);
-    } catch {
+    const tokenData = verifySignedSessionToken(sessionToken);
+    if (!tokenData) {
       return NextResponse.json(
-        { message: 'Invalid session token' },
+        { message: 'Invalid or expired session token. Please login again.' },
         { status: 401 }
       );
     }
 
-    if (tokenData.vertical !== 'parent' && tokenData.role !== 'parent') {
+    if (tokenData.vertical !== 'parent') {
       return NextResponse.json(
         { message: 'Access denied. Parent access required.' },
         { status: 403 }
       );
     }
 
-    const tokenAge = Date.now() - tokenData.timestamp;
-    const maxAge = 86400000;
-
-    if (tokenAge > maxAge) {
-      return NextResponse.json(
-        { message: 'Session expired. Please login again.' },
-        { status: 401 }
-      );
-    }
-
     // Get parent user to find linked student
     const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
-    const normalizedParentMobile = normalizePhone(tokenData.contact);
+    const normalizedParentMobile = normalizePhone(tokenData.contact as string);
 
-    // Check if parent selected a specific student (from the dashboard selector)
+    // The studentId from the dashboard is already the user ID
     const selectedStudentId = searchParams.get('studentId');
 
-    let studentUserId = null;
+    let studentUserId: string | null = selectedStudentId;
 
-    if (selectedStudentId) {
-      // Parent has selected a specific ward - use that student's user_id
-      const { rows: studentRows } = await query(
-        'SELECT * FROM students WHERE id = $1',
-        [selectedStudentId]
+    // If no student selected, find first linked student via applications
+    if (!studentUserId) {
+      const { rows: linkedApps } = await query(
+        `SELECT DISTINCT student_user_id FROM applications
+         WHERE student_user_id IS NOT NULL
+         AND (data->'guardian_info'->>'father_mobile' LIKE $1
+              OR data->'guardian_info'->>'mother_mobile' LIKE $1)
+         LIMIT 1`,
+        [`%${normalizedParentMobile}`]
       );
-
-      if (studentRows.length > 0) {
-        studentUserId = studentRows[0].user_id;
-      }
-    } else {
-      // No selection - fall back to first student in parent's linked_student_ids
-      const { rows: parentUsers } = await query(
-        `SELECT * FROM users WHERE role = 'parent'`
-      );
-
-      const parentUser = (parentUsers || []).find((u: any) =>
-        normalizePhone(u.mobile_no) === normalizedParentMobile
-      );
-
-      if (parentUser?.linked_student_ids && parentUser.linked_student_ids.length > 0) {
-        const defaultStudentId = parentUser.linked_student_ids[0];
-        const { rows: studentRows } = await query(
-          'SELECT * FROM students WHERE id = $1',
-          [defaultStudentId]
-        );
-
-        studentUserId = studentRows.length > 0 ? studentRows[0].user_id : null;
+      if (linkedApps.length > 0) {
+        studentUserId = linkedApps[0].student_user_id;
       }
     }
 

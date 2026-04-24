@@ -8,7 +8,7 @@ import AllocationModal from '@/components/AllocationModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
-type RoomStatus = 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'MAINTENANCE';
+type RoomStatus = 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'MAINTENANCE' | 'CLOSED';
 type Vertical = 'BOYS_HOSTEL' | 'GIRLS_ASHRAM' | 'DHARAMSHALA';
 
 type Room = {
@@ -44,9 +44,10 @@ export default function RoomAllocationPage() {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [showDetailPanel, setShowDetailPanel] = useState(false);
   const [showAllocationModal, setShowAllocationModal] = useState(false);
+  const [showRoomModal, setShowRoomModal] = useState(false);
+  const [editingRoom, setEditingRoom] = useState<Room | null>(null);
 
   // Filters
-  const [verticalFilter, setVerticalFilter] = useState<string>('ALL');
   const [occupancyFilter, setOccupancyFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -91,11 +92,6 @@ export default function RoomAllocationPage() {
 
   // Filter rooms
   const filteredRooms = rooms.filter((room) => {
-    // Vertical filter
-    if (verticalFilter !== 'ALL' && room.vertical !== verticalFilter) {
-      return false;
-    }
-
     // Occupancy filter
     const status = getRoomStatus(room);
     if (occupancyFilter !== 'ALL') {
@@ -130,31 +126,23 @@ export default function RoomAllocationPage() {
   return (
     <div className="min-h-screen p-6" style={{ background: 'var(--bg-page)' }}>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-heading-1 mb-2" style={{ color: 'var(--text-primary)' }}>
-          {t('Room Allocation Matrix', 'कमरा आवंटन मैट्रिक्स')}
-        </h1>
-        <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
-          {t('Manage room allocations across all verticals', 'सभी वर्टिकल में कमरा आवंटन प्रबंधित करें')}
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-heading-1 mb-2" style={{ color: 'var(--text-primary)' }}>
+            {t('Room Allocation Matrix', 'कमरा आवंटन मैट्रिक्स')}
+          </h1>
+          <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
+            {t('Manage room allocations', 'कमरा आवंटन प्रबंधित करें')}
+          </p>
+        </div>
+        <Button variant="primary" size="sm" onClick={() => { setEditingRoom(null); setShowRoomModal(true); }}>
+          + {t('Add Room', 'कमरा जोड़ें')}
+        </Button>
       </div>
 
       {/* Filters */}
       <div className="mb-6 p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Vertical Filter */}
-          <Select
-            label="Vertical"
-            value={verticalFilter}
-            onChange={(e) => setVerticalFilter(e.target.value)}
-            options={[
-              { value: 'ALL', label: 'All Verticals' },
-              { value: 'BOYS_HOSTEL', label: 'Boys Hostel' },
-              { value: 'GIRLS_ASHRAM', label: 'Girls Ashram' },
-              { value: 'DHARAMSHALA', label: 'Dharamshala' },
-            ]}
-          />
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Occupancy Filter */}
           <Select
             label="Occupancy Status"
@@ -238,6 +226,10 @@ export default function RoomAllocationPage() {
               onAllocate={() => {
                 setShowAllocationModal(true);
               }}
+              onEdit={() => {
+                setEditingRoom(selectedRoom);
+                setShowRoomModal(true);
+              }}
               onRefresh={() => {
                 fetchRooms();
                 fetchAllocations();
@@ -246,6 +238,19 @@ export default function RoomAllocationPage() {
           </div>
         )}
       </div>
+
+      {/* Add/Edit Room Modal */}
+      {showRoomModal && (
+        <RoomFormModal
+          room={editingRoom}
+          onClose={() => { setShowRoomModal(false); setEditingRoom(null); }}
+          onSuccess={() => {
+            setShowRoomModal(false);
+            setEditingRoom(null);
+            fetchRooms();
+          }}
+        />
+      )}
 
       {/* Allocation Modal */}
       {showAllocationModal && selectedRoom && (
@@ -280,6 +285,7 @@ function RoomCard({
     PARTIAL: { label: 'Partial', color: 'bg-yellow-100 text-yellow-700', icon: '🟡' },
     FULL: { label: 'Full', color: 'bg-red-100 text-red-700', icon: '🔴' },
     MAINTENANCE: { label: 'Blocked', color: 'bg-gray-100 text-gray-700', icon: '⚫' },
+    CLOSED: { label: 'Closed', color: 'bg-gray-100 text-gray-500', icon: '⛔' },
   };
 
   const config = statusConfig[status];
@@ -329,59 +335,33 @@ function RoomDetailPanel({
   allocations,
   onClose,
   onAllocate,
+  onEdit,
   onRefresh,
 }: {
   room: Room;
   allocations: Allocation[];
   onClose: () => void;
   onAllocate: () => void;
+  onEdit: () => void;
   onRefresh: () => void;
 }) {
   const [occupants, setOccupants] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
   useEffect(() => {
-    fetchOccupants();
+    // Allocation rows already carry joined user data (`users` field from /api/allocations)
+    const students: Student[] = allocations.map((allocation: any, index) => {
+      const user = (allocation.users as any) || {};
+      const studentId = allocation.student_user_id || allocation.student_id;
+      return {
+        id: studentId || `occupant-${index}`,
+        full_name: user.full_name || user.email || 'Unknown Student',
+        bed_number: index + 1,
+      };
+    });
+    setOccupants(students);
+    setLoading(false);
   }, [allocations]);
-
-  const fetchOccupants = async () => {
-    try {
-      // Fetch student profiles for each allocation
-      const students = await Promise.all(
-        allocations.map(async (allocation: any, index) => {
-          // Handle both student_id and student_user_id field names
-          const studentId = allocation.student_user_id || allocation.student_id;
-          try {
-            const response = await fetch(`/api/users/profile?user_id=${studentId}`, {
-              headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
-            });
-            if (response.ok) {
-              const result = await response.json();
-              const userData = result.data || result;
-              return {
-                id: studentId || `occupant-${index}`,
-                full_name: userData.full_name || userData.profile?.full_name || 'Unknown Student',
-                bed_number: index + 1,
-              };
-            }
-          } catch (error) {
-            console.error('Error fetching student:', error);
-          }
-          return {
-            id: studentId || `occupant-${index}`,
-            full_name: 'Student',
-            bed_number: index + 1,
-          };
-        })
-      );
-      setOccupants(students);
-    } catch (error) {
-      console.error('Error fetching occupants:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const availableBeds = room.capacity - room.occupied_count;
 
@@ -476,14 +456,172 @@ function RoomDetailPanel({
           size="sm"
           fullWidth
           onClick={onAllocate}
-          disabled={availableBeds === 0}
         >
-          {availableBeds > 0 ? 'Allocate Student' : 'Room Full'}
+          Manage Allocation
+        </Button>
+
+        <Button variant="secondary" size="sm" fullWidth onClick={onEdit}>
+          Edit Room
         </Button>
 
         <Button variant="secondary" size="sm" fullWidth onClick={onRefresh}>
           Refresh Data
         </Button>
+      </div>
+    </div>
+  );
+}
+
+// Add/Edit Room Modal
+function RoomFormModal({
+  room,
+  onClose,
+  onSuccess,
+}: {
+  room: Room | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const isEdit = !!room;
+  const [formData, setFormData] = useState({
+    room_number: room?.room_number || '',
+    floor: room?.floor?.toString() || '',
+    capacity: room?.capacity?.toString() || '',
+    status: (room?.status || 'AVAILABLE') as string,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (!formData.room_number || !formData.floor || !formData.capacity) {
+      setError('Room number, floor, and capacity are required');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const url = '/api/rooms';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      // For POST, we need the vertical from the authenticated user's context
+      // The API will validate vertical match for superintendent
+      const body: any = {
+        room_number: formData.room_number,
+        floor: parseInt(formData.floor),
+        capacity: parseInt(formData.capacity),
+        status: formData.status,
+      };
+
+      if (isEdit) {
+        body.id = room!.id;
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        onSuccess();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setError(data.error || data.message || 'Failed to save room');
+      }
+    } catch {
+      setError('Failed to save room');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+      <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
+            {isEdit ? 'Edit Room' : 'Add New Room'}
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Room Number *</label>
+            <input
+              type="text"
+              value={formData.room_number}
+              onChange={(e) => setFormData({ ...formData, room_number: e.target.value })}
+              placeholder="e.g., B-401"
+              disabled={isEdit}
+              className="w-full px-3 py-2 border rounded-lg text-sm disabled:bg-gray-100"
+              style={{ borderColor: 'var(--border-primary)' }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Floor *</label>
+              <input
+                type="number"
+                value={formData.floor}
+                onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
+                placeholder="1"
+                min="1"
+                className="w-full px-3 py-2 border rounded-lg text-sm"
+                style={{ borderColor: 'var(--border-primary)' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Capacity *</label>
+              <input
+                type="number"
+                value={formData.capacity}
+                onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                placeholder="2"
+                min="1"
+                max="8"
+                className="w-full px-3 py-2 border rounded-lg text-sm"
+                style={{ borderColor: 'var(--border-primary)' }}
+              />
+            </div>
+          </div>
+
+          {isEdit && (
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Status</label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg text-sm"
+                style={{ borderColor: 'var(--border-primary)' }}
+              >
+                <option value="AVAILABLE">Available</option>
+                <option value="MAINTENANCE">Maintenance</option>
+                <option value="CLOSED">Closed</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>
+        )}
+
+        <div className="mt-6 flex gap-3">
+          <Button variant="secondary" size="md" onClick={onClose} disabled={loading} fullWidth>
+            Cancel
+          </Button>
+          <Button variant="primary" size="md" onClick={handleSubmit} loading={loading} fullWidth>
+            {isEdit ? 'Update Room' : 'Add Room'}
+          </Button>
+        </div>
       </div>
     </div>
   );

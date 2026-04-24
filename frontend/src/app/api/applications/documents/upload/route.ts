@@ -4,11 +4,20 @@ import { saveFile } from '@/lib/storage';
 
 const DOCUMENT_TYPE_MAP: Record<string, string> = {
   'photoFile': 'PHOTOGRAPH',
+  'PHOTOGRAPH': 'PHOTOGRAPH',
   'birthCertificate': 'BIRTH_CERTIFICATE',
+  'BIRTH_CERTIFICATE': 'BIRTH_CERTIFICATE',
   'marksheet': 'EDUCATION_CERTIFICATE',
+  'EDUCATION_CERTIFICATE': 'EDUCATION_CERTIFICATE',
   'recommendationLetter': 'OTHER',
   'incomeCertificate': 'INCOME_CERTIFICATE',
+  'INCOME_CERTIFICATE': 'INCOME_CERTIFICATE',
   'medicalCertificate': 'MEDICAL_CERTIFICATE',
+  'MEDICAL_CERTIFICATE': 'MEDICAL_CERTIFICATE',
+  'AADHAAR_CARD': 'AADHAAR_CARD',
+  'ANTI_RAGGING': 'ANTI_RAGGING',
+  'HOSTEL_RULES': 'HOSTEL_RULES',
+  'OTHER': 'OTHER',
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -82,9 +91,26 @@ export async function POST(request: NextRequest) {
 
     const filePath = await saveFile(buffer, 'applications', identifier, file.name);
 
+    // Save document record to database
+    const { rows: docRows } = await query(
+      `INSERT INTO documents (application_id, document_type, category, file_name, file_path, file_size, mime_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id`,
+      [
+        applicationId || null,
+        dbDocumentType,
+        DOCUMENT_TYPE_MAP[documentType] === 'PHOTOGRAPH' || dbDocumentType === 'BIRTH_CERTIFICATE' ? 'IDENTITY' : 'ADMISSION',
+        file.name,
+        filePath,
+        file.size,
+        file.type,
+      ]
+    );
+
     return NextResponse.json({
       success: true,
       data: {
+        id: docRows[0]?.id,
         documentType,
         dbDocumentType,
         originalFileName: file.name,
@@ -94,8 +120,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Error in POST /api/applications/documents/upload:', message);
-    return NextResponse.json({ success: false, error: 'Failed to upload document' }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Error in POST /api/applications/documents/upload:', message, error);
+    return NextResponse.json({ success: false, error: `Failed to upload document: ${message}` }, { status: 500 });
   }
 }

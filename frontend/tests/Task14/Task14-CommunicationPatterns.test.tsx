@@ -107,7 +107,7 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       const channelsWithDisabled = [
         ...channels,
         { id: 'telegram' as const, label: 'Telegram', disabled: true },
-      ];
+      ] as any;
 
       render(
         <ChannelToggle
@@ -617,8 +617,8 @@ describe('Task 14 - Embedded Communication Patterns', () => {
 
       const select = screen.getByRole('combobox');
       // Set value to tomorrow_9am
-      const option = Array.from(select.options).find(
-        opt => opt.value === 'tomorrow_9am'
+      const option = Array.from((select as HTMLSelectElement).options).find(
+        (opt: any) => opt.value === 'tomorrow_9am'
       );
       if (option) {
         fireEvent.change(select, { target: { value: 'tomorrow_9am' } });
@@ -641,8 +641,8 @@ describe('Task 14 - Embedded Communication Patterns', () => {
       );
 
       const select = screen.getByRole('combobox');
-      const option = Array.from(select.options).find(
-        opt => opt.value === 'next_monday_9am'
+      const option = Array.from((select as HTMLSelectElement).options).find(
+        (opt: any) => opt.value === 'next_monday_9am'
       );
       if (option) {
         fireEvent.change(select, { target: { value: 'next_monday_9am' } });
@@ -1232,7 +1232,7 @@ describe('Task 14 - Embedded Communication Patterns', () => {
         <SendMessagePanel
           isOpen={true}
           onClose={vi.fn()}
-          onSend={handleSend}
+          onSend={handleSend as any}
           recipients={mockRecipients}
           templates={DEFAULT_TEMPLATES}
           defaultRecipientId='rec-001'

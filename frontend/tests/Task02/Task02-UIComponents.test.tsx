@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+// @ts-expect-error - module path may not resolve in all environments
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/forms/Input';
 import { Select } from '../../src/components/forms/Select';

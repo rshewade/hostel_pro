@@ -67,6 +67,10 @@ export default function DharamshalaContactPage() {
       
       if (response.ok) {
         const data = await response.json();
+        // Fresh application flow — clear any prior draft/identifiers so the form starts blank
+        localStorage.removeItem('application_draft_dharamshala');
+        localStorage.removeItem('otp_verified_mobile');
+        localStorage.removeItem('otp_verified_email');
         if (contactMethod === 'phone') {
           localStorage.setItem('otp_verified_mobile', phoneNumber);
         } else {

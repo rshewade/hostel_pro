@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Container, useResponsive } from '@/components/layout';
 import { Card } from '@/components/data/Card';
 import { Button } from '@/components/shadcn/button-extended';
-import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen, BarChart3 } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Wallet, CalendarDays, BedDouble, FileText, LogOut, FileCheck, Settings, ShieldAlert, History, BookOpen, BarChart3, Users, Lock } from 'lucide-react';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { cn } from '@/components/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,14 +18,47 @@ interface DashboardTemplateProps {
   children?: React.ReactNode;
 }
 
+const ROLE_DASHBOARD_MAP: Record<string, string> = {
+  STUDENT: '/dashboard/student',
+  SUPERINTENDENT: '/dashboard/superintendent',
+  TRUSTEE: '/dashboard/trustee',
+  ACCOUNTS: '/dashboard/accounts',
+  PARENT: '/dashboard/parent',
+};
+
 const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
   children,
 }) => {
   const { t } = useLanguage();
   const { isMobile, isDesktop } = useResponsive();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authorized, setAuthorized] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+
+  // Role-based access control: redirect if user accesses wrong dashboard
+  React.useEffect(() => {
+    // Parent uses a separate OTP-based sessionToken flow, not the JWT/userRole flow
+    if (pathname.startsWith('/dashboard/parent')) {
+      const sessionToken = new URLSearchParams(window.location.search).get('sessionToken')
+        || localStorage.getItem('parentSessionToken');
+      if (!sessionToken) {
+        router.push('/login/parent');
+      }
+      return;
+    }
+
+    const role = localStorage.getItem('userRole');
+    if (!role) {
+      router.push('/login');
+      return;
+    }
+    const allowedPath = ROLE_DASHBOARD_MAP[role];
+    if (allowedPath && !pathname.startsWith(allowedPath)) {
+      setAuthorized(false);
+      router.push(allowedPath);
+    }
+  }, [pathname, router]);
 
   const handleLogout = async () => {
     if (pathname.startsWith('/dashboard/parent')) {
@@ -66,10 +99,13 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
         { label: 'Renewal', href: '/dashboard/student/renewal', icon: <History className="w-4 h-4" /> },
         { label: 'Exit', href: '/dashboard/student/exit', icon: <LogOut className="w-4 h-4" /> },
         { label: 'Manual', href: '/dashboard/student/manual', icon: <BookOpen className="w-4 h-4" /> },
+        { label: 'Change Password', href: '/dashboard/student/change-password', icon: <Lock className="w-4 h-4" /> },
       ];
     } else if (path.startsWith('/dashboard/superintendent')) {
       return [
         { label: t('Applications', 'आवेदन'), href: '/dashboard/superintendent', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { label: t('Interviews', 'साक्षात्कार'), href: '/dashboard/superintendent/interviews', icon: <CalendarDays className="w-4 h-4" /> },
+        { label: t('Residents', 'निवासी'), href: '/dashboard/superintendent/residents', icon: <Users className="w-4 h-4" /> },
         { label: t('Rooms', 'कमरे'), href: '/dashboard/superintendent/rooms', icon: <BedDouble className="w-4 h-4" /> },
         { label: t('Leaves', 'अवकाश'), href: '/dashboard/superintendent/leaves', icon: <CalendarDays className="w-4 h-4" /> },
         { label: t('Clearance', 'मंजूरी'), href: '/dashboard/superintendent/clearance', icon: <FileCheck className="w-4 h-4" /> },
@@ -81,6 +117,7 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
       return [
         { label: t('Overview', 'अवलोकन'), href: '/dashboard/trustee', icon: <LayoutDashboard className="w-4 h-4" /> },
         { label: t('Applications', 'आवेदन'), href: '/dashboard/trustee/applications', icon: <FileText className="w-4 h-4" /> },
+        { label: t('Residents', 'निवासी'), href: '/dashboard/trustee/residents', icon: <Users className="w-4 h-4" /> },
         { label: t('Interviews', 'साक्षात्कार'), href: '/dashboard/trustee/interviews', icon: <CalendarDays className="w-4 h-4" /> },
         { label: t('Allocations', 'आवंटन'), href: '/dashboard/trustee/allocations', icon: <BedDouble className="w-4 h-4" /> },
         { label: t('Reports', 'रिपोर्ट'), href: '/dashboard/trustee/reports', icon: <BarChart3 className="w-4 h-4" /> },
@@ -128,6 +165,14 @@ const ResponsiveDashboardTemplate: React.FC<DashboardTemplateProps> = ({
   );
 
   const isTopNavRole = pathname.includes('/student') || pathname.includes('/superintendent') || pathname.includes('/trustee') || pathname.includes('/parent') || pathname.includes('/accounts');
+
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Redirecting...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

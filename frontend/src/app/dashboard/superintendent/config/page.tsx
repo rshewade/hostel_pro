@@ -5,7 +5,6 @@ import { Input } from '@/components/forms/Input';
 import { DatePicker } from '@/components/forms/DatePicker';
 import { Select, type SelectOption } from '@/components/forms/Select';
 import { Toggle } from '@/components/forms/Toggle';
-import { Checkbox } from '@/components/forms/Checkbox';
 import { Textarea } from '@/components/forms/Textarea';
 import { Button } from '@/components/shadcn/button-extended';
 import { Badge } from '@/components/shadcn/badge-extended';
@@ -49,6 +48,120 @@ interface NotificationRule {
   verticals: Vertical[];
   template: string;
   active: boolean;
+}
+
+// API <-> frontend shape mappers for leave types
+const VERTICAL_FROM_DB: Record<string, Vertical> = {
+  BOYS_HOSTEL: 'BOYS', GIRLS_ASHRAM: 'GIRLS', DHARAMSHALA: 'DHARAMSHALA',
+  BOYS: 'BOYS', GIRLS: 'GIRLS',
+};
+const VERTICAL_TO_DB: Record<Vertical, string> = {
+  BOYS: 'BOYS_HOSTEL', GIRLS: 'GIRLS_ASHRAM', DHARAMSHALA: 'DHARAMSHALA',
+};
+
+function mapLeaveTypeFromApi(lt: any): LeaveType {
+  const allowedVerticals: Vertical[] = lt.vertical
+    ? [VERTICAL_FROM_DB[lt.vertical] || 'BOYS']
+    : ['BOYS', 'GIRLS', 'DHARAMSHALA'];
+  return {
+    id: lt.id,
+    name: lt.name,
+    maxDaysPerMonth: lt.maxDays || lt.maxDaysPerMonth || 0,
+    maxDaysPerSemester: lt.maxDaysPerSemester || (lt.maxDays ? lt.maxDays * 6 : 0),
+    requiresApproval: lt.requiresApproval ?? true,
+    allowedVerticals,
+    active: lt.active ?? true,
+  };
+}
+
+// Generic single-vertical mappers (used for blackout dates and notification rules)
+function verticalsToDbValue(verticals: Vertical[]): string | null {
+  return verticals.length === 1 ? VERTICAL_TO_DB[verticals[0]] : null;
+}
+
+function dbValueToVerticals(vertical: string | null | undefined): Vertical[] {
+  if (!vertical) return ['BOYS', 'GIRLS', 'DHARAMSHALA'];
+  return [VERTICAL_FROM_DB[vertical] || 'BOYS'];
+}
+
+// Normalize any date value (Date object / ISO string / plain YYYY-MM-DD) to YYYY-MM-DD
+function toYmd(value: any): string {
+  if (!value) return '';
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  const s = String(value);
+  // If it's already YYYY-MM-DD, keep as-is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // Parse ISO / other format
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+}
+
+function mapBlackoutFromApi(bd: any): BlackoutDate {
+  return {
+    id: bd.id,
+    name: bd.name || '',
+    startDate: toYmd(bd.startDate || bd.start_date),
+    endDate: toYmd(bd.endDate || bd.end_date),
+    verticals: dbValueToVerticals(bd.vertical),
+    reason: bd.reason || '',
+  };
+}
+
+function mapBlackoutToApi(bd: BlackoutDate): any {
+  return {
+    id: bd.id,
+    name: bd.name,
+    startDate: bd.startDate,
+    endDate: bd.endDate,
+    vertical: verticalsToDbValue(bd.verticals),
+    reason: bd.reason,
+  };
+}
+
+function mapNotificationRuleFromApi(nr: any): NotificationRule {
+  return {
+    id: nr.id,
+    eventType: nr.eventType || nr.event_type,
+    timing: nr.timing || 'IMMEDIATE',
+    channels: nr.channels || { sms: true, whatsapp: true, email: false },
+    verticals: dbValueToVerticals(nr.vertical),
+    template: nr.template || '',
+    active: nr.active ?? nr.enabled ?? true,
+  };
+}
+
+function mapNotificationRuleToApi(nr: NotificationRule): any {
+  return {
+    id: nr.id,
+    eventType: nr.eventType,
+    timing: nr.timing,
+    channels: nr.channels,
+    vertical: verticalsToDbValue(nr.verticals),
+    template: nr.template,
+    active: nr.active,
+  };
+}
+
+function mapLeaveTypeToApi(lt: LeaveType): any {
+  // DB has a single `vertical` column: pick one if restricted to one, otherwise null (all verticals)
+  const vertical = lt.allowedVerticals.length === 1
+    ? VERTICAL_TO_DB[lt.allowedVerticals[0]]
+    : null;
+  return {
+    id: lt.id,
+    name: lt.name,
+    // Derive a leave_type_enum code from the name for new types; defaults to MULTI_DAY
+    code: /night/i.test(lt.name) ? 'NIGHT_OUT' :
+          /short/i.test(lt.name) ? 'SHORT_LEAVE' :
+          /home/i.test(lt.name) ? 'HOME_VISIT' :
+          /medical/i.test(lt.name) ? 'MEDICAL' :
+          /emergency/i.test(lt.name) ? 'EMERGENCY' :
+          /extended/i.test(lt.name) ? 'EXTENDED' : 'MULTI_DAY',
+    maxDays: lt.maxDaysPerMonth,
+    requiresApproval: lt.requiresApproval,
+    vertical,
+    active: lt.active,
+  };
 }
 
 export default function SuperintendentConfig() {
@@ -95,9 +208,15 @@ export default function SuperintendentConfig() {
         notificationRulesRes.json(),
       ]);
 
-      setLeaveTypes(leaveTypesData.data || leaveTypesData || []);
-      setBlackoutDates(blackoutDatesData.data || blackoutDatesData || []);
-      setNotificationRules(notificationRulesData.data || notificationRulesData || []);
+      const rawLeaveTypes = leaveTypesData.data || leaveTypesData || [];
+      const mappedLeaveTypes: LeaveType[] = (Array.isArray(rawLeaveTypes) ? rawLeaveTypes : []).map(mapLeaveTypeFromApi);
+      setLeaveTypes(mappedLeaveTypes);
+
+      const rawBlackoutDates = blackoutDatesData.data || blackoutDatesData || [];
+      setBlackoutDates((Array.isArray(rawBlackoutDates) ? rawBlackoutDates : []).map(mapBlackoutFromApi));
+
+      const rawNotificationRules = notificationRulesData.data || notificationRulesData || [];
+      setNotificationRules((Array.isArray(rawNotificationRules) ? rawNotificationRules : []).map(mapNotificationRuleFromApi));
     } catch (err: any) {
       console.error('Error fetching config data:', err);
       setError(err.message || 'Failed to load configuration');
@@ -122,7 +241,7 @@ export default function SuperintendentConfig() {
       const response = await fetch('/api/config/leave-types', {
         method,
         headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
-        body: JSON.stringify(editingLeaveType),
+        body: JSON.stringify(mapLeaveTypeToApi(editingLeaveType)),
       });
 
       if (!response.ok) {
@@ -131,7 +250,7 @@ export default function SuperintendentConfig() {
       }
 
       const result = await response.json();
-      const savedLeaveType = result.data || result;
+      const savedLeaveType = mapLeaveTypeFromApi(result.data || result);
 
       if (isNew) {
         setLeaveTypes([...leaveTypes, savedLeaveType]);
@@ -182,7 +301,7 @@ export default function SuperintendentConfig() {
       const response = await fetch('/api/config/blackout-dates', {
         method,
         headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
-        body: JSON.stringify(editingBlackoutDate),
+        body: JSON.stringify(mapBlackoutToApi(editingBlackoutDate)),
       });
 
       if (!response.ok) {
@@ -191,7 +310,7 @@ export default function SuperintendentConfig() {
       }
 
       const result = await response.json();
-      const savedBlackoutDate = result.data || result;
+      const savedBlackoutDate = mapBlackoutFromApi(result.data || result);
 
       if (isNew) {
         setBlackoutDates([...blackoutDates, savedBlackoutDate]);
@@ -241,7 +360,7 @@ export default function SuperintendentConfig() {
       const response = await fetch('/api/config/notification-rules', {
         method,
         headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
-        body: JSON.stringify(editingNotificationRule),
+        body: JSON.stringify(mapNotificationRuleToApi(editingNotificationRule)),
       });
 
       if (!response.ok) {
@@ -250,7 +369,7 @@ export default function SuperintendentConfig() {
       }
 
       const result = await response.json();
-      const savedRule = result.data || result;
+      const savedRule = mapNotificationRuleFromApi(result.data || result);
 
       if (isNew) {
         setNotificationRules([...notificationRules, savedRule]);
@@ -550,13 +669,17 @@ export default function SuperintendentConfig() {
                             <div>
                               <label className="text-gray-600">Start Date</label>
                               <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                                {blackoutDate.startDate}
+                                {blackoutDate.startDate
+                                  ? new Date(blackoutDate.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                                  : '-'}
                               </p>
                             </div>
                             <div>
                               <label className="text-gray-600">End Date</label>
                               <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                                {blackoutDate.endDate}
+                                {blackoutDate.endDate
+                                  ? new Date(blackoutDate.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                                  : '-'}
                               </p>
                             </div>
                             <div>
@@ -745,6 +868,7 @@ export default function SuperintendentConfig() {
         onClose={() => setEditingLeaveType(null)}
         title={editingLeaveType?.id ? 'Edit Leave Type' : 'Add Leave Type'}
         size="lg"
+        variant="confirmation"
         onConfirm={saveLeaveType}
         confirmText={isSaving ? 'Saving...' : 'Save'}
       >
@@ -776,22 +900,41 @@ export default function SuperintendentConfig() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-sm font-medium">Allowed Verticals</label>
-              <div className="flex gap-6">
-                {(['BOYS', 'GIRLS', 'DHARAMSHALA'] as Vertical[]).map((vertical) => (
-                  <Checkbox
-                    key={vertical}
-                    label={vertical}
-                    checked={editingLeaveType.allowedVerticals.includes(vertical)}
-                    onChange={(checked) => {
-                      const updatedVerticals = checked
-                        ? [...editingLeaveType.allowedVerticals, vertical]
-                        : editingLeaveType.allowedVerticals.filter(v => v !== vertical);
-                      setEditingLeaveType({ ...editingLeaveType, allowedVerticals: updatedVerticals });
-                    }}
-                  />
-                ))}
+              <label className="text-sm font-medium">Applies To</label>
+              <div className="flex flex-wrap gap-4">
+                {([
+                  { value: 'ALL', label: 'All Verticals' },
+                  { value: 'BOYS', label: 'Boys Hostel' },
+                  { value: 'GIRLS', label: 'Girls Ashram' },
+                  { value: 'DHARAMSHALA', label: 'Dharamshala' },
+                ] as const).map((opt) => {
+                  const currentLength = editingLeaveType.allowedVerticals.length;
+                  const isAllSelected = currentLength === 3;
+                  const isChecked =
+                    opt.value === 'ALL'
+                      ? isAllSelected
+                      : !isAllSelected && currentLength === 1 && editingLeaveType.allowedVerticals[0] === opt.value;
+                  return (
+                    <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="leave-type-vertical"
+                        className="w-4 h-4"
+                        checked={isChecked}
+                        onChange={() => {
+                          const newVerticals: Vertical[] =
+                            opt.value === 'ALL'
+                              ? ['BOYS', 'GIRLS', 'DHARAMSHALA']
+                              : [opt.value as Vertical];
+                          setEditingLeaveType({ ...editingLeaveType, allowedVerticals: newVerticals });
+                        }}
+                      />
+                      <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                    </label>
+                  );
+                })}
               </div>
+              <p className="text-xs text-gray-500">A leave type applies to one specific vertical or all three.</p>
             </div>
 
             <Toggle
@@ -810,6 +953,7 @@ export default function SuperintendentConfig() {
         onClose={() => setEditingBlackoutDate(null)}
         title={editingBlackoutDate?.id ? 'Edit Blackout Period' : 'Add Blackout Period'}
         size="lg"
+        variant="confirmation"
         onConfirm={saveBlackoutDate}
         confirmText={isSaving ? 'Saving...' : 'Save'}
       >
@@ -839,21 +983,39 @@ export default function SuperintendentConfig() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-sm font-medium">Applies To Verticals</label>
-              <div className="flex gap-6">
-                {(['BOYS', 'GIRLS', 'DHARAMSHALA'] as Vertical[]).map((vertical) => (
-                  <Checkbox
-                    key={vertical}
-                    label={vertical}
-                    checked={editingBlackoutDate.verticals.includes(vertical)}
-                    onChange={(checked) => {
-                      const updatedVerticals = checked
-                        ? [...editingBlackoutDate.verticals, vertical]
-                        : editingBlackoutDate.verticals.filter(v => v !== vertical);
-                      setEditingBlackoutDate({ ...editingBlackoutDate, verticals: updatedVerticals });
-                    }}
-                  />
-                ))}
+              <label className="text-sm font-medium">Applies To</label>
+              <div className="flex flex-wrap gap-4">
+                {([
+                  { value: 'ALL', label: 'All Verticals' },
+                  { value: 'BOYS', label: 'Boys Hostel' },
+                  { value: 'GIRLS', label: 'Girls Ashram' },
+                  { value: 'DHARAMSHALA', label: 'Dharamshala' },
+                ] as const).map((opt) => {
+                  const currentLength = editingBlackoutDate.verticals.length;
+                  const isAllSelected = currentLength === 3;
+                  const isChecked =
+                    opt.value === 'ALL'
+                      ? isAllSelected
+                      : !isAllSelected && currentLength === 1 && editingBlackoutDate.verticals[0] === opt.value;
+                  return (
+                    <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="blackout-vertical"
+                        className="w-4 h-4"
+                        checked={isChecked}
+                        onChange={() => {
+                          const newVerticals: Vertical[] =
+                            opt.value === 'ALL'
+                              ? ['BOYS', 'GIRLS', 'DHARAMSHALA']
+                              : [opt.value as Vertical];
+                          setEditingBlackoutDate({ ...editingBlackoutDate, verticals: newVerticals });
+                        }}
+                      />
+                      <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
@@ -874,6 +1036,7 @@ export default function SuperintendentConfig() {
         onClose={() => setEditingNotificationRule(null)}
         title={editingNotificationRule?.id ? 'Edit Notification Rule' : 'Add Notification Rule'}
         size="xl"
+        variant="confirmation"
         onConfirm={saveNotificationRule}
         confirmText={isSaving ? 'Saving...' : 'Save'}
       >
@@ -933,21 +1096,39 @@ export default function SuperintendentConfig() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-sm font-medium">Applies To Verticals</label>
-              <div className="flex gap-6">
-                {(['BOYS', 'GIRLS', 'DHARAMSHALA'] as Vertical[]).map((vertical) => (
-                  <Checkbox
-                    key={vertical}
-                    label={vertical}
-                    checked={editingNotificationRule.verticals.includes(vertical)}
-                    onChange={(checked) => {
-                      const updatedVerticals = checked
-                        ? [...editingNotificationRule.verticals, vertical]
-                        : editingNotificationRule.verticals.filter(v => v !== vertical);
-                      setEditingNotificationRule({ ...editingNotificationRule, verticals: updatedVerticals });
-                    }}
-                  />
-                ))}
+              <label className="text-sm font-medium">Applies To</label>
+              <div className="flex flex-wrap gap-4">
+                {([
+                  { value: 'ALL', label: 'All Verticals' },
+                  { value: 'BOYS', label: 'Boys Hostel' },
+                  { value: 'GIRLS', label: 'Girls Ashram' },
+                  { value: 'DHARAMSHALA', label: 'Dharamshala' },
+                ] as const).map((opt) => {
+                  const currentLength = editingNotificationRule.verticals.length;
+                  const isAllSelected = currentLength === 3;
+                  const isChecked =
+                    opt.value === 'ALL'
+                      ? isAllSelected
+                      : !isAllSelected && currentLength === 1 && editingNotificationRule.verticals[0] === opt.value;
+                  return (
+                    <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="notification-rule-vertical"
+                        className="w-4 h-4"
+                        checked={isChecked}
+                        onChange={() => {
+                          const newVerticals: Vertical[] =
+                            opt.value === 'ALL'
+                              ? ['BOYS', 'GIRLS', 'DHARAMSHALA']
+                              : [opt.value as Vertical];
+                          setEditingNotificationRule({ ...editingNotificationRule, verticals: newVerticals });
+                        }}
+                      />
+                      <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 

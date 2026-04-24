@@ -16,8 +16,10 @@ export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request, ['SUPERINTENDENT']);
     const verticalFilter = getVerticalFilter(user);
-    // Get all applications
-    const { rows: applications } = await query('SELECT * FROM applications');
+    // Get applications filtered by vertical
+    const { rows: applications } = verticalFilter
+      ? await query('SELECT * FROM applications WHERE vertical = $1', [verticalFilter])
+      : await query('SELECT * FROM applications');
 
     // Count by status
     const byStatus: Record<ApplicationStatus, number> = {
@@ -25,8 +27,11 @@ export async function GET(request: NextRequest) {
       SUBMITTED: 0,
       REVIEW: 0,
       INTERVIEW: 0,
+      TRUSTEE_REVIEW: 0,
+      TRUSTEE_INTERVIEW: 0,
       APPROVED: 0,
       REJECTED: 0,
+      WITHDRAWN: 0,
       ARCHIVED: 0,
     };
 
@@ -51,8 +56,10 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Get occupancy stats
-    const { rows: rooms } = await query('SELECT * FROM rooms');
+    // Get occupancy stats filtered by vertical
+    const { rows: rooms } = verticalFilter
+      ? await query('SELECT * FROM rooms WHERE vertical = $1', [verticalFilter])
+      : await query('SELECT * FROM rooms');
 
     let totalCapacity = 0;
     let currentOccupancy = 0;

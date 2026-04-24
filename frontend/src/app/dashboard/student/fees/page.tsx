@@ -203,6 +203,34 @@ export default function StudentFeesPage() {
 
   const handlePaymentComplete = async () => {
     try {
+      if (!selectedFee || !selectedPaymentId) return;
+
+      const token = localStorage.getItem('authToken');
+      const fee = feeItems.find(f => f.id === selectedPaymentId);
+      if (!fee) return;
+
+      // Update fee status directly in the fees table
+      const response = await fetch('/api/fees', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          id: selectedPaymentId,
+          status: 'PAID',
+          paid_amount: fee.amount,
+          payment_method: 'UPI',
+          paid_at: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Payment failed');
+      }
+
+      // Update local state to reflect payment
       const updatedFeeItems = feeItems.map((item) =>
         item.id === selectedPaymentId
           ? { ...item, paidAmount: item.amount, status: 'PAID' as const }
@@ -213,9 +241,9 @@ export default function StudentFeesPage() {
       setSelectedPaymentId(null);
       setSelectedFee(null);
       alert('Payment successful! Receipt generated.');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Payment error:', err);
-      alert('Payment failed. Please try again.');
+      alert(err.message || 'Payment failed. Please try again.');
     }
   };
 

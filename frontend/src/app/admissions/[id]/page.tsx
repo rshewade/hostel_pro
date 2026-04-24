@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/shadcn/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
@@ -14,27 +15,28 @@ const admissionsData = {
     subtitle: { en: 'Seth Hirachand Gumanji Jain Hostel', hi: 'सेठ हीराचंद गुमानजी जैन छात्रावास' },
     icon: Building2,
     color: 'blue',
-    externalUrl: '#',
+    applyUrl: '/apply/boys-hostel/contact',
   },
   'girls-hostel': {
     title: { en: "Girls' Hostel Admissions", hi: 'बालिका छात्रावास प्रवेश' },
     subtitle: { en: 'R. R. Shravika Ashram', hi: 'आर. आर. श्राविका आश्रम' },
     icon: Users,
     color: 'rose',
-    externalUrl: '#',
+    applyUrl: '/apply/girls-ashram/contact',
   },
   'dharamshala': {
     title: { en: 'Dharamshala Booking', hi: 'धर्मशाला बुकिंग' },
     subtitle: { en: 'Hirabaug', hi: 'हीराबाग' },
     icon: Home,
     color: 'amber',
-    externalUrl: '#',
+    applyUrl: '/apply/dharamshala/contact',
   },
 };
 
 export default function AdmissionsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const { t, language } = useLanguage();
+  const router = useRouter();
 
   const admission = admissionsData[id as keyof typeof admissionsData];
 
@@ -159,13 +161,13 @@ export default function AdmissionsPage({ params }: { params: Promise<{ id: strin
                   size="lg"
                   variant="accent"
                   className="gap-2"
-                  onClick={() => window.open(admission.externalUrl, '_blank')}
+                  onClick={() => router.push(admission.applyUrl)}
                 >
                   <ExternalLink className="h-5 w-5" />
                   {isDharamshala ? t('Booking Portal', 'बुकिंग पोर्टल') : t('Login / Register', 'लॉगिन / पंजीकरण')}
                 </Button>
                 <p className="text-sm text-primary-foreground/60 mt-4">
-                  {t('You will be redirected to our secure portal', 'आपको हमारे सुरक्षित पोर्टल पर पुनर्निर्देशित किया जाएगा')}
+                  {t('You will be redirected to the application form', 'आपको आवेदन पत्र पर पुनर्निर्देशित किया जाएगा')}
                 </p>
               </CardContent>
             </Card>

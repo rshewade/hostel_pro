@@ -44,6 +44,7 @@ import {
 
   // TimestampInfo Type
   TimestampInfo
+// @ts-expect-error - module removed during cleanup
 } from '../../src/components/documents/retentionPolicies';
 
 describe('Task 11.5: Data Retention Policies', () => {

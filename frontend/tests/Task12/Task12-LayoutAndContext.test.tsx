@@ -620,7 +620,7 @@ describe('Task 12.3 - Superintendent Dashboard: Layout and Vertical Context', ()
       });
 
       if (girlsApplications.length > 0) {
-        await user.click(girlApplications[0]);
+        await user.click(girlsApplications[0]);
         const approveButton = screen.getByText('Approve');
         await user.click(approveButton);
 

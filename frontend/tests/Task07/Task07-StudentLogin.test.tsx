@@ -26,7 +26,7 @@ describe('Task 7 - Student Login, First-time Setup, and Role-based Redirection',
     vi.clearAllMocks();
     
     // Default mock for fetch
-    global.fetch = vi.fn((url: string, options?: any) => {
+    (global as any).fetch = vi.fn((url: string, options?: any) => {
       if (url.includes('/api/auth/login')) {
         return Promise.resolve({
           ok: true,

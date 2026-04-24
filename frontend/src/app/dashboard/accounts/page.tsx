@@ -89,13 +89,37 @@ export default function AccountsDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  // Record Payment modal state
+  const [recordPayment, setRecordPayment] = useState<{
+    open: boolean;
+    feeId: string;
+    amount: string;
+    paymentMethod: string;
+    transactionRef: string;
+    receiptNumber: string;
+    notes: string;
+    loading: boolean;
+    error: string | null;
+  }>({
+    open: false,
+    feeId: '',
+    amount: '',
+    paymentMethod: 'CASH',
+    transactionRef: '',
+    receiptNumber: '',
+    notes: '',
+    loading: false,
+    error: null,
+  });
+
+  const fetchData = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem('authToken');
+        const headers: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
         const [receivablesRes, transactionsRes] = await Promise.all([
-          fetch('/api/receivables'),
-          fetch('/api/transactions')
+          fetch('/api/receivables', { headers }),
+          fetch('/api/transactions', { headers })
         ]);
 
         if (!receivablesRes.ok || !transactionsRes.ok) {
@@ -110,15 +134,24 @@ export default function AccountsDashboard() {
         const transactionsData = transactionsJson?.data ?? transactionsJson;
 
         // Transform receivables data to match the expected format
+        const mapVertical = (v: string): 'BOYS' | 'GIRLS' | 'DHARAMSHALA' => {
+          if (!v) return 'BOYS';
+          const upper = v.toUpperCase();
+          if (upper.includes('GIRLS')) return 'GIRLS';
+          if (upper.includes('DHARAMSHALA')) return 'DHARAMSHALA';
+          return 'BOYS';
+        };
         const transformedReceivables: Receivable[] = (Array.isArray(receivablesData) ? receivablesData : []).map((rec: any) => ({
           id: rec.id,
-          studentName: rec.student_name,
+          studentName: rec.student_name || 'Unknown',
           studentId: rec.student_id,
-          vertical: rec.vertical,
-          amount: rec.amount,
-          dueDate: rec.due_date,
-          status: rec.status,
-          feeComponent: rec.fee_component,
+          vertical: mapVertical(rec.vertical),
+          amount: parseFloat(rec.amount) || 0,
+          dueDate: rec.due_date
+            ? (rec.due_date instanceof Date ? rec.due_date.toISOString().split('T')[0] : String(rec.due_date).split('T')[0])
+            : '',
+          status: rec.status || 'PENDING',
+          feeComponent: rec.fee_component || rec.fee_head || 'HOSTEL_FEES',
           contact: {
             phone: rec.contact_phone || '',
             email: rec.contact_email || '',
@@ -126,8 +159,8 @@ export default function AccountsDashboard() {
           },
           audit: {
             createdBy: rec.created_by || 'system',
-            createdByRole: rec.created_by_role || 'ADMIN',
-            createdAt: rec.created_at,
+            createdByRole: rec.created_by_role || 'ACCOUNTS',
+            createdAt: rec.created_at || new Date().toISOString(),
             modifiedBy: rec.modified_by,
             modifiedAt: rec.modified_at
           },
@@ -158,8 +191,49 @@ export default function AccountsDashboard() {
       }
     };
 
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
+
+  const submitRecordPayment = async () => {
+    if (!recordPayment.feeId) {
+      setRecordPayment(s => ({ ...s, error: 'Please select a pending fee' }));
+      return;
+    }
+    const amt = parseFloat(recordPayment.amount);
+    if (!amt || amt <= 0) {
+      setRecordPayment(s => ({ ...s, error: 'Please enter a valid amount' }));
+      return;
+    }
+    setRecordPayment(s => ({ ...s, loading: true, error: null }));
+    try {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          fee_id: recordPayment.feeId,
+          amount: amt,
+          payment_method: recordPayment.paymentMethod,
+          transaction_ref: recordPayment.transactionRef || undefined,
+          receipt_number: recordPayment.receiptNumber || undefined,
+          payment_notes: recordPayment.notes || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || 'Failed to record payment');
+
+      setRecordPayment({
+        open: false, feeId: '', amount: '', paymentMethod: 'CASH',
+        transactionRef: '', receiptNumber: '', notes: '', loading: false, error: null,
+      });
+      await fetchData();
+      alert('Payment recorded successfully');
+    } catch (e: any) {
+      setRecordPayment(s => ({ ...s, loading: false, error: e.message || 'Failed to record payment' }));
+    }
+  };
 
   const filteredReceivables = useMemo(() => {
     return receivables.filter(rec => {
@@ -846,6 +920,18 @@ export default function AccountsDashboard() {
                 <Button
                   variant="primary"
                   size="sm"
+                  onClick={() => setRecordPayment(s => ({
+                    ...s, open: true, feeId: '', amount: '',
+                    paymentMethod: 'CASH', transactionRef: '', receiptNumber: '',
+                    notes: '', error: null,
+                  }))}
+                >
+                  Record Payment
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => {}}
                 >
                   Export Logs
@@ -1028,6 +1114,160 @@ export default function AccountsDashboard() {
           </>
         )}
       </main>
+
+      {/* Record Manual Payment Modal */}
+      {recordPayment.open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setRecordPayment(s => ({ ...s, open: false }))}
+        >
+          <div
+            className="w-full max-w-lg bg-white rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Record Payment
+              </h2>
+              <button
+                onClick={() => setRecordPayment(s => ({ ...s, open: false }))}
+                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                  Pending Fee <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={recordPayment.feeId}
+                  onChange={(e) => {
+                    const feeId = e.target.value;
+                    const rec = receivables.find(r => r.id === feeId);
+                    setRecordPayment(s => ({
+                      ...s,
+                      feeId,
+                      amount: rec ? String(rec.amount) : s.amount,
+                    }));
+                  }}
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm"
+                >
+                  <option value="">-- Select a pending fee --</option>
+                  {receivables
+                    .filter(r => r.status !== 'PAID')
+                    .map(r => (
+                      <option key={r.id} value={r.id}>
+                        {r.studentName} — {r.feeComponent.replace(/_/g, ' ')} — ₹{r.amount.toLocaleString('en-IN')} (Due {r.dueDate})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                    Amount (₹) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={recordPayment.amount}
+                    onChange={(e) => setRecordPayment(s => ({ ...s, amount: e.target.value }))}
+                    className="w-full px-3 py-2 rounded border border-gray-300 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                    Payment Method <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={recordPayment.paymentMethod}
+                    onChange={(e) => setRecordPayment(s => ({ ...s, paymentMethod: e.target.value }))}
+                    className="w-full px-3 py-2 rounded border border-gray-300 text-sm"
+                  >
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                    <option value="CARD">Card</option>
+                    <option value="ONLINE">Online</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                    Transaction Ref (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={recordPayment.transactionRef}
+                    onChange={(e) => setRecordPayment(s => ({ ...s, transactionRef: e.target.value }))}
+                    placeholder="UPI/cheque/UTR no."
+                    className="w-full px-3 py-2 rounded border border-gray-300 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                    Receipt No. (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={recordPayment.receiptNumber}
+                    onChange={(e) => setRecordPayment(s => ({ ...s, receiptNumber: e.target.value }))}
+                    placeholder="Auto-generated if empty"
+                    className="w-full px-3 py-2 rounded border border-gray-300 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+                  Notes (optional)
+                </label>
+                <textarea
+                  value={recordPayment.notes}
+                  onChange={(e) => setRecordPayment(s => ({ ...s, notes: e.target.value }))}
+                  placeholder="Any remarks about this payment"
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm min-h-[60px]"
+                />
+              </div>
+
+              {recordPayment.error && (
+                <div className="p-3 rounded bg-red-50 border border-red-200">
+                  <p className="text-sm text-red-700">{recordPayment.error}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 mt-4 border-t" style={{ borderColor: 'var(--border-primary)' }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setRecordPayment(s => ({ ...s, open: false }))}
+                disabled={recordPayment.loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={submitRecordPayment}
+                loading={recordPayment.loading}
+                disabled={recordPayment.loading}
+              >
+                Record Payment
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

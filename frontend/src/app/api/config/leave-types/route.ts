@@ -36,10 +36,11 @@ export async function GET(request: NextRequest) {
     const transformed = (leaveTypes || []).map((lt: any) => ({
       id: lt.id,
       name: lt.name,
-      maxDaysPerMonth: lt.max_days_per_month,
-      maxDaysPerSemester: lt.max_days_per_semester,
+      code: lt.code,
+      maxDays: lt.max_days,
       requiresApproval: lt.requires_approval,
-      allowedVerticals: lt.allowed_verticals || [],
+      parentNotification: lt.parent_notification,
+      vertical: lt.vertical || null,
       active: lt.is_active,
     }));
 
@@ -61,22 +62,26 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
-    const { name, maxDaysPerMonth, maxDaysPerSemester, requiresApproval, allowedVerticals, active } = body;
+    const { name, code, maxDays, requiresApproval, parentNotification, vertical, active } = body;
 
     if (!name || name.trim() === '') {
       return badRequestResponse('Name is required');
     }
+    if (!code) {
+      return badRequestResponse('Code is required');
+    }
 
     const { rows } = await query(
-      `INSERT INTO leave_types (name, max_days_per_month, max_days_per_semester, requires_approval, allowed_verticals, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO leave_types (name, code, max_days, requires_approval, parent_notification, vertical, is_active)
+       VALUES ($1, $2::leave_type_enum, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
         name.trim(),
-        maxDaysPerMonth || 0,
-        maxDaysPerSemester || 0,
+        code,
+        maxDays || null,
         requiresApproval ?? true,
-        JSON.stringify(allowedVerticals || ['BOYS', 'GIRLS', 'DHARAMSHALA']),
+        parentNotification || 'ON_APPROVAL',
+        vertical || null,
         active ?? true,
       ]
     );
@@ -91,10 +96,11 @@ export async function POST(request: NextRequest) {
     const transformed = {
       id: newLeaveType.id,
       name: newLeaveType.name,
-      maxDaysPerMonth: newLeaveType.max_days_per_month,
-      maxDaysPerSemester: newLeaveType.max_days_per_semester,
+      code: newLeaveType.code,
+      maxDays: newLeaveType.max_days,
       requiresApproval: newLeaveType.requires_approval,
-      allowedVerticals: newLeaveType.allowed_verticals || [],
+      parentNotification: newLeaveType.parent_notification,
+      vertical: newLeaveType.vertical || null,
       active: newLeaveType.is_active,
     };
 
@@ -116,7 +122,7 @@ export async function PUT(request: NextRequest) {
     const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
-    const { id, name, maxDaysPerMonth, maxDaysPerSemester, requiresApproval, allowedVerticals, active } = body;
+    const { id, name, maxDays, requiresApproval, parentNotification, vertical, active } = body;
 
     if (!id) {
       return badRequestResponse('ID is required');
@@ -130,21 +136,21 @@ export async function PUT(request: NextRequest) {
       setClauses.push(`name = $${paramIndex++}`);
       params.push(name.trim());
     }
-    if (maxDaysPerMonth !== undefined) {
-      setClauses.push(`max_days_per_month = $${paramIndex++}`);
-      params.push(maxDaysPerMonth);
-    }
-    if (maxDaysPerSemester !== undefined) {
-      setClauses.push(`max_days_per_semester = $${paramIndex++}`);
-      params.push(maxDaysPerSemester);
+    if (maxDays !== undefined) {
+      setClauses.push(`max_days = $${paramIndex++}`);
+      params.push(maxDays);
     }
     if (requiresApproval !== undefined) {
       setClauses.push(`requires_approval = $${paramIndex++}`);
       params.push(requiresApproval);
     }
-    if (allowedVerticals !== undefined) {
-      setClauses.push(`allowed_verticals = $${paramIndex++}`);
-      params.push(JSON.stringify(allowedVerticals));
+    if (parentNotification !== undefined) {
+      setClauses.push(`parent_notification = $${paramIndex++}`);
+      params.push(parentNotification);
+    }
+    if (vertical !== undefined) {
+      setClauses.push(`vertical = $${paramIndex++}`);
+      params.push(vertical);
     }
     if (active !== undefined) {
       setClauses.push(`is_active = $${paramIndex++}`);
@@ -170,10 +176,11 @@ export async function PUT(request: NextRequest) {
     const transformed = {
       id: updatedLeaveType.id,
       name: updatedLeaveType.name,
-      maxDaysPerMonth: updatedLeaveType.max_days_per_month,
-      maxDaysPerSemester: updatedLeaveType.max_days_per_semester,
+      code: updatedLeaveType.code,
+      maxDays: updatedLeaveType.max_days,
       requiresApproval: updatedLeaveType.requires_approval,
-      allowedVerticals: updatedLeaveType.allowed_verticals || [],
+      parentNotification: updatedLeaveType.parent_notification,
+      vertical: updatedLeaveType.vertical || null,
       active: updatedLeaveType.is_active,
     };
 

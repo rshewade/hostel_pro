@@ -8,7 +8,7 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { LeaveAPI, LeaveStatus } from '@/types/api';
-import { requireAuth } from '@/lib/authorize';
+import { requireAuth, getVerticalFilter } from '@/lib/authorize';
 
 /**
  * GET /api/leaves
@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
     const conditions: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
+
+    // Superintendents can only see leaves from their vertical
+    const verticalFilter = getVerticalFilter(user);
+    if (verticalFilter) {
+      conditions.push(`u.vertical = $${paramIndex++}`);
+      params.push(verticalFilter);
+    }
 
     if (studentId) {
       conditions.push(`lr.student_id = $${paramIndex++}`);

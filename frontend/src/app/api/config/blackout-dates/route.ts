@@ -9,6 +9,16 @@ import {
 } from '@/lib/api/responses';
 import { requireAuth } from '@/lib/authorize';
 
+// DB stores a single `vertical` column (enum) or NULL meaning "all verticals"
+const transformFromDb = (bd: any) => ({
+  id: bd.id,
+  name: bd.name || '',
+  startDate: bd.start_date,
+  endDate: bd.end_date,
+  vertical: bd.vertical || null, // null = all verticals
+  reason: bd.reason || '',
+});
+
 /**
  * GET /api/config/blackout-dates
  * List all blackout dates
@@ -16,7 +26,7 @@ import { requireAuth } from '@/lib/authorize';
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request);
+    await requireAuth(request);
     const { searchParams } = new URL(request.url);
     const vertical = searchParams.get('vertical');
 
@@ -24,25 +34,14 @@ export async function GET(request: NextRequest) {
     const params: any[] = [];
 
     if (vertical) {
-      sql += ' WHERE verticals @> $1';
-      params.push(JSON.stringify([vertical]));
+      sql += ' WHERE vertical = $1 OR vertical IS NULL';
+      params.push(vertical);
     }
 
     sql += ' ORDER BY start_date';
 
-    const { rows: blackoutDates } = await query(sql, params);
-
-    // Transform to frontend format
-    const transformed = (blackoutDates || []).map((bd: any) => ({
-      id: bd.id,
-      name: bd.name,
-      startDate: bd.start_date,
-      endDate: bd.end_date,
-      verticals: bd.verticals || [],
-      reason: bd.reason || '',
-    }));
-
-    return successResponse(transformed);
+    const { rows } = await query(sql, params);
+    return successResponse((rows || []).map(transformFromDb));
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/config/blackout-dates:', error);
@@ -60,51 +59,31 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
-    const { name, startDate, endDate, verticals, reason } = body;
+    const { name, startDate, endDate, vertical, reason } = body;
 
-    if (!name || name.trim() === '') {
-      return badRequestResponse('Name is required');
-    }
-    if (!startDate) {
-      return badRequestResponse('Start date is required');
-    }
-    if (!endDate) {
-      return badRequestResponse('End date is required');
-    }
+    if (!startDate) return badRequestResponse('Start date is required');
+    if (!endDate) return badRequestResponse('End date is required');
     if (new Date(endDate) < new Date(startDate)) {
       return badRequestResponse('End date must be after start date');
     }
 
     const { rows } = await query(
-      `INSERT INTO blackout_dates (name, start_date, end_date, verticals, reason)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO blackout_dates (name, start_date, end_date, vertical, reason, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
-        name.trim(),
+        (name || '').trim(),
         startDate,
         endDate,
-        JSON.stringify(verticals || ['BOYS', 'GIRLS', 'DHARAMSHALA']),
+        vertical || null,
         reason || '',
+        user.id,
       ]
     );
 
-    if (rows.length === 0) {
-      return serverErrorResponse('Failed to create blackout date');
-    }
+    if (rows.length === 0) return serverErrorResponse('Failed to create blackout date');
 
-    const newBlackoutDate = rows[0];
-
-    // Transform to frontend format
-    const transformed = {
-      id: newBlackoutDate.id,
-      name: newBlackoutDate.name,
-      startDate: newBlackoutDate.start_date,
-      endDate: newBlackoutDate.end_date,
-      verticals: newBlackoutDate.verticals || [],
-      reason: newBlackoutDate.reason || '',
-    };
-
-    return createdResponse(transformed, 'Blackout date created successfully');
+    return createdResponse(transformFromDb(rows[0]), 'Blackout date created successfully');
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('Error in POST /api/config/blackout-dates:', error);
@@ -119,14 +98,12 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const user = await requireAuth(request, ['SUPERINTENDENT']);
+    await requireAuth(request, ['SUPERINTENDENT']);
     const body = await request.json();
 
-    const { id, name, startDate, endDate, verticals, reason } = body;
+    const { id, name, startDate, endDate, vertical, reason } = body;
 
-    if (!id) {
-      return badRequestResponse('ID is required');
-    }
+    if (!id) return badRequestResponse('ID is required');
 
     if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
       return badRequestResponse('End date must be after start date');
@@ -148,41 +125,24 @@ export async function PUT(request: NextRequest) {
       setClauses.push(`end_date = $${paramIndex++}`);
       params.push(endDate);
     }
-    if (verticals !== undefined) {
-      setClauses.push(`verticals = $${paramIndex++}`);
-      params.push(JSON.stringify(verticals));
+    if (vertical !== undefined) {
+      setClauses.push(`vertical = $${paramIndex++}`);
+      params.push(vertical); // null = all verticals
     }
     if (reason !== undefined) {
       setClauses.push(`reason = $${paramIndex++}`);
       params.push(reason);
     }
 
-    if (setClauses.length === 0) {
-      return badRequestResponse('No fields to update');
-    }
+    if (setClauses.length === 0) return badRequestResponse('No fields to update');
 
     params.push(id);
     const sql = `UPDATE blackout_dates SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
 
     const { rows } = await query(sql, params);
+    if (rows.length === 0) return notFoundResponse('Blackout date not found');
 
-    if (rows.length === 0) {
-      return notFoundResponse('Blackout date not found');
-    }
-
-    const updatedBlackoutDate = rows[0];
-
-    // Transform to frontend format
-    const transformed = {
-      id: updatedBlackoutDate.id,
-      name: updatedBlackoutDate.name,
-      startDate: updatedBlackoutDate.start_date,
-      endDate: updatedBlackoutDate.end_date,
-      verticals: updatedBlackoutDate.verticals || [],
-      reason: updatedBlackoutDate.reason || '',
-    };
-
-    return successResponse(transformed);
+    return successResponse(transformFromDb(rows[0]));
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('Error in PUT /api/config/blackout-dates:', error);
@@ -197,16 +157,12 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const user = await requireAuth(request, ['SUPERINTENDENT']);
+    await requireAuth(request, ['SUPERINTENDENT']);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-
-    if (!id) {
-      return badRequestResponse('ID is required');
-    }
+    if (!id) return badRequestResponse('ID is required');
 
     await query('DELETE FROM blackout_dates WHERE id = $1', [id]);
-
     return successResponse({ message: 'Blackout date deleted successfully' });
   } catch (error: any) {
     if (error instanceof NextResponse) return error;

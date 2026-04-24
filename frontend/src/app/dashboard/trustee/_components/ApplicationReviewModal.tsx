@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '@/components/feedback/Modal';
 import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
 import { Button } from '@/components/shadcn/button-extended';
 import { Chip } from '@/components/shadcn/chip';
+import { FileText } from 'lucide-react';
 
-export type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'FORWARDED' | 'PROVISIONALLY_APPROVED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_COMPLETED' | 'APPROVED' | 'REJECTED';
+export type ApplicationStatus = 'DRAFT' | 'SUBMITTED' | 'REVIEW' | 'INTERVIEW' | 'TRUSTEE_REVIEW' | 'TRUSTEE_INTERVIEW' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN' | 'ARCHIVED';
 export type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
-export type DecisionType = 'PROVISIONAL_APPROVE_INTERVIEW' | 'PROVISIONAL_APPROVE_NO_INTERVIEW' | 'PROVISIONAL_REJECT' | 'FINAL_APPROVE' | 'FINAL_REJECT';
+export type DecisionType = 'APPROVE' | 'REJECT' | 'SCHEDULE_INTERVIEW';
 
 export interface Application {
   id: string;
@@ -43,8 +44,8 @@ interface ApplicationReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   application: Application | null;
-  onProvisionalApprove: (applicationId: string, requiresInterview: boolean, remarks: string) => Promise<void>;
-  onProvisionalReject: (applicationId: string, remarks: string) => Promise<void>;
+  onProvisionalApprove?: (applicationId: string, requiresInterview: boolean, remarks: string) => Promise<void>;
+  onProvisionalReject?: (applicationId: string, remarks: string) => Promise<void>;
   onFinalApprove: (applicationId: string, remarks: string) => Promise<void>;
   onFinalReject: (applicationId: string, remarks: string) => Promise<void>;
   onSendMessage?: (applicationId: string) => void;
@@ -55,33 +56,60 @@ export function ApplicationReviewModal({
   isOpen,
   onClose,
   application,
-  onProvisionalApprove,
-  onProvisionalReject,
   onFinalApprove,
   onFinalReject,
   onSendMessage,
   onScheduleInterview,
 }: ApplicationReviewModalProps) {
-  const [activeTab, setActiveTab] = useState<'summary' | 'interview' | 'decision' | 'audit'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'documents' | 'interview' | 'audit'>('summary');
   const [decisionRemarks, setDecisionRemarks] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+
+  // Fetch documents when application changes
+  useEffect(() => {
+    if (application && isOpen) {
+      const fetchDocs = async () => {
+        setDocsLoading(true);
+        try {
+          const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+          const response = await fetch(`/api/applications/${application.id}`, {
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          });
+          if (response.ok) {
+            const result = await response.json();
+            const appData = result.data?.data || result.data;
+            setDocuments(appData?.documents || appData?.data?.documents || []);
+          }
+        } catch {
+          // Documents are optional, don't block
+        } finally {
+          setDocsLoading(false);
+        }
+      };
+      fetchDocs();
+    }
+  }, [application?.id, isOpen]);
 
   const getStatusVariant = (status: ApplicationStatus): BadgeVariant => {
     switch (status) {
-      case 'FORWARDED':
-        return 'info';
-      case 'PROVISIONALLY_APPROVED':
-      case 'INTERVIEW_SCHEDULED':
-      case 'INTERVIEW_COMPLETED':
-        return 'warning';
-      case 'APPROVED':
-        return 'success';
+      case 'TRUSTEE_REVIEW': return 'info';
+      case 'TRUSTEE_INTERVIEW':
+      case 'INTERVIEW': return 'warning';
+      case 'APPROVED': return 'success';
       case 'REJECTED':
-        return 'error';
-      default:
-        return 'default';
+      case 'WITHDRAWN': return 'error';
+      default: return 'default';
     }
+  };
+
+  const STATUS_LABELS: Record<string, string> = {
+    DRAFT: 'Draft', SUBMITTED: 'Submitted', REVIEW: 'Under Review',
+    INTERVIEW: 'Interview', TRUSTEE_REVIEW: 'Trustee Review',
+    TRUSTEE_INTERVIEW: 'Trustee Interview', APPROVED: 'Approved',
+    REJECTED: 'Rejected', WITHDRAWN: 'Withdrawn', ARCHIVED: 'Archived',
   };
 
   const handleDecision = async (type: DecisionType) => {
@@ -94,20 +122,14 @@ export function ApplicationReviewModal({
     setError(null);
     try {
       switch (type) {
-        case 'PROVISIONAL_APPROVE_INTERVIEW':
-          await onProvisionalApprove(application.id, true, decisionRemarks);
-          break;
-        case 'PROVISIONAL_APPROVE_NO_INTERVIEW':
-          await onProvisionalApprove(application.id, false, decisionRemarks);
-          break;
-        case 'PROVISIONAL_REJECT':
-          await onProvisionalReject(application.id, decisionRemarks);
-          break;
-        case 'FINAL_APPROVE':
+        case 'APPROVE':
           await onFinalApprove(application.id, decisionRemarks);
           break;
-        case 'FINAL_REJECT':
+        case 'REJECT':
           await onFinalReject(application.id, decisionRemarks);
+          break;
+        case 'SCHEDULE_INTERVIEW':
+          if (onScheduleInterview) onScheduleInterview(application);
           break;
       }
       setDecisionRemarks('');
@@ -131,7 +153,7 @@ export function ApplicationReviewModal({
       <div className="space-y-6">
         {/* Tabs */}
         <div className="flex gap-2 border-b pb-4" style={{ borderColor: 'var(--border-gray-200)' }}>
-          {(['summary', 'interview', 'decision', 'audit'] as const).map((tab) => (
+          {(['summary', 'documents', 'interview', 'audit'] as const).map((tab) => (
             <button
               key={tab}
               className={`py-2 px-4 text-sm font-medium rounded transition-colors ${
@@ -188,7 +210,7 @@ export function ApplicationReviewModal({
               <div>
                 <label className="text-sm text-gray-600">Application Status</label>
                 <Badge variant={getStatusVariant(application.status)} size="md" className="mt-2">
-                  {application.status.replace(/_/g, ' ')}
+                  {STATUS_LABELS[application.status] || application.status.replace(/_/g, ' ')}
                 </Badge>
               </div>
               <div>
@@ -255,32 +277,140 @@ export function ApplicationReviewModal({
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t" style={{ borderColor: 'var(--border-gray-200)' }}>
-              <div className="flex gap-3">
-                {application.status === 'FORWARDED' && (
-                  <>
-                    <Button variant="primary" onClick={() => setActiveTab('decision')}>
-                      Issue Provisional Decision
+            {/* Action Buttons - inline like superintendent dashboard */}
+            {['TRUSTEE_REVIEW', 'TRUSTEE_INTERVIEW'].includes(application.status) && (
+              <div className="pt-4 border-t space-y-3" style={{ borderColor: 'var(--border-gray-200)' }}>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                    Remarks <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={decisionRemarks}
+                    onChange={(e) => setDecisionRemarks(e.target.value)}
+                    placeholder="Enter your remarks for this decision..."
+                    className="w-full rounded border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 min-h-[80px]"
+                    style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
+                  />
+                </div>
+                {error && (
+                  <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    variant="primary"
+                    onClick={() => handleDecision('APPROVE')}
+                    loading={isProcessing}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDecision('REJECT')}
+                    loading={isProcessing}
+                  >
+                    Reject
+                  </Button>
+                  {application.status === 'TRUSTEE_REVIEW' && !application.interviewScheduled && onScheduleInterview && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => onScheduleInterview(application)}
+                    >
+                      Schedule Interview
                     </Button>
-                  </>
-                )}
-                {(application.status === 'PROVISIONALLY_APPROVED' || application.status === 'INTERVIEW_COMPLETED') && (
-                  <Button variant="primary" onClick={() => setActiveTab('decision')}>
-                    Make Final Decision
-                  </Button>
-                )}
-                {application.status === 'PROVISIONALLY_APPROVED' && !application.interviewScheduled && onScheduleInterview && (
-                  <Button variant="secondary" onClick={() => onScheduleInterview(application)}>
-                    Schedule Interview
-                  </Button>
-                )}
+                  )}
+                </div>
+                <div className="p-3 rounded border-l-4 bg-blue-50 border-blue-500">
+                  <p className="text-sm text-blue-800">
+                    <strong>Note:</strong> Approval will create a student account and send login credentials to the applicant.
+                  </p>
+                </div>
               </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3 pt-4 border-t" style={{ borderColor: 'var(--border-gray-200)' }}>
+              <Button variant="secondary" onClick={() => {
+                const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+                if (!token) {
+                  alert('Please login again');
+                  return;
+                }
+                window.open(`/api/applications/${application.id}/pdf?token=${encodeURIComponent(token)}`, '_blank');
+              }}>
+                Download PDF
+              </Button>
               {onSendMessage && (
                 <Button variant="secondary" onClick={() => onSendMessage(application.id)}>
                   Send Message
                 </Button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Documents Tab */}
+        {activeTab === 'documents' && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Uploaded Documents
+            </h3>
+            {docsLoading ? (
+              <p className="text-sm text-gray-500 py-4 text-center">Loading documents...</p>
+            ) : documents.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                {documents.map((doc: any, index: number) => {
+                  const typeLabels: Record<string, string> = {
+                    'PHOTOGRAPH': 'Passport Photo',
+                    'BIRTH_CERTIFICATE': 'Birth Certificate',
+                    'EDUCATION_CERTIFICATE': 'Academic Document',
+                    'AADHAAR_CARD': 'Aadhaar Card',
+                    'INCOME_CERTIFICATE': 'Income Certificate',
+                    'OTHER': 'Other Document',
+                    'photoFile': 'Passport Photo',
+                    'birthCertificate': 'Birth Certificate',
+                    'marksheet': 'Academic Marksheet',
+                  };
+                  const label = typeLabels[doc.documentType || doc.type] || doc.documentType || doc.type || 'Document';
+                  const fileName = doc.originalFileName || doc.file_name || 'Unknown';
+                  const fileExt = fileName.split('.').pop()?.toUpperCase() || 'PDF';
+
+                  return (
+                    <div
+                      key={index}
+                      className="p-3 rounded border cursor-pointer hover:shadow-md transition-shadow"
+                      style={{ borderColor: 'var(--border-gray-200)', background: 'var(--bg-page)' }}
+                      onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('authToken');
+                          const res = await fetch(`/api/applications/documents/url?path=${encodeURIComponent(doc.storagePath || doc.file_path)}`, {
+                            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                          });
+                          const data = await res.json();
+                          if (data.url) window.open(data.url, '_blank');
+                          else alert('Failed to open document');
+                        } catch {
+                          alert('Failed to open document');
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm truncate" style={{ color: 'var(--text-primary)' }}>{label}</p>
+                          <p className="text-xs text-gray-500">{fileExt} • {fileName}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8 border rounded" style={{ borderColor: 'var(--border-gray-200)' }}>
+                <FileText className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-500">No documents uploaded for this application</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -333,96 +463,11 @@ export function ApplicationReviewModal({
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-600 mb-4">No interview scheduled for this application.</p>
-                {application.status === 'PROVISIONALLY_APPROVED' && onScheduleInterview && (
+                {application.status === 'TRUSTEE_REVIEW' && onScheduleInterview && (
                   <Button variant="primary" onClick={() => onScheduleInterview(application)}>
                     Schedule Interview
                   </Button>
                 )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Decision Tab */}
-        {activeTab === 'decision' && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-              {application.status === 'FORWARDED' ? 'Provisional Decision' : 'Final Decision'}
-            </h3>
-
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                Decision Remarks <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={decisionRemarks}
-                onChange={(e) => setDecisionRemarks(e.target.value)}
-                placeholder="Enter your remarks for this decision..."
-                className="w-full rounded border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 min-h-[100px]"
-                style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}
-                required
-              />
-            </div>
-
-            {application.status === 'FORWARDED' && (
-              <div className="space-y-3">
-                <Button
-                  variant="primary"
-                  onClick={() => handleDecision('PROVISIONAL_APPROVE_INTERVIEW')}
-                  loading={isProcessing}
-                  fullWidth
-                >
-                  Provisionally Approve (Interview Required)
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => handleDecision('PROVISIONAL_APPROVE_NO_INTERVIEW')}
-                  loading={isProcessing}
-                  fullWidth
-                >
-                  Provisionally Approve (No Interview)
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDecision('PROVISIONAL_REJECT')}
-                  loading={isProcessing}
-                  fullWidth
-                >
-                  Reject Application
-                </Button>
-              </div>
-            )}
-
-            {(application.status === 'PROVISIONALLY_APPROVED' || application.status === 'INTERVIEW_COMPLETED') && (
-              <div className="space-y-3">
-                <Button
-                  variant="primary"
-                  onClick={() => handleDecision('FINAL_APPROVE')}
-                  loading={isProcessing}
-                  fullWidth
-                >
-                  Final Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDecision('FINAL_REJECT')}
-                  loading={isProcessing}
-                  fullWidth
-                >
-                  Final Reject
-                </Button>
-                <div className="mt-4 p-3 rounded border-l-4 bg-blue-50 border-blue-500">
-                  <p className="text-sm text-blue-800">
-                    <strong>Note:</strong> Final approval will create a student account and send login credentials to the applicant.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Error Display */}
-            {error && (
-              <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
-                <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
           </div>

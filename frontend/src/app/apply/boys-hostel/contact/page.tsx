@@ -71,6 +71,10 @@ export default function ContactOTPPage() {
       
       if (response.ok) {
         const data = await response.json();
+        // Fresh application flow — clear any prior draft/identifiers so the form starts blank
+        localStorage.removeItem('application_draft_boys-hostel');
+        localStorage.removeItem('otp_verified_mobile');
+        localStorage.removeItem('otp_verified_email');
         // Store verified contact for use in application form
         if (contactMethod === 'phone') {
           localStorage.setItem('otp_verified_mobile', phoneNumber);

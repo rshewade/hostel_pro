@@ -8,7 +8,7 @@ import {
   validateFields,
 } from '@/lib/api/responses';
 import { InterviewAPI, InterviewStatus } from '@/types/api';
-import { requireAuth } from '@/lib/authorize';
+import { requireAuth, getVerticalFilter } from '@/lib/authorize';
 
 /**
  * GET /api/interviews
@@ -17,7 +17,8 @@ import { requireAuth } from '@/lib/authorize';
  */
 export async function GET(request: NextRequest) {
   try {
-    await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
+    const user = await requireAuth(request, ['TRUSTEE', 'SUPERINTENDENT']);
+    const verticalFilter = getVerticalFilter(user);
     const { searchParams } = new URL(request.url);
     const applicationId = searchParams.get('application_id');
     const status = searchParams.get('status') as InterviewStatus | null;
@@ -28,6 +29,17 @@ export async function GET(request: NextRequest) {
     const conditions: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
+
+    // Scope interviews by role
+    if (verticalFilter) {
+      // Superintendent: only their vertical, only active superintendent-level interviews
+      conditions.push(`a.vertical = $${paramIndex++}`);
+      params.push(verticalFilter);
+      conditions.push(`a.current_status NOT IN ('TRUSTEE_REVIEW', 'TRUSTEE_INTERVIEW', 'REJECTED', 'APPROVED', 'WITHDRAWN', 'ARCHIVED')`);
+    } else if (user.role === 'TRUSTEE') {
+      // Trustee: only trustee-level interviews
+      conditions.push(`a.current_status IN ('TRUSTEE_INTERVIEW')`);
+    }
 
     if (applicationId) {
       conditions.push(`i.application_id = $${paramIndex++}`);
@@ -46,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     // Get total count
     const { rows: countRows } = await query(
-      `SELECT COUNT(*) AS count FROM interviews i ${whereClause}`,
+      `SELECT COUNT(*) AS count FROM interviews i JOIN applications a ON i.application_id = a.id ${whereClause}`,
       params
     );
     const total = parseInt(countRows[0]?.count || '0', 10);
@@ -72,7 +84,13 @@ export async function GET(request: NextRequest) {
       application_id: row.application_id,
       trustee_id: row.trustee_id,
       schedule_time: row.scheduled_date && row.scheduled_time
-        ? `${row.scheduled_date}T${row.scheduled_time}`
+        ? (() => {
+            const d = row.scheduled_date instanceof Date
+              ? row.scheduled_date.toISOString().split('T')[0]
+              : String(row.scheduled_date);
+            const t = String(row.scheduled_time);
+            return `${d}T${t}`;
+          })()
         : null,
       mode: row.mode,
       status: row.status,
@@ -203,7 +221,7 @@ export async function POST(request: NextRequest) {
       [
         'INTERVIEW',
         insertedRows[0].id,
-        'INTERVIEW_SCHEDULED',
+        'STATUS_CHANGE',
         JSON.stringify({
           application_id,
           tracking_number: application.tracking_number,

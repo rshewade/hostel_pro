@@ -70,12 +70,12 @@ describe('FileUpload Component', () => {
     const dropZone = screen.getByText('Click to upload or drag and drop').closest('div');
     const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
     
-    fireEvent.drop(dropZone, {
+    fireEvent.drop(dropZone!, {
       dataTransfer: {
         files: [file],
       },
     });
-    
+
     await waitFor(() => {
       expect(handleChange).toHaveBeenCalledWith(file);
     });
@@ -84,11 +84,11 @@ describe('FileUpload Component', () => {
   it('validates file type on drag and drop', async () => {
     const handleChange = vi.fn();
     render(<FileUpload {...defaultProps} onChange={handleChange} />);
-    
+
     const dropZone = screen.getByText('Click to upload or drag and drop').closest('div');
     const invalidFile = new File(['test'], 'test.txt', { type: 'text/plain' });
-    
-    fireEvent.drop(dropZone, {
+
+    fireEvent.drop(dropZone!, {
       dataTransfer: {
         files: [invalidFile],
       },

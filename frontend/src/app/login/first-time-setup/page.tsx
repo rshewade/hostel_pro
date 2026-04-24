@@ -89,11 +89,13 @@ function FirstTimeSetupContent() {
         // The token is available from URL params
         if (token) {
           localStorage.setItem('authToken', token);
-          // Decode token to get user info
+          // Decode JWT payload to get user info
           try {
-            const tokenData = JSON.parse(atob(token));
+            const payload = token.split('.')[1];
+            const padded = payload.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(payload.length / 4) * 4, '=');
+            const tokenData = JSON.parse(atob(padded));
             localStorage.setItem('userRole', tokenData.role || '');
-            localStorage.setItem('userId', tokenData.userId || '');
+            localStorage.setItem('userId', tokenData.sub || tokenData.userId || '');
           } catch (e) {
             console.error('Error decoding token:', e);
           }

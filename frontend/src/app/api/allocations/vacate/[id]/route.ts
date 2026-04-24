@@ -37,8 +37,8 @@ export async function PUT(
 
     const allocation = allocationRows[0];
 
-    if (allocation.status === 'CHECKED_OUT') {
-      return badRequestResponse('Room has already been vacated');
+    if (allocation.status !== 'ACTIVE') {
+      return badRequestResponse('Only active allocations can be vacated');
     }
 
     const room = allocation.rooms;
@@ -49,7 +49,7 @@ export async function PUT(
        SET vacated_at = $1, status = $2
        WHERE id = $3
        RETURNING *`,
-      [new Date().toISOString(), 'CHECKED_OUT', id]
+      [new Date().toISOString(), 'VACATED', id]
     );
 
     if (updatedRows.length === 0) {
@@ -61,26 +61,31 @@ export async function PUT(
     // Update room occupancy
     if (room) {
       const newOccupied = Math.max(0, room.occupied_count - 1);
+      const newStatus =
+        newOccupied >= room.capacity ? 'FULL' :
+        newOccupied > 0 ? 'PARTIAL' : 'AVAILABLE';
       await query(
         `UPDATE rooms SET occupied_count = $1, status = $2 WHERE id = $3`,
-        [newOccupied, newOccupied < room.capacity ? 'AVAILABLE' : 'OCCUPIED', allocation.room_id]
+        [newOccupied, newStatus, allocation.room_id]
       );
     }
 
     // Log vacate action
     await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, metadata)
-       VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
       [
         'ROOM_ALLOCATION',
         id,
-        'VACATE',
+        'UPDATE',
+        user.id,
         JSON.stringify({
+          event: 'VACATE',
           student_id: allocation.student_id,
           room_id: allocation.room_id,
           room_number: room?.room_number,
           old_status: allocation.status,
-          new_status: 'CHECKED_OUT',
+          new_status: 'VACATED',
         }),
       ]
     );

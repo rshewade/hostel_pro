@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+// @ts-expect-error - react-router-dom used for test wrappers only
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Mock navigation components

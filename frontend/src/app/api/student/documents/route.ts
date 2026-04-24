@@ -50,9 +50,10 @@ export async function GET(request: NextRequest) {
       return {
         id: doc.id || `doc-${index}`,
         title: typeInfo.title,
+        documentType: doc.document_type,
         category: typeInfo.category,
         uploadDate: doc.created_at ? new Date(doc.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-        status: doc.status || 'UPLOADED',
+        status: doc.verification_status || doc.status || 'UPLOADED',
         size: doc.file_size ? `${(doc.file_size / 1024 / 1024).toFixed(2)} MB` : 'Unknown',
         type: doc.storage_path?.split('.').pop()?.toUpperCase() || doc.mime_type?.split('/').pop()?.toUpperCase() || 'PDF',
         url: doc.storage_url || '',

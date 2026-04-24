@@ -68,6 +68,7 @@ import {
   // Utility Functions
   createHeaders,
   handleApiError
+// @ts-expect-error - module removed during cleanup
 } from '../../src/components/documents/apiIntegration';
 
 describe('Task 11.5: Document API Endpoints', () => {

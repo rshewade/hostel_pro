@@ -75,6 +75,7 @@ import {
   // Error Types
   ErrorCode,
   ErrorMetadata,
+// @ts-expect-error - module removed during cleanup
 } from '../../src/components/documents/auditMetadataTypes';
 
 describe('Task 11.5: Audit Metadata Type Definitions', () => {

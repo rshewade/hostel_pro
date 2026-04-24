@@ -76,10 +76,12 @@ export async function POST(request: NextRequest) {
       `UPDATE users
        SET password_hash = $1,
            requires_password_change = false,
-           metadata = COALESCE(metadata, '{}'::jsonb)
-             || jsonb_build_object('password_changed_at', $2::text)
-             || jsonb_build_object('dpdp_consent', true)
-             || jsonb_build_object('dpdp_consent_at', $2::text),
+           profile_data = COALESCE(profile_data, '{}'::jsonb)
+             || jsonb_build_object(
+                  'password_changed_at', $2::text,
+                  'dpdp_consent', true,
+                  'dpdp_consent_at', $2::text
+                ),
            updated_at = NOW()
        WHERE id = $3`,
       [newHash, now, user.id]
@@ -93,7 +95,7 @@ export async function POST(request: NextRequest) {
     await createAuditLog({
       entityType: 'USER',
       entityId: user.id,
-      action: 'DPDP_CONSENT',
+      action: 'UPDATE',
       performedBy: user.id,
       ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',

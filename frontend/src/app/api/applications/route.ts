@@ -25,12 +25,19 @@ export async function GET(request: NextRequest) {
     const params: any[] = [];
     let paramIndex = 1;
 
+    // Superintendents can only see their own vertical
+    const verticalFilter = getVerticalFilter(user);
+    if (verticalFilter) {
+      conditions.push(`vertical = $${paramIndex++}`);
+      params.push(verticalFilter);
+    }
+
     if (trackingNumber) {
       conditions.push(`tracking_number = $${paramIndex++}`);
       params.push(trackingNumber);
     }
 
-    if (vertical) {
+    if (vertical && !verticalFilter) {
       conditions.push(`vertical = $${paramIndex++}`);
       params.push(vertical);
     }

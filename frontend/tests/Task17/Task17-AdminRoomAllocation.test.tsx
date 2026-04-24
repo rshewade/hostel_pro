@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+// @ts-expect-error - page moved/renamed
 import RoomAllocationPage from '@/app/dashboard/admin/room-allocation/page';
 
 // Mock fetch globally

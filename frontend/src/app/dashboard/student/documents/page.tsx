@@ -21,12 +21,12 @@ interface Document {
 }
 
 const DOCUMENT_TYPES = [
-  { value: 'AADHAR_CARD', label: 'Aadhar Card', category: 'IDENTITY' },
-  { value: 'PHOTO', label: 'Passport Size Photo', category: 'IDENTITY' },
+  { value: 'PHOTOGRAPH', label: 'Passport Size Photo', category: 'IDENTITY' },
+  { value: 'AADHAAR_CARD', label: 'Aadhaar Card', category: 'IDENTITY' },
   { value: 'BIRTH_CERTIFICATE', label: 'Birth Certificate', category: 'IDENTITY' },
-  { value: 'MARKSHEET', label: 'Academic Marksheet', category: 'ADMISSION' },
-  { value: 'TRANSFER_CERTIFICATE', label: 'Transfer Certificate', category: 'ADMISSION' },
+  { value: 'EDUCATION_CERTIFICATE', label: 'Educational Certificate', category: 'ADMISSION' },
   { value: 'INCOME_CERTIFICATE', label: 'Income Certificate', category: 'ADMISSION' },
+  { value: 'MEDICAL_CERTIFICATE', label: 'Medical Certificate', category: 'ADMISSION' },
   { value: 'ANTI_RAGGING', label: 'Anti-Ragging Undertaking', category: 'UNDERTAKING' },
   { value: 'HOSTEL_RULES', label: 'Hostel Rules Acceptance', category: 'UNDERTAKING' },
   { value: 'OTHER', label: 'Other Document', category: 'ADMISSION' },
@@ -176,7 +176,10 @@ export default function StudentDocumentsPage() {
 
   const handleViewDocument = async (doc: Document) => {
     try {
-      const response = await fetch(`/api/student/documents/${doc.id}/url`);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`/api/student/documents/${doc.id}/url`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const result = await response.json();
 
       if (result.success && result.url) {
@@ -192,8 +195,11 @@ export default function StudentDocumentsPage() {
 
   const handleDownloadDocument = async (doc: Document) => {
     try {
+      const token = localStorage.getItem('authToken');
       // First get the signed URL
-      const urlResponse = await fetch(`/api/student/documents/${doc.id}/url`);
+      const urlResponse = await fetch(`/api/student/documents/${doc.id}/url`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      });
       const urlResult = await urlResponse.json();
 
       if (!urlResult.success || !urlResult.url) {
@@ -259,7 +265,7 @@ export default function StudentDocumentsPage() {
 
         {/* Categories */}
         <div className="flex overflow-x-auto gap-2 pb-2">
-          {['ALL', 'ADMISSION', 'IDENTITY', 'UNDERTAKING', 'RECEIPT'].map((tab) => (
+          {['ALL', 'IDENTITY', 'ADMISSION', 'UNDERTAKING'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
@@ -343,7 +349,7 @@ export default function StudentDocumentsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {DOCUMENT_TYPES.filter(dt => dt.value !== 'OTHER').map((docType) => {
                 const uploaded = documents.some(
-                  (d) => d.title === docType.label || d.title === docType.value?.replace(/_/g, ' ')
+                  (d: any) => d.documentType === docType.value || d.title === docType.label
                 );
                 return (
                   <div key={docType.value} className="flex items-center gap-2 py-1.5 px-2 rounded">

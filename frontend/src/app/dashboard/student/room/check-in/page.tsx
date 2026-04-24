@@ -185,16 +185,14 @@ export default function CheckInPage() {
     try {
       // In production, this would call a dedicated check-in API endpoint
       // For now, we'll update the allocation directly
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/allocations/${allocation?.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           check_in_confirmed: true,
           check_in_confirmed_at: new Date().toISOString(),
-          inventory_acknowledged: true,
-          inventory_acknowledged_at: new Date().toISOString(),
-          notes: additionalNotes,
-          metadata: { check_in_inventory: inventory },
+          check_in_inventory: inventory,
         }),
       });
 

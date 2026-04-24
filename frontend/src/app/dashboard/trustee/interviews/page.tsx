@@ -4,118 +4,67 @@ import { useState, useEffect, useCallback } from 'react';
 import { Badge, type BadgeVariant } from '@/components/shadcn/badge-extended';
 import { Button } from '@/components/shadcn/button-extended';
 import { Table } from '@/components/data/Table';
-import { Modal } from '@/components/feedback/Modal';
 import { Spinner } from '@/components/feedback/Spinner';
 import type { TableColumn } from '@/components/types';
 import { cn } from '@/components/utils';
-import { CalendarDays, Video, MapPin, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-type InterviewStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED' | 'CANCELLED';
-type InterviewMode = 'ONLINE' | 'PHYSICAL';
-type Vertical = 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
+type InterviewStatus = 'SCHEDULED' | 'COMPLETED' | 'MISSED' | 'CANCELLED';
 
 interface Interview {
   id: string;
   applicationId: string;
   applicantName: string;
   trackingNumber: string;
-  vertical: Vertical;
-  scheduledDate: string;
-  scheduledTime: string;
-  mode: InterviewMode;
-  meetingLink?: string;
-  location?: string;
+  vertical: string;
+  scheduleTime: string;
+  mode: string;
   status: InterviewStatus;
-  score?: number;
-  notes?: string;
+  trusteeName: string;
+  score: number | null;
+  internalRemarks: string;
+  applicationStatus: string;
 }
 
-interface EvaluationForm {
-  academicBackground: { score: number; comments: string };
-  communicationSkills: { score: number; comments: string };
-  discipline: { score: number; comments: string };
-  motivation: { score: number; comments: string };
-  overallScore: number;
-  overallObservations: string;
-  recommendation: 'APPROVE' | 'REJECT' | 'DEFERRED';
-}
-
-export default function TrusteeInterviews() {
+export default function TrusteeInterviewsPage() {
   const { t } = useLanguage();
-  const [selectedStatus, setSelectedStatus] = useState<InterviewStatus | 'ALL'>('ALL');
-  const [selectedVertical, setSelectedVertical] = useState<Vertical | 'ALL'>('ALL');
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<InterviewStatus | 'ALL'>('ALL');
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
-  const [showEvaluationModal, setShowEvaluationModal] = useState(false);
-  const [evaluationForm, setEvaluationForm] = useState<EvaluationForm>({
-    academicBackground: { score: 0, comments: '' },
-    communicationSkills: { score: 0, comments: '' },
-    discipline: { score: 0, comments: '' },
-    motivation: { score: 0, comments: '' },
-    overallScore: 0,
-    overallObservations: '',
-    recommendation: 'APPROVE',
-  });
-  const [isSavingEvaluation, setIsSavingEvaluation] = useState(false);
-  const [evaluationError, setEvaluationError] = useState<string | null>(null);
-  const [joinError, setJoinError] = useState<string | null>(null);
 
   const fetchInterviews = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       const token = localStorage.getItem('authToken');
-
-      // Fetch interviews from the dedicated interviews API
-      const response = await fetch('/api/interviews', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+      const res = await fetch('/api/interviews', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      if (!response.ok) {
-        throw new Error('Failed to fetch interviews');
-      }
-      const responseData = await response.json();
-      const interviewsData = responseData?.data || [];
+      if (!res.ok) throw new Error('Failed to fetch interviews');
+      const result = await res.json();
+      const data = result.data || result || [];
 
-      // Transform API response to Interview format
-      const interviewList: Interview[] = interviewsData.map((interview: any) => {
-          const app = interview.application || {};
-          let applicantName = 'Unknown';
-          if (app.applicant_name) {
-            applicantName = app.applicant_name;
-          } else if (app.firstName) {
-            applicantName = `${app.firstName} ${app.lastName || ''}`.trim();
-          } else if (app.data?.personal_info?.full_name) {
-            applicantName = app.data.personal_info.full_name;
-          }
+      const list: Interview[] = (Array.isArray(data) ? data : []).map((item: any) => {
+        const app = item.application || {};
+        return {
+          id: item.id,
+          applicationId: item.application_id || app.id || '',
+          applicantName: app.applicant_name || app.applicantName || 'Unknown',
+          trackingNumber: app.tracking_number || app.trackingNumber || '',
+          vertical: app.vertical || '',
+          scheduleTime: item.schedule_time || item.scheduleTime || '',
+          mode: item.mode || 'IN_PERSON',
+          status: (item.status || 'SCHEDULED') as InterviewStatus,
+          trusteeName: item.trustee_name || item.trusteeName || 'Not assigned',
+          score: item.score || null,
+          internalRemarks: item.internal_remarks || item.internalRemarks || '',
+          applicationStatus: app.current_status || app.application_status || '',
+        };
+      });
 
-          const scheduleTime = interview.schedule_time || app.interview_scheduled_at;
-          const interviewMode = app.data?.interview?.mode || interview.mode;
-
-          return {
-            id: interview.id || `int-${app.id}`,
-            applicationId: interview.application_id || app.id,
-            applicantName,
-            trackingNumber: app.tracking_number || app.trackingNumber || app.id || '',
-            vertical: (app.vertical || 'BOYS').toUpperCase().replace('_HOSTEL', '').replace('_ASHRAM', '') as Vertical,
-            scheduledDate: scheduleTime
-              ? new Date(scheduleTime).toLocaleDateString('en-GB')
-              : 'Not scheduled',
-            scheduledTime: scheduleTime
-              ? new Date(scheduleTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-              : 'TBD',
-            mode: (interviewMode || 'IN_PERSON') as InterviewMode,
-            meetingLink: app.data?.interview?.meeting_link || app.data?.interview?.location_or_link || '',
-            location: app.data?.interview?.location || '',
-            status: interview.status === 'COMPLETED' ? ('COMPLETED' as InterviewStatus) : ('SCHEDULED' as InterviewStatus),
-            score: app.data?.interview?.score,
-            notes: app.data?.interview?.remarks,
-          };
-        });
-
-      setInterviews(interviewList);
+      setInterviews(list);
     } catch (err: any) {
       setError(err.message || 'Failed to load interviews');
     } finally {
@@ -127,164 +76,92 @@ export default function TrusteeInterviews() {
     fetchInterviews();
   }, [fetchInterviews]);
 
-  const filteredInterviews = interviews.filter((interview) => {
-    const matchesStatus = selectedStatus === 'ALL' || interview.status === selectedStatus;
-    const matchesVertical = selectedVertical === 'ALL' || interview.vertical === selectedVertical;
-    return matchesStatus && matchesVertical;
-  });
+  const filtered = interviews.filter(
+    (i) => statusFilter === 'ALL' || i.status === statusFilter
+  );
 
   const getStatusVariant = (status: InterviewStatus): BadgeVariant => {
     switch (status) {
-      case 'SCHEDULED':
-        return 'warning';
-      case 'IN_PROGRESS':
-        return 'info';
-      case 'COMPLETED':
-        return 'success';
-      case 'MISSED':
-      case 'CANCELLED':
-        return 'error';
-      default:
-        return 'default';
+      case 'SCHEDULED': return 'warning';
+      case 'COMPLETED': return 'success';
+      case 'MISSED': return 'error';
+      case 'CANCELLED': return 'default';
+      default: return 'default';
     }
   };
 
-  const handleJoinInterview = (interview: Interview) => {
-    setJoinError(null);
-    if (interview.meetingLink) {
-      window.open(interview.meetingLink, '_blank');
-    } else {
-      setJoinError('No meeting link available for this interview');
-    }
-  };
-
-  const handleOpenEvaluation = (interview: Interview) => {
-    setSelectedInterview(interview);
-    setShowEvaluationModal(true);
-  };
-
-  const handleSaveEvaluation = async () => {
-    if (!selectedInterview) return;
-
-    setIsSavingEvaluation(true);
-    setEvaluationError(null);
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/applications/${selectedInterview.applicationId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
-          status: 'INTERVIEW_COMPLETED',
-          current_status: 'INTERVIEW_COMPLETED',
-          interview_evaluation: evaluationForm,
-        }),
-      });
-
-      if (response.ok) {
-        await fetchInterviews();
-        setShowEvaluationModal(false);
-        setSelectedInterview(null);
-        setEvaluationForm({
-          academicBackground: { score: 0, comments: '' },
-          communicationSkills: { score: 0, comments: '' },
-          discipline: { score: 0, comments: '' },
-          motivation: { score: 0, comments: '' },
-          overallScore: 0,
-          overallObservations: '',
-          recommendation: 'APPROVE',
-        });
-      } else {
-        throw new Error('Failed to save evaluation');
-      }
-    } catch {
-      setEvaluationError('Failed to save evaluation. Please try again.');
-    } finally {
-      setIsSavingEvaluation(false);
-    }
+  const getModeLabel = (mode: string) => {
+    const labels: Record<string, string> = {
+      IN_PERSON: 'In Person',
+      ZOOM: 'Zoom',
+      GOOGLE_MEET: 'Google Meet',
+      WHATSAPP_VIDEO: 'WhatsApp',
+      PHONE_CALL: 'Phone',
+    };
+    return labels[mode] || mode;
   };
 
   const columns: TableColumn<Interview>[] = [
     {
       key: 'applicantName',
-      header: 'Applicant',
+      header: t('Applicant', 'आवेदक'),
       sortable: true,
-      render: (value: string) => <span className="font-medium">{value}</span>,
-    },
-    {
-      key: 'trackingNumber',
-      header: 'Tracking #',
-      render: (value: string) => <span className="font-mono text-xs">{value}</span>,
-    },
-    {
-      key: 'vertical',
-      header: 'Vertical',
-      render: (value: Vertical) => (
-        <span
-          className={cn(
-            'px-2 py-0.5 rounded text-xs font-medium',
-            value === 'BOYS' && 'bg-blue-100 text-blue-700',
-            value === 'GIRLS' && 'bg-pink-100 text-pink-700',
-            value === 'DHARAMSHALA' && 'bg-yellow-100 text-yellow-700'
-          )}
-        >
-          {value}
-        </span>
-      ),
-    },
-    {
-      key: 'scheduledDate',
-      header: 'Date & Time',
-      render: (_: string, row: Interview) => (
+      render: (_: any, row: Interview) => (
         <div>
-          <div className="text-sm font-medium">{row.scheduledDate}</div>
-          <div className="text-xs text-gray-500">{row.scheduledTime}</div>
+          <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{row.applicantName}</p>
+          <p className="text-xs text-gray-500 font-mono">{row.trackingNumber}</p>
         </div>
       ),
+    },
+    {
+      key: 'scheduleTime',
+      header: t('Date & Time', 'तिथि और समय'),
+      sortable: true,
+      render: (value: string) => {
+        if (!value) return <span className="text-gray-400">-</span>;
+        const d = new Date(value);
+        return (
+          <div>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+              {d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+            <p className="text-xs text-gray-500">
+              {d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        );
+      },
     },
     {
       key: 'mode',
-      header: 'Mode',
-      render: (value: InterviewMode) => (
-        <div className="flex items-center gap-1">
-          {value === 'ONLINE' ? (
-            <Video className="w-4 h-4 text-blue-600" />
-          ) : (
-            <MapPin className="w-4 h-4 text-green-600" />
-          )}
-          <span className="text-sm">{value}</span>
-        </div>
+      header: t('Mode', 'माध्यम'),
+      render: (value: string) => (
+        <span className="text-sm">{getModeLabel(value)}</span>
+      ),
+    },
+    {
+      key: 'trusteeName',
+      header: t('Trustee', 'ट्रस्टी'),
+      render: (value: string) => (
+        <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{value}</span>
       ),
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('Status', 'स्थिति'),
       render: (value: InterviewStatus) => (
         <Badge variant={getStatusVariant(value)} size="sm">
-          {value.replace(/_/g, ' ')}
+          {value}
         </Badge>
       ),
     },
     {
       key: 'actions',
-      header: 'Actions',
+      header: t('Actions', 'कार्रवाई'),
       render: (_: any, row: Interview) => (
-        <div className="flex gap-2">
-          {row.status === 'SCHEDULED' && (
-            <>
-              <Button variant="primary" size="sm" onClick={() => handleJoinInterview(row)}>
-                Join
-              </Button>
-              <Button variant="secondary" size="sm" onClick={() => handleOpenEvaluation(row)}>
-                Complete
-              </Button>
-            </>
-          )}
-          {row.status === 'COMPLETED' && (
-            <Button variant="secondary" size="sm" onClick={() => setSelectedInterview(row)}>
-              View
-            </Button>
-          )}
-        </div>
+        <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedInterview(row); }}>
+          {t('View Details', 'विवरण देखें')}
+        </Button>
       ),
     },
   ];
@@ -302,287 +179,186 @@ export default function TrusteeInterviews() {
 
   if (error) {
     return (
-      <div className="p-6 rounded-lg border" style={{ background: 'var(--color-red-50)', borderColor: 'var(--color-red-200)' }}>
-        <p className="font-medium text-red-700">Error loading interviews</p>
-        <p className="text-sm text-red-600">{error}</p>
-        <Button variant="secondary" size="sm" className="mt-4" onClick={fetchInterviews}>
-          Retry
+      <div className="p-6 text-center">
+        <p className="text-red-600 mb-4">{error}</p>
+        <Button variant="secondary" size="sm" onClick={fetchInterviews}>
+          {t('Retry', 'पुनः प्रयास')}
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
+    <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
             {t('Interviews', 'साक्षात्कार')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            {t('Manage interview schedules and evaluations', 'साक्षात्कार अनुसूची और मूल्यांकन प्रबंधित करें')}
+            {t('Scheduled and completed interviews', 'निर्धारित और पूर्ण साक्षात्कार')}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={fetchInterviews}>
-          Refresh
+          {t('Refresh', 'रिफ्रेश')}
         </Button>
       </div>
 
-      {/* Stats Summary */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-yellow-100">
-              <Clock className="w-5 h-5 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                {interviews.filter((i) => i.status === 'SCHEDULED').length}
-              </p>
-              <p className="text-sm text-gray-500">{t('Scheduled', 'निर्धारित')}</p>
-            </div>
-          </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Scheduled', 'निर्धारित')}</p>
+          <p className="text-2xl font-bold text-amber-600">
+            {interviews.filter((i) => i.status === 'SCHEDULED').length}
+          </p>
         </div>
-        <div className="p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-green-100">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                {interviews.filter((i) => i.status === 'COMPLETED').length}
-              </p>
-              <p className="text-sm text-gray-500">{t('Completed', 'पूर्ण')}</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Completed', 'पूर्ण')}</p>
+          <p className="text-2xl font-bold text-green-600">
+            {interviews.filter((i) => i.status === 'COMPLETED').length}
+          </p>
         </div>
-        <div className="p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-red-100">
-              <XCircle className="w-5 h-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                {interviews.filter((i) => i.status === 'MISSED' || i.status === 'CANCELLED').length}
-              </p>
-              <p className="text-sm text-gray-500">{t('Missed/Cancelled', 'छूटा/रद्द')}</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Missed', 'छूटे')}</p>
+          <p className="text-2xl font-bold text-red-600">
+            {interviews.filter((i) => i.status === 'MISSED').length}
+          </p>
         </div>
-        <div className="p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-blue-100">
-              <CalendarDays className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                {interviews.length}
-              </p>
-              <p className="text-sm text-gray-500">{t('Total', 'कुल')}</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-lg border p-4" style={{ borderColor: 'var(--border-primary)' }}>
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Total', 'कुल')}</p>
+          <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            {interviews.length}
+          </p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="p-4 rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-              Status:
-            </label>
-            {(['ALL', 'SCHEDULED', 'COMPLETED', 'MISSED'] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setSelectedStatus(status)}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                  selectedStatus === status
-                    ? 'border-navy-900 bg-navy-900 text-white'
-                    : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                )}
-              >
-                {status === 'ALL' ? 'All' : status}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-              Vertical:
-            </label>
-            {(['ALL', 'BOYS', 'GIRLS', 'DHARAMSHALA'] as const).map((vertical) => (
-              <button
-                key={vertical}
-                onClick={() => setSelectedVertical(vertical)}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
-                  selectedVertical === vertical
-                    ? 'border-navy-900 bg-navy-900 text-white'
-                    : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                )}
-              >
-                {vertical === 'ALL' ? 'All' : vertical}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* Status Filter */}
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="text-sm font-medium mr-2" style={{ color: 'var(--text-secondary)' }}>
+          {t('Status:', 'स्थिति:')}
+        </label>
+        {(['ALL', 'SCHEDULED', 'COMPLETED', 'MISSED', 'CANCELLED'] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-sm font-medium transition-all border-2',
+              statusFilter === s
+                ? 'border-navy-900 bg-navy-900 text-white'
+                : 'border-gray-300 text-gray-700 hover:border-gray-400'
+            )}
+          >
+            {s === 'ALL' ? t('All', 'सभी') : s}
+          </button>
+        ))}
       </div>
 
-      {/* Join Error Display */}
-      {joinError && (
-        <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
-          <p className="text-sm text-red-800">{joinError}</p>
-        </div>
-      )}
-
-      {/* Interviews Table */}
-      {filteredInterviews.length === 0 ? (
+      {/* Table */}
+      {filtered.length === 0 ? (
         <div className="p-12 text-center rounded-lg" style={{ background: 'var(--surface-primary)' }}>
-          <CalendarDays className="w-12 h-12 mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 mb-2">{t('No interviews found', 'कोई साक्षात्कार नहीं मिला')}</p>
-          <p className="text-sm text-gray-500">{t('Schedule interviews from the Applications page.', 'आवेदन पृष्ठ से साक्षात्कार निर्धारित करें।')}</p>
+          <p className="text-sm text-gray-500">
+            {t('Schedule interviews from the Applications page.', 'आवेदन पृष्ठ से साक्षात्कार निर्धारित करें।')}
+          </p>
         </div>
       ) : (
         <Table<Interview>
-          data={filteredInterviews}
+          data={filtered}
           columns={columns}
-          pagination={{
-            currentPage: 1,
-            pageSize: 10,
-            totalItems: filteredInterviews.length,
-            totalPages: Math.ceil(filteredInterviews.length / 10),
-            onPageChange: () => {},
-          }}
           density="normal"
           striped={true}
         />
       )}
 
-      {/* Evaluation Modal */}
-      <Modal
-        isOpen={showEvaluationModal}
-        onClose={() => {
-          setShowEvaluationModal(false);
-          setSelectedInterview(null);
-        }}
-        title="Interview Evaluation"
-        size="lg"
-      >
-        {selectedInterview && (
-          <div className="space-y-6">
-            <div className="p-3 rounded bg-blue-50 mb-4">
-              <p className="font-medium">{selectedInterview.applicantName}</p>
-              <p className="text-sm text-gray-600">{selectedInterview.trackingNumber}</p>
+      {/* Interview Detail Modal */}
+      {selectedInterview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setSelectedInterview(null)}>
+          <div
+            className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border-primary)' }}>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                {t('Interview Details', 'साक्षात्कार विवरण')}
+              </h2>
+              <button onClick={() => setSelectedInterview(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {(['academicBackground', 'communicationSkills', 'discipline', 'motivation'] as const).map((criterion) => (
-                <div key={criterion}>
-                  <label className="block text-sm font-medium mb-1 capitalize">
-                    {criterion.replace(/([A-Z])/g, ' $1').trim()} (1-5)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="5"
-                    value={evaluationForm[criterion].score}
-                    onChange={(e) =>
-                      setEvaluationForm({
-                        ...evaluationForm,
-                        [criterion]: {
-                          ...evaluationForm[criterion],
-                          score: parseInt(e.target.value) || 0,
-                        },
-                      })
-                    }
-                    className="w-full rounded border border-gray-300 px-3 py-2"
-                  />
-                  <textarea
-                    value={evaluationForm[criterion].comments}
-                    onChange={(e) =>
-                      setEvaluationForm({
-                        ...evaluationForm,
-                        [criterion]: {
-                          ...evaluationForm[criterion],
-                          comments: e.target.value,
-                        },
-                      })
-                    }
-                    className="w-full rounded border border-gray-300 px-3 py-2 mt-2 min-h-[60px]"
-                    placeholder="Comments..."
-                  />
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Applicant', 'आवेदक')}</p>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{selectedInterview.applicantName}</p>
                 </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Overall Score (1-20)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={evaluationForm.overallScore}
-                  onChange={(e) =>
-                    setEvaluationForm({ ...evaluationForm, overallScore: parseInt(e.target.value) || 0 })
-                  }
-                  className="w-full rounded border border-gray-300 px-3 py-2"
-                />
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Tracking #', 'ट्रैकिंग #')}</p>
+                  <p className="font-mono text-sm" style={{ color: 'var(--text-primary)' }}>{selectedInterview.trackingNumber}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Vertical', 'विभाग')}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                    {selectedInterview.vertical.includes('BOYS') ? 'Boys Hostel' : selectedInterview.vertical.includes('GIRLS') ? 'Girls Ashram' : 'Dharamshala'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Mode', 'माध्यम')}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{getModeLabel(selectedInterview.mode)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Scheduled Date', 'निर्धारित तिथि')}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                    {selectedInterview.scheduleTime
+                      ? new Date(selectedInterview.scheduleTime).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                      : '-'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Scheduled Time', 'निर्धारित समय')}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                    {selectedInterview.scheduleTime
+                      ? new Date(selectedInterview.scheduleTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+                      : '-'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Trustee', 'ट्रस्टी')}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{selectedInterview.trusteeName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Interview Status', 'साक्षात्कार स्थिति')}</p>
+                  <Badge variant={getStatusVariant(selectedInterview.status)} size="sm">{selectedInterview.status}</Badge>
+                </div>
+                {selectedInterview.applicationStatus && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Application Status', 'आवेदन स्थिति')}</p>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {selectedInterview.applicationStatus.replace(/_/g, ' ')}
+                    </p>
+                  </div>
+                )}
+                {selectedInterview.score !== null && (
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Score', 'अंक')}</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{selectedInterview.score}</p>
+                  </div>
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Recommendation</label>
-                <select
-                  value={evaluationForm.recommendation}
-                  onChange={(e) =>
-                    setEvaluationForm({
-                      ...evaluationForm,
-                      recommendation: e.target.value as 'APPROVE' | 'REJECT' | 'DEFERRED',
-                    })
-                  }
-                  className="w-full rounded border border-gray-300 px-3 py-2"
-                >
-                  <option value="APPROVE">Approve</option>
-                  <option value="DEFERRED">Deferred</option>
-                  <option value="REJECT">Reject</option>
-                </select>
-              </div>
+              {selectedInterview.internalRemarks && (
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{t('Remarks', 'टिप्पणी')}</p>
+                  <p className="text-sm p-3 rounded-lg bg-gray-50 border border-gray-200" style={{ color: 'var(--text-primary)' }}>
+                    {selectedInterview.internalRemarks}
+                  </p>
+                </div>
+              )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Overall Observations</label>
-              <textarea
-                value={evaluationForm.overallObservations}
-                onChange={(e) => setEvaluationForm({ ...evaluationForm, overallObservations: e.target.value })}
-                className="w-full rounded border border-gray-300 px-3 py-2 min-h-[80px]"
-                placeholder="Overall observations and recommendations..."
-              />
-            </div>
-
-            {/* Evaluation Error */}
-            {evaluationError && (
-              <div className="p-3 rounded border-l-4 bg-red-50 border-red-500">
-                <p className="text-sm text-red-800">{evaluationError}</p>
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-4 border-t">
-              <Button variant="primary" onClick={handleSaveEvaluation} loading={isSavingEvaluation}>
-                {t('Save Evaluation', 'मूल्यांकन सहेजें')}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setShowEvaluationModal(false);
-                  setSelectedInterview(null);
-                }}
-              >
-                {t('Cancel', 'रद्द करें')}
+            <div className="flex justify-end gap-3 p-5 border-t" style={{ borderColor: 'var(--border-primary)' }}>
+              <Button variant="secondary" size="sm" onClick={() => setSelectedInterview(null)}>
+                {t('Close', 'बंद करें')}
               </Button>
             </div>
           </div>
-        )}
-      </Modal>
+        </div>
+      )}
     </div>
   );
 }

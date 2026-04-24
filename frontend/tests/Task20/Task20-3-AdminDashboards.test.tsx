@@ -37,7 +37,7 @@ const mockExitRequest: ExitRequestSummary = {
   studentName: 'John Doe',
   studentId: 'STU001',
   roomNumber: 'A-101',
-  vertical: 'BOYS',
+  vertical: 'BOYS_HOSTEL',
   requestedExitDate: '2025-02-15T00:00:00Z',
   submittedDate: '2025-01-01T00:00:00Z',
   currentStatus: 'UNDER_CLEARANCE',
@@ -169,7 +169,7 @@ describe('Task 20.3 - Admin Clearance Dashboards', () => {
       const requests = [mockExitRequest, mockHighRiskRequest, mockCompletedRequest];
 
       it('should filter by vertical', () => {
-        const filters: DashboardFilters = { vertical: 'BOYS' };
+        const filters: DashboardFilters = { vertical: 'BOYS_HOSTEL' };
         const filtered = filterExitRequests(requests, filters);
         expect(filtered).toHaveLength(3); // All are BOYS
       });
@@ -215,7 +215,7 @@ describe('Task 20.3 - Admin Clearance Dashboards', () => {
 
       it('should combine multiple filters', () => {
         const filters: DashboardFilters = {
-          vertical: 'BOYS',
+          vertical: 'BOYS_HOSTEL',
           progressState: 'OVERDUE',
         };
         const filtered = filterExitRequests(requests, filters);

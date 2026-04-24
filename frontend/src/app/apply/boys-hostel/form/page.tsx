@@ -17,14 +17,22 @@ export default function ApplicationFormPage() {
     const loadDraft = async () => {
       try {
         const savedDraft = localStorage.getItem('application_draft_boys-hostel');
+        const verifiedMobile = localStorage.getItem('otp_verified_mobile') || '';
+        const verifiedEmail = localStorage.getItem('otp_verified_email') || '';
+        const contactDefaults = {
+          applicantMobile: verifiedMobile,
+          applicantEmail: verifiedEmail,
+          gender: 'Male',
+          vertical: 'boys-hostel',
+        };
         if (savedDraft) {
-          setInitialData({ ...JSON.parse(savedDraft), gender: 'Male' });
+          setInitialData({ ...JSON.parse(savedDraft), ...contactDefaults });
         } else {
-          setInitialData({ vertical: 'boys-hostel', gender: 'Male' });
+          setInitialData(contactDefaults);
         }
       } catch (error) {
         console.error('Failed to load draft:', error);
-        setInitialData({ vertical: 'boys-hostel' });
+        setInitialData({ vertical: 'boys-hostel', gender: 'Male' });
       }
       setIsLoading(false);
     };
@@ -81,6 +89,40 @@ export default function ApplicationFormPage() {
               error={errors.lastName}
               required
               placeholder={t('Enter last name', 'अंतिम नाम दर्ज करें')}
+            />
+
+            <Input
+              label={t('Mobile Number', 'मोबाइल नंबर')}
+              type="tel"
+              value={data.applicantMobile || ''}
+              onChange={data.applicantMobile && !data.applicantEmail
+                ? () => {}
+                : (e) => onChange('applicantMobile', e.target.value.replace(/\D/g, '').slice(0, 10))}
+              disabled={!!data.applicantMobile && !data.applicantEmail}
+              error={errors.applicantMobile}
+              required
+              placeholder={t('Enter 10-digit mobile number', '10 अंकों का मोबाइल नंबर दर्ज करें')}
+              helperText={data.applicantMobile && !data.applicantEmail
+                ? t('Verified via OTP — cannot be changed', 'ओटीपी से सत्यापित — बदला नहीं जा सकता')
+                : t('Required for communication and tracking', 'संचार और ट्रैकिंग के लिए आवश्यक')}
+              maxLength={10}
+              inputMode="tel"
+            />
+
+            <Input
+              label={t('Email Address', 'ईमेल पता')}
+              type="email"
+              value={data.applicantEmail || ''}
+              onChange={data.applicantEmail && !data.applicantMobile
+                ? () => {}
+                : (e) => onChange('applicantEmail', e.target.value)}
+              disabled={!!data.applicantEmail && !data.applicantMobile}
+              error={errors.applicantEmail}
+              required
+              placeholder={t('Enter your email address', 'अपना ईमेल पता दर्ज करें')}
+              helperText={data.applicantEmail && !data.applicantMobile
+                ? t('Verified via OTP — cannot be changed', 'ओटीपी से सत्यापित — बदला नहीं जा सकता')
+                : t('Used for login credentials and notifications', 'लॉगिन क्रेडेंशियल और सूचनाओं के लिए उपयोग किया जाएगा')}
             />
 
             <DatePicker
@@ -329,6 +371,16 @@ export default function ApplicationFormPage() {
         const errors: any = {};
         if (!data.firstName?.trim()) errors.firstName = 'First name is required';
         if (!data.lastName?.trim()) errors.lastName = 'Last name is required';
+        if (!data.applicantMobile?.trim()) {
+          errors.applicantMobile = 'Mobile number is required';
+        } else if (!/^[6-9]\d{9}$/.test(data.applicantMobile)) {
+          errors.applicantMobile = 'Must be 10 digits starting with 6-9';
+        }
+        if (!data.applicantEmail?.trim()) {
+          errors.applicantEmail = 'Email address is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.applicantEmail)) {
+          errors.applicantEmail = 'Please enter a valid email address';
+        }
         if (!data.dob) {
           errors.dob = 'Date of birth is required';
         } else {
@@ -832,12 +884,14 @@ export default function ApplicationFormPage() {
                 {t('Personal Details', 'व्यक्तिगत विवरण')}</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Name:</strong> {data.firstName} {data.middleName} {data.lastName}</p>
+                <p><strong>Mobile:</strong> {data.applicantMobile}</p>
+                <p><strong>Email:</strong> {data.applicantEmail}</p>
                 <p><strong>Date of Birth:</strong> {data.dob}</p>
                 <p><strong>Gender:</strong> {data.gender}</p>
                 <p><strong>Blood Group:</strong> {data.bloodGroup}</p>
                 <p><strong>Address:</strong> {data.addressLine1}, {data.addressLine2}, {data.city}, {data.state} - {data.pinCode}</p>
-                <p><strong>Father:</strong> {data.fatherName} ({data.fatherMobile})</p>
-                <p><strong>Mother:</strong> {data.motherName} ({data.motherMobile})</p>
+                <p><strong>Father:</strong> {data.fatherName} — {data.fatherOccupation} ({data.fatherMobile})</p>
+                <p><strong>Mother:</strong> {data.motherName} — {data.motherOccupation} ({data.motherMobile})</p>
                 <p><strong>Emergency Contact:</strong> {data.emergencyContactPerson} ({data.emergencyMobile})</p>
               </div>
             </div>
@@ -942,11 +996,11 @@ export default function ApplicationFormPage() {
     }
   };
 
-  const uploadDocument = async (file: File, documentType: string, tempId: string) => {
+  const uploadDocument = async (file: File, documentType: string, applicationId: string) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('document_type', documentType);
-    formData.append('temp_id', tempId);
+    formData.append('application_id', applicationId);
 
     const response = await fetch('/api/applications/documents/upload', {
       method: 'POST',
@@ -977,18 +1031,14 @@ export default function ApplicationFormPage() {
         }
       }
 
-      // Use OTP-verified mobile as applicant_mobile for tracking
-      const verifiedMobile = localStorage.getItem('otp_verified_mobile');
-      const verifiedEmail = localStorage.getItem('otp_verified_email');
-
       // 1. Create the application first
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...submissionData,
-          ...(verifiedMobile ? { applicant_mobile: verifiedMobile } : {}),
-          ...(verifiedEmail ? { applicant_email: verifiedEmail } : {}),
+          applicant_mobile: data.applicantMobile || localStorage.getItem('otp_verified_mobile') || '',
+          applicant_email: data.applicantEmail || localStorage.getItem('otp_verified_email') || '',
           vertical: 'boys-hostel',
           status: 'SUBMITTED',
           submittedAt: new Date().toISOString(),

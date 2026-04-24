@@ -9,12 +9,21 @@ import { Button } from '@/components/shadcn/button-extended';
 import { Badge } from '@/components/shadcn/badge-extended';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-type LeaveType = 'short' | 'night-out' | 'multi-day';
 type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+interface LeaveType {
+  id: string;
+  name: string;
+  code: string;
+  maxDays: number | null;
+  requiresApproval: boolean;
+  active: boolean;
+}
 
 interface LeaveRequest {
   id: string;
-  type: LeaveType;
+  leaveTypeLabel: string;
+  leaveTypeOriginal: string;
   fromDate: string;
   toDate: string;
   fromTime?: string;
@@ -27,121 +36,33 @@ interface LeaveRequest {
   remarks?: string;
 }
 
-interface LeaveRule {
-  type: string;
-  description: string;
-}
+// Leave types that need time selection
+const TIME_BASED_CODES = ['SHORT_LEAVE', 'NIGHT_OUT'];
+
+// Icons per leave type code
+const LEAVE_ICONS: Record<string, string> = {
+  SHORT_LEAVE: '📋',
+  NIGHT_OUT: '🌙',
+  MULTI_DAY: '📅',
+  HOME_VISIT: '🏠',
+  MEDICAL: '🏥',
+  EMERGENCY: '🚨',
+  EXTENDED: '📆',
+};
 
 export default function LeaveManagementPage() {
   const { t } = useLanguage();
+  const [studentId, setStudentId] = useState<string | null>(null);
+
+  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
+  const [typesLoading, setTypesLoading] = useState(true);
+
   const [selectedType, setSelectedType] = useState<LeaveType | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [studentId, setStudentId] = useState<string | null>(null);
+
   const [leaveHistory, setLeaveHistory] = useState<LeaveRequest[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [leaveRules, setLeaveRules] = useState<LeaveRule[]>([]);
-  const [rulesLoading, setRulesLoading] = useState(true);
 
-  // Fetch leave rules from database on mount
-  useEffect(() => {
-    const fetchLeaveRules = async () => {
-      try {
-        setRulesLoading(true);
-        const token = localStorage.getItem('authToken');
-        const authHeaders: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
-        const response = await fetch('/api/config/leave-types?active=true', { headers: authHeaders });
-        if (response.ok) {
-          const result = await response.json();
-          const data = result.data || result || [];
-          const rules: LeaveRule[] = (Array.isArray(data) ? data : []).map((lt: any) => {
-            const parts: string[] = [];
-            if (lt.maxDaysPerMonth) parts.push(`Maximum ${lt.maxDaysPerMonth} days per month`);
-            if (lt.maxDaysPerSemester) parts.push(`Maximum ${lt.maxDaysPerSemester} days per semester`);
-            if (lt.requiresApproval) parts.push('Requires prior approval');
-            return {
-              type: lt.name,
-              description: parts.length > 0 ? parts.join('. ') + '.' : 'Standard leave policy applies.',
-            };
-          });
-          setLeaveRules(rules);
-        }
-      } catch (err) {
-        console.error('Error fetching leave rules:', err);
-      } finally {
-        setRulesLoading(false);
-      }
-    };
-    fetchLeaveRules();
-  }, []);
-
-  // Get student ID from localStorage on mount
-  useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('authToken');
-
-    if (userId) {
-      setStudentId(userId);
-    } else if (token) {
-      try {
-        // Handle JWT tokens and legacy base64 tokens
-        if (token.includes('.')) {
-          const payload = token.split('.')[1];
-          const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-          const tokenData = JSON.parse(atob(base64));
-          setStudentId(tokenData.sub);
-        } else {
-          const tokenData = JSON.parse(atob(token));
-          setStudentId(tokenData.userId);
-        }
-      } catch (e) {
-        console.error('Error decoding token:', e);
-      }
-    }
-  }, []);
-
-  // Fetch leave history when studentId is available
-  useEffect(() => {
-    if (studentId) {
-      fetchLeaveHistory();
-    }
-  }, [studentId]);
-
-  const fetchLeaveHistory = async () => {
-    if (!studentId) return;
-
-    try {
-      setHistoryLoading(true);
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/leaves?student_id=${studentId}`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
-      });
-      if (response.ok) {
-        const result = await response.json();
-        const data = result.data || result || [];
-        // Transform API data to match LeaveRequest interface
-        const transformedData: LeaveRequest[] = (Array.isArray(data) ? data : []).map((leave: any) => ({
-          id: leave.id,
-          type: leave.leaveType || 'short',
-          fromDate: leave.fromDate || '',
-          toDate: leave.toDate || '',
-          fromTime: leave.fromTime || '',
-          toTime: leave.toTime || '',
-          reason: leave.reason || '',
-          destination: leave.destination || '',
-          contactNumber: leave.contactNumber || '',
-          status: leave.status || 'PENDING',
-          appliedDate: leave.appliedDate || '',
-          remarks: leave.remarks || '',
-        }));
-        setLeaveHistory(transformedData);
-      }
-    } catch (err) {
-      console.error('Error fetching leave history:', err);
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-  
   const [formData, setFormData] = useState({
     fromDate: '',
     toDate: '',
@@ -149,49 +70,83 @@ export default function LeaveManagementPage() {
     toTime: '',
     reason: '',
     destination: '',
-    contactNumber: ''
+    contactNumber: '',
   });
-  
+
   const [formErrors, setFormErrors] = useState({
     fromDate: '',
     toDate: '',
     reason: '',
-    contactNumber: ''
+    destination: '',
   });
 
-  const getStatusBadge = (status: LeaveStatus) => {
-    switch (status) {
-      case 'PENDING':
-        return <Badge variant="warning">{t('Pending', 'लंबित')}</Badge>;
-      case 'APPROVED':
-        return <Badge variant="success">{t('Approved', 'स्वीकृत')}</Badge>;
-      case 'REJECTED':
-        return <Badge variant="error">{t('Rejected', 'अस्वीकृत')}</Badge>;
-      case 'CANCELLED':
-        return <Badge variant="default">{t('Cancelled', 'रद्द')}</Badge>;
-      default:
-        return <Badge variant="default">{status}</Badge>;
+  // Fetch student ID from localStorage
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('authToken');
+    if (userId) {
+      setStudentId(userId);
+    } else if (token?.includes('.')) {
+      try {
+        const payload = token.split('.')[1];
+        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const data = JSON.parse(atob(base64));
+        setStudentId(data.sub);
+      } catch {}
+    }
+  }, []);
+
+  // Fetch leave types from API
+  useEffect(() => {
+    const fetchLeaveTypes = async () => {
+      try {
+        setTypesLoading(true);
+        const token = localStorage.getItem('authToken');
+        const res = await fetch('/api/config/leave-types?active=true', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const result = await res.json();
+          const data: LeaveType[] = Array.isArray(result.data) ? result.data : [];
+          setLeaveTypes(data);
+        }
+      } catch {}
+      finally {
+        setTypesLoading(false);
+      }
+    };
+    fetchLeaveTypes();
+  }, []);
+
+  // Fetch leave history when studentId is available
+  useEffect(() => {
+    if (studentId) fetchLeaveHistory();
+  }, [studentId]);
+
+  const fetchLeaveHistory = async () => {
+    if (!studentId) return;
+    try {
+      setHistoryLoading(true);
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`/api/leaves?student_id=${studentId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const result = await res.json();
+        const data = Array.isArray(result.data) ? result.data : [];
+        setLeaveHistory(data);
+      }
+    } catch {}
+    finally {
+      setHistoryLoading(false);
     }
   };
 
   const handleTypeSelect = (type: LeaveType) => {
     setSelectedType(type);
     setShowForm(true);
-    setFormData({
-      fromDate: '',
-      toDate: '',
-      fromTime: '',
-      toTime: '',
-      reason: '',
-      destination: '',
-      contactNumber: ''
-    });
-    setFormErrors({
-      fromDate: '',
-      toDate: '',
-      reason: '',
-      contactNumber: ''
-    });
+    setFormData({ fromDate: '', toDate: '', fromTime: '', toTime: '', reason: '', destination: '', contactNumber: '' });
+    setFormErrors({ fromDate: '', toDate: '', reason: '', destination: '' });
   };
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -200,134 +155,80 @@ export default function LeaveManagementPage() {
   };
 
   const validateForm = () => {
-    const errors = { ...formErrors };
-    
-    if (!formData.fromDate) {
-      errors.fromDate = 'From date is required';
-    }
-    
-    if (!formData.toDate) {
-      errors.toDate = 'To date is required';
-    }
-    
-    if (formData.fromDate && formData.toDate && new Date(formData.fromDate) > new Date(formData.toDate)) {
+    const errors = { fromDate: '', toDate: '', reason: '', destination: '' };
+    if (!formData.fromDate) errors.fromDate = 'From date is required';
+    if (!formData.toDate) errors.toDate = 'To date is required';
+    if (formData.fromDate && formData.toDate && new Date(formData.fromDate) > new Date(formData.toDate))
       errors.toDate = 'To date must be after from date';
-    }
-    
-    if (!formData.reason.trim()) {
-      errors.reason = 'Reason is required';
-    }
-    
-    if (formData.reason.trim().length < 10) {
-      errors.reason = 'Reason must be at least 10 characters';
-    }
-    
-    if (selectedType === 'multi-day' && !formData.destination?.trim()) {
-      errors.toDate = 'Destination is required for multi-day leave';
-    }
-    
-    if (selectedType === 'night-out' && !formData.toTime) {
-      errors.toDate = 'Return time is required for night-out';
-    }
-    
+    if (!formData.reason.trim()) errors.reason = 'Reason is required';
+    if (formData.reason.trim().length < 10) errors.reason = 'Reason must be at least 10 characters';
+    if (selectedType && !TIME_BASED_CODES.includes(selectedType.code) && !formData.destination?.trim())
+      errors.destination = 'Destination is required';
     setFormErrors(errors);
-    return Object.values(errors).every(error => error === '');
+    return Object.values(errors).every(e => e === '');
   };
 
   const handleSubmit = async () => {
-    if (!studentId) {
-      alert('Unable to identify student. Please login again.');
-      return;
-    }
+    if (!studentId) { alert('Unable to identify student. Please login again.'); return; }
+    if (!selectedType) return;
+    if (!validateForm()) return;
 
-    if (validateForm()) {
-      try {
-        const leaveTypeMap: Record<LeaveType, string> = {
-          'short': 'SHORT_LEAVE',
-          'night-out': 'NIGHT_OUT',
-          'multi-day': 'MULTI_DAY'
-        };
+    try {
+      const token = localStorage.getItem('authToken');
+      const fromDateTime = TIME_BASED_CODES.includes(selectedType.code)
+        ? `${formData.fromDate}T${formData.fromTime || '09:00'}:00`
+        : `${formData.fromDate}T00:00:00`;
+      const toDateTime = TIME_BASED_CODES.includes(selectedType.code)
+        ? `${formData.toDate}T${formData.toTime || '18:00'}:00`
+        : `${formData.toDate}T23:59:00`;
 
-        const token = localStorage.getItem('authToken');
-        const response = await fetch('/api/leaves', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
-          body: JSON.stringify({
-            student_id: studentId,
-            type: leaveTypeMap[selectedType!],
-            start_time: `${formData.fromDate}T${formData.fromTime || '09:00'}:00Z`,
-            end_time: `${formData.toDate}T${formData.toTime || '18:00'}:00Z`,
-            reason: formData.reason,
-            destination: formData.destination,
-            contact_number: formData.contactNumber
-          })
-        });
+      const res = await fetch('/api/leaves', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          student_id: studentId,
+          type: selectedType.code,
+          start_time: fromDateTime,
+          end_time: toDateTime,
+          reason: formData.reason,
+          destination: formData.destination || undefined,
+          contact_number: formData.contactNumber || undefined,
+        }),
+      });
 
-        if (response.ok) {
-          alert('Leave request submitted successfully!');
-          setShowForm(false);
-          setSelectedType(null);
-          // Refresh leave history to show the new request
-          fetchLeaveHistory();
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Leave request error:', response.status, errorData);
-          alert('Failed to submit leave request: ' + (errorData.message || errorData.error || `Server error (${response.status})`));
-        }
-      } catch (err) {
-        console.error('Error submitting leave request:', err);
-        alert('Failed to submit leave request');
+      if (res.ok) {
+        alert('Leave request submitted successfully!');
+        setShowForm(false);
+        setSelectedType(null);
+        fetchLeaveHistory();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert('Failed to submit: ' + (err.error || err.message || `Error ${res.status}`));
       }
+    } catch {
+      alert('Failed to submit leave request');
     }
   };
 
   const handleCancel = () => {
     setShowForm(false);
     setSelectedType(null);
-    setFormData({
-      fromDate: '',
-      toDate: '',
-      fromTime: '',
-      toTime: '',
-      reason: '',
-      destination: '',
-      contactNumber: ''
-    });
-    setFormErrors({
-      fromDate: '',
-      toDate: '',
-      reason: '',
-      contactNumber: ''
-    });
+    setFormData({ fromDate: '', toDate: '', fromTime: '', toTime: '', reason: '', destination: '', contactNumber: '' });
   };
 
-  const getLeaveTypeInfo = (type: LeaveType) => {
-    switch (type) {
-      case 'short':
-        return {
-          icon: '📋',
-          title: t('Short Leave', 'लघु अवकाश'),
-          description: t('For absences up to 2 days within city limits', 'शहर की सीमा के भीतर 2 दिन तक की अनुपस्थिति के लिए'),
-          duration: t('Max 2 days/month', 'अधिकतम 2 दिन/माह')
-        };
-      case 'night-out':
-        return {
-          icon: '🌙',
-          title: t('Night Out', 'नाइट आउट'),
-          description: t('Evening outing returning same night', 'शाम की सैर उसी रात वापसी'),
-          duration: t('Return by 10:00 PM', 'रात 10:00 बजे तक वापसी')
-        };
-      case 'multi-day':
-        return {
-          icon: '📅',
-          title: t('Multi-Day Leave', 'बहु-दिवसीय अवकाश'),
-          description: t('Extended leave requiring prior approval', 'पूर्व अनुमोदन आवश्यक विस्तारित अवकाश'),
-          duration: t('Max 7 days/semester', 'अधिकतम 7 दिन/सेमेस्टर')
-        };
+  const getStatusBadge = (status: LeaveStatus) => {
+    switch (status) {
+      case 'PENDING': return <Badge variant="warning">{t('Pending', 'लंबित')}</Badge>;
+      case 'APPROVED': return <Badge variant="success">{t('Approved', 'स्वीकृत')}</Badge>;
+      case 'REJECTED': return <Badge variant="error">{t('Rejected', 'अस्वीकृत')}</Badge>;
+      case 'CANCELLED': return <Badge variant="default">{t('Cancelled', 'रद्द')}</Badge>;
+      default: return <Badge variant="default">{status}</Badge>;
     }
   };
 
-  const pageContent = (
+  const isTimeBased = selectedType ? TIME_BASED_CODES.includes(selectedType.code) : false;
+
+  return (
     <div style={{ background: 'var(--bg-page)' }} className="min-h-screen">
       <div className="px-6 py-8">
         <div className="mx-auto max-w-6xl">
@@ -340,161 +241,125 @@ export default function LeaveManagementPage() {
             </p>
           </div>
 
-          {!showForm && !selectedType && (
+          {/* Leave type selection */}
+          {!showForm && (
             <div className="space-y-6">
-              <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-semibold mb-6">
+              <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-semibold mb-4">
                 {t('Select Leave Type', 'अवकाश प्रकार चुनें')}
               </h2>
-              <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3 mb-8">
-                {(['short', 'night-out', 'multi-day'] as LeaveType[]).map((type) => {
-                  const info = getLeaveTypeInfo(type);
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => handleTypeSelect(type)}
-                      className="card p-6 text-left transition-all hover:shadow-lg"
-                      style={{
-                        background: 'var(--surface-primary)',
-                        borderColor: 'var(--border-primary)',
-                        borderRadius: 'var(--radius-lg)'
-                      }}
-                    >
-                      <div className="text-4xl mb-3">{info.icon}</div>
-                      <h3 style={{ color: 'var(--text-primary)' }} className="text-lg font-semibold mb-2">
-                        {info.title}
-                      </h3>
-                      <p style={{ color: 'var(--text-secondary)' }} className="text-sm">
-                        {info.description}
-                      </p>
-                      <p style={{ color: 'var(--color-blue-600)' }} className="text-xs font-medium mt-2">
-                        {info.duration}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
 
-              <div className="mb-8 p-6 rounded-lg" style={{ background: 'var(--surface-primary)', borderLeft: '4px solid var(--color-gold-500)' }}>
-                <div className="flex items-start gap-2">
-                  <span className="text-xl">📜</span>
-                  <div>
-                    <h3 style={{ color: 'var(--text-primary)' }} className="text-lg font-semibold mb-2">
-                      {t('Leave Rules & Policies', 'अवकाश नियम और नीतियां')}
-                    </h3>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {rulesLoading ? (
-                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>{t('Loading rules...', 'नियम लोड हो रहे हैं...')}</p>
-                  ) : leaveRules.length === 0 ? (
-                    <p className="text-sm py-2" style={{ color: 'var(--text-secondary)' }}>{t('No leave rules configured.', 'कोई अवकाश नियम कॉन्फ़िगर नहीं किए गए।')}</p>
-                  ) : leaveRules.map((rule, index) => (
-                    <div key={index} className="flex items-start gap-3 pb-3 border-b" style={{ borderColor: 'var(--border-primary)' }}>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--bg-accent)' }}>
-                        <span className="text-sm font-medium">{index + 1}</span>
-                      </div>
-                      <div>
-                        <p style={{ color: 'var(--text-primary)' }} className="font-medium mb-1">
-                          {rule.type}
+              {typesLoading ? (
+                <p style={{ color: 'var(--text-secondary)' }} className="text-sm">{t('Loading leave types...', 'अवकाश प्रकार लोड हो रहे हैं...')}</p>
+              ) : leaveTypes.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)' }} className="text-sm">{t('No leave types configured.', 'कोई अवकाश प्रकार कॉन्फ़िगर नहीं किए गए।')}</p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+                  {leaveTypes.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => handleTypeSelect(type)}
+                      className="card p-5 text-left transition-all hover:shadow-lg"
+                      style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)', borderRadius: 'var(--radius-lg)' }}
+                    >
+                      <div className="text-3xl mb-2">{LEAVE_ICONS[type.code] || '📄'}</div>
+                      <h3 style={{ color: 'var(--text-primary)' }} className="text-base font-semibold mb-1">{type.name}</h3>
+                      <p style={{ color: 'var(--text-secondary)' }} className="text-xs">
+                        {type.requiresApproval ? t('Requires approval', 'अनुमोदन आवश्यक') : t('No prior approval needed', 'पूर्व अनुमोदन आवश्यक नहीं')}
+                      </p>
+                      {type.maxDays != null && (
+                        <p style={{ color: 'var(--color-blue-600)' }} className="text-xs font-medium mt-1">
+                          {t(`Max ${type.maxDays} days`, `अधिकतम ${type.maxDays} दिन`)}
                         </p>
-                        <p style={{ color: 'var(--text-secondary)' }} className="text-sm">
-                          {rule.description}
-                        </p>
-                      </div>
-                    </div>
+                      )}
+                    </button>
                   ))}
                 </div>
-              </div>
+              )}
             </div>
           )}
 
+          {/* Leave application form */}
           {showForm && selectedType && (
             <div className="mb-6">
               <button
                 onClick={handleCancel}
-                className="text-sm mb-6"
+                className="text-sm mb-4"
                 style={{ color: 'var(--text-link)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
               >
                 {t('← Back to Leave Types', '← अवकाश प्रकारों पर वापस जाएं')}
               </button>
 
-              <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-bold mb-2">
-                {getLeaveTypeInfo(selectedType).title} {t('Application', 'आवेदन')}
+              <h2 style={{ color: 'var(--text-primary)' }} className="text-2xl font-bold mb-1">
+                {selectedType.name} {t('Application', 'आवेदन')}
               </h2>
-              <p style={{ color: 'var(--text-secondary)' }} className="text-body mb-6">
-                {t(`Fill in the required details to request ${getLeaveTypeInfo(selectedType).title.toLowerCase()}`, `${getLeaveTypeInfo(selectedType).title} का अनुरोध करने के लिए आवश्यक विवरण भरें`)}
-              </p>
+              {selectedType.maxDays != null && (
+                <p style={{ color: 'var(--text-secondary)' }} className="text-sm mb-4">
+                  {t(`Maximum ${selectedType.maxDays} days allowed`, `अधिकतम ${selectedType.maxDays} दिन की अनुमति`)}
+                </p>
+              )}
 
               <div className="card p-6 rounded-lg" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-                  <div>
-                    <DatePicker
-                      label={t('From Date', 'तारीख से')}
-                      value={formData.fromDate}
-                      onChange={(e) => handleInputChange('fromDate', e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      error={formErrors.fromDate}
-                      helperText={t('Select the start date of your leave', 'अपने अवकाश की आरंभ तिथि चुनें')}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <DatePicker
-                      label={t('To Date', 'तारीख तक')}
-                      value={formData.toDate}
-                      onChange={(e) => handleInputChange('toDate', e.target.value)}
-                      min={formData.fromDate}
-                      error={formErrors.toDate}
-                      helperText={t('Select the end date of your leave', 'अपने अवकाश की अंतिम तिथि चुनें')}
-                      required
-                    />
-                  </div>
+                {/* Date row */}
+                <div className="grid gap-6 md:grid-cols-2 mb-6">
+                  <DatePicker
+                    label={t('From Date', 'तारीख से')}
+                    value={formData.fromDate}
+                    onChange={(e) => handleInputChange('fromDate', e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    error={formErrors.fromDate}
+                    required
+                  />
+                  <DatePicker
+                    label={t('To Date', 'तारीख तक')}
+                    value={formData.toDate}
+                    onChange={(e) => handleInputChange('toDate', e.target.value)}
+                    min={formData.fromDate || new Date().toISOString().split('T')[0]}
+                    error={formErrors.toDate}
+                    required
+                  />
                 </div>
 
-                {(selectedType === 'short' || selectedType === 'night-out') && (
-                  <div className="grid gap-6 md:grid-cols-2 mt-6">
-                    <TimePicker
-                      label={t('From Time', 'समय से')}
-                      value={formData.fromTime}
-                      onChange={(e) => handleInputChange('fromTime', e.target.value)}
-                      helperText={t('Start time for your leave', 'आपके अवकाश का आरंभ समय')}
-                    />
-                    <TimePicker
-                      label={t('To Time', 'समय तक')}
-                      value={formData.toTime}
-                      onChange={(e) => handleInputChange('toTime', e.target.value)}
-                      helperText={t('End time for your leave', 'आपके अवकाश का अंत समय')}
-                    />
-                  </div>
-                )}
+                {/* Time row — shown for all leave types */}
+                <div className="grid gap-6 md:grid-cols-2 mb-6">
+                  <TimePicker
+                    label={t('Departure Time', 'प्रस्थान समय')}
+                    value={formData.fromTime}
+                    onChange={(e) => handleInputChange('fromTime', e.target.value)}
+                    helperText={isTimeBased ? t('Time you will leave the hostel', 'हॉस्टल छोड़ने का समय') : t('Optional', 'वैकल्पिक')}
+                  />
+                  <TimePicker
+                    label={t('Return Time', 'वापसी समय')}
+                    value={formData.toTime}
+                    onChange={(e) => handleInputChange('toTime', e.target.value)}
+                    helperText={isTimeBased ? t('Expected return time', 'अपेक्षित वापसी समय') : t('Optional', 'वैकल्पिक')}
+                  />
+                </div>
 
-                <div className="mb-6 mt-6">
+                {/* Destination — for non-time-based types */}
+                <div className="mb-6">
+                  <Input
+                    type="text"
+                    label={t('Destination', 'गंतव्य') + (!isTimeBased ? ' *' : ` (${t('optional', 'वैकल्पिक')})`)}
+                    placeholder={t('City or place you will be visiting', 'आप जिस शहर या स्थान पर जाएंगे')}
+                    value={formData.destination}
+                    onChange={(e) => handleInputChange('destination', e.target.value)}
+                    error={formErrors.destination}
+                    required={!isTimeBased}
+                  />
+                </div>
+
+                <div className="mb-6">
                   <Textarea
                     label={t('Reason for Leave', 'अवकाश का कारण')}
                     placeholder={t('Please provide a detailed reason for your leave request', 'कृपया अपने अवकाश अनुरोध का विस्तृत कारण बताएं')}
                     value={formData.reason}
                     onChange={(e) => handleInputChange('reason', e.target.value)}
                     error={formErrors.reason}
-                    helperText={t('Minimum 10 characters required. Include all relevant details.', 'न्यूनतम 10 अक्षर आवश्यक हैं। सभी प्रासंगिक विवरण शामिल करें।')}
+                    helperText={t('Minimum 10 characters required', 'न्यूनतम 10 अक्षर आवश्यक')}
                     required
                     rows={4}
                   />
                 </div>
-
-                {selectedType === 'multi-day' && (
-                  <div className="mb-6">
-                    <Input
-                      type="text"
-                      label={t('Destination', 'गंतव्य')}
-                      placeholder={t('Where will you be going during your leave?', 'अवकाश के दौरान आप कहां जाएंगे?')}
-                      value={formData.destination}
-                      onChange={(e) => handleInputChange('destination', e.target.value)}
-                      error={formErrors.toDate}
-                      helperText={t('Destination city or place is required for multi-day leave', 'बहु-दिवसीय अवकाश के लिए गंतव्य शहर या स्थान आवश्यक है')}
-                      required
-                    />
-                  </div>
-                )}
 
                 <div className="mb-6">
                   <Input
@@ -503,28 +368,18 @@ export default function LeaveManagementPage() {
                     placeholder="+91 XXXXX XXXXX"
                     value={formData.contactNumber}
                     onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                    helperText={t('Contact number for emergency during leave period', 'अवकाश अवधि के दौरान आपातकालीन संपर्क नंबर')}
                   />
                 </div>
 
                 <div className="flex gap-4 pt-4 border-t" style={{ borderColor: 'var(--border-primary)' }}>
-                  <Button
-                    variant="secondary"
-                    onClick={handleCancel}
-                  >
-                    {t('Cancel', 'रद्द करें')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={handleSubmit}
-                  >
-                    {t('Submit Leave Request', 'अवकाश अनुरोध जमा करें')}
-                  </Button>
+                  <Button variant="secondary" onClick={handleCancel}>{t('Cancel', 'रद्द करें')}</Button>
+                  <Button variant="primary" onClick={handleSubmit}>{t('Submit Leave Request', 'अवकाश अनुरोध जमा करें')}</Button>
                 </div>
               </div>
             </div>
           )}
 
+          {/* Leave history — shown when not in form mode */}
           {!showForm && (
             <div className="mb-6">
               <div className="flex justify-between items-center mb-4">
@@ -539,32 +394,20 @@ export default function LeaveManagementPage() {
               <div className="card" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
                 <div className="overflow-x-auto">
                   {historyLoading ? (
-                    <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                      {t('Loading leave history...', 'अवकाश इतिहास लोड हो रहा है...')}
-                    </div>
+                    <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>{t('Loading...', 'लोड हो रहा है...')}</div>
                   ) : leaveHistory.length === 0 ? (
                     <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                      {t('No leave requests found. Submit your first leave request above.', 'कोई अवकाश अनुरोध नहीं मिला। ऊपर अपना पहला अवकाश अनुरोध जमा करें।')}
+                      {t('No leave requests found.', 'कोई अवकाश अनुरोध नहीं मिला।')}
                     </div>
                   ) : (
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b" style={{ borderColor: 'var(--border-primary)' }}>
-                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {t('Type', 'प्रकार')}
-                          </th>
-                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {t('Dates', 'तारीखें')}
-                          </th>
-                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {t('Reason', 'कारण')}
-                          </th>
-                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {t('Status', 'स्थिति')}
-                          </th>
-                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>
-                            {t('Remarks', 'टिप्पणियां')}
-                          </th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>{t('Type', 'प्रकार')}</th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>{t('Dates', 'तारीखें')}</th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>{t('Reason', 'कारण')}</th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>{t('Status', 'स्थिति')}</th>
+                          <th className="px-4 py-3 text-left font-semibold" style={{ color: 'var(--text-primary)' }}>{t('Remarks', 'टिप्पणियां')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -572,33 +415,26 @@ export default function LeaveManagementPage() {
                           <tr key={leave.id} className="border-b hover:bg-gray-50" style={{ borderColor: 'var(--border-primary)' }}>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
-                                <span className="text-lg">
-                                  {leave.type === 'short' && '📋'}
-                                  {leave.type === 'night-out' && '🌙'}
-                                  {leave.type === 'multi-day' && '📅'}
-                                </span>
-                                <span className="capitalize" style={{ color: 'var(--text-primary)' }}>
-                                  {leave.type.replace('-', ' ')}
-                                </span>
+                                <span>{LEAVE_ICONS[leave.leaveTypeOriginal] || '📄'}</span>
+                                <span style={{ color: 'var(--text-primary)' }}>{leave.leaveTypeLabel || leave.leaveTypeOriginal}</span>
                               </div>
                             </td>
                             <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
                               {leave.fromDate} → {leave.toDate}
+                              {leave.fromTime && (
+                                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                  {leave.fromTime} – {leave.toTime}
+                                </div>
+                              )}
                             </td>
                             <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>
                               {leave.reason}
                               {leave.destination && (
-                                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                  to {leave.destination}
-                                </div>
+                                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>to {leave.destination}</div>
                               )}
                             </td>
-                            <td className="px-4 py-3">
-                              {getStatusBadge(leave.status)}
-                            </td>
-                            <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                              {leave.remarks || '-'}
-                            </td>
+                            <td className="px-4 py-3">{getStatusBadge(leave.status)}</td>
+                            <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-secondary)' }}>{leave.remarks || '-'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -611,11 +447,5 @@ export default function LeaveManagementPage() {
         </div>
       </div>
     </div>
-  );
-
-  return (
-    <>
-      {pageContent}
-    </>
   );
 }

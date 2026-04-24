@@ -55,13 +55,13 @@ export async function PUT(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE']);
+    const user = await requireAuth(request, ['STUDENT', 'SUPERINTENDENT', 'TRUSTEE']);
     const { id } = await props.params;
     const body = await request.json();
 
     // Check if allocation exists
     const { rows: existingRows } = await query(
-      'SELECT id FROM room_allocations WHERE id = $1',
+      'SELECT * FROM room_allocations WHERE id = $1',
       [id]
     );
 
@@ -69,14 +69,22 @@ export async function PUT(
       return notFoundResponse('Allocation not found');
     }
 
+    // Students can only update their own allocation
+    if (user.role === 'STUDENT' && existingRows[0].student_id !== user.id) {
+      return NextResponse.json(
+        { success: false, error: 'You can only check in to your own allocation' },
+        { status: 403 }
+      );
+    }
+
     // Only allow updating specific fields
-    const ALLOWED_FIELDS = ['check_in_confirmed', 'status'];
+    const ALLOWED_FIELDS = ['check_in_confirmed', 'check_in_confirmed_at', 'check_in_inventory', 'status'];
     const setClauses: string[] = [];
     const values: any[] = [];
 
     for (const key of ALLOWED_FIELDS) {
       if (key in body) {
-        values.push(body[key]);
+        values.push(key === 'check_in_inventory' ? JSON.stringify(body[key]) : body[key]);
         setClauses.push(`${key} = $${values.length}`);
       }
     }
@@ -88,7 +96,7 @@ export async function PUT(
     values.push(id);
 
     const { rows: updatedRows } = await query(
-      `UPDATE room_allocations SET ${setClauses.join(', ')}, updated_at = NOW() WHERE id = $${values.length} RETURNING *`,
+      `UPDATE room_allocations SET ${setClauses.join(', ')} WHERE id = $${values.length} RETURNING *`,
       values
     );
 

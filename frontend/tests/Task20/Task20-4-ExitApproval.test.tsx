@@ -79,7 +79,7 @@ const mockApprovalData: ExitApprovalData = {
   studentName: 'John Doe',
   studentId: 'STU001',
   roomNumber: 'A-101',
-  vertical: 'BOYS',
+  vertical: 'BOYS_HOSTEL',
   requestedExitDate: '2025-02-15T00:00:00Z',
   submittedDate: '2025-01-01T00:00:00Z',
   currentStatus: 'UNDER_CLEARANCE',

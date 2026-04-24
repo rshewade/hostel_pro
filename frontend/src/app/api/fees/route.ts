@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import {
   successResponse,
+  badRequestResponse,
+  notFoundResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
 import { FeeAPI, FeeStatus } from '@/types/api';
@@ -72,5 +74,86 @@ export async function GET(request: NextRequest) {
     if (error instanceof NextResponse) return error;
     console.error('Error in GET /api/fees:', error);
     return serverErrorResponse('Failed to fetch fees', error);
+  }
+}
+
+/**
+ * PUT /api/fees
+ * Update a fee record (payment, status change)
+ * Auth: STUDENT (own fees) or ACCOUNTS, SUPERINTENDENT, TRUSTEE
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const user = await requireAuth(request, ['STUDENT', 'ACCOUNTS', 'SUPERINTENDENT', 'TRUSTEE']);
+    const body = await request.json();
+    const { id, status, paid_amount, payment_method, paid_at } = body;
+
+    if (!id) {
+      return badRequestResponse('Fee ID is required');
+    }
+
+    // Verify fee exists
+    const { rows: feeRows } = await query('SELECT * FROM fees WHERE id = $1', [id]);
+    if (feeRows.length === 0) {
+      return notFoundResponse('Fee not found');
+    }
+
+    const fee = feeRows[0];
+
+    // Students can only pay their own fees
+    if (user.role === 'STUDENT' && fee.student_id !== user.id) {
+      return badRequestResponse('Cannot update another student\'s fee');
+    }
+
+    // Build update
+    const setClauses: string[] = ['updated_at = NOW()'];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (status) {
+      setClauses.push(`status = $${paramIndex++}`);
+      params.push(status);
+    }
+    if (paid_amount !== undefined) {
+      setClauses.push(`paid_amount = $${paramIndex++}`);
+      params.push(paid_amount);
+    }
+    if (payment_method) {
+      setClauses.push(`payment_method = $${paramIndex++}`);
+      params.push(payment_method);
+    }
+    if (paid_at) {
+      setClauses.push(`paid_at = $${paramIndex++}`);
+      params.push(paid_at);
+    }
+
+    params.push(id);
+    const sql = `UPDATE fees SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const { rows: updatedRows } = await query(sql, params);
+
+    // Audit log
+    await query(
+      `INSERT INTO audit_logs (entity_type, entity_id, action, performed_by, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        'FEE',
+        id,
+        'STATUS_CHANGE',
+        user.id,
+        JSON.stringify({
+          old_status: fee.status,
+          new_status: status,
+          amount: paid_amount,
+          payment_method,
+        }),
+      ]
+    );
+
+    return successResponse(updatedRows[0]);
+  } catch (error: any) {
+    if (error instanceof NextResponse) return error;
+    console.error('Error in PUT /api/fees:', error);
+    return serverErrorResponse('Failed to update fee', error);
   }
 }

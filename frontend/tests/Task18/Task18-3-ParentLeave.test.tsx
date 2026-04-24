@@ -206,7 +206,9 @@ describe('Task 18.3 - Parent Leave Overview', () => {
       render(<ParentLeaveView />);
 
       const bodyText = document.body.textContent || '';
-      expect(bodyText).toContain('Office') || expect(bodyText).toContain('Hours');
+      const hasOffice = bodyText.includes('Office');
+      const hasHours = bodyText.includes('Hours');
+      expect(hasOffice || hasHours).toBe(true);
     });
   });
 

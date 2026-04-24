@@ -62,11 +62,11 @@ export default function TrusteeOverview() {
       const getStatus = (app: any) => app.current_status || app.status || app.currentStatus;
       const pending = applications.filter((app: any) => {
         const s = getStatus(app);
-        return s === 'REVIEW' || s === 'FORWARDED' || s === 'SUBMITTED';
+        return s === 'TRUSTEE_REVIEW' || s === 'TRUSTEE_INTERVIEW';
       }).length;
 
       const interviewScheduled = applications.filter((app: any) =>
-        getStatus(app) === 'INTERVIEW_SCHEDULED'
+        getStatus(app) === 'TRUSTEE_INTERVIEW'
       ).length;
 
       const pendingAllocation = applications.filter((app: any) =>
@@ -104,7 +104,7 @@ export default function TrusteeOverview() {
           description: `Application ${app.tracking_number || app.trackingNumber || app.id} - ${app.applicant_name || app.firstName || 'Applicant'}`,
           timestamp: app.updated_at || app.updatedAt || app.created_at || app.createdAt,
           status: getStatus(app) === 'APPROVED' ? 'completed' as const :
-                  getStatus(app) === 'INTERVIEW_SCHEDULED' ? 'scheduled' as const :
+                  getStatus(app) === 'TRUSTEE_INTERVIEW' ? 'scheduled' as const :
                   'pending' as const,
         }));
 

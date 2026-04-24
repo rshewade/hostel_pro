@@ -4,7 +4,7 @@ import {
   successResponse,
   serverErrorResponse,
 } from '@/lib/api/responses';
-import { requireAuth } from '@/lib/authorize';
+import { requireAuth, getVerticalFilter } from '@/lib/authorize';
 
 /**
  * GET /api/users
@@ -14,6 +14,7 @@ import { requireAuth } from '@/lib/authorize';
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
+    const verticalFilter = getVerticalFilter(user);
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
     const vertical = searchParams.get('vertical');
@@ -27,7 +28,11 @@ export async function GET(request: NextRequest) {
       sql += ` AND role = $${paramIndex++}`;
       params.push(role.toUpperCase());
     }
-    if (vertical) {
+    // Enforce superintendent's vertical scope; staff without vertical restriction can pass query param
+    if (verticalFilter) {
+      sql += ` AND vertical = $${paramIndex++}`;
+      params.push(verticalFilter);
+    } else if (vertical) {
       sql += ` AND vertical = $${paramIndex++}`;
       params.push(vertical.toUpperCase());
     }

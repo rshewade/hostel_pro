@@ -21,9 +21,11 @@ export default function AdminAuditLogsPage() {
     const fetchAuditData = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem('authToken');
+        const headers: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
         const [commRes, auditRes] = await Promise.all([
-          fetch('/api/communications'),
-          fetch('/api/auditLogs')
+          fetch('/api/communications', { headers }),
+          fetch('/api/auditLogs', { headers })
         ]);
 
         if (!commRes.ok || !auditRes.ok) {
@@ -52,7 +54,7 @@ export default function AdminAuditLogsPage() {
 
         // Transform audit logs into approval history and consent logs
         const transformedApprovals: ApprovalHistoryEntry[] = (Array.isArray(auditData) ? auditData : [])
-          .filter((log: any) => log.log_type === 'APPROVAL' || log.entity_type)
+          .filter((log: any) => log.log_type === 'APPROVAL')
           .map((log: any) => ({
             id: log.id,
             dateTime: log.date_time || log.timestamp,
@@ -70,14 +72,14 @@ export default function AdminAuditLogsPage() {
           }));
 
         const transformedConsents: ConsentLogEntry[] = (Array.isArray(auditData) ? auditData : [])
-          .filter((log: any) => log.log_type === 'CONSENT' || log.consent_type)
+          .filter((log: any) => log.log_type === 'CONSENT')
           .map((log: any) => ({
             id: log.id,
             consentType: log.consent_type,
             studentId: log.student_id,
             studentName: log.student_name,
             parentName: log.parent_name,
-            timestamp: log.timestamp,
+            timestamp: log.date_time || log.timestamp,
             expiryDate: log.expiry_date,
             method: log.method,
             ipAddress: log.ip_address,

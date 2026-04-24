@@ -20,7 +20,7 @@ vi.mock('next/link', () => ({
 }));
 
 const mockStayHistory: StayHistorySummary = {
-  vertical: 'Boys Hostel',
+  vertical: 'BOYS_HOSTEL',
   admissionDate: '2023-07-01T00:00:00Z',
   exitDate: '2025-01-15T00:00:00Z',
   totalDuration: '18 months',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { verifySignedSessionToken } from '@/lib/auth';
 
 /**
  * GET /api/parent/student
@@ -30,14 +31,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Decode and verify session token
-    let tokenData;
-    try {
-      const decoded = Buffer.from(sessionToken, 'base64').toString('utf-8');
-      tokenData = JSON.parse(decoded);
-    } catch {
+    // Verify signed session token
+    const tokenData = verifySignedSessionToken(sessionToken);
+    if (!tokenData) {
       return NextResponse.json(
-        { message: 'Invalid session token' },
+        { message: 'Invalid or expired session token. Please login again.' },
         { status: 401 }
       );
     }
@@ -50,103 +48,101 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check token expiration (24 hours)
-    const tokenAge = Date.now() - tokenData.timestamp;
-    const maxAge = 86400000; // 24 hours in milliseconds
-
-    if (tokenAge > maxAge) {
-      return NextResponse.json(
-        { message: 'Session expired. Please login again.' },
-        { status: 401 }
-      );
-    }
-
     // Get parent's mobile number from token
-    const parentMobile = tokenData.contact;
+    const parentMobile = tokenData.contact as string;
 
     // Normalize mobile number for comparison (remove +91, spaces, etc.)
     const normalizePhone = (phone: string) => phone?.replace(/[\s+\-]/g, '').slice(-10);
     const normalizedParentMobile = normalizePhone(parentMobile);
 
     const students: any[] = [];
+    const verticalMap: Record<string, string> = {
+      'BOYS_HOSTEL': 'Boys Hostel',
+      'GIRLS_ASHRAM': 'Girls Ashram',
+      'DHARAMSHALA': 'Dharamshala',
+    };
 
-    // 1. Find students from students table where father/mother mobile matches
-    const { rows: studentRecords } = await query(
-      `SELECT s.*, u.id AS user_id_from_users, u.full_name, u.email, u.mobile
-       FROM students s
-       INNER JOIN users u ON s.user_id = u.id
-       WHERE s.father_mobile = $1 OR s.mother_mobile = $1`,
-      [normalizedParentMobile]
+    // Helper to get room allocation for a student
+    const getRoomAllocation = async (studentId: string) => {
+      const { rows } = await query(
+        `SELECT ra.*, r.room_number, r.vertical AS room_vertical
+         FROM room_allocations ra
+         LEFT JOIN rooms r ON ra.room_id = r.id
+         WHERE ra.student_id = $1 AND ra.status = 'ACTIVE'`,
+        [studentId]
+      );
+      return rows.length > 0 ? rows[0] : null;
+    };
+
+    // 1. Find parent user and linked students via parent_user table
+    //    Check if this parent mobile belongs to a PARENT user with linked students
+    const { rows: parentUsers } = await query(
+      `SELECT * FROM users WHERE role = 'PARENT' AND mobile LIKE $1`,
+      [`%${normalizedParentMobile}`]
     );
 
-    if (studentRecords && studentRecords.length > 0) {
-      for (const student of studentRecords) {
-        // Get room allocation for this student
-        const { rows: allocationRows } = await query(
-          `SELECT ra.*, r.room_number, r.vertical AS room_vertical
-           FROM room_allocations ra
-           LEFT JOIN rooms r ON ra.room_id = r.id
-           WHERE ra.student_id = $1 AND ra.status = 'ACTIVE'`,
-          [student.user_id]
+    if (parentUsers.length > 0) {
+      // Find student users — match via applications where guardian mobile matches
+      const { rows: linkedApps } = await query(
+        `SELECT DISTINCT student_user_id FROM applications
+         WHERE student_user_id IS NOT NULL
+         AND (data->'guardian_info'->>'father_mobile' LIKE $1
+              OR data->'guardian_info'->>'mother_mobile' LIKE $1)`,
+        [`%${normalizedParentMobile}`]
+      );
+
+      for (const app of linkedApps) {
+        const { rows: userRows } = await query(
+          `SELECT * FROM users WHERE id = $1 AND role = 'STUDENT'`,
+          [app.student_user_id]
         );
-        const allocation = allocationRows.length > 0 ? allocationRows[0] : null;
-
-        const verticalMap: Record<string, string> = {
-          'BOYS_HOSTEL': 'Boys Hostel',
-          'GIRLS_ASHRAM': 'Girls Ashram',
-          'DHARAMSHALA': 'Dharamshala',
-        };
-
-        students.push({
-          id: student.user_id,
-          name: student.full_name || 'Unknown',
-          photo: null,
-          vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
-          room: allocation?.room_number ? `Room ${allocation.room_number}` : 'Not Allocated',
-          joiningDate: student.joining_date || student.created_at,
-          status: student.status || (allocation ? 'CHECKED_IN' : 'PENDING'),
-          institution: student.institution,
-          course: student.course,
-          year: student.year_of_study,
-        });
+        if (userRows.length > 0) {
+          const user = userRows[0];
+          const allocation = await getRoomAllocation(user.id);
+          students.push({
+            id: user.id,
+            name: user.full_name,
+            photo: null,
+            vertical: verticalMap[user.vertical] || user.vertical || 'N/A',
+            room: allocation?.room_number ? `Room ${allocation.room_number}` : 'Not Allocated',
+            joiningDate: user.created_at,
+            status: allocation?.check_in_confirmed ? 'CHECKED_IN' : allocation ? 'ALLOCATED' : 'PENDING',
+          });
+        }
       }
     }
 
-    // 2. Fallback: Check users table parent_mobile (for backwards compatibility)
+    // 2. Fallback: Find students directly by matching all student users
     if (students.length === 0) {
-      const { rows: studentUsers } = await query(
+      const { rows: allStudents } = await query(
         `SELECT * FROM users WHERE role = 'STUDENT'`
       );
 
-      if (studentUsers) {
-        for (const user of studentUsers) {
-          const userParentMobile = normalizePhone(user.parent_mobile || '');
-          if (userParentMobile === normalizedParentMobile) {
-            const { rows: allocationRows } = await query(
-              `SELECT ra.*, r.room_number, r.vertical AS room_vertical
-               FROM room_allocations ra
-               LEFT JOIN rooms r ON ra.room_id = r.id
-               WHERE ra.student_id = $1 AND ra.status = 'ACTIVE'`,
-              [user.id]
-            );
-            const allocation = allocationRows.length > 0 ? allocationRows[0] : null;
+      // Check each student's applications for parent mobile match
+      for (const student of allStudents) {
+        const { rows: apps } = await query(
+          `SELECT data FROM applications WHERE student_user_id = $1
+           OR applicant_name = $2`,
+          [student.id, student.full_name]
+        );
 
-            const verticalMap: Record<string, string> = {
-              'BOYS_HOSTEL': 'Boys Hostel',
-              'GIRLS_ASHRAM': 'Girls Ashram',
-              'DHARAMSHALA': 'Dharamshala',
-            };
+        const isLinked = apps.some((app: any) => {
+          const fatherMobile = normalizePhone(app.data?.guardian_info?.father_mobile || '');
+          const motherMobile = normalizePhone(app.data?.guardian_info?.mother_mobile || '');
+          return fatherMobile === normalizedParentMobile || motherMobile === normalizedParentMobile;
+        });
 
-            students.push({
-              id: user.id,
-              name: user.full_name,
-              photo: null,
-              vertical: verticalMap[user.vertical] || user.vertical || 'N/A',
-              room: allocation?.room_number ? `Room ${allocation.room_number}` : 'Not Allocated',
-              joiningDate: user.created_at,
-              status: allocation ? 'CHECKED_IN' : 'PENDING',
-            });
-          }
+        if (isLinked) {
+          const allocation = await getRoomAllocation(student.id);
+          students.push({
+            id: student.id,
+            name: student.full_name,
+            photo: null,
+            vertical: verticalMap[student.vertical] || student.vertical || 'N/A',
+            room: allocation?.room_number ? `Room ${allocation.room_number}` : 'Not Allocated',
+            joiningDate: student.created_at,
+            status: allocation?.check_in_confirmed ? 'CHECKED_IN' : allocation ? 'ALLOCATED' : 'PENDING',
+          });
         }
       }
     }

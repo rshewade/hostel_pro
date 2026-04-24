@@ -876,7 +876,7 @@ describe('Task 11.2 - Upload, Preview, and Document Status Lifecycle Patterns', 
           { from: 'pending', to: 'uploaded', triggerBy: 'applicant' as const },
           { from: 'uploaded', to: 'verifying', triggerBy: 'system' as const },
           { from: 'verifying', to: 'verified', triggerBy: 'admin' as const }
-        ],
+        ] as any,
         createdAt: '2025-12-27T10:00:00Z',
         updatedAt: '2025-12-27T14:00:00Z'
       };
