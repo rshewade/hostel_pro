@@ -36,4 +36,9 @@ backend/
 # Graphify output
 graphify-out/
 
+# AI tooling / local agent directories
+.agents/
+.claude/
+.taskmaster/
+
 
