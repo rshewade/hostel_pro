@@ -33,4 +33,7 @@ uploads/
 # Legacy backend (NestJS - removed, consolidated to Next.js API routes)
 backend/
 
+# Graphify output
+graphify-out/
+
 
