@@ -15,14 +15,13 @@ export function getPaytmConfig(): PaytmConfig {
   const merchantKey = process.env.PAYTM_MERCHANT_KEY || '';
   const website = process.env.PAYTM_WEBSITE || (env === 'production' ? 'DEFAULT' : 'WEBSTAGING');
   const callbackUrl = process.env.PAYTM_CALLBACK_URL || '';
-  if (!mid || !merchantKey) {
-    throw new Error('Paytm env vars not configured: PAYTM_MID and PAYTM_MERCHANT_KEY required');
+  if (!mid || !merchantKey || !callbackUrl) {
+    throw new Error('Paytm env vars not configured: PAYTM_MID, PAYTM_MERCHANT_KEY, PAYTM_CALLBACK_URL required');
   }
   return { env, mid, merchantKey, website, callbackUrl };
 }
 
-export function getPaytmBaseUrl(): string {
-  const env = process.env.PAYTM_ENV || 'staging';
+export function getPaytmBaseUrl(env: PaytmConfig['env']): string {
   return env === 'production'
     ? 'https://securegw.paytm.in'
     : 'https://securegw-stage.paytm.in';
@@ -70,7 +69,7 @@ export async function initiateTransaction(opts: {
     userInfo: { custId: opts.customerId },
   };
   const checksum = await PaytmChecksum.generateSignature(JSON.stringify(body), cfg.merchantKey);
-  const url = `${getPaytmBaseUrl()}/theia/api/v1/initiateTransaction?mid=${cfg.mid}&orderId=${opts.orderId}`;
+  const url = `${getPaytmBaseUrl(cfg.env)}/theia/api/v1/initiateTransaction?mid=${encodeURIComponent(cfg.mid)}&orderId=${encodeURIComponent(opts.orderId)}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -83,11 +82,22 @@ export async function initiateTransaction(opts: {
   return { txnToken: json.body.txnToken, orderId: opts.orderId };
 }
 
-export async function queryTransactionStatus(orderId: string): Promise<any> {
+export interface PaytmStatusResponse {
+  body: {
+    resultInfo: { resultStatus: string; resultMsg?: string; resultCode?: string };
+    txnAmount?: string;
+    txnId?: string;
+    orderId?: string;
+    [k: string]: any;
+  };
+  head?: any;
+}
+
+export async function queryTransactionStatus(orderId: string): Promise<PaytmStatusResponse> {
   const cfg = getPaytmConfig();
   const body = { mid: cfg.mid, orderId };
   const checksum = await PaytmChecksum.generateSignature(JSON.stringify(body), cfg.merchantKey);
-  const url = `${getPaytmBaseUrl()}/v3/order/status`;
+  const url = `${getPaytmBaseUrl(cfg.env)}/v3/order/status`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

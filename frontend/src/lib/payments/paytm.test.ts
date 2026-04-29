@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
+// vi.stubEnv must run BEFORE imports — the paytm module reads process.env at load time.
 vi.stubEnv('PAYTM_ENV', 'staging');
 vi.stubEnv('PAYTM_MID', 'TESTMID');
 vi.stubEnv('PAYTM_MERCHANT_KEY', 'TESTKEY123456789');
@@ -16,7 +17,7 @@ import {
 
 describe('paytm config', () => {
   it('returns staging base URL when PAYTM_ENV=staging', () => {
-    expect(getPaytmBaseUrl()).toBe('https://securegw-stage.paytm.in');
+    expect(getPaytmBaseUrl('staging')).toBe('https://securegw-stage.paytm.in');
   });
 
   it('reads MID and merchant key from env', () => {
