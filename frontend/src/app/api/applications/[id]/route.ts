@@ -5,9 +5,12 @@ import {
   notFoundResponse,
   badRequestResponse,
   serverErrorResponse,
+  errorResponse,
 } from '@/lib/api/responses';
 import type { ApplicationAPI } from '@/types/api';
 import { requireAuth } from '@/lib/authorize';
+import { hasAvailableRoom, type VerticalCode } from '@/lib/rooms';
+import { adjustAdmissionFeeCredit } from '@/lib/payments/admission-credit';
 
 /**
  * GET /api/applications/[id]
@@ -110,6 +113,50 @@ export async function PUT(
     // Map status fields (frontend may send 'status' or 'current_status')
     const newStatus = body.current_status || body.status;
     if (newStatus) {
+      // State machine guard: enforce allowed transitions per role.
+      // Map: { fromStatus: { toStatus: allowedRoles[] } }
+      const allowedTransitions: Record<string, Record<string, string[]>> = {
+        SUBMITTED:           { TRUSTEE_REVIEW: ['SUPERINTENDENT'], REVIEW: ['SUPERINTENDENT'] },
+        REVIEW:              { TRUSTEE_REVIEW: ['SUPERINTENDENT'] },
+        TRUSTEE_REVIEW:      { SHORTLISTED: ['TRUSTEE'], REJECTED: ['TRUSTEE'] },
+        SHORTLISTED:         { INTERVIEW: ['SUPERINTENDENT'] },
+        INTERVIEW:           { APPROVED: ['SUPERINTENDENT'], TRUSTEE_FINAL_REVIEW: ['SUPERINTENDENT'], WAITLIST: ['SUPERINTENDENT'] },
+        TRUSTEE_FINAL_REVIEW:{ APPROVED: ['TRUSTEE'], WAITLIST: ['TRUSTEE'], REJECTED: ['TRUSTEE'] },
+        WAITLIST:            { APPROVED: ['SUPERINTENDENT'], REJECTED: ['TRUSTEE'] },
+      };
+
+      const fromStatus = application.current_status;
+      if (newStatus !== fromStatus) {
+        const allowed = allowedTransitions[fromStatus]?.[newStatus];
+        if (!allowed) {
+          return badRequestResponse(
+            `Invalid status transition: ${fromStatus} → ${newStatus}`
+          );
+        }
+        if (!allowed.includes(user.role)) {
+          return badRequestResponse(
+            `Role ${user.role} cannot transition application from ${fromStatus} to ${newStatus}`
+          );
+        }
+
+        // Auto-suggest WAITLIST when approving but no rooms are free in this vertical.
+        // Trustee/superintendent can override with `force: true`.
+        if (
+          newStatus === 'APPROVED' &&
+          (fromStatus === 'TRUSTEE_FINAL_REVIEW' || fromStatus === 'INTERVIEW') &&
+          !body.force
+        ) {
+          const roomFree = await hasAvailableRoom(application.vertical as VerticalCode);
+          if (!roomFree) {
+            return errorResponse(
+              'No rooms available in this vertical. Suggest moving to WAITLIST.',
+              409,
+              { suggested_status: 'WAITLIST', room_available: false, vertical: application.vertical }
+            );
+          }
+        }
+      }
+
       updateData.current_status = newStatus;
 
       // Set appropriate timestamp fields based on status transition
@@ -127,7 +174,6 @@ export async function PUT(
           }
           break;
         case 'INTERVIEW':
-        case 'TRUSTEE_INTERVIEW':
           // interview timestamp stored in interview_scheduled_at
           break;
         case 'APPROVED':
@@ -137,6 +183,11 @@ export async function PUT(
           updateData.rejected_at = now;
           if (body.remarks) {
             updateData.rejection_reason = body.remarks;
+          }
+          break;
+        case 'WAITLIST':
+          if (!application.waitlisted_at) {
+            updateData.waitlisted_at = now;
           }
           break;
         case 'WITHDRAWN':
@@ -286,6 +337,8 @@ export async function PUT(
 
         result.student_user_id = newUser.id;
         result.student_user = newUser;
+
+        await adjustAdmissionFeeCredit(id, newUser.id, client);
       }
 
       return result;
