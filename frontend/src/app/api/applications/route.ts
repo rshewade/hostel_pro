@@ -79,6 +79,24 @@ export async function POST(request: NextRequest) {
     };
     const vertical = verticalMap[body.vertical] || 'BOYS_HOSTEL';
 
+    // Reject if admissions for this vertical are closed by the Superintendent.
+    const verticalSlugMap: Record<string, string> = {
+      'BOYS_HOSTEL': 'boys-hostel',
+      'GIRLS_ASHRAM': 'girls-ashram',
+      'DHARAMSHALA': 'dharamshala',
+    };
+    const verticalSlug = verticalSlugMap[vertical];
+    const { rows: settingRows } = await query(
+      'SELECT value FROM system_settings WHERE key = $1',
+      [`applications_open_${verticalSlug}`],
+    );
+    if (settingRows?.[0]?.value === 'false') {
+      return NextResponse.json(
+        { success: false, error: `Admissions for ${verticalSlug} are currently closed. Please check back later.` },
+        { status: 403 },
+      );
+    }
+
     // Generate tracking number based on vertical
     const prefix = vertical === 'BOYS_HOSTEL' ? 'BH' : vertical === 'GIRLS_ASHRAM' ? 'GA' : 'DH';
     const year = new Date().getFullYear();
@@ -208,10 +226,12 @@ export async function POST(request: NextRequest) {
       documents: body.documents || [],
     };
 
-    const currentStatus = body.status || 'DRAFT';
-    const submittedAt = body.status === 'SUBMITTED' ? new Date().toISOString() : null;
+    const isHostelVertical = vertical === 'BOYS_HOSTEL' || vertical === 'GIRLS_ASHRAM';
 
-
+    // Hostel verticals: force DRAFT — only the Paytm callback flips to SUBMITTED.
+    // Dharamshala: honor whatever status the client sent (typically SUBMITTED).
+    const currentStatus = isHostelVertical ? 'DRAFT' : (body.status || 'DRAFT');
+    const submittedAt = currentStatus === 'SUBMITTED' ? new Date().toISOString() : null;
 
     const { rows } = await query(
       `INSERT INTO applications (
@@ -235,6 +255,15 @@ export async function POST(request: NextRequest) {
     );
 
     const application = rows[0];
+
+    // For hostel verticals, create the ADMISSION_FEE row that the Paytm flow will pay.
+    if (isHostelVertical) {
+      await query(
+        `INSERT INTO fees (application_id, fee_head, description, amount, status, due_date)
+         VALUES ($1, 'ADMISSION_FEE', 'Non-refundable admission fee', 500, 'PENDING', NOW() + INTERVAL '7 days')`,
+        [application.id],
+      );
+    }
 
     // Return with trackingNumber in root for frontend compatibility
     return createdResponse({
