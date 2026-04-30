@@ -65,3 +65,39 @@ describe('verifyWebhookSignature', () => {
     expect(verifyWebhookSignature('{"event":"payment.failed"}', sig)).toBe(false);
   });
 });
+
+import { createOrder } from './razorpay';
+
+describe('createOrder', () => {
+  it('builds a Basic-auth POST to /v1/orders with amount in paise', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        id: 'order_TEST',
+        amount: 50000,
+        currency: 'INR',
+        status: 'created',
+        receipt: 'ADM_X',
+      }),
+    } as Response);
+
+    const order = await createOrder({ amount: 500, receipt: 'ADM_X' });
+
+    expect(order.id).toBe('order_TEST');
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe('https://api.razorpay.com/v1/orders');
+    expect((init?.headers as Record<string, string>).Authorization).toMatch(/^Basic /);
+    const body = JSON.parse(init?.body as string);
+    expect(body.amount).toBe(50000);
+    expect(body.currency).toBe('INR');
+    expect(body.receipt).toBe('ADM_X');
+  });
+
+  it('throws when Razorpay returns an error', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: { description: 'invalid amount' } }),
+    } as Response);
+    await expect(createOrder({ amount: 0, receipt: 'X' })).rejects.toThrow(/invalid amount/);
+  });
+});
