@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowRight, Shield, Users, Clock } from "lucide-react";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
-import { ResumeApplicationPanel } from '@/components/apply/ResumeApplicationPanel';
 
 export default function ApplyPage() {
   const { t } = useLanguage();
@@ -291,9 +290,15 @@ export default function ApplyPage() {
             </Link>
           </div>
 
-          {/* Resume an existing DRAFT application */}
-          <div className="mb-12 max-w-3xl mx-auto">
-            <ResumeApplicationPanel />
+          {/* Resume link for users who already started an application */}
+          <div className="mb-12 text-center">
+            <Link
+              href="/apply/resume"
+              className="inline-flex items-center gap-2 text-sm font-medium underline"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {t('Already started? Resume your application →', 'पहले से शुरू किया है? अपना आवेदन फिर से शुरू करें →')}
+            </Link>
           </div>
 
           {/* Important Information */}

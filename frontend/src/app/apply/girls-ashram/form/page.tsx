@@ -29,7 +29,7 @@ export default function ApplicationFormPage() {
       try {
         const res = await fetch(`/api/applications/${appId}`);
         const json = await res.json();
-        const app = json?.data;
+        const app = json?.data?.data || json?.data;
         if (!cancelled && app && app.current_status === 'DRAFT' && app.vertical === 'GIRLS_ASHRAM') {
           setPendingApplicationId(appId);
           setPendingTrackingNumber(tracking);
