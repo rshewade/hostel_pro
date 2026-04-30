@@ -72,7 +72,11 @@ export async function POST(request: NextRequest) {
           [txn.fee_id],
         );
         await query(
-          `UPDATE applications SET current_status='SUBMITTED', submitted_at=NOW() WHERE id=$1 AND current_status='DRAFT'`,
+          `UPDATE applications
+              SET current_status = CASE WHEN current_status = 'DRAFT' THEN 'SUBMITTED'::application_status ELSE current_status END,
+                  submitted_at = COALESCE(submitted_at, NOW()),
+                  payment_status = 'PAID'
+            WHERE id = $1`,
           [applicationId],
         );
         await query('COMMIT');

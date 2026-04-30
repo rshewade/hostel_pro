@@ -104,7 +104,7 @@ export default function SuperintendentDashboard() {
                           app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-GB') :
                           app.submitted_at ? new Date(app.submitted_at).toLocaleDateString('en-GB') :
                           new Date().toLocaleDateString('en-GB'),
-          paymentStatus: app.fees?.paymentStatus || app.paymentStatus || 'PENDING',
+          paymentStatus: app.payment_status || app.fees?.paymentStatus || app.paymentStatus || 'PENDING',
           interviewScheduled: app.interview?.scheduled || app.interviewScheduled || !!app.interview_scheduled_at || false,
           interview: {
             scheduleTime: app.interview_scheduled_at || app.data?.interview?.scheduled_at || null,
