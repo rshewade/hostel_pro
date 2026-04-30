@@ -12,27 +12,11 @@ interface Props {
 export function AdmissionFeeStep({ applicationId, onSuccess, onFailure }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const bypass = process.env.NEXT_PUBLIC_PAYMENT_BYPASS === 'true';
 
   async function handlePay() {
     setBusy(true);
     setError(null);
     try {
-      if (bypass) {
-        const res = await fetch('/api/payments/razorpay/dev-bypass', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ applicationId }),
-        });
-        const json = await res.json();
-        if (!res.ok || !json?.success) {
-          throw new Error(json?.error || 'Bypass failed');
-        }
-        onSuccess();
-        setBusy(false);
-        return;
-      }
-
       const initRes = await fetch('/api/payments/razorpay/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,7 +82,7 @@ export function AdmissionFeeStep({ applicationId, onSuccess, onFailure }: Props)
         disabled={busy}
         className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {busy ? 'Processing…' : bypass ? 'Submit Application (Dev: skip ₹500)' : 'Pay ₹500 & Submit Application'}
+        {busy ? 'Processing…' : 'Pay ₹500 & Submit Application'}
       </button>
     </div>
   );

@@ -34,77 +34,13 @@ describe('AdmissionFeeStep', () => {
         />,
       );
       expect(screen.getByText(/Admission Fee — ₹500 \(Non-Refundable\)/i)).toBeInTheDocument();
-      expect(screen.getByRole('button')).toBeInTheDocument();
-    });
-
-    it('shows the production button label when bypass is off', () => {
-      vi.stubEnv('NEXT_PUBLIC_PAYMENT_BYPASS', 'false');
-      render(
-        <AdmissionFeeStep applicationId="app-1" onSuccess={onSuccess} onFailure={onFailure} />,
-      );
       expect(
         screen.getByRole('button', { name: /Pay ₹500 & Submit Application/i }),
       ).toBeInTheDocument();
     });
-
-    it('shows the dev-bypass button label when bypass is on', () => {
-      vi.stubEnv('NEXT_PUBLIC_PAYMENT_BYPASS', 'true');
-      render(
-        <AdmissionFeeStep applicationId="app-1" onSuccess={onSuccess} onFailure={onFailure} />,
-      );
-      expect(
-        screen.getByRole('button', { name: /Submit Application \(Dev: skip ₹500\)/i }),
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe('dev bypass flow', () => {
-    beforeEach(() => {
-      vi.stubEnv('NEXT_PUBLIC_PAYMENT_BYPASS', 'true');
-    });
-
-    it('calls onSuccess and posts to the Razorpay dev-bypass endpoint', async () => {
-      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({ success: true }),
-      } as Response);
-
-      render(
-        <AdmissionFeeStep applicationId="app-42" onSuccess={onSuccess} onFailure={onFailure} />,
-      );
-      fireEvent.click(screen.getByRole('button'));
-
-      await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
-      const [url, init] = fetchSpy.mock.calls[0];
-      expect(url).toBe('/api/payments/razorpay/dev-bypass');
-      expect(init?.method).toBe('POST');
-      expect(JSON.parse(init?.body as string)).toEqual({ applicationId: 'app-42' });
-    });
-
-    it('shows an error when bypass endpoint fails', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        json: async () => ({ error: 'Bypass not allowed' }),
-      } as Response);
-
-      render(
-        <AdmissionFeeStep applicationId="app-1" onSuccess={onSuccess} onFailure={onFailure} />,
-      );
-      fireEvent.click(screen.getByRole('button'));
-      await waitFor(() =>
-        expect(screen.getByText(/Bypass not allowed/i)).toBeInTheDocument(),
-      );
-      expect(onSuccess).not.toHaveBeenCalled();
-    });
   });
 
   describe('razorpay flow', () => {
-    beforeEach(() => {
-      vi.stubEnv('NEXT_PUBLIC_PAYMENT_BYPASS', 'false');
-    });
-
     it('calls initiate, opens checkout, posts to verify on success, then onSuccess', async () => {
       const fetchSpy = vi.spyOn(globalThis, 'fetch')
         .mockResolvedValueOnce({
