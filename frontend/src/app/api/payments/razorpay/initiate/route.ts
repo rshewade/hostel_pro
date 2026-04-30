@@ -58,7 +58,10 @@ export async function POST(request: NextRequest) {
       internalTxnId = pendingTxn[0].id;
     } else {
       if (pendingTxn[0]) {
-        await query(`UPDATE transactions SET status='EXPIRED' WHERE id=$1`, [pendingTxn[0].id]);
+        await query(
+          `UPDATE transactions SET status='FAILED', payment_notes='Superseded by new order' WHERE id=$1`,
+          [pendingTxn[0].id],
+        );
       }
       const receipt = generateReceipt(applicationId);
       const order = await createOrder({

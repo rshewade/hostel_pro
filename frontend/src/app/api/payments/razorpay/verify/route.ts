@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
     if (txn.status === 'SUCCESS') {
       return successResponse({ status: 'SUCCESS', idempotent: true });
     }
-    if (txn.status === 'FAILED' || txn.status === 'EXPIRED') {
-      return badRequestResponse(`Transaction is ${txn.status}`);
+    if (txn.status === 'FAILED') {
+      return badRequestResponse('Transaction is FAILED');
     }
 
     const sigOk = verifyPaymentSignature({ orderId, paymentId, signature });
