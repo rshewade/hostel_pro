@@ -9,16 +9,40 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { AdmissionsGate } from '@/components/AdmissionsGate';
 import { AdmissionFeeStep } from '@/components/forms/AdmissionFeeStep';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function ApplicationFormPage() {
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [initialData, setInitialData] = useState<any>({});
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [pendingApplicationId, setPendingApplicationId] = useState<string | null>(null);
   const [pendingTrackingNumber, setPendingTrackingNumber] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const appId = searchParams.get('appId');
+    const tracking = searchParams.get('tracking');
+    if (!appId || !tracking) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/applications/${appId}`);
+        const json = await res.json();
+        const app = json?.data;
+        if (!cancelled && app && app.current_status === 'DRAFT' && app.vertical === 'BOYS_HOSTEL') {
+          setPendingApplicationId(appId);
+          setPendingTrackingNumber(tracking);
+        }
+      } catch {
+        // ignore — show full form
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   useEffect(() => {
     const loadDraft = async () => {
@@ -1290,23 +1314,77 @@ export default function ApplicationFormPage() {
 
   if (pendingApplicationId) {
     return (
-      <div className="mx-auto max-w-2xl p-6">
-        <h1 className="mb-2 text-2xl font-bold">Almost there</h1>
-        <p className="mb-6 text-gray-700">
-          Your application <span className="font-mono">{pendingTrackingNumber}</span> is saved.
-          Complete the ₹500 admission fee payment to submit it for review.
-        </p>
-        <AdmissionFeeStep
-          applicationId={pendingApplicationId}
-          onSuccess={() => router.push(`/track/${pendingTrackingNumber}?paid=1`)}
-          onFailure={(reason) => setPaymentError(reason)}
-        />
-        {paymentError && (
-          <div className="mt-4 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-            {paymentError}
-          </div>
-        )}
-      </div>
+      <AdmissionsGate vertical="boys-hostel">
+        <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
+          <header
+            className="px-6 py-4 border-b"
+            style={{
+              backgroundColor: 'var(--surface-primary)',
+              borderColor: 'var(--border-primary)',
+            }}
+          >
+            <div className="mx-auto max-w-6xl flex items-center justify-between">
+              <Link href="/apply" className="flex items-center gap-3">
+                <ArrowLeft className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                <div>
+                  <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
+                    {t('Boys Hostel Application', 'बालक छात्रावास आवेदन')}</h1>
+                  <p className="text-caption">{t('Application Form', 'आवेदन पत्र')}</p>
+                </div>
+              </Link>
+              <div className="flex items-center gap-4">
+                <nav className="hidden md:flex items-center gap-6">
+                  <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+                  <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+                  <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+                  <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
+                </nav>
+                <LanguageToggle />
+              </div>
+            </div>
+          </header>
+
+          <main className="px-6 py-12">
+            <div className="mx-auto max-w-5xl">
+              <div className="card">
+                <div className="p-6 md:p-8">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                      {t('Admission Fee Payment', 'प्रवेश शुल्क भुगतान')}
+                    </h2>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                      {t(
+                        `Your application ${pendingTrackingNumber} is saved. Complete the ₹500 admission fee to submit it for review.`,
+                        `आपका आवेदन ${pendingTrackingNumber} सहेज लिया गया है। समीक्षा हेतु जमा करने के लिए ₹500 प्रवेश शुल्क पूर्ण करें।`,
+                      )}
+                    </p>
+                  </div>
+
+                  <AdmissionFeeStep
+                    applicationId={pendingApplicationId}
+                    onSuccess={() => router.push(`/track/${pendingTrackingNumber}?paid=1`)}
+                    onFailure={(reason) => setPaymentError(reason)}
+                  />
+
+                  {paymentError && (
+                    <div
+                      className="mt-4 p-4 rounded-lg border-l-4"
+                      style={{
+                        backgroundColor: 'var(--color-red-50, #fef2f2)',
+                        borderLeftColor: 'var(--color-red-500, #ef4444)',
+                      }}
+                    >
+                      <p className="text-sm font-medium" style={{ color: 'var(--color-red-700, #b91c1c)' }}>
+                        {paymentError}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </AdmissionsGate>
     );
   }
 
