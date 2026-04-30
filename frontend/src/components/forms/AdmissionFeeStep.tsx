@@ -1,12 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AdmissionFeeNotice } from './AdmissionFeeNotice';
-
-declare global {
-  interface Window {
-    Paytm?: any;
-  }
-}
+import { openCheckout } from '@/lib/payments/razorpayClient';
 
 interface Props {
   applicationId: string;
@@ -17,82 +12,74 @@ interface Props {
 export function AdmissionFeeStep({ applicationId, onSuccess, onFailure }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const env = process.env.NEXT_PUBLIC_PAYTM_ENV || 'staging';
-    const mid = process.env.NEXT_PUBLIC_PAYTM_MID;
-    if (!mid) return;
-    const host = env === 'production' ? 'securegw.paytm.in' : 'securegw-stage.paytm.in';
-    const src = `https://${host}/merchantpgpui/checkoutjs/merchants/${mid}.js`;
-    if (document.querySelector(`script[src="${src}"]`)) return;
-    const s = document.createElement('script');
-    s.src = src;
-    s.async = true;
-    s.crossOrigin = 'anonymous';
-    document.body.appendChild(s);
-  }, []);
-
-  async function pollStatus(orderId: string, attempts = 20): Promise<'SUCCESS' | 'FAILED' | 'PENDING'> {
-    for (let i = 0; i < attempts; i++) {
-      await new Promise((r) => setTimeout(r, 3000));
-      const res = await fetch(`/api/payments/paytm/status/${orderId}`);
-      const json = await res.json();
-      const s = json?.data?.txnStatus;
-      if (s === 'SUCCESS') return 'SUCCESS';
-      if (s === 'FAILED') return 'FAILED';
-    }
-    return 'PENDING';
-  }
+  const bypass = process.env.NEXT_PUBLIC_PAYMENT_BYPASS === 'true';
 
   async function handlePay() {
     setBusy(true);
     setError(null);
     try {
-      const initRes = await fetch('/api/payments/paytm/initiate', {
+      if (bypass) {
+        const res = await fetch('/api/payments/razorpay/dev-bypass', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ applicationId }),
+        });
+        const json = await res.json();
+        if (!res.ok || !json?.success) {
+          throw new Error(json?.error || 'Bypass failed');
+        }
+        onSuccess();
+        setBusy(false);
+        return;
+      }
+
+      const initRes = await fetch('/api/payments/razorpay/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ applicationId }),
       });
       const initJson = await initRes.json();
-      if (!initRes.ok || !initJson?.data?.txnToken) {
+      if (!initRes.ok || !initJson?.data?.orderId) {
         throw new Error(initJson?.error || 'Failed to start payment');
       }
-      const { orderId, txnToken, amount, mid } = initJson.data;
+      const d = initJson.data;
 
-      if (!window.Paytm?.CheckoutJS) {
-        throw new Error('Payment library still loading. Please retry in a moment.');
+      const result = await openCheckout({
+        keyId: d.keyId,
+        orderId: d.orderId,
+        amount: d.amount,
+        currency: d.currency,
+        name: d.name,
+        description: d.description,
+        prefill: d.prefill,
+      });
+
+      if (result.status === 'CANCELLED') {
+        onFailure('Payment cancelled');
+        setBusy(false);
+        return;
+      }
+      if (result.status === 'FAILED') {
+        onFailure(result.error || 'Payment failed');
+        setBusy(false);
+        return;
       }
 
-      const config = {
-        root: '',
-        flow: 'DEFAULT',
-        data: { orderId, token: txnToken, tokenType: 'TXN_TOKEN', amount: String(amount) },
-        merchant: { mid, redirect: false },
-        handler: {
-          notifyMerchant: async (eventName: string) => {
-            if (eventName === 'APP_CLOSED' || eventName === 'SESSION_EXPIRED') {
-              const final = await pollStatus(orderId, 3);
-              if (final === 'SUCCESS') onSuccess();
-              else if (final === 'FAILED') onFailure('Payment was not completed');
-              else onFailure('Payment cancelled');
-              setBusy(false);
-            }
-          },
-          transactionStatus: async () => {
-            const final = await pollStatus(orderId, 20);
-            if (final === 'SUCCESS') onSuccess();
-            else if (final === 'FAILED') onFailure('Payment failed');
-            else onFailure('Payment is still being processed. We will email you once confirmed.');
-            setBusy(false);
-          },
-        },
-      };
-
-      window.Paytm.CheckoutJS.init(config).then(() => {
-        window.Paytm.CheckoutJS.invoke();
-      }).catch((e: any) => {
-        throw new Error(e?.message || 'Checkout init failed');
+      const verifyRes = await fetch('/api/payments/razorpay/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: result.razorpay_order_id,
+          razorpay_payment_id: result.razorpay_payment_id,
+          razorpay_signature: result.razorpay_signature,
+        }),
       });
+      const verifyJson = await verifyRes.json();
+      if (!verifyRes.ok || verifyJson?.data?.status !== 'SUCCESS') {
+        throw new Error(verifyJson?.error || 'Payment verification failed');
+      }
+      onSuccess();
+      setBusy(false);
     } catch (e: any) {
       setError(e.message || 'Payment failed');
       setBusy(false);
@@ -111,7 +98,7 @@ export function AdmissionFeeStep({ applicationId, onSuccess, onFailure }: Props)
         disabled={busy}
         className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {busy ? 'Processing…' : 'Pay ₹500 & Submit Application'}
+        {busy ? 'Processing…' : bypass ? 'Submit Application (Dev: skip ₹500)' : 'Pay ₹500 & Submit Application'}
       </button>
     </div>
   );
