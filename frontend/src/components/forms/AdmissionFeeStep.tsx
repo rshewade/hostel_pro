@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { AdmissionFeeNotice } from './AdmissionFeeNotice';
+import { Button } from '@/components/shadcn/button-extended';
 import { openCheckout } from '@/lib/payments/razorpayClient';
 
 interface Props {
@@ -76,14 +77,16 @@ export function AdmissionFeeStep({ applicationId, onSuccess, onFailure }: Props)
       {error && (
         <div className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</div>
       )}
-      <button
+      <Button
         type="button"
+        variant="primary"
         onClick={handlePay}
         disabled={busy}
-        className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+        loading={busy}
+        className="w-full"
       >
-        {busy ? 'Processing…' : 'Pay ₹500 & Submit Application'}
-      </button>
+        Pay ₹500 & Submit Application
+      </Button>
     </div>
   );
 }

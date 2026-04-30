@@ -236,8 +236,8 @@ export async function POST(request: NextRequest) {
     const { rows } = await query(
       `INSERT INTO applications (
         tracking_number, type, applicant_name, applicant_mobile, applicant_email,
-        date_of_birth, gender, vertical, current_status, data, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        vertical, current_status, data, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *`,
       [
         trackingNumber,
@@ -245,8 +245,6 @@ export async function POST(request: NextRequest) {
         applicantName,
         applicantMobile,
         applicantEmail,
-        dateOfBirth,
-        gender,
         vertical,
         currentStatus,
         JSON.stringify(data),

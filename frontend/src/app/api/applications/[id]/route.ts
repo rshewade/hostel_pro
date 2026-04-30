@@ -11,6 +11,10 @@ import type { ApplicationAPI } from '@/types/api';
 import { requireAuth } from '@/lib/authorize';
 import { hasAvailableRoom, type VerticalCode } from '@/lib/rooms';
 import { adjustAdmissionFeeCredit } from '@/lib/payments/admission-credit';
+import { sendEmail } from '@/lib/mailer';
+import { renderLoginInvite } from '@/lib/email-templates/login-invite';
+import { renderApplicationRejected } from '@/lib/email-templates/application-rejected';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/applications/[id]
@@ -272,9 +276,8 @@ export async function PUT(
         const nameParts = (application.applicant_name || '').trim().split(/\s+/);
         const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0] || 'User';
         const last4 = (application.tracking_number || '').slice(-4);
-        const dob = application.date_of_birth
-          ? new Date(application.date_of_birth)
-          : null;
+        const dobRaw = application.data?.personal_info?.date_of_birth || null;
+        const dob = dobRaw ? new Date(dobRaw) : null;
         const dobStr = dob
           ? `${String(dob.getDate()).padStart(2, '0')}${String(dob.getMonth() + 1).padStart(2, '0')}${dob.getFullYear()}`
           : '01011990';
@@ -293,7 +296,7 @@ export async function PUT(
             application.applicant_name,
             application.applicant_email,
             application.applicant_mobile,
-            application.date_of_birth || null,
+            dobRaw,
             passwordHash,
             true,
             true,
@@ -337,12 +340,73 @@ export async function PUT(
 
         result.student_user_id = newUser.id;
         result.student_user = newUser;
+        result.__login_invite = {
+          name: application.applicant_name,
+          email: application.applicant_email,
+          tempPassword,
+          trackingNumber: application.tracking_number,
+        };
 
         await adjustAdmissionFeeCredit(id, newUser.id, client);
       }
 
       return result;
     });
+
+    // Fire login-invite email outside the transaction so SMTP failure does
+    // not roll back the approval. Errors are logged, not thrown.
+    const invite = (updatedApplication as Record<string, unknown>).__login_invite as
+      | { name: string; email: string; tempPassword: string; trackingNumber: string }
+      | undefined;
+    if (invite && invite.email) {
+      const origin =
+        request.headers.get('origin') ||
+        process.env.NEXT_PUBLIC_APP_URL ||
+        'http://localhost:3000';
+      const rendered = renderLoginInvite({
+        name: invite.name || 'Resident',
+        email: invite.email,
+        tempPassword: invite.tempPassword,
+        trackingNumber: invite.trackingNumber,
+        loginUrl: `${origin}/login`,
+      });
+      sendEmail({
+        to: invite.email,
+        subject: rendered.subject,
+        html: rendered.html,
+        text: rendered.text,
+      }).catch((err) => {
+        logger.error('Login-invite email dispatch failed', {
+          applicationId: id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
+    delete (updatedApplication as Record<string, unknown>).__login_invite;
+
+    // Application rejection email
+    if (
+      updateData.current_status === 'REJECTED' &&
+      application.current_status !== 'REJECTED' &&
+      application.applicant_email
+    ) {
+      const rejected = renderApplicationRejected({
+        name: application.applicant_name || 'Applicant',
+        trackingNumber: application.tracking_number || id,
+        reason: body.remarks || updateData.rejection_reason || null,
+      });
+      sendEmail({
+        to: application.applicant_email,
+        subject: rejected.subject,
+        html: rejected.html,
+        text: rejected.text,
+      }).catch((err) => {
+        logger.error('Application-rejected email dispatch failed', {
+          applicationId: id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
 
     return successResponse({
       data: updatedApplication,

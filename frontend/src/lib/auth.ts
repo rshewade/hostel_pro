@@ -291,6 +291,26 @@ export async function getUserFromToken(token: string) {
     const payload = verifyToken(token);
     if (payload.type === 'refresh') return null; // Don't accept refresh tokens as access
 
+    // Alumni live in their own table — synthesise an AuthUser-shaped row.
+    if (payload.role === 'ALUMNI') {
+      const result = await query(
+        `SELECT id, email, phone AS mobile, first_name, last_name, vertical, status
+         FROM alumni WHERE id = $1`,
+        [payload.sub]
+      );
+      if (result.rows.length === 0 || result.rows[0].status !== 'APPROVED') return null;
+      const a = result.rows[0];
+      return {
+        id: a.id,
+        email: a.email,
+        mobile: a.mobile || '',
+        full_name: `${a.first_name} ${a.last_name}`.trim(),
+        role: 'ALUMNI',
+        vertical: a.vertical,
+        is_active: true,
+      };
+    }
+
     const result = await query(
       `SELECT id, email, mobile, full_name, role, vertical, is_active FROM users WHERE id = $1`,
       [payload.sub]
@@ -301,4 +321,21 @@ export async function getUserFromToken(token: string) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Mint an access token for an alumni without requiring a row in `users`.
+ * The JWT subject is the alumni's primary key.
+ */
+export function createAlumniAccessToken(params: {
+  alumniId: string;
+  email: string;
+  vertical: string;
+}): string {
+  return signAccessToken({
+    sub: params.alumniId,
+    email: params.email,
+    role: 'ALUMNI',
+    vertical: params.vertical,
+  });
 }
