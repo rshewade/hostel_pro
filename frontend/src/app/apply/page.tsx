@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Shield, Users, Clock } from "lucide-react";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { ResumeApplicationPanel } from '@/components/apply/ResumeApplicationPanel';
 
 export default function ApplyPage() {
   const { t } = useLanguage();
@@ -288,6 +289,11 @@ export default function ApplyPage() {
                 </div>
               </div>
             </Link>
+          </div>
+
+          {/* Resume an existing DRAFT application */}
+          <div className="mb-12 max-w-3xl mx-auto">
+            <ResumeApplicationPanel />
           </div>
 
           {/* Important Information */}
