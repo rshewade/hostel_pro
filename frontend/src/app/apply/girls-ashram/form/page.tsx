@@ -7,11 +7,41 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { AdmissionFeeStep } from '@/components/forms/AdmissionFeeStep';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function ApplicationFormPage() {
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [initialData, setInitialData] = useState<any>({});
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [pendingApplicationId, setPendingApplicationId] = useState<string | null>(null);
+  const [pendingTrackingNumber, setPendingTrackingNumber] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const appId = searchParams.get('appId');
+    const tracking = searchParams.get('tracking');
+    if (!appId || !tracking) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/applications/track/${tracking}`);
+        const json = await res.json();
+        const app = json?.data?.data || json?.data;
+        if (!cancelled && app && app.id === appId && app.current_status === 'DRAFT' && app.vertical === 'GIRLS_ASHRAM') {
+          setPendingApplicationId(appId);
+          setPendingTrackingNumber(tracking);
+        }
+      } catch {
+        // ignore — show full form
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   useEffect(() => {
     const loadDraft = async () => {
@@ -1030,7 +1060,6 @@ export default function ApplicationFormPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      // Prepare submission data - remove File objects (not JSON-serializable)
       const documentFields = ['photoFile', 'birthCertificate', 'marksheet', 'recommendationLetter'];
       const submissionData = { ...data };
       for (const fieldName of documentFields) {
@@ -1039,7 +1068,6 @@ export default function ApplicationFormPage() {
         }
       }
 
-      // 1. Create the application first
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1048,8 +1076,6 @@ export default function ApplicationFormPage() {
           applicant_mobile: data.applicantMobile || localStorage.getItem('otp_verified_mobile') || '',
           applicant_email: data.applicantEmail || localStorage.getItem('otp_verified_email') || '',
           vertical: 'girls-ashram',
-          status: 'SUBMITTED',
-          submittedAt: new Date().toISOString(),
         }),
       });
 
@@ -1064,7 +1090,6 @@ export default function ApplicationFormPage() {
       const applicationId = application.id;
       const trackingNumber = application.trackingNumber || application.tracking_number;
 
-      // 2. Upload documents in the background (non-blocking)
       for (const fieldName of documentFields) {
         const file = data[fieldName];
         if (file instanceof File) {
@@ -1077,11 +1102,11 @@ export default function ApplicationFormPage() {
       }
 
       localStorage.removeItem('application_draft_girls-ashram');
-      window.location.href = `/apply/girls-ashram/success?trackingNumber=${trackingNumber}`;
+      setPendingApplicationId(applicationId);
+      setPendingTrackingNumber(trackingNumber);
     } catch (error: any) {
       console.error('Failed to submit application:', error);
-      alert(`Failed to submit application: ${error.message || 'Please try again.'}`);
-      throw error;
+      setPaymentError(error.message || 'Submission failed');
     }
   };
 
@@ -1092,6 +1117,80 @@ export default function ApplicationFormPage() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
           <p style={{ color: 'var(--text-secondary)' }}>Loading application form...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (pendingApplicationId) {
+    return (
+      <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
+        <header
+          className="px-6 py-4 border-b"
+          style={{
+            backgroundColor: 'var(--surface-primary)',
+            borderColor: 'var(--border-primary)',
+          }}
+        >
+          <div className="mx-auto max-w-6xl flex items-center justify-between">
+            <Link href="/apply" className="flex items-center gap-3">
+              <ArrowLeft className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+              <div>
+                <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}>
+                  {t('Girls Ashram Application', 'बालिका आश्रम आवेदन')}</h1>
+                <p className="text-caption">{t('Application Form', 'आवेदन पत्र')}</p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-4">
+              <nav className="hidden md:flex items-center gap-6">
+                <Link href="/" className="nav-link">{t('Home', 'होम')}</Link>
+                <Link href="/apply" className="nav-link">{t('Apply Now', 'अभी आवेदन करें')}</Link>
+                <Link href="/check-status" className="nav-link">{t('Check Status', 'स्थिति जांचें')}</Link>
+                <Link href="/login" className="nav-link">{t('Login', 'लॉगिन')}</Link>
+              </nav>
+              <LanguageToggle />
+            </div>
+          </div>
+        </header>
+
+        <main className="px-6 py-12">
+          <div className="mx-auto max-w-5xl">
+            <div className="card">
+              <div className="p-6 md:p-8">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {t('Admission Fee Payment', 'प्रवेश शुल्क भुगतान')}
+                  </h2>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    {t(
+                      `Your application ${pendingTrackingNumber} is saved. Complete the ₹500 admission fee to submit it for review.`,
+                      `आपका आवेदन ${pendingTrackingNumber} सहेज लिया गया है। समीक्षा हेतु जमा करने के लिए ₹500 प्रवेश शुल्क पूर्ण करें।`,
+                    )}
+                  </p>
+                </div>
+
+                <AdmissionFeeStep
+                  applicationId={pendingApplicationId}
+                  onSuccess={() => router.push(`/track/${pendingTrackingNumber}?paid=1`)}
+                  onFailure={(reason) => setPaymentError(reason)}
+                />
+
+                {paymentError && (
+                  <div
+                    className="mt-4 p-4 rounded-lg border-l-4"
+                    style={{
+                      backgroundColor: 'var(--color-red-50, #fef2f2)',
+                      borderLeftColor: 'var(--color-red-500, #ef4444)',
+                    }}
+                  >
+                    <p className="text-sm font-medium" style={{ color: 'var(--color-red-700, #b91c1c)' }}>
+                      {paymentError}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }

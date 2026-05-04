@@ -113,9 +113,9 @@ const AlumniRegister = () => {
       case 4:
         return true; // Documents optional for prototype
       case 5: {
-        // Check if all non-empty references have consent
+        // At least one reference is mandatory, with consent ticked.
         const filledReferences = references.filter(ref => ref.name.trim() !== '');
-        return filledReferences.length === 0 || filledReferences.every(ref => ref.consent);
+        return filledReferences.length >= 1 && filledReferences.every(ref => ref.consent);
       }
       case 6:
         return formData.privacyConsent;
@@ -136,10 +136,52 @@ const AlumniRegister = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // Mock submission
-    toast.success(t('Your application is under review. You will gain access once approved by the administrator.', 'आपका आवेदन समीक्षाधीन है। व्यवस्थापक द्वारा अनुमोदित होने के बाद आपको पहुंच मिलेगी।'));
-    router.push('/alumni/pending');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const uploadOne = async (file: File, kind: 'profilePhoto' | 'proofDocument') => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('kind', kind);
+    const res = await fetch('/api/alumni/documents/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || 'Upload failed');
+    return data.data.path as string;
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      let profilePhotoPath: string | null = null;
+      let proofDocumentPath: string | null = null;
+      if (formData.profilePhoto) profilePhotoPath = await uploadOne(formData.profilePhoto, 'profilePhoto');
+      if (formData.proofDocument) proofDocumentPath = await uploadOne(formData.proofDocument, 'proofDocument');
+
+      const filledReferences = references.filter(ref => ref.name.trim() !== '');
+
+      const res = await fetch('/api/alumni/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          profilePhoto: undefined,
+          proofDocument: undefined,
+          profilePhotoPath,
+          proofDocumentPath,
+          references: filledReferences,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        toast.error(data.error || t('Failed to submit registration', 'पंजीकरण जमा करने में विफल'));
+        return;
+      }
+      toast.success(t('Your application is under review. You will gain access once approved by the administrator.', 'आपका आवेदन समीक्षाधीन है।'));
+      router.push('/alumni/pending');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('Network error', 'नेटवर्क त्रुटि'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -591,7 +633,7 @@ const AlumniRegister = () => {
               {step === 5 && (
                 <>
                   <p className="text-sm text-muted-foreground mb-4">
-                    {t('Adding references from batchmates helps verify your identity faster. This is optional.', 'बैचमेट्स से संदर्भ जोड़ने से आपकी पहचान तेजी से सत्यापित होती है। यह वैकल्पिक है।')}
+                    {t('At least 1 reference from a batchmate is required and the consent checkbox must be ticked.', 'कम से कम 1 बैचमेट का संदर्भ आवश्यक है और सहमति चेकबॉक्स पर निशान लगाना होगा।')}
                   </p>
 
                   {references.map((ref, index) => (
@@ -721,8 +763,8 @@ const AlumniRegister = () => {
                     {t('Next', 'आगे')}
                   </Button>
                 ) : (
-                  <Button onClick={handleSubmit} disabled={!canProceed()}>
-                    {t('Submit Application', 'आवेदन जमा करें')}
+                  <Button onClick={handleSubmit} disabled={!canProceed() || isSubmitting}>
+                    {isSubmitting ? t('Submitting...', 'जमा कर रहा है...') : t('Submit Application', 'आवेदन जमा करें')}
                   </Button>
                 )}
               </div>
