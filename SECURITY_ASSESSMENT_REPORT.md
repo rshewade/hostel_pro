@@ -3,7 +3,32 @@
 **Date:** 2026-05-05
 **Scope:** Full codebase security review (Next.js frontend, API routes, SQL migrations, infrastructure, repository hygiene)
 **Branch reviewed:** `24April`
+**Remediation branch:** `security-fixes-non-auth`
 **Classification:** Internal — Contains vulnerability details
+
+## Branch Resolution Status (as of 2026-05-05)
+
+The following findings are **resolved on the `security-fixes-non-auth` branch**:
+
+| ID | Finding | Commit |
+|----|---------|--------|
+| S-01 | Account takeover via forged forgot-password token | `a4ad10d` |
+| S-05 | CORS wildcard + missing security headers | `878f28e` |
+| S-06 | Hardcoded OTP `'123456'` in dev (now opt-in `MOCK_OTP_ENABLED`) | `a949dad` |
+| S-09 | Second-order SQL injection in superintendent reset-password | `909db50` |
+| S-11 | Reset-password token has no expiry validation | `a4ad10d` (paired with S-01) |
+| S-14 | Missing rate limit on forgot-password / reset-password | `a4ad10d` |
+| S-15 | `canAccessStudent` allows through when vertical is unknown | `8d52fd6` |
+| S-16 | Raw `error.message` returned to clients (non-auth routes) | `14209d4` |
+| S-19 | Audit + business write atomicity (fee-configuration only) | `d78a2ef` |
+| S-20 | Unbounded list queries (3 of 11 endpoints capped) | `49fdc96` |
+| S-22 | Reject placeholder JWT_SECRET at startup | `a949dad` |
+| S-23 / S-29 | CI tests disabled + no audit gate | `b61420c` |
+| S-27 | Repo hygiene (.gitignore tightened) | `2f82e30` |
+
+**Still open:** S-02, S-03, S-04, S-07, S-08, S-10, S-12, S-13, S-17, S-18, S-21, S-24, S-25, S-26, S-28, S-30. See "Open Items" appendix below.
+
+---
 
 ---
 
