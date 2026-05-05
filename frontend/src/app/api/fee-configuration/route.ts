@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import {
   successResponse,
   createdResponse,
@@ -76,20 +76,23 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('valid_from is required');
     }
 
-    const { rows } = await query(
-      `INSERT INTO fee_configuration (vertical, academic_session, fee_head, amount, frequency, is_refundable, valid_from, valid_until)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [vertical, academic_session, fee_head, amount, frequency, !!is_refundable, valid_from, valid_until || null],
-    );
+    const created = await withTransaction(async (client) => {
+      const insertResult = await client.query(
+        `INSERT INTO fee_configuration (vertical, academic_session, fee_head, amount, frequency, is_refundable, valid_from, valid_until)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING *`,
+        [vertical, academic_session, fee_head, amount, frequency, !!is_refundable, valid_from, valid_until || null],
+      );
+      const row = insertResult.rows[0];
+      await client.query(
+        `INSERT INTO audit_logs (entity_type, entity_id, action, new_value, performed_by)
+         VALUES ('fee_configuration', $1, 'CREATE', $2, $3)`,
+        [row.id, JSON.stringify(row), user.id],
+      );
+      return row;
+    });
 
-    await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, new_value, performed_by)
-       VALUES ('fee_configuration', $1, 'CREATE', $2, $3)`,
-      [rows[0].id, JSON.stringify(rows[0]), user.id],
-    );
-
-    return createdResponse(rows[0], 'Fee configuration created');
+    return createdResponse(created, 'Fee configuration created');
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('POST /api/fee-configuration error:', error);
@@ -132,18 +135,21 @@ export async function PUT(request: NextRequest) {
     if (!updates.length) return badRequestResponse('No fields to update');
 
     params.push(id);
-    const { rows } = await query(
-      `UPDATE fee_configuration SET ${updates.join(', ')} WHERE id = $${i} RETURNING *`,
-      params,
-    );
+    const updated = await withTransaction(async (client) => {
+      const updateResult = await client.query(
+        `UPDATE fee_configuration SET ${updates.join(', ')} WHERE id = $${i} RETURNING *`,
+        params,
+      );
+      const row = updateResult.rows[0];
+      await client.query(
+        `INSERT INTO audit_logs (entity_type, entity_id, action, old_value, new_value, performed_by)
+         VALUES ('fee_configuration', $1, 'UPDATE', $2, $3, $4)`,
+        [id, JSON.stringify(existing[0]), JSON.stringify(row), user.id],
+      );
+      return row;
+    });
 
-    await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, old_value, new_value, performed_by)
-       VALUES ('fee_configuration', $1, 'UPDATE', $2, $3, $4)`,
-      [id, JSON.stringify(existing[0]), JSON.stringify(rows[0]), user.id],
-    );
-
-    return successResponse(rows[0], 'Fee configuration updated');
+    return successResponse(updated, 'Fee configuration updated');
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('PUT /api/fee-configuration error:', error);
@@ -166,13 +172,14 @@ export async function DELETE(request: NextRequest) {
     const { rows: existing } = await query(`SELECT * FROM fee_configuration WHERE id = $1`, [id]);
     if (!existing.length) return notFoundResponse('Fee configuration not found');
 
-    await query(`DELETE FROM fee_configuration WHERE id = $1`, [id]);
-
-    await query(
-      `INSERT INTO audit_logs (entity_type, entity_id, action, old_value, performed_by)
-       VALUES ('fee_configuration', $1, 'DELETE', $2, $3)`,
-      [id, JSON.stringify(existing[0]), user.id],
-    );
+    await withTransaction(async (client) => {
+      await client.query(`DELETE FROM fee_configuration WHERE id = $1`, [id]);
+      await client.query(
+        `INSERT INTO audit_logs (entity_type, entity_id, action, old_value, performed_by)
+         VALUES ('fee_configuration', $1, 'DELETE', $2, $3)`,
+        [id, JSON.stringify(existing[0]), user.id],
+      );
+    });
 
     return successResponse({ id }, 'Fee configuration deleted');
   } catch (error: any) {
