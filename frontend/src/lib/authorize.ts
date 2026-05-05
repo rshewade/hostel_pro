@@ -76,11 +76,12 @@ export function canAccessStudent(authUser: AuthUser, studentId: string, studentV
       // Parent access is checked at query level (by mobile match), allow here
       return true;
     case 'SUPERINTENDENT':
-      // Superintendent can only access students in their vertical
-      if (studentVertical && authUser.vertical) {
-        return authUser.vertical === studentVertical;
-      }
-      return true; // If vertical not known, allow (query will filter)
+      // Superintendent can only access students in their vertical (S-15).
+      // If either side's vertical is missing we deny — previously this branch
+      // returned true, allowing cross-vertical access whenever a record had a
+      // null/empty vertical column.
+      if (!authUser.vertical || !studentVertical) return false;
+      return authUser.vertical === studentVertical;
     case 'TRUSTEE':
     case 'ACCOUNTS':
       return true; // Full access
