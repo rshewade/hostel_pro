@@ -41,7 +41,12 @@ export async function GET(request: NextRequest) {
       params.push(isActive === 'true');
     }
 
-    sql += ' ORDER BY created_at DESC';
+    const limitParam = parseInt(searchParams.get('limit') || '100', 10);
+    const limit = Math.min(Math.max(limitParam, 1), 500);
+    const offsetParam = parseInt(searchParams.get('offset') || '0', 10);
+    const offset = Math.max(offsetParam, 0);
+    sql += ` ORDER BY created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+    params.push(limit, offset);
 
     const { rows: users } = await query(sql, params);
 
