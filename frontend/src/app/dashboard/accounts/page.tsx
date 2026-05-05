@@ -9,11 +9,14 @@ import type { TableColumn } from '@/components/types';
 import { Select, type SelectOption } from '@/components/forms/Select';
 import { cn } from '@/components/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { FeeStructureTab } from '@/components/accounts/FeeStructureTab';
+import { GenerateMonthlyMessModal } from '@/components/accounts/GenerateMonthlyMessModal';
+import { FEE_HEAD_LABELS } from '@/lib/fees/feeHeads';
 
 type Vertical = 'ALL' | 'BOYS' | 'GIRLS' | 'DHARAMSHALA';
 type Period = 'THIS_MONTH' | 'LAST_MONTH' | 'LAST_3_MONTHS' | 'LAST_6_MONTHS' | 'THIS_YEAR' | 'ALL_TIME';
 type Status = 'ALL' | 'PAID' | 'PENDING' | 'OVERDUE' | 'PARTIAL';
-type FeeComponent = 'ALL' | 'PROCESSING_FEE' | 'HOSTEL_FEES' | 'SECURITY_DEPOSIT' | 'KEY_DEPOSIT' | 'PARTIAL_PAYMENT';
+type FeeComponent = 'ALL' | 'PROCESSING_FEE' | 'HOSTEL_FEES' | 'SECURITY_DEPOSIT' | 'KEY_DEPOSIT' | 'MESS_ADVANCE' | 'MESS_MONTHLY_FEE' | 'PARTIAL_PAYMENT';
 type UserRole = 'ALL' | 'SUPERINTENDENT' | 'ACCOUNTS' | 'TRUSTEE';
 
 interface Receivable {
@@ -24,7 +27,7 @@ interface Receivable {
   amount: number;
   dueDate: string;
   status: 'PAID' | 'PENDING' | 'OVERDUE' | 'PARTIAL';
-  feeComponent: 'PROCESSING_FEE' | 'HOSTEL_FEES' | 'SECURITY_DEPOSIT' | 'KEY_DEPOSIT' | 'PARTIAL_PAYMENT';
+  feeComponent: 'PROCESSING_FEE' | 'HOSTEL_FEES' | 'SECURITY_DEPOSIT' | 'KEY_DEPOSIT' | 'MESS_ADVANCE' | 'MESS_MONTHLY_FEE' | 'PARTIAL_PAYMENT';
   contact: {
     phone: string;
     email: string;
@@ -42,7 +45,8 @@ interface Receivable {
 
 export default function AccountsDashboard() {
   const { t } = useLanguage();
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'receivables' | 'payment-logs' | 'receipts' | 'clearance' | 'data-export'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'receivables' | 'payment-logs' | 'fee-structure' | 'receipts' | 'clearance' | 'data-export'>('overview');
+  const [generateMessOpen, setGenerateMessOpen] = useState(false);
   const [selectedVertical, setSelectedVertical] = useState<Vertical>('ALL');
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('THIS_MONTH');
   const [statusFilter, setStatusFilter] = useState<Status>('ALL');
@@ -70,10 +74,12 @@ export default function AccountsDashboard() {
 
   const feeComponentOptions: SelectOption[] = [
     { value: 'ALL', label: 'All Fee Components' },
-    { value: 'PROCESSING_FEE', label: 'Processing Fee' },
-    { value: 'HOSTEL_FEES', label: 'Hostel Fees' },
-    { value: 'SECURITY_DEPOSIT', label: 'Security Deposit' },
-    { value: 'KEY_DEPOSIT', label: 'Key Deposit' },
+    { value: 'PROCESSING_FEE', label: FEE_HEAD_LABELS.PROCESSING_FEE },
+    { value: 'SECURITY_DEPOSIT', label: FEE_HEAD_LABELS.SECURITY_DEPOSIT },
+    { value: 'HOSTEL_FEES', label: FEE_HEAD_LABELS.HOSTEL_FEES },
+    { value: 'MESS_ADVANCE', label: FEE_HEAD_LABELS.MESS_ADVANCE },
+    { value: 'MESS_MONTHLY_FEE', label: FEE_HEAD_LABELS.MESS_MONTHLY_FEE },
+    { value: 'KEY_DEPOSIT', label: FEE_HEAD_LABELS.KEY_DEPOSIT },
     { value: 'PARTIAL_PAYMENT', label: 'Partial Payment' }
   ];
 
@@ -639,6 +645,21 @@ export default function AccountsDashboard() {
               <button
                 className={cn(
                   'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
+                  selectedTab === 'fee-structure'
+                    ? 'border-navy-900 text-navy-900'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                )}
+                style={{
+                  borderColor: selectedTab === 'fee-structure' ? 'var(--border-primary)' : 'transparent',
+                  color: selectedTab === 'fee-structure' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+                onClick={() => setSelectedTab('fee-structure')}
+              >
+                {t('Fee Structure', 'शुल्क संरचना')}
+              </button>
+              <button
+                className={cn(
+                  'py-4 px-2 border-b-2 font-medium text-sm transition-colors',
                   selectedTab === 'receipts'
                     ? 'border-navy-900 text-navy-900'
                     : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -857,6 +878,14 @@ export default function AccountsDashboard() {
                 >
                   Clear Filters
                 </Button>
+
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setGenerateMessOpen(true)}
+                >
+                  Generate Monthly Mess Fees
+                </Button>
               </div>
             </div>
 
@@ -964,6 +993,10 @@ export default function AccountsDashboard() {
               emptyMessage="No payment logs found"
             />
           </>
+        )}
+
+        {selectedTab === 'fee-structure' && (
+          <FeeStructureTab />
         )}
 
         {selectedTab === 'receipts' && (
@@ -1114,6 +1147,12 @@ export default function AccountsDashboard() {
           </>
         )}
       </main>
+
+      <GenerateMonthlyMessModal
+        open={generateMessOpen}
+        onClose={() => setGenerateMessOpen(false)}
+        onGenerated={fetchData}
+      />
 
       {/* Record Manual Payment Modal */}
       {recordPayment.open && (
