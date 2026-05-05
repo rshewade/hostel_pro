@@ -6,6 +6,20 @@ import { query } from './db';
 if (!process.env.JWT_SECRET) {
   throw new Error('FATAL: JWT_SECRET environment variable is not set. Refusing to start with insecure defaults.');
 }
+// Reject placeholder values copied verbatim from .env.example. (S-22)
+const JWT_SECRET_PLACEHOLDERS = [
+  'generate-a-strong-random-secret-at-least-48-chars',
+  'change-me',
+  'your-jwt-secret',
+];
+if (
+  JWT_SECRET_PLACEHOLDERS.includes(process.env.JWT_SECRET) ||
+  process.env.JWT_SECRET.length < 32
+) {
+  throw new Error(
+    'FATAL: JWT_SECRET is a placeholder or shorter than 32 chars. Refusing to start. Generate one with: openssl rand -hex 48'
+  );
+}
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = 86400; // 24 hours in seconds
 const JWT_REFRESH_EXPIRES_IN = 604800; // 7 days in seconds
@@ -146,8 +160,19 @@ export function generateOtp(): string {
   return crypto.randomInt(100000, 999999).toString();
 }
 
+// Mock-OTP gate (S-06): in production we always require a real OTP; in lower
+// environments the developer must opt in by setting MOCK_OTP_ENABLED=true.
+// NODE_ENV-based shortcuts are removed because a misconfigured deploy would
+// otherwise turn 'NODE_ENV=development' into a universal authentication bypass.
+const MOCK_OTP_ENABLED =
+  process.env.NODE_ENV !== 'production' && process.env.MOCK_OTP_ENABLED === 'true';
+if (process.env.NODE_ENV === 'production' && process.env.MOCK_OTP_ENABLED === 'true') {
+  throw new Error('FATAL: MOCK_OTP_ENABLED must not be set in production.');
+}
+const MOCK_OTP_VALUE = process.env.MOCK_OTP_VALUE || '123456';
+
 export async function createOtp(identifier: string, purpose: string): Promise<string> {
-  const otp = process.env.NODE_ENV === 'development' ? '123456' : generateOtp();
+  const otp = MOCK_OTP_ENABLED ? MOCK_OTP_VALUE : generateOtp();
   const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
   // Invalidate any existing OTP for this identifier+purpose
