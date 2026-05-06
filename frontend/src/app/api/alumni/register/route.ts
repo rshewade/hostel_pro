@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withTransaction } from '@/lib/db';
 import { logger } from '@/lib/logger';
+import { verifySignedSessionToken } from '@/lib/auth';
 
 const VERTICAL_MAP: Record<string, string> = {
   'boys-hostel': 'BOYS_HOSTEL',
@@ -43,6 +44,32 @@ export async function POST(request: NextRequest) {
 
     if (!firstName || !lastName || !email || !institution) {
       return NextResponse.json({ success: false, error: 'firstName, lastName, email and institution are required' }, { status: 400 });
+    }
+
+    // S-12: registration intent token must match the submitted email.
+    const intentToken =
+      ((body as Record<string, unknown>).intentToken as string | undefined) ||
+      request.headers.get('x-register-intent') ||
+      undefined;
+    if (!intentToken) {
+      return NextResponse.json(
+        { success: false, error: 'Registration intent token required. Refresh the page and try again.' },
+        { status: 401 },
+      );
+    }
+    const intent = verifySignedSessionToken(intentToken) as
+      | { purpose?: string; email?: string }
+      | null;
+    if (
+      !intent ||
+      intent.purpose !== 'alumni_registration' ||
+      !intent.email ||
+      String(intent.email).toLowerCase().trim() !== String(email).toLowerCase().trim()
+    ) {
+      return NextResponse.json(
+        { success: false, error: 'Registration intent token does not match the submitted email' },
+        { status: 401 },
+      );
     }
 
     const vertical = VERTICAL_MAP[String(institution)];

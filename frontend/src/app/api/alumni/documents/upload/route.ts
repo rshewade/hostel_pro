@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { saveFile } from '@/lib/storage';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { detectMimeFromBytes, isAcceptedMime } from '@/lib/file-type';
+import { verifySignedSessionToken } from '@/lib/auth';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
@@ -9,17 +10,16 @@ const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image
 /**
  * POST /api/alumni/documents/upload
  *
- * Alumni registration upload. The current registration flow has no
- * pre-upload OTP step, so we cannot strictly bind to a session token
- * without breaking the UX. Instead we reduce abuse with:
- *  - Per-IP rate limit (10 / hour)            — S-12 partial mitigation
- *  - Strict size cap (10 MB)
- *  - Server-side magic-byte MIME validation   — S-21
- *  - UUID-prefixed sanitised file names        — pre-existing
+ * Alumni registration upload (S-12).
  *
- * Hard binding to a registration session is tracked as a follow-up:
- * we will issue a one-time "register-intent" token on /alumni/register
- * page load and validate it here.
+ * Defenses:
+ *  - Required `intentToken` (HMAC-signed, 30-min TTL) issued by
+ *    /api/alumni/register/init when the register page loads. Binds the
+ *    upload to a real registration intent without forcing an OTP step.
+ *  - Per-IP rate limit (10 / hour).
+ *  - Strict size cap (10 MB).
+ *  - Server-side magic-byte MIME validation (S-21).
+ *  - UUID-prefixed sanitised file names.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -38,6 +38,30 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const kind = (formData.get('kind') as string | null) || 'profilePhoto';
+    const intentToken =
+      (formData.get('intentToken') as string | null) ||
+      request.headers.get('x-register-intent') ||
+      null;
+
+    // S-12: require a signed registration-intent token.
+    if (!intentToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Registration intent token required. Refresh the registration page and try again.',
+        },
+        { status: 401 },
+      );
+    }
+    const intent = verifySignedSessionToken(intentToken) as
+      | { purpose?: string; email?: string }
+      | null;
+    if (!intent || intent.purpose !== 'alumni_registration' || !intent.email) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired registration intent token' },
+        { status: 401 },
+      );
+    }
 
     if (!file) return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     if (file.size > MAX_FILE_SIZE) return NextResponse.json({ success: false, error: 'File exceeds 10 MB limit' }, { status: 400 });
