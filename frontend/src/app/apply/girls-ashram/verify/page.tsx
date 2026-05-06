@@ -126,6 +126,14 @@ export default function GirlsAshramVerifyPage() {
       });
 
       if (response.ok) {
+        const data = await response.json().catch(() => null);
+        if (data?.sessionToken) {
+          try {
+            localStorage.setItem('applicant_session_token', data.sessionToken);
+          } catch {
+            /* non-fatal */
+          }
+        }
         setTimeout(() => {
           window.location.href = '/apply/girls-ashram/form';
         }, 500);

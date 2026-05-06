@@ -128,6 +128,14 @@ export default function VerifyOTPPage() {
       });
 
       if (response.ok) {
+        const data = await response.json().catch(() => null);
+        if (data?.sessionToken) {
+          try {
+            localStorage.setItem('applicant_session_token', data.sessionToken);
+          } catch {
+            /* localStorage unavailable — non-fatal; user will be re-prompted */
+          }
+        }
         setTimeout(() => {
           window.location.href = '/apply/boys-hostel/form';
         }, 500);
