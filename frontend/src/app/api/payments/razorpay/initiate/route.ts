@@ -5,8 +5,10 @@ import {
   badRequestResponse,
   notFoundResponse,
   serverErrorResponse,
+  unauthorizedResponse,
 } from '@/lib/api/responses';
 import { getRazorpayConfig, generateReceipt, createOrder } from '@/lib/payments/razorpay';
+import { verifySignedSessionToken } from '@/lib/auth';
 
 const ADMISSION_AMOUNT = 500;
 const REUSE_WINDOW_MS = 15 * 60 * 1000;
@@ -17,6 +19,15 @@ export async function POST(request: NextRequest) {
     const applicationId = body.applicationId || body.application_id;
     if (!applicationId) return badRequestResponse('applicationId is required');
 
+    const sessionToken: string | undefined = body.sessionToken;
+    if (!sessionToken) return unauthorizedResponse('sessionToken is required');
+    const payload = verifySignedSessionToken(sessionToken) as
+      | { contact?: string; verified?: boolean }
+      | null;
+    if (!payload || payload.verified !== true) {
+      return unauthorizedResponse('Invalid or expired session');
+    }
+
     const { rows: appRows } = await query(
       `SELECT id, vertical, current_status, applicant_mobile, applicant_name, applicant_email
        FROM applications WHERE id = $1`,
@@ -24,6 +35,15 @@ export async function POST(request: NextRequest) {
     );
     if (!appRows[0]) return notFoundResponse('Application not found');
     const app = appRows[0];
+
+    // S-10: token's mobile must match the application's mobile so an attacker
+    // who guesses an application UUID cannot mint Razorpay orders or read
+    // back the applicant's name/email/mobile via the prefill block below.
+    const tokenMobile = (payload.contact || '').replace(/\D/g, '').slice(-10);
+    const appMobile = String(app.applicant_mobile || '').replace(/\D/g, '').slice(-10);
+    if (!tokenMobile || tokenMobile !== appMobile) {
+      return unauthorizedResponse('Session does not match application');
+    }
 
     if (app.vertical !== 'BOYS_HOSTEL' && app.vertical !== 'GIRLS_ASHRAM') {
       return badRequestResponse('Admission fee only applies to hostel verticals');

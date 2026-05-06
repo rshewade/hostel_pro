@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { saveFile } from '@/lib/storage';
+import { detectMimeFromBytes, isAcceptedMime } from '@/lib/file-type';
 
 const DOCUMENT_TYPE_MAP: Record<string, string> = {
   'photoFile': 'PHOTOGRAPH',
@@ -109,6 +110,15 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // S-21: server-side magic-byte check to defeat MIME spoofing.
+    const detected = detectMimeFromBytes(buffer);
+    if (!detected || !isAcceptedMime(detected, ALLOWED_MIME_TYPES)) {
+      return NextResponse.json(
+        { success: false, error: 'File contents do not match the declared type' },
+        { status: 400 }
+      );
+    }
+
     const filePath = await saveFile(buffer, 'applications', identifier, file.name);
 
     // Save document record to database
@@ -140,8 +150,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Error in POST /api/applications/documents/upload:', message, error);
-    return NextResponse.json({ success: false, error: `Failed to upload document: ${message}` }, { status: 500 });
+    console.error('Error in POST /api/applications/documents/upload:', error);
+    return NextResponse.json({ success: false, error: 'Failed to upload document' }, { status: 500 });
   }
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { resolveAndValidatePath } from '@/lib/storage';
+import { optionalAuth } from '@/lib/authorize';
+import { verifySignedSessionToken } from '@/lib/auth';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -15,20 +17,68 @@ const MIME_BY_EXT: Record<string, string> = {
 /**
  * GET /api/applications/[id]/photo
  *
- * Returns the applicant's passport-size photograph (document_type='PHOTOGRAPH')
- * inline. Accepts either the application UUID or the human-readable
- * tracking_number as `id`. Public endpoint — used by the track page,
- * the printable PDF, and the superintendent dashboard.
+ * Returns the applicant's passport-size photograph inline.
  *
- * 404 if no photo has been uploaded yet.
+ * Access model (S-03):
+ *  - When `id` is a UUID (122 bits of entropy → unguessable): the photo
+ *    is served without further auth. Callers must already possess the
+ *    application's UUID, which the API only emits to authenticated staff
+ *    or to OTP-verified applicants. UUIDs cannot be enumerated.
+ *  - When `id` is a tracking_number (sequential and guessable): the
+ *    caller MUST be authenticated staff (SUPERINTENDENT/TRUSTEE/ACCOUNTS)
+ *    OR present an OTP-verified session token whose `contact` mobile
+ *    matches the application's `applicant_mobile`.
+ *
+ * The session token may be supplied via `?sessionToken=` query string or
+ * `x-session-token` header.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    // Access-control gate fires only when the caller used a tracking_number.
+    if (!isUuid) {
+      const authUser = await optionalAuth(request);
+      const isStaff =
+        authUser &&
+        ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'].includes(authUser.role);
+
+      if (!isStaff) {
+        const url = new URL(request.url);
+        const sessionToken =
+          url.searchParams.get('sessionToken') ||
+          request.headers.get('x-session-token');
+
+        if (!sessionToken) {
+          return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+        }
+        const payload = verifySignedSessionToken(sessionToken) as
+          | { contact?: string; verified?: boolean }
+          | null;
+        if (!payload || payload.verified !== true) {
+          return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
+        }
+
+        const appRow = (
+          await query(
+            `SELECT applicant_mobile FROM applications WHERE tracking_number = $1`,
+            [id],
+          )
+        ).rows[0];
+        if (!appRow) {
+          return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
+        }
+        const tokenMobile = (payload.contact || '').replace(/\D/g, '').slice(-10);
+        const appMobile = String(appRow.applicant_mobile || '').replace(/\D/g, '').slice(-10);
+        if (!tokenMobile || tokenMobile !== appMobile) {
+          return NextResponse.json({ error: 'Session does not match application' }, { status: 403 });
+        }
+      }
+    }
 
     const sql = isUuid
       ? `SELECT d.file_path, d.mime_type, d.file_name

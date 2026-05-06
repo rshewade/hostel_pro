@@ -45,7 +45,7 @@ export async function GET(_request: NextRequest) {
     return successResponse(map);
   } catch (error: any) {
     console.error('GET /api/config/applications-status error:', error);
-    return serverErrorResponse(error.message);
+    return serverErrorResponse('Failed to load application status', error);
   }
 }
 
@@ -91,7 +91,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error: any) {
     if (error instanceof NextResponse) return error;
     console.error('PATCH /api/config/applications-status error:', error);
-    return serverErrorResponse(error.message);
+    return serverErrorResponse('Failed to update application status', error);
   }
 }
 

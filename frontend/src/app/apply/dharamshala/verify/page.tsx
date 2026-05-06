@@ -126,6 +126,14 @@ export default function DharamshalaVerifyPage() {
       });
 
       if (response.ok) {
+        const data = await response.json().catch(() => null);
+        if (data?.sessionToken) {
+          try {
+            localStorage.setItem('applicant_session_token', data.sessionToken);
+          } catch {
+            /* non-fatal */
+          }
+        }
         setTimeout(() => {
           window.location.href = '/apply/dharamshala/form';
         }, 500);

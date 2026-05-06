@@ -18,10 +18,17 @@ export function AdmissionFeeStep({ applicationId, onSuccess, onFailure }: Props)
     setBusy(true);
     setError(null);
     try {
+      const sessionToken =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('applicant_session_token')
+          : null;
+      if (!sessionToken) {
+        throw new Error('Session expired. Please re-verify your mobile number.');
+      }
       const initRes = await fetch('/api/payments/razorpay/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId }),
+        body: JSON.stringify({ applicationId, sessionToken }),
       });
       const initJson = await initRes.json();
       if (!initRes.ok || !initJson?.data?.orderId) {

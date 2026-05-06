@@ -48,7 +48,13 @@ export async function GET(request: NextRequest) {
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    const sql = `SELECT * FROM applications ${whereClause} ORDER BY created_at DESC`;
+
+    const limitParam = parseInt(searchParams.get('limit') || '100', 10);
+    const limit = Math.min(Math.max(limitParam, 1), 500);
+    const offsetParam = parseInt(searchParams.get('offset') || '0', 10);
+    const offset = Math.max(offsetParam, 0);
+    const sql = `SELECT * FROM applications ${whereClause} ORDER BY created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+    params.push(limit, offset);
 
     const { rows } = await query(sql, params);
 

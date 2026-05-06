@@ -138,10 +138,31 @@ const AlumniRegister = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const uploadOne = async (file: File, kind: 'profilePhoto' | 'proofDocument') => {
+  // S-12: fetch a registration intent token bound to the email before
+  // any upload or final register call. The token must match the email
+  // that the user actually submits.
+  const fetchIntentToken = async (email: string): Promise<string> => {
+    const res = await fetch('/api/alumni/register/init', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success || !data.data?.intentToken) {
+      throw new Error(data.error || 'Could not start registration');
+    }
+    return data.data.intentToken as string;
+  };
+
+  const uploadOne = async (
+    file: File,
+    kind: 'profilePhoto' | 'proofDocument',
+    intentToken: string,
+  ) => {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('kind', kind);
+    fd.append('intentToken', intentToken);
     const res = await fetch('/api/alumni/documents/upload', { method: 'POST', body: fd });
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.error || 'Upload failed');
@@ -151,10 +172,12 @@ const AlumniRegister = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
+      const intentToken = await fetchIntentToken(formData.email);
+
       let profilePhotoPath: string | null = null;
       let proofDocumentPath: string | null = null;
-      if (formData.profilePhoto) profilePhotoPath = await uploadOne(formData.profilePhoto, 'profilePhoto');
-      if (formData.proofDocument) proofDocumentPath = await uploadOne(formData.proofDocument, 'proofDocument');
+      if (formData.profilePhoto) profilePhotoPath = await uploadOne(formData.profilePhoto, 'profilePhoto', intentToken);
+      if (formData.proofDocument) proofDocumentPath = await uploadOne(formData.proofDocument, 'proofDocument', intentToken);
 
       const filledReferences = references.filter(ref => ref.name.trim() !== '');
 
@@ -168,6 +191,7 @@ const AlumniRegister = () => {
           profilePhotoPath,
           proofDocumentPath,
           references: filledReferences,
+          intentToken,
         }),
       });
       const data = await res.json();
