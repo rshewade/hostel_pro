@@ -665,7 +665,7 @@ export default function SuperintendentDashboard() {
               </h3>
               <div className="flex items-start gap-6">
                 <img
-                  src={`/api/applications/${selectedApplication.trackingNumber}/photo`}
+                  src={`/api/applications/${selectedApplication.id}/photo`}
                   alt={selectedApplication.applicantName}
                   className="w-28 h-36 object-cover rounded border bg-gray-100 flex-shrink-0"
                   style={{ borderColor: 'var(--border-primary)' }}

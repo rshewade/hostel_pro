@@ -414,7 +414,7 @@ export default function TrackingDetailPage() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="flex items-start gap-6 mb-4">
               <img
-                src={`/api/applications/${application.tracking_number}/photo`}
+                src={`/api/applications/${application.id || application.tracking_number}/photo`}
                 alt={application.data?.personal_info?.full_name || 'Applicant photo'}
                 className="w-28 h-36 object-cover rounded border border-gray-200 bg-gray-100 flex-shrink-0"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
