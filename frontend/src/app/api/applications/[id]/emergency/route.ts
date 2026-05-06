@@ -15,13 +15,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authUser = await requireAuth(request);
+    // S-18: enforce allowed roles via requireAuth itself rather than a
+    // post-hoc check that lets any authenticated user reach the body.
+    await requireAuth(request, ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS']);
     const { id } = await params;
-
-    const allowedRoles = ['SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'];
-    if (!allowedRoles.includes(authUser.role)) {
-      return NextResponse.json({ success: false, error: 'Access denied' }, { status: 403 });
-    }
 
     const { rows } = await query(
       `SELECT id, tracking_number, current_status, applicant_name, applicant_mobile,
