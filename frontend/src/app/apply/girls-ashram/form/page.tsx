@@ -4,13 +4,21 @@ import { FormWizard, Input, Select, DatePicker, FileUpload } from '@/components/
 import { Button } from '@/components/shadcn/button-extended';
 import { ArrowLeft, Save, FileText, User, GraduationCap, Home, Users, Upload, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { AdmissionFeeStep } from '@/components/forms/AdmissionFeeStep';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ApplicationFormPage() {
+export default function ApplicationFormPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <ApplicationFormPage />
+    </Suspense>
+  );
+}
+
+function ApplicationFormPage() {
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [initialData, setInitialData] = useState<any>({});
