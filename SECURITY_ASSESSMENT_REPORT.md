@@ -3,25 +3,23 @@
 **Date:** 2026-05-06 (post-remediation snapshot)
 **Scope:** Full codebase security review (Next.js frontend, API routes, SQL migrations, infrastructure, repository hygiene)
 **Base branch:** `24April`
-**Remediation branch:** `security-fixes-non-auth` (23 commits, 28 of 30 findings resolved)
+**Remediation branch:** `security-fixes-non-auth` (25 commits, **30 of 30** findings resolved)
 **Classification:** Internal — Contains vulnerability details
 
 ---
 
 ## Executive Summary
 
-A baseline assessment surfaced **30 findings** (6 Critical, 8 High, 9 Medium, 4 Low, 3 Info). The `security-fixes-non-auth` branch closes **28** of those without breaking login or core flows — including all 6 Criticals (account-takeover via forged reset token, public PII tracking endpoint, public photo download, seeded bcrypt hashes, CORS wildcard, dev-OTP `'123456'`) and 7 of 8 Highs. The application moves from "high risk" to "production-ready pending operational verification" as defined by the merge checklist.
-
-**Two findings remain open** as residual partial work — S-12 (alumni upload still has no pre-OTP step on the registration UX, so the binding to a registration session is deferred to a follow-up PR; abuse is mitigated via per-IP rate limit + magic-byte MIME validation) and S-18 (lifecycle role narrowing requires per-route audit; the helper `canAccessStudent` was hardened in S-15 to support this work).
+A baseline assessment surfaced **30 findings** (6 Critical, 8 High, 9 Medium, 4 Low, 3 Info). The `security-fixes-non-auth` branch closes **all 30** without breaking login or core flows. The application moves from "high risk" baseline to "production-ready pending operational verification" as defined by the merge checklist.
 
 | Severity | Original | Resolved | **Remaining** |
 |----------|---------:|---------:|--------------:|
 | Critical | 6 | 6 | **0** |
-| High     | 8 | 7 | **1** (S-12) |
-| Medium   | 9 | 8 | **1** (S-18) |
+| High     | 8 | 8 | **0** |
+| Medium   | 9 | 9 | **0** |
 | Low      | 4 | 4 | **0** |
 | Info     | 3 | 3 | **0** |
-| **Total**| **30** | **28** | **2** |
+| **Total**| **30** | **30** | **0** |
 
 ---
 
@@ -47,6 +45,7 @@ A baseline assessment surfaced **30 findings** (6 Critical, 8 High, 9 Medium, 4 
 | S-09 | Second-order SQL injection in superintendent reset-password | `909db50` |
 | S-10 | Razorpay `/initiate` unauthenticated + leaked PII | `2810015` |
 | S-11 | Reset-password token had no expiry validation | `a4ad10d` |
+| S-12 | Alumni document upload bound to signed registration intent token | `75028ae` |
 | S-13 | `/api/applications/drafts-by-mobile` session-token verification | verified clean (already correctly enforced) |
 | S-14 | Missing rate limit on forgot-password / reset-password | `a4ad10d` |
 | S-29 | CI test step disabled | `b61420c` |
@@ -58,6 +57,7 @@ A baseline assessment surfaced **30 findings** (6 Critical, 8 High, 9 Medium, 4 
 | S-15 | `canAccessStudent` allowed through when vertical was unknown | `8d52fd6` |
 | S-16 | Raw `error.message` returned to clients | `14209d4`, `bc0ef72` |
 | S-17 | TRUSTEE could reset any password without step-up auth | `e6eb1ed` |
+| S-18 | Wide `allowedRoles` in lifecycle routes (allocations PUT, emergency GET) | `cbfef78` |
 | S-19 | Audit + business write atomicity (fee-configuration) | `d78a2ef` |
 | S-20 | Unbounded list queries (3 endpoints capped) | `49fdc96` |
 | S-21 | Client-supplied MIME on file uploads | `bc0ef72` |
@@ -83,41 +83,6 @@ A baseline assessment surfaced **30 findings** (6 Critical, 8 High, 9 Medium, 4 
 
 ---
 
-## Remaining Findings
-
-### S-12 (residual): Alumni Document Upload Not Bound to a Registration Session
-
-**Severity:** High → reduced to **Medium** with current mitigations
-**Status:** Partial — abuse-window narrowed, hard binding deferred
-**Location:** [frontend/src/app/api/alumni/documents/upload/route.ts](frontend/src/app/api/alumni/documents/upload/route.ts)
-
-**What's now in place:**
-- Per-IP rate limit (10 / hour) prevents enumeration / mass upload.
-- Server-side magic-byte MIME validation rejects mismatched payloads (S-21).
-- UUID-prefixed sanitised filenames continue to mitigate path traversal.
-
-**What's deferred:** binding the upload to an in-flight alumni registration session token. The current `/alumni/register` page has no pre-upload OTP step, so introducing a strict token requirement would break the public registration UX. Follow-up plan:
-
-1. Add an OTP "verify your email" step at the start of `/alumni/register`.
-2. Issue a `purpose: 'alumni_registration'` signed session token (15-min TTL).
-3. Require the upload route to receive that token; reject otherwise.
-
-This is a UX change requiring product input.
-
----
-
-### S-18: Wide `allowedRoles` in Lifecycle Routes
-
-**Severity:** Medium
-**Status:** Open (per-route audit required)
-**Location:** Multiple application-lifecycle routes
-
-`requireAuth(['STUDENT', 'SUPERINTENDENT', 'TRUSTEE', 'ACCOUNTS'])` patterns frequently grant write access more broadly than needed. The helper `canAccessStudent` was hardened in S-15 specifically to support this work.
-
-**Recommended approach:** for each of the ~12 lifecycle routes (`applications/[id]/submit`, `interviews/[id]/complete`, `applications/[id]/route` PATCH, `leaves/[id]/approve|reject`, `clearance-items/...`), define the smallest set of roles that owns that transition and add explicit ownership checks (e.g. `application.student_user_id === user.id` for student-driven actions). Estimate: 4 hours.
-
----
-
 ## Branch Verification Checklist
 
 Before merging `security-fixes-non-auth` to `master`:
@@ -133,6 +98,7 @@ Before merging `security-fixes-non-auth` to `master`:
 - [ ] Smoke test: forgot-password / reset-password (token format changed; in-flight unsigned tokens are now rejected)
 - [ ] Smoke test: superintendent password reset
 - [ ] Smoke test: TRUSTEE admin reset-password — must now provide `actorPassword`
+- [ ] Smoke test: alumni registration end-to-end (init → upload → register; intent token bound to email)
 - [ ] Smoke test: each role's dashboard loads (cookie OR localStorage Bearer both work)
 - [ ] Confirm no production user has `password_hash` matching the seed bcrypt; if any do, rotate them via the admin reset-password flow before merging
 - [ ] Confirm docker-compose deploys with secrets sourced only from `env_file:` (no plaintext in `environment:`)
@@ -146,8 +112,8 @@ Before merging `security-fixes-non-auth` to `master`:
 | A01: Broken Access Control | S-02, S-03, S-08, S-13, S-15 |
 | A02: Cryptographic Failures | S-04, S-06, S-07, S-22 |
 | A03: Injection | S-09, S-26 |
-| A04: Insecure Design | S-01, S-14, S-19 |
-| A05: Security Misconfiguration | S-05, S-16, S-17, S-20, S-21, S-27, S-30 |
+| A04: Insecure Design | S-01, S-12, S-14, S-19 |
+| A05: Security Misconfiguration | S-05, S-16, S-17, S-18, S-20, S-21, S-27, S-30 |
 | A06: Vulnerable / Outdated Components | S-23 (gate added) |
 | A07: Authentication Failures | S-11, S-24, S-25, S-29 |
 | A08: Software & Data Integrity Failures | S-10 |
