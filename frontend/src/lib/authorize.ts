@@ -17,12 +17,21 @@ export interface AuthUser {
  * Authenticate the request and return the user.
  * Returns null if auth is not required (public routes).
  * Throws NextResponse if auth fails.
+ *
+ * S-08 (additive): the access token can arrive either via the existing
+ * `Authorization: Bearer …` header (legacy localStorage flow) or via an
+ * `auth_token` HttpOnly cookie (recommended). The cookie path is the
+ * forward-looking secure path; the header path is preserved so existing
+ * dashboard fetches keep working during migration.
  */
 export async function requireAuth(
   request: NextRequest,
   allowedRoles?: UserRole[]
 ): Promise<AuthUser> {
-  const token = extractTokenFromHeader(request.headers.get('authorization'));
+  const token =
+    extractTokenFromHeader(request.headers.get('authorization')) ||
+    request.cookies.get('auth_token')?.value ||
+    null;
 
   if (!token) {
     throw NextResponse.json(
@@ -54,7 +63,10 @@ export async function requireAuth(
  * Does not throw. Useful for routes that work both authenticated and unauthenticated.
  */
 export async function optionalAuth(request: NextRequest): Promise<AuthUser | null> {
-  const token = extractTokenFromHeader(request.headers.get('authorization'));
+  const token =
+    extractTokenFromHeader(request.headers.get('authorization')) ||
+    request.cookies.get('auth_token')?.value ||
+    null;
   if (!token) return null;
 
   const user = await getUserFromToken(token);

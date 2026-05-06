@@ -21,7 +21,10 @@ if (
   );
 }
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = 86400; // 24 hours in seconds
+// S-24: shorter access token; the existing refresh token still gives the
+// user a 7-day rolling session. A stolen access token is now usable for ≤2h
+// of inactivity rather than 24h.
+const JWT_EXPIRES_IN = 2 * 60 * 60; // 2 hours in seconds
 const JWT_REFRESH_EXPIRES_IN = 604800; // 7 days in seconds
 const OTP_EXPIRY_MINUTES = 5;
 const MAX_OTP_ATTEMPTS = 3;
@@ -40,21 +43,75 @@ export interface JwtPayload {
   type?: 'access' | 'refresh';
 }
 
+// S-25: in-memory jti denylist. Each issued token carries a unique jti;
+// `revokeJti` adds a jti to the deny set, and `verifyToken` rejects any
+// token whose jti is denied. The set is GC'd opportunistically when the
+// token's underlying expiry passes (no entry needs to outlive 2h).
+//
+// This is a single-instance solution; multi-instance deployments must
+// promote to a Redis or PostgreSQL-backed set.
+type DenyEntry = { exp: number };
+const jtiDenylist = new Map<string, DenyEntry>();
+
+function pruneDenylist() {
+  const now = Math.floor(Date.now() / 1000);
+  for (const [jti, entry] of jtiDenylist) {
+    if (entry.exp <= now) jtiDenylist.delete(jti);
+  }
+}
+
+export function revokeJti(jti: string, exp: number) {
+  if (!jti) return;
+  jtiDenylist.set(jti, { exp });
+}
+
+export function isJtiRevoked(jti?: string): boolean {
+  if (!jti) return false;
+  pruneDenylist();
+  return jtiDenylist.has(jti);
+}
+
 export function signAccessToken(payload: Omit<JwtPayload, 'type'>): string {
-  return jwt.sign({ ...payload, type: 'access' }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(
+    { ...payload, type: 'access' },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN, jwtid: crypto.randomUUID() },
+  );
 }
 
 export function signRefreshToken(payload: Omit<JwtPayload, 'type'>): string {
-  return jwt.sign({ ...payload, type: 'refresh' }, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+  return jwt.sign(
+    { ...payload, type: 'refresh' },
+    JWT_SECRET,
+    { expiresIn: JWT_REFRESH_EXPIRES_IN, jwtid: crypto.randomUUID() },
+  );
 }
 
-export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+export function verifyToken(token: string): JwtPayload & { jti?: string; exp?: number } {
+  const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { jti?: string; exp?: number };
+  if (isJtiRevoked(decoded.jti)) {
+    throw new Error('Token has been revoked');
+  }
+  return decoded;
 }
 
 // ============================================================================
 // PASSWORD
 // ============================================================================
+
+/**
+ * Bcrypt hashes from sql/002_seed_test_users.sql for `Password123` (S-04).
+ * If any of these are present in the live `users` table when NODE_ENV=production
+ * the app refuses authentication for that account — preventing a leaked
+ * staging seed from becoming a backdoor in production.
+ */
+const KNOWN_SEED_HASHES = new Set<string>([
+  '$2b$12$BVZ6IVRfoDLBIHgF8I8AcOXM92KBUA2Ff9EDAfVxeDXwvVY5mHpCi',
+]);
+
+export function isKnownSeedHash(hash: string): boolean {
+  return KNOWN_SEED_HASHES.has(hash);
+}
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS);
