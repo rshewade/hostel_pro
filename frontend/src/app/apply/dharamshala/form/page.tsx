@@ -470,6 +470,10 @@ export default function ApplicationFormPage() {
         if (!data.emergencyContactPerson?.trim()) errors.emergencyContactPerson = 'Emergency contact person is required';
         if (!data.emergencyMobile?.trim() || !/^\d{10}$/.test(data.emergencyMobile)) {
           errors.emergencyMobile = 'Valid 10-digit emergency mobile is required';
+        } else if (data.guardianMobile && data.emergencyMobile === data.guardianMobile) {
+          errors.emergencyMobile = 'Emergency mobile must differ from local guardian mobile';
+        } else if ((!data.fatherDeceased && data.fatherMobile && data.emergencyMobile === data.fatherMobile) || (!data.motherDeceased && data.motherMobile && data.emergencyMobile === data.motherMobile)) {
+          errors.emergencyMobile = 'Emergency mobile must differ from parent mobile';
         }
         if (!data.emergencyRelationship?.trim()) errors.emergencyRelationship = 'Relationship is required';
         return Object.keys(errors).length > 0 ? errors : null;
@@ -647,23 +651,6 @@ export default function ApplicationFormPage() {
               helperText={t('Expected date of admission (within 1 year)', 'प्रवेश की अपेक्षित तिथि (1 वर्ष के भीतर)')}
             />
 
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                {t('Special Requirements (Optional)', 'विशेष आवश्यकताएं (वैकल्पिक)')}</label>
-              <textarea
-                value={data.specialRequirements || ''}
-                onChange={(e) => onChange('specialRequirements', e.target.value)}
-                placeholder="Any specific needs or requirements (e.g., medical conditions, dietary restrictions)"
-                className="w-full px-4 py-3 border rounded-lg text-base min-h-[100px]"
-                style={{
-                  borderColor: 'var(--border-primary)',
-                  backgroundColor: 'var(--surface-primary)',
-                  color: 'var(--text-primary)',
-                }}
-              />
-              <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
-                {t('Please mention any special needs or health conditions we should be aware of', 'कृपया किसी विशेष आवश्यकता या स्वास्थ्य स्थिति का उल्लेख करें')}</p>
-            </div>
           </div>
         </div>
       ),
@@ -980,15 +967,29 @@ export default function ApplicationFormPage() {
                 maxSize={5 * 1024 * 1024}
               />
 
-              <FileUpload
-                label={t('Photo with Parents', 'माता-पिता के साथ फोटो')}
-                value={data.photoWithParents || null}
-                onChange={(file) => onChange('photoWithParents', file)}
-                error={errors.photoWithParents}
-                required
-                accept=".jpg,.jpeg,.pdf"
-                maxSize={5 * 1024 * 1024}
-              />
+              {!data.fatherDeceased && (
+                <FileUpload
+                  label={t('Photo with Father', 'पिता के साथ फोटो')}
+                  value={data.photoWithFather || null}
+                  onChange={(file) => onChange('photoWithFather', file)}
+                  error={errors.photoWithFather}
+                  required
+                  accept=".jpg,.jpeg,.pdf"
+                  maxSize={5 * 1024 * 1024}
+                />
+              )}
+
+              {!data.motherDeceased && (
+                <FileUpload
+                  label={t('Photo with Mother', 'माता के साथ फोटो')}
+                  value={data.photoWithMother || null}
+                  onChange={(file) => onChange('photoWithMother', file)}
+                  error={errors.photoWithMother}
+                  required
+                  accept=".jpg,.jpeg,.pdf"
+                  maxSize={5 * 1024 * 1024}
+                />
+              )}
 
               <FileUpload
                 label={t('Photo with Guardian', 'अभिभावक के साथ फोटो')}
@@ -1033,7 +1034,8 @@ export default function ApplicationFormPage() {
         }
         if (!data.guardianAadhaar) errors.guardianAadhaar = 'Local guardian Aadhaar is required';
         if (!data.photoFile) errors.photoFile = 'Photo is required';
-        if (!data.photoWithParents) errors.photoWithParents = 'Photo with parents is required';
+        if (!data.fatherDeceased && !data.photoWithFather) errors.photoWithFather = 'Photo with father is required';
+        if (!data.motherDeceased && !data.photoWithMother) errors.photoWithMother = 'Photo with mother is required';
         if (!data.photoWithGuardian) errors.photoWithGuardian = 'Photo with guardian is required';
         return Object.keys(errors).length > 0 ? errors : null;
       },
@@ -1103,9 +1105,6 @@ export default function ApplicationFormPage() {
                 <p><strong>Vertical:</strong> {data.vertical === 'boys-hostel' ? 'Boys Hostel' : data.vertical === 'girls-ashram' ? 'Girls Ashram' : 'Dharamshala'}</p>
                 <p><strong>Duration:</strong> {data.duration}</p>
                 <p><strong>Joining Date:</strong> {data.joiningDate}</p>
-                {data.specialRequirements && (
-                  <p><strong>Special Requirements:</strong> {data.specialRequirements}</p>
-                )}
               </div>
             </div>
 
@@ -1160,7 +1159,12 @@ export default function ApplicationFormPage() {
                 )}
                 <p><strong>Local Guardian Aadhaar:</strong> {data.guardianAadhaar?.name || 'Not uploaded'}</p>
                 <p><strong>Photo:</strong> {data.photoFile?.name || 'Not uploaded'}</p>
-                <p><strong>Photo with Parents:</strong> {data.photoWithParents?.name || 'Not uploaded'}</p>
+                {!data.fatherDeceased && (
+                  <p><strong>Photo with Father:</strong> {data.photoWithFather?.name || 'Not uploaded'}</p>
+                )}
+                {!data.motherDeceased && (
+                  <p><strong>Photo with Mother:</strong> {data.photoWithMother?.name || 'Not uploaded'}</p>
+                )}
                 <p><strong>Photo with Guardian:</strong> {data.photoWithGuardian?.name || 'Not uploaded'}</p>
                 {data.recommendationLetter && (
                   <p><strong>Recommendation Letter:</strong> {data.recommendationLetter.name}</p>
@@ -1220,7 +1224,7 @@ export default function ApplicationFormPage() {
     try {
       const singleFileFields = [
         'photoFile', 'birthCertificate', 'casteCertificate',
-        'photoWithParents', 'photoWithGuardian', 'recommendationLetter',
+        'photoWithFather', 'photoWithMother', 'photoWithGuardian', 'recommendationLetter',
         'bonafideCertificate', 'caFirmLetter',
         'aadhaarOrVoterId', 'addressProof',
         'feeReceipt', 'registrationLetter', 'guardianAadhaar',

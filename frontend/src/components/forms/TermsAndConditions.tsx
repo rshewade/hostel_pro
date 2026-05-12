@@ -27,7 +27,7 @@ const RULES_EN: string[] = [
   'The Superintendent shall have full powers to check the articles in the rooms of the student when necessary.',
   "Student's Father, Guardian and Recommender must meet the Superintendent whenever necessary.",
   'Students must switch off lights when not in the rooms or at the time of sleep, otherwise they will be fined.',
-  'No student is allowed to keep any articles like MP-4, USB pen drive, guitar and camera or any such thing which may disturb the other students sharing their room.',
+  'No student is allowed to keep any articles like MP-4, USB pen drive, guitar, Bluetooth speaker and camera or any such thing which may disturb the other students sharing their room.',
   'No student is allowed to keep any electrical gadgets like Electric Kettle, Heater, Iron etc.',
   'Students using filthy language, indiscipline, gross misconduct, violating instructions of the Superintendent, arrogant and disorderly behaviour, eloping from the Boarding House, beating or teasing co-students, continuous unauthorized absence and non-payment of dues will be expelled from the Hostel immediately.',
   'Smoking/consumption of alcohol/liquor/drugs/tobacco etc. in any form is strictly prohibited. Any student found under its influence will be rusticated from the Boarding immediately.',
@@ -44,7 +44,7 @@ const RULES_EN: string[] = [
   'Students must believe in the sanctity of the temple.',
   'No student is allowed to take any newspapers or magazines from the Reading Room.',
   'Library books will be issued during fixed hours and must be returned to the Librarian within a fortnight from the date of issue as per library rules.',
-  'No posters, notices or nails will be put up by the students in their rooms.',
+  'No posters, notices or nails will be put up by the students in their rooms, and no posters or paper shall be pasted on window or door glass.',
   'No cultural programs will be held, organized or performed without permission.',
   'No student will ask for personal work from hostel staff.',
   'Students are strictly prohibited from giving any sort of tip to servants. A common box will be kept by the Superintendent and the money collected will be distributed on the annual day celebration.',
@@ -103,7 +103,7 @@ const INSTRUCTIONS_EN: string[] = [
   'Boarding will remain closed for one month during May every year.',
   'Participation and attendance is mandatory in PATHSHALA (Religious Classes) for all students taking admission in the Boarding.',
   'Rules & Regulations, Discipline and Dignity of the PATHSHALA and BOARDING must be maintained by all the Boarding Students.',
-  'Admission will be subject to an interview and compliance of all requirements.',
+  'Admission will be subject to an interview and compliance of all requirements. The student and the Local Guardian must compulsorily attend the interview.',
   'A student of Non-CA category who fails consecutively two times, and a CA-Category student who fails three times in their examinations, will not be given admission thereafter (CA Article ship is not to be completed).',
 ];
 
@@ -112,14 +112,15 @@ const INSTRUCTIONS_HI: string[] = [
   'बोर्डिंग हर साल मई के दौरान एक महीने के लिए बंद रहेगी।',
   'बोर्डिंग में प्रवेश लेने वाले सभी छात्रों के लिए पाठशाला (धार्मिक कक्षाएं) में भागीदारी और उपस्थिति अनिवार्य है।',
   'पाठशाला और बोर्डिंग के नियम, अनुशासन और गरिमा को सभी बोर्डिंग छात्रों द्वारा बनाए रखा जाना चाहिए।',
-  'प्रवेश साक्षात्कार और सभी आवश्यकताओं के अनुपालन के अधीन होगा।',
+  'प्रवेश साक्षात्कार और सभी आवश्यकताओं के अनुपालन के अधीन होगा। साक्षात्कार के समय छात्र और स्थानीय अभिभावक का उपस्थित होना अनिवार्य है।',
   'गैर-सीए श्रेणी का एक छात्र जो लगातार दो बार और सीए-श्रेणी का छात्र जो अपनी परीक्षाओं में तीन बार असफल होता है, उसे इसके बाद प्रवेश नहीं दिया जाएगा।',
 ];
 
 const DOCS_REQUIRED_EN: string[] = [
   'Caste Certificate from native place (Digamber Jain Mandir) — Original',
   'Bonafide Certificate of College/Institute — Original',
-  'Medical Fitness Certificate — Original (or Firm letter from Chartered Accountant for Articleship/Internship)',
+  'Firm letter from Chartered Accountant for Articleship/Internship',
+  'Medical Fitness Certificate — Original',
   'Birth Certificate — Attested copy',
   'Aadhar Card / Voter ID Card — Attested copy',
   'Ration Card / Electricity Bill / Water Bill — Attested copy',

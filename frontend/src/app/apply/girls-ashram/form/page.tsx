@@ -445,6 +445,10 @@ function ApplicationFormPage() {
         if (!data.emergencyContactPerson?.trim()) errors.emergencyContactPerson = 'Emergency contact person is required';
         if (!data.emergencyMobile?.trim() || !/^\d{10}$/.test(data.emergencyMobile)) {
           errors.emergencyMobile = 'Valid 10-digit emergency mobile is required';
+        } else if (data.guardianMobile && data.emergencyMobile === data.guardianMobile) {
+          errors.emergencyMobile = 'Emergency mobile must differ from local guardian mobile';
+        } else if ((!data.fatherDeceased && data.fatherMobile && data.emergencyMobile === data.fatherMobile) || (!data.motherDeceased && data.motherMobile && data.emergencyMobile === data.motherMobile)) {
+          errors.emergencyMobile = 'Emergency mobile must differ from parent mobile';
         }
         if (!data.emergencyRelationship?.trim()) errors.emergencyRelationship = 'Relationship is required';
         return Object.keys(errors).length > 0 ? errors : null;
@@ -633,23 +637,6 @@ function ApplicationFormPage() {
               helperText={t('Expected date of admission', 'प्रवेश की अपेक्षित तिथि')}
             />
 
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                {t('Special Requirements (Optional)', 'विशेष आवश्यकताएं (वैकल्पिक)')}</label>
-              <textarea
-                value={data.specialRequirements || ''}
-                onChange={(e) => onChange('specialRequirements', e.target.value)}
-                placeholder="Any specific needs or requirements (e.g., medical conditions, dietary restrictions)"
-                className="w-full px-4 py-3 border rounded-lg text-base min-h-[100px]"
-                style={{
-                  borderColor: 'var(--border-primary)',
-                  backgroundColor: 'var(--surface-primary)',
-                  color: 'var(--text-primary)',
-                }}
-              />
-              <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
-                {t('Please mention any special needs or health conditions we should be aware of', 'कृपया किसी विशेष आवश्यकता या स्वास्थ्य स्थिति का उल्लेख करें')}</p>
-            </div>
           </div>
         </div>
       ),
@@ -965,9 +952,6 @@ function ApplicationFormPage() {
                 <p><strong>Room Type:</strong> {data.roomType}</p>
                 <p><strong>Duration:</strong> {data.duration}</p>
                 <p><strong>Joining Date:</strong> {data.joiningDate}</p>
-                {data.specialRequirements && (
-                  <p><strong>Special Requirements:</strong> {data.specialRequirements}</p>
-                )}
               </div>
             </div>
 
