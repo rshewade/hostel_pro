@@ -490,6 +490,15 @@ function ApplicationFormPage() {
               placeholder="e.g., B.Com, B.Sc, B.Tech"
             />
 
+            <Input
+              label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
+              value={data.qualification || ''}
+              onChange={(e) => onChange('qualification', e.target.value)}
+              error={errors.qualification}
+              required
+              placeholder="e.g., 12th (HSC), Diploma, etc."
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Select
                 label={t('Year/Semester', 'वर्ष/सेमेस्टर')}
@@ -517,15 +526,6 @@ function ApplicationFormPage() {
                 inputMode="decimal"
               />
             </div>
-
-            <Input
-              label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
-              value={data.qualification || ''}
-              onChange={(e) => onChange('qualification', e.target.value)}
-              error={errors.qualification}
-              required
-              placeholder="e.g., 12th (HSC), Diploma, etc."
-            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
@@ -876,6 +876,19 @@ function ApplicationFormPage() {
 
             <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
               <FileUpload
+                label={t('Medical Fitness Certificate (from MBBS Doctor)', 'चिकित्सा फिटनेस प्रमाण पत्र (MBBS डॉक्टर से)')}
+                value={data.medicalFitnessCertificate || null}
+                onChange={(file) => onChange('medicalFitnessCertificate', file)}
+                error={errors.medicalFitnessCertificate}
+                required
+                accept=".jpg,.jpeg,.pdf"
+                maxSize={5 * 1024 * 1024}
+                showPreview={true}
+              />
+            </div>
+
+            <div className="card p-6 border-2" style={{ borderColor: 'var(--border-primary)' }}>
+              <FileUpload
                 label={t('Community Recommendation Letter (Optional)', 'सामुदायिक अनुशंसा पत्र (वैकल्पिक)')}
                 value={data.recommendationLetter || null}
                 onChange={(file) => onChange('recommendationLetter', file)}
@@ -892,6 +905,7 @@ function ApplicationFormPage() {
         if (!data.photoFile) errors.photoFile = 'Photo is required';
         if (!data.birthCertificate) errors.birthCertificate = 'Birth certificate is required';
         if (!data.marksheet) errors.marksheet = 'Marksheet is required';
+        if (!data.medicalFitnessCertificate) errors.medicalFitnessCertificate = 'Medical fitness certificate is required';
         return Object.keys(errors).length > 0 ? errors : null;
       },
     },
@@ -986,6 +1000,7 @@ function ApplicationFormPage() {
                 <p><strong>Photo:</strong> {data.photoFile?.name || 'Not uploaded'}</p>
                 <p><strong>Birth Certificate:</strong> {data.birthCertificate?.name || 'Not uploaded'}</p>
                 <p><strong>Marksheet:</strong> {data.marksheet?.name || 'Not uploaded'}</p>
+                <p><strong>Medical Fitness Certificate:</strong> {data.medicalFitnessCertificate?.name || 'Not uploaded'}</p>
                 {data.recommendationLetter && (
                   <p><strong>Recommendation Letter:</strong> {data.recommendationLetter.name}</p>
                 )}
@@ -1052,7 +1067,7 @@ function ApplicationFormPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      const documentFields = ['photoFile', 'birthCertificate', 'marksheet', 'recommendationLetter'];
+      const documentFields = ['photoFile', 'birthCertificate', 'marksheet', 'medicalFitnessCertificate', 'recommendationLetter'];
       const submissionData = { ...data };
       for (const fieldName of documentFields) {
         if (submissionData[fieldName] instanceof File) {

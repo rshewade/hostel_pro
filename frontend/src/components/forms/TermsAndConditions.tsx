@@ -105,6 +105,9 @@ const INSTRUCTIONS_EN: string[] = [
   'Rules & Regulations, Discipline and Dignity of the PATHSHALA and BOARDING must be maintained by all the Boarding Students.',
   'Admission will be subject to an interview and compliance of all requirements. The student and the Local Guardian must compulsorily attend the interview.',
   'A student of Non-CA category who fails consecutively two times, and a CA-Category student who fails three times in their examinations, will not be given admission thereafter (CA Article ship is not to be completed).',
+  '1st Term receipt should be produced at the time of claiming refund of deposit mentioned therein. In case of loss of this receipt, the deposit amount will not be refunded.',
+  'The Caution money will be forfeited in case of any breach of the rules of the institution.',
+  'In case of discontinuation, collect the caution money within six months.',
 ];
 
 const INSTRUCTIONS_HI: string[] = [
@@ -114,6 +117,9 @@ const INSTRUCTIONS_HI: string[] = [
   'पाठशाला और बोर्डिंग के नियम, अनुशासन और गरिमा को सभी बोर्डिंग छात्रों द्वारा बनाए रखा जाना चाहिए।',
   'प्रवेश साक्षात्कार और सभी आवश्यकताओं के अनुपालन के अधीन होगा। साक्षात्कार के समय छात्र और स्थानीय अभिभावक का उपस्थित होना अनिवार्य है।',
   'गैर-सीए श्रेणी का एक छात्र जो लगातार दो बार और सीए-श्रेणी का छात्र जो अपनी परीक्षाओं में तीन बार असफल होता है, उसे इसके बाद प्रवेश नहीं दिया जाएगा।',
+  'जमा की वापसी का दावा करते समय प्रथम टर्म की रसीद प्रस्तुत की जानी चाहिए। इस रसीद के खोने की स्थिति में जमा राशि वापस नहीं की जाएगी।',
+  'संस्थान के नियमों का उल्लंघन होने पर सावधानी राशि (कॉशन मनी) जब्त कर ली जाएगी।',
+  'पढ़ाई बीच में छोड़ने की स्थिति में, छह महीने के भीतर सावधानी राशि (कॉशन मनी) प्राप्त करें।',
 ];
 
 const DOCS_REQUIRED_EN: string[] = [
