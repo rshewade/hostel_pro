@@ -515,6 +515,15 @@ export default function ApplicationFormPage() {
               placeholder="e.g., B.Com, B.Sc, B.Tech"
             />
 
+            <Input
+              label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
+              value={data.qualification || ''}
+              onChange={(e) => onChange('qualification', e.target.value)}
+              error={errors.qualification}
+              required
+              placeholder="e.g., 12th (HSC), Diploma, etc."
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Select
                 label={t('Year/Semester', 'वर्ष/सेमेस्टर')}
@@ -542,15 +551,6 @@ export default function ApplicationFormPage() {
                 inputMode="decimal"
               />
             </div>
-
-            <Input
-              label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
-              value={data.qualification || ''}
-              onChange={(e) => onChange('qualification', e.target.value)}
-              error={errors.qualification}
-              required
-              placeholder="e.g., 12th (HSC), Diploma, etc."
-            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
@@ -849,11 +849,9 @@ export default function ApplicationFormPage() {
 
               {!data.isCAStudent ? (
                 <FileUpload
-                  label={t('Bonafide Certificate from College / Institute', 'कॉलेज / संस्थान से बोनाफाइड प्रमाण पत्र')}
+                  label={t('Bonafide Certificate from College / Institute (Optional)', 'कॉलेज / संस्थान से बोनाफाइड प्रमाण पत्र (वैकल्पिक)')}
                   value={data.bonafideCertificate || null}
                   onChange={(file) => onChange('bonafideCertificate', file)}
-                  error={errors.bonafideCertificate}
-                  required
                   accept=".jpg,.jpeg,.pdf"
                   maxSize={5 * 1024 * 1024}
                 />
@@ -949,6 +947,16 @@ export default function ApplicationFormPage() {
                 accept=".jpg,.jpeg,.pdf"
                 maxSize={5 * 1024 * 1024}
               />
+
+              <FileUpload
+                label={t('Medical Fitness Certificate (from MBBS Doctor)', 'चिकित्सा फिटनेस प्रमाण पत्र (MBBS डॉक्टर से)')}
+                value={data.medicalFitnessCertificate || null}
+                onChange={(file) => onChange('medicalFitnessCertificate', file)}
+                error={errors.medicalFitnessCertificate}
+                required
+                accept=".jpg,.jpeg,.pdf"
+                maxSize={5 * 1024 * 1024}
+              />
             </div>
           </div>
 
@@ -1011,16 +1019,12 @@ export default function ApplicationFormPage() {
             </div>
           </div>
 
-          <p className="text-xs italic" style={{ color: 'var(--text-secondary)' }}>
-            {t('Note: Medical Fitness Certificate (from MBBS Doctor) is not required at this stage. You will be asked to upload it from your student dashboard after admission is approved.', 'नोट: चिकित्सा फिटनेस प्रमाण पत्र (MBBS डॉक्टर से) इस चरण में आवश्यक नहीं है। प्रवेश स्वीकृत होने के बाद आपको इसे अपने छात्र डैशबोर्ड से अपलोड करने के लिए कहा जाएगा।')}
-          </p>
         </div>
       ),
       validate: (data: any) => {
         const errors: any = {};
         if (!data.casteCertificate) errors.casteCertificate = 'Caste certificate is required';
         if (!data.isCAStudent) {
-          if (!data.bonafideCertificate) errors.bonafideCertificate = 'Bonafide certificate is required';
           if (!data.feeReceipt) errors.feeReceipt = 'Fee receipt is required';
         } else {
           if (!data.caFirmLetter) errors.caFirmLetter = 'CA firm letter is required';
@@ -1033,6 +1037,7 @@ export default function ApplicationFormPage() {
           errors.marksheets = 'At least one mark sheet is required (upload up to 4)';
         }
         if (!data.guardianAadhaar) errors.guardianAadhaar = 'Local guardian Aadhaar is required';
+        if (!data.medicalFitnessCertificate) errors.medicalFitnessCertificate = 'Medical fitness certificate is required';
         if (!data.photoFile) errors.photoFile = 'Photo is required';
         if (!data.fatherDeceased && !data.photoWithFather) errors.photoWithFather = 'Photo with father is required';
         if (!data.motherDeceased && !data.photoWithMother) errors.photoWithMother = 'Photo with mother is required';
@@ -1158,6 +1163,7 @@ export default function ApplicationFormPage() {
                   <p><strong>Registration Letter (CA 102-103):</strong> {data.registrationLetter?.name || 'Not uploaded'}</p>
                 )}
                 <p><strong>Local Guardian Aadhaar:</strong> {data.guardianAadhaar?.name || 'Not uploaded'}</p>
+                <p><strong>Medical Fitness Certificate:</strong> {data.medicalFitnessCertificate?.name || 'Not uploaded'}</p>
                 <p><strong>Photo:</strong> {data.photoFile?.name || 'Not uploaded'}</p>
                 {!data.fatherDeceased && (
                   <p><strong>Photo with Father:</strong> {data.photoWithFather?.name || 'Not uploaded'}</p>
@@ -1227,7 +1233,7 @@ export default function ApplicationFormPage() {
         'photoWithFather', 'photoWithMother', 'photoWithGuardian', 'recommendationLetter',
         'bonafideCertificate', 'caFirmLetter',
         'aadhaarOrVoterId', 'addressProof',
-        'feeReceipt', 'registrationLetter', 'guardianAadhaar',
+        'feeReceipt', 'registrationLetter', 'guardianAadhaar', 'medicalFitnessCertificate',
       ];
       const multiFileFields = ['marksheets'];
       const submissionData = { ...data };
