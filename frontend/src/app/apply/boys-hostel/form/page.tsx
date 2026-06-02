@@ -549,30 +549,30 @@ function ApplicationFormPage() {
               placeholder="e.g., B.Com, B.Sc, B.Tech"
             />
 
-            <Input
-              label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
-              value={data.qualification || ''}
-              onChange={(e) => onChange('qualification', e.target.value)}
-              error={errors.qualification}
+            <Select
+              label={t('Year/Semester', 'वर्ष/सेमेस्टर')}
+              value={data.year || ''}
+              onChange={(e) => onChange('year', e.target.value)}
+              error={errors.year}
               required
-              placeholder="e.g., 12th (HSC), Diploma, etc."
+              options={[
+                { value: '', label: 'Select Year' },
+                { value: '1', label: '1st Year' },
+                { value: '2', label: '2nd Year' },
+                { value: '3', label: '3rd Year' },
+                { value: '4', label: '4th Year' },
+                { value: '5', label: '5th Year' },
+              ]}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Select
-                label={t('Year/Semester', 'वर्ष/सेमेस्टर')}
-                value={data.year || ''}
-                onChange={(e) => onChange('year', e.target.value)}
-                error={errors.year}
+              <Input
+                label={t('Previous Academic Qualification', 'पिछली शैक्षणिक योग्यता')}
+                value={data.qualification || ''}
+                onChange={(e) => onChange('qualification', e.target.value)}
+                error={errors.qualification}
                 required
-                options={[
-                  { value: '', label: 'Select Year' },
-                  { value: '1', label: '1st Year' },
-                  { value: '2', label: '2nd Year' },
-                  { value: '3', label: '3rd Year' },
-                  { value: '4', label: '4th Year' },
-                  { value: '5', label: '5th Year' },
-                ]}
+                placeholder="e.g., 12th (HSC), Diploma, etc."
               />
 
               <Input
