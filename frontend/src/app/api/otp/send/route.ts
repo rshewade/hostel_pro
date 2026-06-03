@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         success: true,
         token: sessionToken,
         expiresIn: 300,
-        message: `OTP sent to ${email}. Check your inbox.`,
+        message: `OTP sent to ${email}. Check your inbox (and your Spam/Junk folder if you don't see it).`,
       });
     }
 
