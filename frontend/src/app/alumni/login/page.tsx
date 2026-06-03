@@ -47,7 +47,7 @@ const AlumniLogin = () => {
       }
       setOtpToken(data.token);
       setOtpSent(true);
-      toast.success(t('A 6-digit code has been sent to your email.', '6-अंकीय कोड आपके ईमेल पर भेजा गया है।'));
+      toast.success(t("A 6-digit code has been sent to your email. If you don't see it, please check your Spam/Junk folder.", '6-अंकीय कोड आपके ईमेल पर भेजा गया है। यदि यह न दिखे, तो कृपया अपना स्पैम/जंक फ़ोल्डर जांचें।'));
     } catch {
       toast.error(t('Network error', 'नेटवर्क त्रुटि'));
     } finally {

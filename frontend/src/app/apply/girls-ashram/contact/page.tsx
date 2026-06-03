@@ -335,7 +335,12 @@ export default function GirlsAshramContactPage() {
                 <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
                   Please check your {contactMethod === 'phone' ? 'SMS messages' : 'email'} for the 6-digit code.
                 </p>
-                
+                {contactMethod === 'email' && (
+                  <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
+                    {t("Don't see it in your inbox? Please check your Spam/Junk folder for the OTP.", 'इनबॉक्स में नहीं दिख रहा? कृपया OTP के लिए अपना स्पैम/जंक फ़ोल्डर जांचें।')}
+                  </p>
+                )}
+
                 {resendTimer > 0 ? (
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" style={{ color: "var(--color-purple-600)" }} />
