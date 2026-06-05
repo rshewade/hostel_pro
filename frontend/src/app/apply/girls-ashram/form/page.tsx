@@ -169,7 +169,7 @@ function ApplicationFormPage() {
               onChange={(e) => onChange('dob', e.target.value)}
               error={errors.dob}
               required
-              helperText={t('You must be at least 18 years old', 'आपकी आयु कम से कम 18 वर्ष होनी चाहिए')}
+              helperText={t('You must be at least 15 years old', 'आपकी आयु कम से कम 15 वर्ष होनी चाहिए')}
             />
 
             <Input
@@ -362,13 +362,15 @@ function ApplicationFormPage() {
 
           <div>
             <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-              {t('Local Guardian (if different from parents)', 'स्थानीय अभिभावक (यदि माता-पिता से भिन्न)')}</h3>
+              {t('Local Guardian (must differ from parents — local applicants are not eligible)', 'स्थानीय अभिभावक (माता-पिता से भिन्न होना चाहिए — स्थानीय आवेदक पात्र नहीं हैं)')}</h3>
             <div className="space-y-4">
               <Input
                 label={t('Guardian Name', 'अभिभावक का नाम')}
                 value={data.guardianName || ''}
                 onChange={(e) => onChange('guardianName', e.target.value)}
-                placeholder={t('Enter local guardian\'s name (optional)', 'स्थानीय अभिभावक का नाम दर्ज करें (वैकल्पिक)')}
+                error={errors.guardianName}
+                required
+                placeholder={t('Enter local guardian\'s name', 'स्थानीय अभिभावक का नाम दर्ज करें')}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -376,6 +378,8 @@ function ApplicationFormPage() {
                   label={t('Relationship', 'संबंध')}
                   value={data.guardianRelationship || ''}
                   onChange={(e) => onChange('guardianRelationship', e.target.value)}
+                  error={errors.guardianRelationship}
+                  required
                   placeholder={t('e.g., Uncle, Family Friend', 'जैसे, चाचा, पारिवारिक मित्र')}
                 />
 
@@ -384,6 +388,8 @@ function ApplicationFormPage() {
                   type="tel"
                   value={data.guardianMobile || ''}
                   onChange={(e) => onChange('guardianMobile', e.target.value)}
+                  error={errors.guardianMobile}
+                  required
                   placeholder={t('10-digit mobile number', '10 अंकों का मोबाइल नंबर')}
                   maxLength={10}
                   inputMode="tel"
@@ -453,7 +459,7 @@ function ApplicationFormPage() {
           let age = today.getFullYear() - dob.getFullYear();
           const monthDiff = today.getMonth() - dob.getMonth();
           if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--;
-          if (age < 18) errors.dob = 'Applicant must be at least 18 years old';
+          if (age < 15) errors.dob = 'Applicant must be at least 15 years old';
         }
         if (!data.gender) errors.gender = 'Gender is required';
         if (!data.bloodGroup) errors.bloodGroup = 'Blood group is required';
@@ -476,6 +482,16 @@ function ApplicationFormPage() {
           if (!data.motherMobile?.trim() || !/^\d{10}$/.test(data.motherMobile)) {
             errors.motherMobile = 'Valid 10-digit mobile number is required';
           }
+        }
+        if (!data.guardianName?.trim()) errors.guardianName = 'Local guardian name is required';
+        if (!data.guardianRelationship?.trim()) errors.guardianRelationship = 'Relationship is required';
+        if (!data.guardianMobile?.trim() || !/^\d{10}$/.test(data.guardianMobile)) {
+          errors.guardianMobile = 'Valid 10-digit guardian mobile is required';
+        } else if ((!data.fatherDeceased && data.fatherMobile && data.guardianMobile === data.fatherMobile) || (!data.motherDeceased && data.motherMobile && data.guardianMobile === data.motherMobile)) {
+          errors.guardianMobile = 'Local guardian must differ from parents — local applicants are not eligible';
+        }
+        if (data.guardianName?.trim() && (data.guardianName.trim().toLowerCase() === data.fatherName?.trim().toLowerCase() || data.guardianName.trim().toLowerCase() === data.motherName?.trim().toLowerCase())) {
+          errors.guardianName = 'Local guardian must differ from parents';
         }
         if (!data.emergencyContactPerson?.trim()) errors.emergencyContactPerson = 'Emergency contact person is required';
         if (!data.emergencyMobile?.trim() || !/^\d{10}$/.test(data.emergencyMobile)) {
