@@ -65,16 +65,27 @@ export async function GET(
 
         const appRow = (
           await query(
-            `SELECT applicant_mobile FROM applications WHERE tracking_number = $1`,
+            `SELECT applicant_mobile, applicant_email FROM applications WHERE tracking_number = $1`,
             [id],
           )
         ).rows[0];
         if (!appRow) {
           return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
         }
-        const tokenMobile = (payload.contact || '').replace(/\D/g, '').slice(-10);
-        const appMobile = String(appRow.applicant_mobile || '').replace(/\D/g, '').slice(-10);
-        if (!tokenMobile || tokenMobile !== appMobile) {
+        // The applicant may have verified by EITHER mobile or email, so match
+        // the token's contact against whichever channel it represents.
+        const contact = (payload.contact || '').trim();
+        let contactMatches = false;
+        if (contact.includes('@')) {
+          const tokenEmail = contact.toLowerCase();
+          const appEmail = String(appRow.applicant_email || '').trim().toLowerCase();
+          contactMatches = !!tokenEmail && tokenEmail === appEmail;
+        } else {
+          const tokenMobile = contact.replace(/\D/g, '').slice(-10);
+          const appMobile = String(appRow.applicant_mobile || '').replace(/\D/g, '').slice(-10);
+          contactMatches = tokenMobile.length === 10 && tokenMobile === appMobile;
+        }
+        if (!contactMatches) {
           return NextResponse.json({ error: 'Session does not match application' }, { status: 403 });
         }
       }

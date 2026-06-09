@@ -36,12 +36,23 @@ export async function POST(request: NextRequest) {
     if (!appRows[0]) return notFoundResponse('Application not found');
     const app = appRows[0];
 
-    // S-10: token's mobile must match the application's mobile so an attacker
-    // who guesses an application UUID cannot mint Razorpay orders or read
-    // back the applicant's name/email/mobile via the prefill block below.
-    const tokenMobile = (payload.contact || '').replace(/\D/g, '').slice(-10);
-    const appMobile = String(app.applicant_mobile || '').replace(/\D/g, '').slice(-10);
-    if (!tokenMobile || tokenMobile !== appMobile) {
+    // S-10: the verified contact in the token must match the application so an
+    // attacker who guesses an application UUID cannot mint Razorpay orders or
+    // read back the applicant's name/email/mobile via the prefill block below.
+    // The applicant may have verified by EITHER mobile or email (see otp/send),
+    // so match against whichever channel the token's contact represents.
+    const contact = (payload.contact || '').trim();
+    let contactMatches = false;
+    if (contact.includes('@')) {
+      const tokenEmail = contact.toLowerCase();
+      const appEmail = String(app.applicant_email || '').trim().toLowerCase();
+      contactMatches = !!tokenEmail && tokenEmail === appEmail;
+    } else {
+      const tokenMobile = contact.replace(/\D/g, '').slice(-10);
+      const appMobile = String(app.applicant_mobile || '').replace(/\D/g, '').slice(-10);
+      contactMatches = tokenMobile.length === 10 && tokenMobile === appMobile;
+    }
+    if (!contactMatches) {
       return unauthorizedResponse('Session does not match application');
     }
 
