@@ -186,8 +186,16 @@ export function createSignedSessionToken(
 
 /**
  * Verify a signed session token. Returns the payload if valid, or null.
+ *
+ * Pass `{ ignoreExpiry: true }` to accept a signature-valid token whose `exp`
+ * has passed. This is only safe for flows that re-issue a fresh token (e.g.
+ * resending an OTP), never for granting access — the signature still proves we
+ * issued the token, but the session window has lapsed.
  */
-export function verifySignedSessionToken(token: string): Record<string, unknown> | null {
+export function verifySignedSessionToken(
+  token: string,
+  options: { ignoreExpiry?: boolean } = {}
+): Record<string, unknown> | null {
   try {
     const { p: payloadStr, s: signature } = JSON.parse(Buffer.from(token, 'base64url').toString());
 
@@ -201,7 +209,7 @@ export function verifySignedSessionToken(token: string): Record<string, unknown>
     const payload = JSON.parse(payloadStr);
 
     // Check expiry
-    if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) return null;
+    if (!options.ignoreExpiry && payload.exp && Math.floor(Date.now() / 1000) > payload.exp) return null;
 
     return payload;
   } catch {

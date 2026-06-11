@@ -290,6 +290,9 @@ export default function ContactOTPPage() {
                   error={errors.some(e => e.includes('email') || e.includes('Email') || e.includes('ईमेल')) ? errors.find(e => e.includes('email') || e.includes('Email') || e.includes('ईमेल')) : undefined}
                   helperText={t("We'll send a 6-digit OTP to this email", "हम इस ईमेल पर 6 अंकों का ओटीपी भेजेंगे")}
                 />
+                <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
+                  {t('Note: For OTP please check spam box.', 'नोट: OTP के लिए कृपया स्पैम बॉक्स जांचें।')}
+                </p>
               </div>
             )}
           </div>
@@ -375,10 +378,10 @@ export default function ContactOTPPage() {
               <div className="text-center">
                 <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>{t('Having trouble? Contact admissions office directly:', 'समस्या हो रही है? प्रवेश कार्यालय से सीधे संपर्क करें:')}</p>
                 <Link
-                  href="tel:+912224141234"
+                  href="tel:+919769610214"
                   className="text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  +91 22 2414 1234
+                  +91 97696 10214
                 </Link>
               </div>
             </div>
