@@ -61,6 +61,13 @@ export async function openCheckout(opts: OpenCheckoutOptions): Promise<CheckoutR
       name: opts.name,
       description: opts.description,
       prefill: opts.prefill,
+      // UPI (PhonePe, Google Pay, etc.) and wallets (Paytm) are surfaced via the
+      // account's enabled methods. Pay Later is disabled per requirement.
+      method: {
+        upi: true,
+        wallet: true,
+        paylater: false,
+      },
       handler: (response: any) => {
         resolve({
           status: 'SUCCESS',
