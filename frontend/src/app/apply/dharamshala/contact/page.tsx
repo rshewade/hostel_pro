@@ -289,6 +289,9 @@ export default function DharamshalaContactPage() {
                 )}
                 <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
                   {t('We\'ll send a 6-digit OTP to this email', 'हम इस ईमेल पर 6 अंकों का ओटीपी भेजेंगे')}</p>
+                <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
+                  {t('Note: For OTP please check spam box.', 'नोट: OTP के लिए कृपया स्पैम बॉक्स जांचें।')}
+                </p>
               </div>
             )}
           </div>
@@ -361,10 +364,10 @@ export default function DharamshalaContactPage() {
                 <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
                   {t('Having trouble? Contact Dharamshala office:', 'समस्या हो रही है? धरमशाला कार्यालय से संपर्क करें:')}</p>
                 <Link
-                  href="tel:+912224141236"
+                  href="tel:+919769610214"
                   className="text-amber-600 hover:text-amber-800 font-medium"
                 >
-                  +91 22 2414 1236
+                  +91 97696 10214
                 </Link>
               </div>
             </div>
