@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import {
   successResponse,
   badRequestResponse,
@@ -67,7 +67,14 @@ export async function POST(request: NextRequest) {
       return successResponse({ status: 'FAILED' });
     }
 
-    // orderStatus.state === 'COMPLETED'
+    if (orderStatus.state !== 'COMPLETED') {
+      await logAudit(applicationId, 'PHONEPE_VERIFY_UNKNOWN_STATE', {
+        merchantOrderId,
+        state: orderStatus.state,
+      });
+      return successResponse({ status: 'PENDING' });
+    }
+
     if (Number(orderStatus.amount) !== ADMISSION_AMOUNT * 100 || Number(txn.fee_amount) !== ADMISSION_AMOUNT) {
       await logAudit(applicationId, 'PHONEPE_VERIFY_AMOUNT_MISMATCH', {
         merchantOrderId,
@@ -77,17 +84,16 @@ export async function POST(request: NextRequest) {
       return badRequestResponse('Amount mismatch');
     }
 
-    await query('BEGIN');
-    try {
-      await query(
+    await withTransaction(async (client) => {
+      await client.query(
         `UPDATE transactions SET status='SUCCESS', gateway_response=$2, payment_notes=$3 WHERE id=$1`,
         [txn.id, JSON.stringify(orderStatus), `PhonePe order ${merchantOrderId}`],
       );
-      await query(
+      await client.query(
         `UPDATE fees SET status='PAID', paid_amount=amount, paid_at=NOW(), payment_method='ONLINE' WHERE id=$1`,
         [txn.fee_id],
       );
-      await query(
+      await client.query(
         `UPDATE applications
             SET current_status = CASE WHEN current_status = 'DRAFT' THEN 'SUBMITTED'::application_status ELSE current_status END,
                 submitted_at = COALESCE(submitted_at, NOW()),
@@ -95,11 +101,7 @@ export async function POST(request: NextRequest) {
           WHERE id = $1`,
         [applicationId],
       );
-      await query('COMMIT');
-    } catch (e) {
-      await query('ROLLBACK');
-      throw e;
-    }
+    });
 
     await logAudit(applicationId, 'PHONEPE_VERIFY_SUCCESS', { merchantOrderId });
 

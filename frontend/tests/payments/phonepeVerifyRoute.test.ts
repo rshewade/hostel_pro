@@ -10,8 +10,8 @@ vi.stubEnv('PHONEPE_ENV', 'SANDBOX');
 
 const dbCalls: Array<{ sql: string; params?: any[] }> = [];
 
-vi.mock('@/lib/db', () => ({
-  query: vi.fn(async (sql: string, params?: any[]) => {
+vi.mock('@/lib/db', () => {
+  const queryFn = vi.fn(async (sql: string, params?: any[]) => {
     dbCalls.push({ sql, params });
     if (/SELECT t\.id, t\.fee_id, t\.status, f\.application_id, f\.amount AS fee_amount/.test(sql)) {
       return {
@@ -26,8 +26,15 @@ vi.mock('@/lib/db', () => ({
       };
     }
     return { rows: [] };
-  }),
-}));
+  });
+
+  return {
+    query: queryFn,
+    withTransaction: vi.fn(async (fn: (client: any) => Promise<void>) => {
+      await fn({ query: queryFn });
+    }),
+  };
+});
 
 vi.mock('@/lib/mailer', () => ({ sendEmail: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/email-templates/payment-receipt', () => ({
@@ -122,6 +129,22 @@ describe('POST /api/payments/phonepe/verify', () => {
 
     expect(res.status).toBe(200);
     expect(json.data).toEqual({ status: 'SUCCESS', idempotent: true });
+    expect(checkOrderStatusMock).not.toHaveBeenCalled();
+    expect(dbCalls.some((c) => /UPDATE/.test(c.sql))).toBe(false);
+  });
+
+  it('is idempotent: re-verifying a FAILED transaction returns idempotent without calling PhonePe again', async () => {
+    const { query } = await import('@/lib/db');
+    vi.mocked(query).mockImplementationOnce(async (sql: string, params?: any[]) => {
+      dbCalls.push({ sql, params });
+      return { rows: [{ id: 'txn-1', fee_id: 'fee-1', status: 'FAILED', application_id: 'app-1', fee_amount: '500' }] };
+    });
+
+    const res = await POST(makeRequest({ merchantOrderId: 'ADM_FAIL_DUP' }));
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.data).toEqual({ status: 'FAILED', idempotent: true });
     expect(checkOrderStatusMock).not.toHaveBeenCalled();
     expect(dbCalls.some((c) => /UPDATE/.test(c.sql))).toBe(false);
   });
