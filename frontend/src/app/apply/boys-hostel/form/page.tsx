@@ -1387,11 +1387,7 @@ function ApplicationFormPage() {
                     </p>
                   </div>
 
-                  <AdmissionFeeStep
-                    applicationId={pendingApplicationId}
-                    onSuccess={() => router.push(`/track/${pendingTrackingNumber}?paid=1`)}
-                    onFailure={(reason) => setPaymentError(reason)}
-                  />
+                  <AdmissionFeeStep applicationId={pendingApplicationId} />
 
                   {paymentError && (
                     <div
