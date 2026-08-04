@@ -1,11 +1,19 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 type Outcome = 'CHECKING' | 'SUCCESS' | 'FAILED' | 'PENDING' | 'ERROR';
 
-export default function PaymentCallbackPage() {
+export default function PaymentCallbackPageWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <PaymentCallbackPage />
+    </Suspense>
+  );
+}
+
+function PaymentCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [outcome, setOutcome] = useState<Outcome>('CHECKING');
