@@ -234,7 +234,7 @@ export async function POST(request: NextRequest) {
 
     const isHostelVertical = vertical === 'BOYS_HOSTEL' || vertical === 'GIRLS_ASHRAM';
 
-    // Hostel verticals: force DRAFT — only the Razorpay verify route flips to SUBMITTED.
+    // Hostel verticals: force DRAFT — only the PhonePe verify route flips to SUBMITTED.
     // Dharamshala: honor whatever status the client sent (typically SUBMITTED).
     const currentStatus = isHostelVertical ? 'DRAFT' : (body.status || 'DRAFT');
     const submittedAt = currentStatus === 'SUBMITTED' ? new Date().toISOString() : null;
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
 
     const application = rows[0];
 
-    // For hostel verticals, create the ADMISSION_FEE row that the Razorpay flow will pay.
+    // For hostel verticals, create the ADMISSION_FEE row that the PhonePe flow will pay.
     if (isHostelVertical) {
       await query(
         `INSERT INTO fees (application_id, fee_head, description, amount, status, due_date)
