@@ -126,8 +126,12 @@ export async function createOrder(opts: {
     }),
   });
   const json = await res.json();
-  if (!res.ok || !json?.orderId) {
-    throw new Error(`PhonePe createOrder failed: ${json?.message || res.status}`);
+  if (!res.ok || !json?.orderId || !json?.redirectUrl) {
+    const message =
+      res.ok && json?.orderId && !json?.redirectUrl
+        ? 'missing redirectUrl in response'
+        : json?.message || res.status;
+    throw new Error(`PhonePe createOrder failed: ${message}`);
   }
   return { orderId: json.orderId, checkoutUrl: json.redirectUrl, state: json.state || 'PENDING' };
 }

@@ -100,6 +100,50 @@ describe('POST /api/payments/phonepe/webhook', () => {
     expect(dbCalls.some((c) => /UPDATE applications/.test(c.sql))).toBe(false);
   });
 
+  it('idempotent on duplicate webhook (txn already FAILED, incoming state still not COMPLETED): no mutations', async () => {
+    const { query } = await import('@/lib/db');
+    vi.mocked(query).mockImplementationOnce(async (sql: string, params?: any[]) => {
+      dbCalls.push({ sql, params });
+      return { rows: [{ id: 'txn-1', status: 'FAILED', fee_id: 'fee-1', application_id: 'app-1', fee_amount: '500' }] };
+    });
+
+    const res = await POST(makeWebhookRequest(eventPayload('FAILED', 'ADM_FAIL_DUP', 'OMO_FAIL_DUP')));
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.idempotent).toBe(true);
+    expect(dbCalls.some((c) => /UPDATE/.test(c.sql))).toBe(false);
+  });
+
+  it('recovers a superseded (FAILED) transaction when the webhook now reports COMPLETED: finalizes as SUCCESS with a RECOVERED_AFTER_SUPERSEDE audit event', async () => {
+    const { query } = await import('@/lib/db');
+    vi.mocked(query).mockImplementationOnce(async (sql: string, params?: any[]) => {
+      dbCalls.push({ sql, params });
+      return { rows: [{ id: 'txn-1', status: 'FAILED', fee_id: 'fee-1', application_id: 'app-1', fee_amount: '500' }] };
+    });
+
+    const res = await POST(makeWebhookRequest(eventPayload('COMPLETED', 'ADM_RECOVER', 'OMO_RECOVER')));
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.ok).toBe(true);
+    expect(json.idempotent).toBeUndefined();
+
+    expect(dbCalls.some((c) => /UPDATE transactions[\s\S]*status='SUCCESS'/.test(c.sql))).toBe(true);
+    expect(dbCalls.some((c) => /UPDATE fees[\s\S]*status='PAID'/.test(c.sql))).toBe(true);
+    const appUpdate = dbCalls.find((c) => /UPDATE applications[\s\S]*payment_status\s*=\s*'PAID'/.test(c.sql));
+    expect(appUpdate?.params).toEqual(['app-1']);
+
+    const auditInsert = dbCalls.find(
+      (c) => /INSERT INTO audit_logs/.test(c.sql) && JSON.stringify(c.params).includes('PHONEPE_WEBHOOK_RECOVERED_AFTER_SUPERSEDE'),
+    );
+    expect(auditInsert, 'logs PHONEPE_WEBHOOK_RECOVERED_AFTER_SUPERSEDE instead of the normal success event').toBeTruthy();
+    const normalSuccessAudit = dbCalls.find(
+      (c) => /INSERT INTO audit_logs/.test(c.sql) && JSON.stringify(c.params).includes('"PHONEPE_WEBHOOK_SUCCESS"'),
+    );
+    expect(normalSuccessAudit, 'does not also log the normal PHONEPE_WEBHOOK_SUCCESS event').toBeFalsy();
+  });
+
   it('rejects when COMPLETED amount does not match fee_amount', async () => {
     const res = await POST(makeWebhookRequest(eventPayload('COMPLETED', 'ADM_AMT', 'OMO_AMT', 1)));
     expect(res.status).toBe(400);

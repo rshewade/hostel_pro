@@ -128,6 +128,22 @@ describe('createOrder', () => {
       createOrder({ amount: 0, merchantOrderId: 'X', redirectUrl: 'http://x' }),
     ).rejects.toThrow(/invalid amount/);
   });
+
+  it('throws when the response has an orderId but no redirectUrl', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ access_token: 'TOKEN', expires_at: Math.floor(Date.now() / 1000) + 3600 }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ orderId: 'OMO_NO_REDIRECT', state: 'PENDING' }),
+      } as Response);
+
+    await expect(
+      createOrder({ amount: 500, merchantOrderId: 'Y', redirectUrl: 'http://x' }),
+    ).rejects.toThrow(/missing redirectUrl in response/);
+  });
 });
 
 describe('checkOrderStatus', () => {

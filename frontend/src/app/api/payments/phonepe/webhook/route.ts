@@ -47,7 +47,19 @@ export async function POST(request: NextRequest) {
     }
     const applicationId: string = txn.application_id;
 
-    if (txn.status === 'SUCCESS' || txn.status === 'FAILED') {
+    if (txn.status === 'SUCCESS') {
+      await logAudit(applicationId, 'PHONEPE_WEBHOOK_DUPLICATE', {
+        merchantOrderId, orderId, eventType, currentStatus: txn.status,
+      });
+      return NextResponse.json({ ok: true, idempotent: true });
+    }
+
+    // S-16: a transaction we previously marked FAILED (e.g. superseded by a retry
+    // after the reuse window) might still complete at the gateway if the applicant
+    // goes back to that original checkout tab. Only treat FAILED as a terminal
+    // idempotent duplicate when this webhook event itself isn't reporting COMPLETED.
+    const wasFailed = txn.status === 'FAILED';
+    if (wasFailed && state !== 'COMPLETED') {
       await logAudit(applicationId, 'PHONEPE_WEBHOOK_DUPLICATE', {
         merchantOrderId, orderId, eventType, currentStatus: txn.status,
       });
@@ -79,7 +91,11 @@ export async function POST(request: NextRequest) {
           [applicationId],
         );
       });
-      await logAudit(applicationId, 'PHONEPE_WEBHOOK_SUCCESS', { merchantOrderId, orderId });
+      await logAudit(
+        applicationId,
+        wasFailed ? 'PHONEPE_WEBHOOK_RECOVERED_AFTER_SUPERSEDE' : 'PHONEPE_WEBHOOK_SUCCESS',
+        { merchantOrderId, orderId },
+      );
     } else if (state === 'FAILED') {
       await query(
         `UPDATE transactions SET status='FAILED', gateway_response=$2 WHERE id=$1`,

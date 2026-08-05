@@ -48,11 +48,18 @@ export async function POST(request: NextRequest) {
     if (txn.status === 'SUCCESS') {
       return successResponse({ status: 'SUCCESS', idempotent: true });
     }
-    if (txn.status === 'FAILED') {
-      return successResponse({ status: 'FAILED', idempotent: true });
-    }
+
+    // S-16: a transaction we previously marked FAILED (e.g. superseded by a retry
+    // after the reuse window) might still complete at the gateway if the applicant
+    // goes back to that original checkout tab. Don't short-circuit blindly — check
+    // the gateway's current state before deciding this is really a dead order.
+    const wasFailed = txn.status === 'FAILED';
 
     const orderStatus = await checkOrderStatus(merchantOrderId);
+
+    if (wasFailed && orderStatus.state !== 'COMPLETED') {
+      return successResponse({ status: 'FAILED', idempotent: true });
+    }
 
     if (orderStatus.state === 'PENDING') {
       return successResponse({ status: 'PENDING' });
@@ -103,7 +110,11 @@ export async function POST(request: NextRequest) {
       );
     });
 
-    await logAudit(applicationId, 'PHONEPE_VERIFY_SUCCESS', { merchantOrderId });
+    await logAudit(
+      applicationId,
+      wasFailed ? 'PHONEPE_VERIFY_RECOVERED_AFTER_SUPERSEDE' : 'PHONEPE_VERIFY_SUCCESS',
+      { merchantOrderId },
+    );
 
     try {
       const { rows: rcptRows } = await query(

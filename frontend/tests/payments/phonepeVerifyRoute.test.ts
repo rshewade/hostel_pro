@@ -133,20 +133,70 @@ describe('POST /api/payments/phonepe/verify', () => {
     expect(dbCalls.some((c) => /UPDATE/.test(c.sql))).toBe(false);
   });
 
-  it('is idempotent: re-verifying a FAILED transaction returns idempotent without calling PhonePe again', async () => {
+  it('re-verifying a FAILED transaction still checks the gateway, and short-circuits idempotently when it is still not COMPLETED', async () => {
     const { query } = await import('@/lib/db');
     vi.mocked(query).mockImplementationOnce(async (sql: string, params?: any[]) => {
       dbCalls.push({ sql, params });
       return { rows: [{ id: 'txn-1', fee_id: 'fee-1', status: 'FAILED', application_id: 'app-1', fee_amount: '500' }] };
     });
+    checkOrderStatusMock.mockResolvedValueOnce({ orderId: 'OMO_FAIL_DUP', state: 'FAILED', amount: 50000 });
 
     const res = await POST(makeRequest({ merchantOrderId: 'ADM_FAIL_DUP' }));
     const json = await res.json();
 
     expect(res.status).toBe(200);
     expect(json.data).toEqual({ status: 'FAILED', idempotent: true });
-    expect(checkOrderStatusMock).not.toHaveBeenCalled();
+    expect(checkOrderStatusMock).toHaveBeenCalledWith('ADM_FAIL_DUP');
     expect(dbCalls.some((c) => /UPDATE/.test(c.sql))).toBe(false);
+  });
+
+  it('re-verifying a FAILED transaction stays idempotent when the gateway now reports PENDING', async () => {
+    const { query } = await import('@/lib/db');
+    vi.mocked(query).mockImplementationOnce(async (sql: string, params?: any[]) => {
+      dbCalls.push({ sql, params });
+      return { rows: [{ id: 'txn-1', fee_id: 'fee-1', status: 'FAILED', application_id: 'app-1', fee_amount: '500' }] };
+    });
+    checkOrderStatusMock.mockResolvedValueOnce({ orderId: 'OMO_FAIL_PEND', state: 'PENDING', amount: 50000 });
+
+    const res = await POST(makeRequest({ merchantOrderId: 'ADM_FAIL_PEND' }));
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.data).toEqual({ status: 'FAILED', idempotent: true });
+    expect(dbCalls.some((c) => /UPDATE/.test(c.sql))).toBe(false);
+  });
+
+  it('recovers a superseded (FAILED) transaction when the gateway now reports COMPLETED: finalizes as SUCCESS with a RECOVERED_AFTER_SUPERSEDE audit event', async () => {
+    const { query } = await import('@/lib/db');
+    vi.mocked(query).mockImplementationOnce(async (sql: string, params?: any[]) => {
+      dbCalls.push({ sql, params });
+      return { rows: [{ id: 'txn-1', fee_id: 'fee-1', status: 'FAILED', application_id: 'app-1', fee_amount: '500' }] };
+    });
+    checkOrderStatusMock.mockResolvedValueOnce({ orderId: 'OMO_RECOVER', state: 'COMPLETED', amount: 50000 });
+
+    const res = await POST(makeRequest({ merchantOrderId: 'ADM_RECOVER' }));
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.data).toEqual({ status: 'SUCCESS' });
+
+    const txnUpdate = dbCalls.find((c) => /UPDATE transactions[\s\S]*status='SUCCESS'/.test(c.sql));
+    expect(txnUpdate, 'transactions table updated to SUCCESS').toBeTruthy();
+
+    const feeUpdate = dbCalls.find((c) => /UPDATE fees[\s\S]*status='PAID'/.test(c.sql));
+    expect(feeUpdate, 'fees row marked PAID').toBeTruthy();
+
+    const appUpdate = dbCalls.find((c) => /UPDATE applications[\s\S]*payment_status\s*=\s*'PAID'/.test(c.sql));
+    expect(appUpdate, "applications.payment_status set to 'PAID'").toBeTruthy();
+
+    const auditInsert = dbCalls.find(
+      (c) => /INSERT INTO audit_logs/.test(c.sql) && JSON.stringify(c.params).includes('PHONEPE_VERIFY_RECOVERED_AFTER_SUPERSEDE'),
+    );
+    expect(auditInsert, 'logs PHONEPE_VERIFY_RECOVERED_AFTER_SUPERSEDE instead of the normal success event').toBeTruthy();
+    const normalSuccessAudit = dbCalls.find(
+      (c) => /INSERT INTO audit_logs/.test(c.sql) && JSON.stringify(c.params).includes('PHONEPE_VERIFY_SUCCESS'),
+    );
+    expect(normalSuccessAudit, 'does not also log the normal PHONEPE_VERIFY_SUCCESS event').toBeFalsy();
   });
 
   it('rejects when transaction is not found', async () => {

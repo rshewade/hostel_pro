@@ -86,13 +86,19 @@ export async function POST(request: NextRequest) {
 
     let merchantOrderId: string;
     let internalTxnId: string;
-    let checkoutUrl: string;
+    let checkoutUrl: string | undefined;
 
-    if (pendingTxn[0] && Date.now() - new Date(pendingTxn[0].created_at).getTime() < REUSE_WINDOW_MS) {
-      merchantOrderId = pendingTxn[0].transaction_ref;
-      internalTxnId = pendingTxn[0].id;
+    const canReuse =
+      pendingTxn[0] && Date.now() - new Date(pendingTxn[0].created_at).getTime() < REUSE_WINDOW_MS;
+
+    if (canReuse) {
       const stored = pendingTxn[0].gateway_response;
       checkoutUrl = (typeof stored === 'string' ? JSON.parse(stored) : stored)?.order?.checkoutUrl;
+    }
+
+    if (canReuse && checkoutUrl) {
+      merchantOrderId = pendingTxn[0].transaction_ref;
+      internalTxnId = pendingTxn[0].id;
     } else {
       if (pendingTxn[0]) {
         await query(
@@ -101,7 +107,10 @@ export async function POST(request: NextRequest) {
         );
       }
       merchantOrderId = generateMerchantOrderId(applicationId);
-      const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      // S-15: NEXT_PUBLIC_APP_URL (server-configured) must win over the client-controlled
+      // Origin header — the header is attacker-influenceable on a direct API request and
+      // would otherwise let a caller redirect the post-payment browser to an arbitrary host.
+      const origin = process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || 'http://localhost:3000';
       const verticalSlug = VERTICAL_SLUG[app.vertical] || 'boys-hostel';
       const returnUrl =
         `${origin}/apply/payment-callback` +
