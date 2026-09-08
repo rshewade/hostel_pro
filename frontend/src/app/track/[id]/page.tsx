@@ -642,7 +642,7 @@ export default function TrackingDetailPage() {
               Your application data is processed in compliance with the Digital Personal Data Protection Act, 2023.
               We use your information solely for hostel admission processing and maintain strict confidentiality.
               For more details, please refer to our{' '}
-              <a href="#" className="text-blue-600 underline hover:text-blue-800">Privacy Policy</a>.
+              <a href="/privacy-policy" className="text-blue-600 underline hover:text-blue-800">Privacy Policy</a>.
             </p>
           </div>
         </div>
