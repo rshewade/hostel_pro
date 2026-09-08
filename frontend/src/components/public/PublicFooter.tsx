@@ -123,6 +123,9 @@ const PublicFooter = () => {
               <Link href="/privacy-policy" className="hover:text-primary-foreground transition-colors">
                 {t('Privacy Policy', 'गोपनीयता नीति')}
               </Link>
+              <Link href="/terms-and-conditions" className="hover:text-primary-foreground transition-colors">
+                {t('Terms & Conditions', 'नियम एवं शर्तें')}
+              </Link>
             </div>
           </div>
         </div>
