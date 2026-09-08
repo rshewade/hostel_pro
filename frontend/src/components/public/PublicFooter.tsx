@@ -126,6 +126,9 @@ const PublicFooter = () => {
               <Link href="/terms-and-conditions" className="hover:text-primary-foreground transition-colors">
                 {t('Terms & Conditions', 'नियम एवं शर्तें')}
               </Link>
+              <Link href="/refund-policy" className="hover:text-primary-foreground transition-colors">
+                {t('Refund Policy', 'धनवापसी नीति')}
+              </Link>
             </div>
           </div>
         </div>
