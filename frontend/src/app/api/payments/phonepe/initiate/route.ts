@@ -7,11 +7,16 @@ import {
   serverErrorResponse,
   unauthorizedResponse,
 } from '@/lib/api/responses';
-import { getRazorpayConfig, generateReceipt, createOrder } from '@/lib/payments/razorpay';
+import { generateMerchantOrderId, createOrder } from '@/lib/payments/phonepe';
 import { verifySignedSessionToken } from '@/lib/auth';
 
 const ADMISSION_AMOUNT = 500;
 const REUSE_WINDOW_MS = 15 * 60 * 1000;
+
+const VERTICAL_SLUG: Record<string, string> = {
+  BOYS_HOSTEL: 'boys-hostel',
+  GIRLS_ASHRAM: 'girls-ashram',
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { rows: appRows } = await query(
-      `SELECT id, vertical, current_status, applicant_mobile, applicant_name, applicant_email
+      `SELECT id, vertical, current_status, applicant_mobile, applicant_name, applicant_email, tracking_number
        FROM applications WHERE id = $1`,
       [applicationId],
     );
@@ -37,10 +42,8 @@ export async function POST(request: NextRequest) {
     const app = appRows[0];
 
     // S-10: the verified contact in the token must match the application so an
-    // attacker who guesses an application UUID cannot mint Razorpay orders or
-    // read back the applicant's name/email/mobile via the prefill block below.
-    // The applicant may have verified by EITHER mobile or email (see otp/send),
-    // so match against whichever channel the token's contact represents.
+    // attacker who guesses an application UUID cannot mint PhonePe orders or
+    // read back the applicant's tracking number via the return URL below.
     const contact = (payload.contact || '').trim();
     let contactMatches = false;
     if (contact.includes('@')) {
@@ -73,7 +76,6 @@ export async function POST(request: NextRequest) {
     const fee = feeRows[0];
     if (fee.status === 'PAID') return badRequestResponse('Admission fee already paid');
 
-    // Reuse a recent PENDING transaction if within 15 minutes
     const { rows: pendingTxn } = await query(
       `SELECT id, transaction_ref, gateway_response, created_at
        FROM transactions
@@ -82,10 +84,20 @@ export async function POST(request: NextRequest) {
       [fee.id],
     );
 
-    let orderId: string = '';
-    let internalTxnId: string = '';
-    if (pendingTxn[0] && Date.now() - new Date(pendingTxn[0].created_at).getTime() < REUSE_WINDOW_MS) {
-      orderId = pendingTxn[0].transaction_ref;
+    let merchantOrderId: string;
+    let internalTxnId: string;
+    let checkoutUrl: string | undefined;
+
+    const canReuse =
+      pendingTxn[0] && Date.now() - new Date(pendingTxn[0].created_at).getTime() < REUSE_WINDOW_MS;
+
+    if (canReuse) {
+      const stored = pendingTxn[0].gateway_response;
+      checkoutUrl = (typeof stored === 'string' ? JSON.parse(stored) : stored)?.order?.checkoutUrl;
+    }
+
+    if (canReuse && checkoutUrl) {
+      merchantOrderId = pendingTxn[0].transaction_ref;
       internalTxnId = pendingTxn[0].id;
     } else {
       if (pendingTxn[0]) {
@@ -94,39 +106,33 @@ export async function POST(request: NextRequest) {
           [pendingTxn[0].id],
         );
       }
-      const receipt = generateReceipt(applicationId);
-      const order = await createOrder({
-        amount: ADMISSION_AMOUNT,
-        receipt,
-        notes: { applicationId, feeId: fee.id },
-      });
-      orderId = order.id;
+      merchantOrderId = generateMerchantOrderId(applicationId);
+      // S-15: NEXT_PUBLIC_APP_URL (server-configured) must win over the client-controlled
+      // Origin header — the header is attacker-influenceable on a direct API request and
+      // would otherwise let a caller redirect the post-payment browser to an arbitrary host.
+      const origin = process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || 'http://localhost:3000';
+      const verticalSlug = VERTICAL_SLUG[app.vertical] || 'boys-hostel';
+      const returnUrl =
+        `${origin}/apply/payment-callback` +
+        `?applicationId=${encodeURIComponent(applicationId)}` +
+        `&merchantOrderId=${encodeURIComponent(merchantOrderId)}` +
+        `&trackingNumber=${encodeURIComponent(app.tracking_number || '')}` +
+        `&vertical=${encodeURIComponent(verticalSlug)}`;
+
+      const order = await createOrder({ amount: ADMISSION_AMOUNT, merchantOrderId, redirectUrl: returnUrl });
+      checkoutUrl = order.checkoutUrl;
 
       const { rows: ins } = await query(
         `INSERT INTO transactions (fee_id, amount, payment_method, transaction_ref, gateway_response, status)
          VALUES ($1, $2, 'ONLINE', $3, $4, 'PENDING') RETURNING id`,
-        [fee.id, ADMISSION_AMOUNT, orderId, JSON.stringify({ order, initiatedAt: new Date().toISOString() })],
+        [fee.id, ADMISSION_AMOUNT, merchantOrderId, JSON.stringify({ order, returnUrl, initiatedAt: new Date().toISOString() })],
       );
       internalTxnId = ins[0].id;
     }
 
-    const cfg = getRazorpayConfig();
-    return successResponse({
-      orderId,
-      keyId: cfg.keyId,
-      amount: ADMISSION_AMOUNT,
-      currency: 'INR',
-      internalTxnId,
-      name: 'Hostel Admission Fee',
-      description: 'Non-refundable admission fee',
-      prefill: {
-        name: app.applicant_name || '',
-        email: app.applicant_email || '',
-        contact: app.applicant_mobile || '',
-      },
-    });
+    return successResponse({ checkoutUrl, merchantOrderId, internalTxnId });
   } catch (error: any) {
-    console.error('Error in POST /api/payments/razorpay/initiate:', error);
+    console.error('Error in POST /api/payments/phonepe/initiate:', error);
     return serverErrorResponse('Failed to initiate payment', error);
   }
 }

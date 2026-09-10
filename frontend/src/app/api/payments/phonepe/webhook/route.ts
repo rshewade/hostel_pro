@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
-import { verifyWebhookSignature } from '@/lib/payments/razorpay';
+import { query, withTransaction } from '@/lib/db';
+import { verifyWebhookAuth } from '@/lib/payments/phonepe';
 
 const ADMISSION_AMOUNT = 500;
 
@@ -20,58 +20,69 @@ async function logAudit(applicationId: string | null, event: string, payload: an
 export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
-    const sig = request.headers.get('x-razorpay-signature') || '';
-    if (!verifyWebhookSignature(rawBody, sig)) {
+    const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+    if (!verifyWebhookAuth(authHeader)) {
       return NextResponse.json({ ok: false, error: 'Invalid signature' }, { status: 400 });
     }
 
     const event = JSON.parse(rawBody);
     const eventType: string = event?.event;
-    const payment = event?.payload?.payment?.entity;
-    if (!payment) return NextResponse.json({ ok: true, ignored: true });
+    const p = event?.payload;
+    if (!p?.merchantOrderId) return NextResponse.json({ ok: true, ignored: true });
 
-    const orderId: string = payment.order_id;
-    const paymentId: string = payment.id;
-    const amountPaise: number = payment.amount;
+    const merchantOrderId: string = p.merchantOrderId;
+    const orderId: string = p.orderId;
+    const state: string = p.state;
+    const amountPaise: number = p.amount;
 
     const { rows } = await query(
       `SELECT t.id, t.status, t.fee_id, f.application_id, f.amount AS fee_amount
        FROM transactions t JOIN fees f ON f.id = t.fee_id
        WHERE t.transaction_ref = $1`,
-      [orderId],
+      [merchantOrderId],
     );
     const txn = rows[0];
     if (!txn) {
-      // Webhook for an unknown order — ack to stop retries.
       return NextResponse.json({ ok: true, unknown: true });
     }
     const applicationId: string = txn.application_id;
 
-    if (txn.status === 'SUCCESS' || txn.status === 'FAILED') {
-      await logAudit(applicationId, 'RAZORPAY_WEBHOOK_DUPLICATE', {
-        orderId, paymentId, eventType, currentStatus: txn.status,
+    if (txn.status === 'SUCCESS') {
+      await logAudit(applicationId, 'PHONEPE_WEBHOOK_DUPLICATE', {
+        merchantOrderId, orderId, eventType, currentStatus: txn.status,
       });
       return NextResponse.json({ ok: true, idempotent: true });
     }
 
-    if (eventType === 'payment.captured') {
+    // S-16: a transaction we previously marked FAILED (e.g. superseded by a retry
+    // after the reuse window) might still complete at the gateway if the applicant
+    // goes back to that original checkout tab. Only treat FAILED as a terminal
+    // idempotent duplicate when this webhook event itself isn't reporting COMPLETED.
+    const wasFailed = txn.status === 'FAILED';
+    if (wasFailed && state !== 'COMPLETED') {
+      await logAudit(applicationId, 'PHONEPE_WEBHOOK_DUPLICATE', {
+        merchantOrderId, orderId, eventType, currentStatus: txn.status,
+      });
+      return NextResponse.json({ ok: true, idempotent: true });
+    }
+
+    if (state === 'COMPLETED') {
       if (Number(amountPaise) !== ADMISSION_AMOUNT * 100 || Number(txn.fee_amount) !== ADMISSION_AMOUNT) {
-        await logAudit(applicationId, 'RAZORPAY_WEBHOOK_AMOUNT_MISMATCH', {
-          orderId, paymentId, amountPaise, expected: txn.fee_amount,
+        await logAudit(applicationId, 'PHONEPE_WEBHOOK_AMOUNT_MISMATCH', {
+          merchantOrderId, amountPaise, expected: txn.fee_amount,
         });
         return NextResponse.json({ ok: false, error: 'Amount mismatch' }, { status: 400 });
       }
-      await query('BEGIN');
-      try {
-        await query(
+      await withTransaction(async (client) => {
+        await client.query(
           `UPDATE transactions SET status='SUCCESS', gateway_response=$2, payment_notes=$3 WHERE id=$1`,
-          [txn.id, JSON.stringify(event), `Razorpay webhook ${paymentId}`],
+          [txn.id, JSON.stringify(event), `PhonePe webhook ${orderId}`],
         );
-        await query(
+        await client.query(
           `UPDATE fees SET status='PAID', paid_amount=amount, paid_at=NOW(), payment_method='ONLINE' WHERE id=$1`,
           [txn.fee_id],
         );
-        await query(
+        await client.query(
           `UPDATE applications
               SET current_status = CASE WHEN current_status = 'DRAFT' THEN 'SUBMITTED'::application_status ELSE current_status END,
                   submitted_at = COALESCE(submitted_at, NOW()),
@@ -79,23 +90,23 @@ export async function POST(request: NextRequest) {
             WHERE id = $1`,
           [applicationId],
         );
-        await query('COMMIT');
-      } catch (e) {
-        await query('ROLLBACK');
-        throw e;
-      }
-      await logAudit(applicationId, 'RAZORPAY_WEBHOOK_SUCCESS', { orderId, paymentId });
-    } else if (eventType === 'payment.failed') {
+      });
+      await logAudit(
+        applicationId,
+        wasFailed ? 'PHONEPE_WEBHOOK_RECOVERED_AFTER_SUPERSEDE' : 'PHONEPE_WEBHOOK_SUCCESS',
+        { merchantOrderId, orderId },
+      );
+    } else if (state === 'FAILED') {
       await query(
         `UPDATE transactions SET status='FAILED', gateway_response=$2 WHERE id=$1`,
         [txn.id, JSON.stringify(event)],
       );
-      await logAudit(applicationId, 'RAZORPAY_WEBHOOK_FAILED', { orderId, paymentId });
+      await logAudit(applicationId, 'PHONEPE_WEBHOOK_FAILED', { merchantOrderId, orderId });
     }
 
     return NextResponse.json({ ok: true });
   } catch (error: any) {
-    console.error('Error in /api/payments/razorpay/webhook:', error);
+    console.error('Error in /api/payments/phonepe/webhook:', error);
     return NextResponse.json({ ok: false, error: 'Internal error' }, { status: 500 });
   }
 }
