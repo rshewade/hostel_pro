@@ -76,8 +76,8 @@ const Hero = () => {
           {/* Mission Statement */}
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in" style={{ animationDelay: '0.6s' }}>
             {t(
-              'Dedicated to Vidya Daan, spiritual welfare, and healthcare service to the Jain community since 1990',
-              'विद्या दान, आध्यात्मिक कल्याण और स्वास्थ्य सेवा के साथ 1990 से जैन समुदाय की सेवा में समर्पित'
+              'Dedicated to Vidya Daan, spiritual welfare, and healthcare service to the Jain community since 1900',
+              'विद्या दान, आध्यात्मिक कल्याण और स्वास्थ्य सेवा के साथ 1900 से जैन समुदाय की सेवा में समर्पित'
             )}
           </p>
 
@@ -106,7 +106,7 @@ const Hero = () => {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '1s' }}>
             {[
-              { value: '80+', label: t('Years of Service', 'सेवा के वर्ष') },
+              { value: '125+', label: t('Years of Service', 'सेवा के वर्ष') },
               { value: '1000+', label: t('Students Supported', 'छात्रों को सहायता') },
               { value: '3', label: t('Institutions', 'संस्थाएं') },
               { value: '\u221E', label: t('Blessings', 'आशीर्वाद') },

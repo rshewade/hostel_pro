@@ -36,8 +36,8 @@ const PublicFooter = () => {
             </div>
             <p className="text-sm text-primary-foreground/80 leading-relaxed">
               {t(
-                'Serving the Jain community through education, shelter, and spiritual welfare since 1940.',
-                'शिक्षा, आश्रय और आध्यात्मिक कल्याण के माध्यम से 1940 से जैन समुदाय की सेवा में।'
+                'Serving the Jain community through education, shelter, and spiritual welfare since 1900.',
+                'शिक्षा, आश्रय और आध्यात्मिक कल्याण के माध्यम से 1900 से जैन समुदाय की सेवा में।'
               )}
             </p>
           </div>

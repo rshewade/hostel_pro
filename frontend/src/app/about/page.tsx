@@ -11,10 +11,11 @@ export default function AboutPage() {
   const { t } = useLanguage();
 
   const timeline = [
-    { year: '1852', event: t('Birth of Seth Manikchand Hirachand Javeri, prominent pearl merchant and social reformer', 'सेठ मनिकचंद हीराचंद जावेरी का जन्म, प्रमुख मोती व्यापारी और समाज सुधारक') },
-    { year: '1900', event: t('Boarding house established in memory of Seth Hirachand Gumanji', 'सेठ हीराचंद गुमानजी की स्मृति में बोर्डिंग हाउस की स्थापना') },
+    { year: '1849', event: t('Birth of Seth Panachand Hirachand Javeri', 'सेठ पानाचंद हीराचंद जावेरी का जन्म') },
+    { year: '1851', event: t('Birth of Seth Manikchand Hirachand Javeri, prominent pearl merchant and social reformer', 'सेठ मनिकचंद हीराचंद जावेरी का जन्म, प्रमुख मोती व्यापारी और समाज सुधारक') },
+    { year: '1900', event: t("23 January: Boarding school established for the Boys' Hostel, in memory of Seth Hirachand Gumanji", '23 जनवरी: सेठ हीराचंद गुमानजी की स्मृति में बालक छात्रावास हेतु बोर्डिंग स्कूल की स्थापना') },
+    { year: '1904', event: t('Seth Panachand passes away', 'सेठ पानाचंद का निधन') },
     { year: '1914', event: t('Seth Manikchand passes away, leaving legacy of 27 charitable institutions', 'सेठ मनिकचंद का निधन, 27 धर्मार्थ संस्थाओं की विरासत छोड़कर') },
-    { year: '1940', event: t('Trust formally established', 'ट्रस्ट की औपचारिक स्थापना') },
     { year: '1972', event: t('R.R. Shravika Ashram founded for women education', 'महिला शिक्षा के लिए आर.आर. श्राविका आश्रम की स्थापना') },
     { year: 'Present', event: t('Continuing 125+ years of service to Jain community', 'जैन समुदाय को 125+ वर्षों की सेवा जारी') },
   ];
@@ -113,8 +114,8 @@ export default function AboutPage() {
             <div className="prose prose-lg max-w-none text-muted-foreground mb-12">
               <p className="leading-relaxed mb-6">
                 {t(
-                  'The legacy of the Trust dates back to the late 19th and early 20th centuries, rooted in the benevolence of Seth Manikchand Hirachand Javeri (1852-1914), a prominent pearl merchant and social reformer.',
-                  'ट्रस्ट की विरासत 19वीं शताब्दी के अंत और 20वीं शताब्दी की शुरुआत की है, जो सेठ मनिकचंद हीराचंद जावेरी (1852-1914) की उदारता में निहित है, जो एक प्रमुख मोती व्यापारी और समाज सुधारक थे।'
+                  'The legacy of the Trust dates back to the late 19th and early 20th centuries, rooted in the benevolence of Seth Manikchand Hirachand Javeri (1851-1914), a prominent pearl merchant and social reformer.',
+                  'ट्रस्ट की विरासत 19वीं शताब्दी के अंत और 20वीं शताब्दी की शुरुआत की है, जो सेठ मनिकचंद हीराचंद जावेरी (1851-1914) की उदारता में निहित है, जो एक प्रमुख मोती व्यापारी और समाज सुधारक थे।'
                 )}
               </p>
               <div className="bg-muted/50 rounded-xl p-6 mb-6">
@@ -235,23 +236,23 @@ export default function AboutPage() {
                     </div>
                     <p className="text-muted-foreground text-sm mb-4">
                       {t(
-                        'Founded to provide a safe haven for Jain girls and women pursuing higher education and careers in Mumbai.',
-                        'मुंबई में उच्च शिक्षा और करियर के लिए जैन लड़कियों और महिलाओं को सुरक्षित आश्रय प्रदान करने के लिए स्थापित।'
+                        'Founded to provide a safe haven for vegetarian girls and women pursuing higher education in Mumbai.',
+                        'मुंबई में उच्च शिक्षा प्राप्त करने वाली शाकाहारी लड़कियों और महिलाओं को सुरक्षित आश्रय प्रदान करने के लिए स्थापित।'
                       )}
                     </p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-start gap-2">
                         <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">Jubilee Baug, Dadaji Road, Opposite Navjeevan Society, Lamington Road, Mumbai - 400004</span>
+                        <span className="text-muted-foreground">Jubilee Baug, Dadaji Road, Opposite Navjeevan Society, Lamington Road, Mumbai - 400007</span>
                       </div>
                       <p className="text-muted-foreground">
-                        <strong>{t('Legacy:', 'विरासत:')}</strong> {t('Named in honor of the Ratanchand Hirachand branch, pioneer in women residential education for decades.', 'रतनचंद हीराचंद शाखा के सम्मान में नामित, दशकों से महिला आवासीय शिक्षा में अग्रणी।')}
+                        <strong>{t('Legacy:', 'विरासत:')}</strong> {t('Named in honour of Rukmanibai, wife of Seth Panachand Hirachand, and their daughter Ratanben.', 'सेठ पानाचंद हीराचंद की पत्नी रुक्मणीबाई और उनकी पुत्री रतनबेन के सम्मान में नामित।')}
                       </p>
                       <p className="text-muted-foreground">
                         <strong>{t('Target Group:', 'लक्षित समूह:')}</strong> {t('Jain girls (post-10th grade) and working professionals', 'जैन लड़कियां (10वीं के बाद) और कामकाजी पेशेवर')}
                       </p>
                       <p className="text-muted-foreground">
-                        <strong>{t('Facilities:', 'सुविधाएं:')}</strong> {t('Secure warden-monitored environment, disciplined atmosphere aligned with Jain ethics, proximity to major colleges (HR, KC, Wilson, St. Xavier\'s)', 'सुरक्षित वार्डन-निगरानी वातावरण, जैन नैतिकता के अनुरूप अनुशासित माहौल, प्रमुख कॉलेजों के निकट')}
+                        <strong>{t('Facilities:', 'सुविधाएं:')}</strong> {t('Secure warden-monitored environment, disciplined atmosphere aligned with Jain ethics, proximity to major colleges', 'सुरक्षित वार्डन-निगरानी वातावरण, जैन नैतिकता के अनुरूप अनुशासित माहौल, प्रमुख कॉलेजों के निकट')}
                       </p>
                     </div>
                   </div>
@@ -275,8 +276,8 @@ export default function AboutPage() {
                     </div>
                     <p className="text-muted-foreground text-sm mb-4">
                       {t(
-                        'A renowned guest house offering comfort and convenience to pilgrims and families.',
-                        'तीर्थयात्रियों और परिवारों को आराम और सुविधा प्रदान करने वाला एक प्रसिद्ध गेस्ट हाउस।'
+                        'A renowned place offering comfort and convenience to pilgrims and families.',
+                        'तीर्थयात्रियों और परिवारों को आराम और सुविधा प्रदान करने वाला एक प्रसिद्ध स्थान।'
                       )}
                     </p>
                     <div className="space-y-2 text-sm">
@@ -285,13 +286,13 @@ export default function AboutPage() {
                         <span className="text-muted-foreground">Hirabaug, C.P. Tank, Girgaon, Mumbai - 400004</span>
                       </div>
                       <p className="text-muted-foreground">
-                        <strong>{t('Medical Transit:', 'चिकित्सा यात्रा:')}</strong> {t('Close to major South Mumbai hospitals for families of patients.', 'मरीजों के परिवारों के लिए दक्षिण मुंबई के प्रमुख अस्पतालों के निकट।')}
+                        <strong>{t('Medical Transit:', 'चिकित्सा यात्रा:')}</strong> {t('Close to major South Mumbai hospitals for patients and their families.', 'मरीजों और उनके परिवारों के लिए दक्षिण मुंबई के प्रमुख अस्पतालों के निकट।')}
                       </p>
                       <p className="text-muted-foreground">
                         <strong>{t('Religious Hub:', 'धार्मिक केंद्र:')}</strong> {t('Features a magnificent Digambar Jain Temple on the premises.', 'परिसर में एक भव्य दिगंबर जैन मंदिर है।')}
                       </p>
                       <p className="text-muted-foreground">
-                        <strong>{t('Community Space:', 'सामुदायिक स्थान:')}</strong> {t('Includes halls for religious ceremonies and community gatherings.', 'धार्मिक समारोहों और सामुदायिक समारोहों के लिए हॉल शामिल हैं।')}
+                        <strong>{t('Community Space:', 'सामुदायिक स्थान:')}</strong> {t('Includes a hall for all kinds of events.', 'सभी प्रकार के आयोजनों के लिए हॉल शामिल है।')}
                       </p>
                     </div>
                   </div>

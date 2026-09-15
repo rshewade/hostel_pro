@@ -26,8 +26,8 @@ const InstitutionsOverview = () => {
       title: t("Girls' Hostel", 'बालिका छात्रावास'),
       subtitle: t('R. R. Shravika Ashram', 'आर. आर. श्राविका आश्रम'),
       description: t(
-        'Empowering Jain women through education with secure, comfortable accommodation designed specifically for female students in a nurturing environment.',
-        'पोषण वातावरण में महिला छात्रों के लिए विशेष रूप से डिज़ाइन किए गए सुरक्षित, आरामदायक आवास के साथ शिक्षा के माध्यम से जैन महिलाओं को सशक्त बनाना।'
+        'Empowering women through education with secure, comfortable accommodation designed specifically for female students in a nurturing environment.',
+        'पोषण वातावरण में महिला छात्रों के लिए विशेष रूप से डिज़ाइन किए गए सुरक्षित, आरामदायक आवास के साथ शिक्षा के माध्यम से महिलाओं को सशक्त बनाना।'
       ),
       link: '/institutions/girls-hostel',
     },

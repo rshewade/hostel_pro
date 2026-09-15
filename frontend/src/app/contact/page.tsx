@@ -33,8 +33,8 @@ export default function ContactPage() {
       title: t('Address', 'पता'),
       details: [
         t('Seth Hirachand Gumanji Jain Trust', 'सेठ हीराचंद गुमानजी जैन ट्रस्ट'),
-        t('Hirabaug, Dr. B.A. Road', 'हीराबाग, डॉ. बी.ए. रोड'),
-        t('Dadar (East), Mumbai - 400014', 'दादर (पूर्व), मुंबई - 400014'),
+        t('148, Lamington Road, Opp. Navjivan Society', '148, लेमिंग्टन रोड, नवजीवन सोसायटी के सामने'),
+        t('Grant Road (E), Mumbai - 400007', 'ग्रांट रोड (पूर्व), मुंबई - 400007'),
       ],
     },
     {

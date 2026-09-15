@@ -23,7 +23,7 @@ const notoSansDevanagari = Noto_Sans_Devanagari({
 
 export const metadata: Metadata = {
   title: "Seth Hirachand Gumanji Jain Hostel",
-  description: "Hostel Management Application for Boys Hostel, Girls Ashram, and Dharamshala - Serving the Jain community through education, shelter, and spiritual welfare since 1940.",
+  description: "Hostel Management Application for Boys Hostel, Girls Ashram, and Dharamshala - Serving the Jain community through education, shelter, and spiritual welfare since 1900.",
 };
 
 export default function RootLayout({

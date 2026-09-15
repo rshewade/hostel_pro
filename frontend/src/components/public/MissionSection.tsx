@@ -58,8 +58,8 @@ const MissionSection = () => {
             </h2>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               {t(
-                'Seth Hirachand Gumanji Jain Trust has been a beacon of hope and service for the Jain community since 1940. Rooted in the values of Vidya Daan (gift of education), our trust continues the legacy of the illustrious Javeri family in supporting students, pilgrims, and families in need.',
-                'सेठ हीराचंद गुमानजी जैन ट्रस्ट 1940 से जैन समुदाय के लिए आशा और सेवा का प्रतीक रहा है। विद्या दान (शिक्षा का उपहार) के मूल्यों में निहित, हमारा ट्रस्ट छात्रों, तीर्थयात्रियों और जरूरतमंद परिवारों की सहायता में प्रसिद्ध जावेरी परिवार की विरासत को जारी रखता है।'
+                'Seth Hirachand Gumanji Jain Trust has been a beacon of hope and service for the Jain community since 1900. Rooted in the values of Vidya Daan (gift of education), our trust continues the legacy of the illustrious Javeri family in supporting students, pilgrims, and families in need.',
+                'सेठ हीराचंद गुमानजी जैन ट्रस्ट 1900 से जैन समुदाय के लिए आशा और सेवा का प्रतीक रहा है। विद्या दान (शिक्षा का उपहार) के मूल्यों में निहित, हमारा ट्रस्ट छात्रों, तीर्थयात्रियों और जरूरतमंद परिवारों की सहायता में प्रसिद्ध जावेरी परिवार की विरासत को जारी रखता है।'
               )}
             </p>
             <p className="text-muted-foreground leading-relaxed">
