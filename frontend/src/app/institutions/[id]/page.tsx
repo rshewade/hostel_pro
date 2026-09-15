@@ -7,8 +7,8 @@ import { Button } from "@/components/shadcn/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card";
 import {
   Building2, Users, Home, MapPin, Phone, Clock,
-  Wifi, BookOpen, Utensils, Shield, Heart, ExternalLink,
-  BedDouble, Droplets, Car, Users2
+  Wifi, BookOpen, Utensils, Shield, ExternalLink,
+  BedDouble, Droplets, Car, Users2, Cctv
 } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
 import PageHero from "@/components/public/PageHero";
@@ -20,8 +20,8 @@ const institutionsData = {
     icon: Building2,
     color: 'blue',
     description: {
-      en: 'The Seth Hirachand Gumanji Jain Hostel has been serving Jain boys pursuing higher education in Mumbai since 1955. Our hostel provides a safe, disciplined, and conducive environment for academic excellence while nurturing Jain values and traditions.',
-      hi: 'सेठ हीराचंद गुमानजी जैन छात्रावास 1955 से मुंबई में उच्च शिक्षा प्राप्त कर रहे जैन बालकों की सेवा कर रहा है। हमारा छात्रावास जैन मूल्यों और परंपराओं का पोषण करते हुए शैक्षणिक उत्कृष्टता के लिए एक सुरक्षित, अनुशासित और अनुकूल वातावरण प्रदान करता है।'
+      en: 'The Seth Hirachand Gumanji Jain Hostel has been serving Digambar Jain students pursuing higher education in Mumbai since 1900. Our hostel provides a safe, disciplined, and conducive environment for academic excellence while nurturing Jain values and traditions.',
+      hi: 'सेठ हीराचंद गुमानजी जैन छात्रावास 1900 से मुंबई में उच्च शिक्षा प्राप्त कर रहे दिगंबर जैन छात्रों की सेवा कर रहा है। हमारा छात्रावास जैन मूल्यों और परंपराओं का पोषण करते हुए शैक्षणिक उत्कृष्टता के लिए एक सुरक्षित, अनुशासित और अनुकूल वातावरण प्रदान करता है।'
     },
     facilities: [
       { icon: BedDouble, label: { en: 'Furnished Rooms', hi: 'सुसज्जित कमरे' } },
@@ -36,9 +36,11 @@ const institutionsData = {
       { en: 'Enrolled in recognized college/university in Mumbai', hi: 'मुंबई में मान्यता प्राप्त कॉलेज/विश्वविद्यालय में नामांकित' },
       { en: 'Good academic record', hi: 'अच्छा शैक्षणिक रिकॉर्ड' },
       { en: 'Recommendation from Jain Sangh or known reference', hi: 'जैन संघ या ज्ञात संदर्भ से अनुशंसा' },
+      { en: 'Guardian residing in Mumbai is essential for admission', hi: 'प्रवेश के लिए मुंबई में निवास करने वाले अभिभावक का होना आवश्यक है' },
     ],
-    location: { en: 'Hirabaug, Dr. B.A. Road, Mumbai - 400014', hi: 'हीराबाग, डॉ. बी.ए. रोड, मुंबई - 400014' },
+    location: { en: '148, Lamington Road, Opp. Navjivan Society, Grant Road (E), Mumbai - 400007', hi: '148, लेमिंग्टन रोड, नवजीवन सोसायटी के सामने, ग्रांट रोड (पूर्व), मुंबई - 400007' },
     contact: '+91 22 2414 1234',
+    hours: { en: 'Office: 10 AM - 6 PM (Mon-Sat)', hi: 'कार्यालय: सुबह 10 - शाम 6 (सोम-शनि)' },
   },
   'girls-hostel': {
     title: { en: "Girls' Hostel", hi: 'बालिका छात्रावास' },
@@ -54,17 +56,19 @@ const institutionsData = {
       { icon: Wifi, label: { en: 'High-Speed WiFi', hi: 'हाई-स्पीड वाईफाई' } },
       { icon: BookOpen, label: { en: 'Study Hall & Library', hi: 'अध्ययन कक्ष और पुस्तकालय' } },
       { icon: Utensils, label: { en: 'Jain Vegetarian Kitchen', hi: 'जैन शाकाहारी रसोई' } },
-      { icon: Shield, label: { en: 'Women Security Staff', hi: 'महिला सुरक्षा कर्मचारी' } },
-      { icon: Heart, label: { en: 'Medical Facilities', hi: 'चिकित्सा सुविधाएं' } },
+      { icon: Shield, label: { en: 'Security Staff', hi: 'सुरक्षा कर्मचारी' } },
+      { icon: Cctv, label: { en: 'CCTV Cameras for Security', hi: 'सुरक्षा हेतु सीसीटीवी कैमरे' } },
     ],
     eligibility: [
       { en: 'Must belong to Digambar Jain community', hi: 'दिगंबर जैन समुदाय से संबंधित होना चाहिए' },
-      { en: 'Female students enrolled in Mumbai institutions', hi: 'मुंबई संस्थानों में नामांकित महिला छात्राएं' },
+      { en: 'Female students enrolled in recognised Mumbai institutions', hi: 'मुंबई के मान्यता प्राप्त संस्थानों में नामांकित महिला छात्राएं' },
       { en: 'Good academic record and character', hi: 'अच्छा शैक्षणिक रिकॉर्ड और चरित्र' },
       { en: 'Parent/Guardian consent required', hi: 'माता-पिता/अभिभावक की सहमति आवश्यक' },
+      { en: 'Guardian must be present at the time of interview', hi: 'साक्षात्कार के समय अभिभावक की उपस्थिति आवश्यक है' },
     ],
-    location: { en: 'R.R. Shravika Ashram, Near Hirabaug, Mumbai - 400014', hi: 'आर.आर. श्राविका आश्रम, हीराबाग के पास, मुंबई - 400014' },
+    location: { en: 'Jubilee Baug, Dadaji Road, Opp. Navjeevan Society, Lamington Road, Mumbai - 400007', hi: 'जुबली बाग, दादाजी रोड, नवजीवन सोसायटी के सामने, लेमिंग्टन रोड, मुंबई - 400007' },
     contact: '+91 22 2414 5678',
+    hours: { en: 'Office: 10 AM - 6 PM (Mon-Sat)', hi: 'कार्यालय: सुबह 10 - शाम 6 (सोम-शनि)' },
   },
   'dharamshala': {
     title: { en: 'Dharamshala', hi: 'धर्मशाला' },
@@ -88,9 +92,11 @@ const institutionsData = {
       { en: 'Medical transit families welcome', hi: 'चिकित्सा यात्रा परिवारों का स्वागत' },
       { en: 'Advance booking recommended', hi: 'अग्रिम बुकिंग अनुशंसित' },
       { en: 'Valid ID proof required', hi: 'वैध आईडी प्रमाण आवश्यक' },
+      { en: 'Medical papers supporting the treatment are required', hi: 'उपचार संबंधी चिकित्सा दस्तावेज आवश्यक हैं' },
     ],
-    location: { en: 'Hirabaug Dharamshala, Dr. B.A. Road, Mumbai - 400014', hi: 'हीराबाग धर्मशाला, डॉ. बी.ए. रोड, मुंबई - 400014' },
-    contact: '+91 22 2414 9012',
+    location: { en: 'Hirabaug Dharamshala, C.P. Tank, Mumbai - 400004', hi: 'हीराबाग धर्मशाला, सी.पी. टैंक, मुंबई - 400004' },
+    contact: '+91 90762 11008',
+    hours: { en: 'Office: 11 AM - 5 PM (Mon-Fri)', hi: 'कार्यालय: सुबह 11 - शाम 5 (सोम-शुक्र)' },
   },
 };
 
@@ -199,7 +205,7 @@ export default function InstitutionPage({ params }: { params: Promise<{ id: stri
                   <div className="flex items-center gap-2">
                     <Clock className="h-5 w-5 text-primary" />
                     <span className="text-muted-foreground">
-                      {t('Office: 10 AM - 6 PM (Mon-Sat)', 'कार्यालय: सुबह 10 - शाम 6 (सोम-शनि)')}
+                      {institution.hours[language]}
                     </span>
                   </div>
                 </CardContent>

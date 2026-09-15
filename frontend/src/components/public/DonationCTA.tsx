@@ -3,23 +3,23 @@
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/shadcn/button';
-import { Heart, GraduationCap, Home, Utensils } from 'lucide-react';
+import { Heart, GraduationCap, Home, Stethoscope } from 'lucide-react';
 
 const DonationCTA = () => {
   const { t } = useLanguage();
 
   const donationPurposes = [
     {
-      icon: GraduationCap,
-      label: t('Education Support', 'शिक्षा सहायता'),
-    },
-    {
       icon: Home,
-      label: t('Infrastructure', 'बुनियादी ढांचा'),
+      label: t('Student Accommodation', 'छात्र आवास'),
     },
     {
-      icon: Utensils,
-      label: t('Food Programs', 'भोजन कार्यक्रम'),
+      icon: GraduationCap,
+      label: t('Scholarships', 'छात्रवृत्ति'),
+    },
+    {
+      icon: Stethoscope,
+      label: t('Medical & Hospitalisation Aid', 'चिकित्सा एवं अस्पताल सहायता'),
     },
   ];
 
