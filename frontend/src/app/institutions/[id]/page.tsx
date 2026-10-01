@@ -20,8 +20,8 @@ const institutionsData = {
     icon: Building2,
     color: 'blue',
     description: {
-      en: 'The Seth Hirachand Gumanji Jain Hostel has been serving Digambar Jain students pursuing higher education in Mumbai since 1900. Our hostel provides a safe, disciplined, and conducive environment for academic excellence while nurturing Jain values and traditions.',
-      hi: 'सेठ हीराचंद गुमानजी जैन छात्रावास 1900 से मुंबई में उच्च शिक्षा प्राप्त कर रहे दिगंबर जैन छात्रों की सेवा कर रहा है। हमारा छात्रावास जैन मूल्यों और परंपराओं का पोषण करते हुए शैक्षणिक उत्कृष्टता के लिए एक सुरक्षित, अनुशासित और अनुकूल वातावरण प्रदान करता है।'
+      en: 'The Sheth Hirachand Gumanji Jain Boarding School Trust has been serving Digambar Jain students pursuing higher education in Mumbai since 1900. Our hostel provides a safe, disciplined, and conducive environment for academic excellence while nurturing Jain values and traditions.',
+      hi: 'सेठ हीराचंद गुमानजी जैन बोर्डिंग स्कूल ट्रस्ट 1900 से मुंबई में उच्च शिक्षा प्राप्त कर रहे दिगंबर जैन छात्रों की सेवा कर रहा है। हमारा छात्रावास जैन मूल्यों और परंपराओं का पोषण करते हुए शैक्षणिक उत्कृष्टता के लिए एक सुरक्षित, अनुशासित और अनुकूल वातावरण प्रदान करता है।'
     },
     facilities: [
       { icon: BedDouble, label: { en: 'Furnished Rooms', hi: 'सुसज्जित कमरे' } },
@@ -48,8 +48,8 @@ const institutionsData = {
     icon: Users,
     color: 'rose',
     description: {
-      en: 'R. R. Shravika Ashram was established in 1972 with a vision to empower Jain women through education. The ashram provides a secure, nurturing environment specifically designed for female students, combining modern facilities with traditional Jain values.',
-      hi: 'आर. आर. श्राविका आश्रम की स्थापना 1972 में शिक्षा के माध्यम से जैन महिलाओं को सशक्त बनाने की दृष्टि से की गई थी। आश्रम विशेष रूप से महिला छात्रों के लिए डिज़ाइन किया गया एक सुरक्षित, पोषण वातावरण प्रदान करता है, जो आधुनिक सुविधाओं को पारंपरिक जैन मूल्यों के साथ जोड़ता है।'
+      en: 'R. R. Shravika Ashram was established on 1st May 1912 with a vision to empower Jain women through education. The ashram provides a secure, nurturing environment specifically designed for female students, combining modern facilities with traditional Jain values.',
+      hi: 'आर. आर. श्राविका आश्रम की स्थापना 1 मई 1912 को शिक्षा के माध्यम से जैन महिलाओं को सशक्त बनाने की दृष्टि से की गई थी। आश्रम विशेष रूप से महिला छात्रों के लिए डिज़ाइन किया गया एक सुरक्षित, पोषण वातावरण प्रदान करता है, जो आधुनिक सुविधाओं को पारंपरिक जैन मूल्यों के साथ जोड़ता है।'
     },
     facilities: [
       { icon: BedDouble, label: { en: 'Safe Furnished Rooms', hi: 'सुरक्षित सुसज्जित कमरे' } },
@@ -57,7 +57,7 @@ const institutionsData = {
       { icon: BookOpen, label: { en: 'Study Hall & Library', hi: 'अध्ययन कक्ष और पुस्तकालय' } },
       { icon: Utensils, label: { en: 'Jain Vegetarian Kitchen', hi: 'जैन शाकाहारी रसोई' } },
       { icon: Shield, label: { en: 'Security Staff', hi: 'सुरक्षा कर्मचारी' } },
-      { icon: Cctv, label: { en: 'CCTV Cameras for Security', hi: 'सुरक्षा हेतु सीसीटीवी कैमरे' } },
+      { icon: Cctv, label: { en: "CCTV Cameras Kept for Girls' Security", hi: 'बालिकाओं की सुरक्षा हेतु सीसीटीवी कैमरे लगाए गए' } },
     ],
     eligibility: [
       { en: 'Must belong to Digambar Jain community', hi: 'दिगंबर जैन समुदाय से संबंधित होना चाहिए' },

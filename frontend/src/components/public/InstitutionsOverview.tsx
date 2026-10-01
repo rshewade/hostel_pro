@@ -12,9 +12,9 @@ const InstitutionsOverview = () => {
 
   const institutions = [
     {
-      image: '/hostel-building.png',
+      image: '/hostel5.jpeg',
       title: t("Boys' Hostel", 'बालक छात्रावास'),
-      subtitle: t('Seth Hirachand Gumanji Jain Hostel', 'सेठ हीराचंद गुमानजी जैन छात्रावास'),
+      subtitle: t('Sheth Hirachand Gumanji Jain Boarding School Trust', 'सेठ हीराचंद गुमानजी जैन बोर्डिंग स्कूल ट्रस्ट'),
       description: t(
         'Providing safe, disciplined accommodation for Jain boys pursuing higher education in Mumbai with modern facilities and a conducive learning environment.',
         'मुंबई में उच्च शिक्षा प्राप्त कर रहे जैन बालकों के लिए आधुनिक सुविधाओं और अनुकूल शिक्षण वातावरण के साथ सुरक्षित, अनुशासित आवास प्रदान करना।'
@@ -34,7 +34,7 @@ const InstitutionsOverview = () => {
     {
       image: '/hostel-temple.png',
       title: t('Dharamshala', 'धर्मशाला'),
-      subtitle: t('Hirabaug', 'हीराबाग'),
+      subtitle: t('Sheth Hirachand Gumanji Dharamshala', 'सेठ हीराचंद गुमानजी धर्मशाला'),
       description: t(
         'A sacred rest house for pilgrims and travelers, offering peaceful accommodation near major hospitals for families in medical transit.',
         'तीर्थयात्रियों और यात्रियों के लिए एक पवित्र विश्राम गृह, चिकित्सा यात्रा में परिवारों के लिए प्रमुख अस्पतालों के पास शांतिपूर्ण आवास प्रदान करता है।'
