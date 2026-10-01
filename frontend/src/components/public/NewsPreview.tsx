@@ -24,8 +24,8 @@ const NewsPreview = () => {
     {
       title: t('Annual Paryushan Celebration', 'वार्षिक पर्युषण उत्सव'),
       description: t(
-        'Join us for the sacred Paryushan Parva celebrations at Hirabaug Dharamshala.',
-        'हीराबाग धर्मशाला में पवित्र पर्युषण पर्व समारोह में हमारे साथ जुड़ें।'
+        'Join us for the sacred Paryushan Parva celebration at Sheth Hirachand Gumanji Jain Boarding School Trust.',
+        'सेठ हीराचंद गुमानजी जैन बोर्डिंग स्कूल ट्रस्ट में पवित्र पर्युषण पर्व समारोह में हमारे साथ जुड़ें।'
       ),
       date: '08 Sep 2024',
       category: t('Events', 'कार्यक्रम'),

@@ -82,6 +82,7 @@ export default function AdmissionsPage({ params }: { params: Promise<{ id: strin
         { en: 'Previous Academic Records', hi: 'पिछले शैक्षणिक रिकॉर्ड' },
         { en: 'Passport Size Photographs', hi: 'पासपोर्ट साइज फोटो' },
         { en: 'Recommendation Letter from Jain Sangh', hi: 'जैन संघ से अनुशंसा पत्र' },
+        { en: 'Checklist after admission for confirming admission after interview', hi: 'साक्षात्कार के बाद प्रवेश की पुष्टि हेतु प्रवेश पश्चात चेकलिस्ट' },
       ];
 
   return (

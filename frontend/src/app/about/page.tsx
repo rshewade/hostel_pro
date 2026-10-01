@@ -11,13 +11,11 @@ export default function AboutPage() {
   const { t } = useLanguage();
 
   const timeline = [
-    { year: '1849', event: t('Birth of Seth Panachand Hirachand Javeri', 'सेठ पानाचंद हीराचंद जावेरी का जन्म') },
-    { year: '1851', event: t('Birth of Seth Manikchand Hirachand Javeri, prominent pearl merchant and social reformer', 'सेठ मनिकचंद हीराचंद जावेरी का जन्म, प्रमुख मोती व्यापारी और समाज सुधारक') },
-    { year: '1900', event: t("23 January: Boarding school established for the Boys' Hostel, in memory of Seth Hirachand Gumanji", '23 जनवरी: सेठ हीराचंद गुमानजी की स्मृति में बालक छात्रावास हेतु बोर्डिंग स्कूल की स्थापना') },
-    { year: '1904', event: t('Seth Panachand passes away', 'सेठ पानाचंद का निधन') },
-    { year: '1914', event: t('Seth Manikchand passes away, leaving legacy of 27 charitable institutions', 'सेठ मनिकचंद का निधन, 27 धर्मार्थ संस्थाओं की विरासत छोड़कर') },
-    { year: '1972', event: t('R.R. Shravika Ashram founded for women education', 'महिला शिक्षा के लिए आर.आर. श्राविका आश्रम की स्थापना') },
-    { year: 'Present', event: t('Continuing 125+ years of service to Jain community', 'जैन समुदाय को 125+ वर्षों की सेवा जारी') },
+    { year: '1849 – 1904', event: t('Birth of Sheth Pannachand Hirachand Javeri', 'सेठ पानाचंद हीराचंद जवेरी का जन्म') },
+    { year: '1851 – 1914', event: t('Sheth Manekchand Hirachand Javeri', 'सेठ माणेकचंद हीराचंद जवेरी') },
+    { year: '1900', event: t("23 January: Sheth Hirachand Gumanji Jain Boarding School Trust was established for the Boys' Hostel", '23 जनवरी: बालक छात्रावास हेतु सेठ हीराचंद गुमानजी जैन बोर्डिंग स्कूल ट्रस्ट की स्थापना') },
+    { year: '1904', event: t('Sheth Pannachand passes away', 'सेठ पानाचंद का निधन') },
+    { year: '1909', event: t('25 October: Ratanben Rukmanibai Shravika Ashram was established for girls', '25 अक्टूबर: बालिकाओं हेतु रतनबेन रुक्मणीबाई श्राविका आश्रम की स्थापना') },
   ];
 
   return (
@@ -186,7 +184,7 @@ export default function AboutPage() {
               <Card className="overflow-hidden">
                 <div className="grid md:grid-cols-3 gap-0">
                   <div className="aspect-video md:aspect-auto relative">
-                    <Image src="/hostel-building.png" alt="Boys Hostel" fill className="object-cover" />
+                    <Image src="/hostel5.jpeg" alt="Boys Hostel" fill className="object-cover" />
                   </div>
                   <div className="md:col-span-2 p-6">
                     <div className="flex items-center gap-3 mb-3">
@@ -194,7 +192,8 @@ export default function AboutPage() {
                         <Building2 className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-xl">{t("Seth Hirachand Gumanji Boys' Hostel", "सेठ हीराचंद गुमानजी बालक छात्रावास")}</CardTitle>
+                        <CardTitle className="text-xl">{t("Boys' Hostel", 'बालक छात्रावास')}</CardTitle>
+                        <p className="text-sm font-medium text-foreground/70">{t('Sheth Hirachand Gumanji Jain Boarding School Trust', 'सेठ हीराचंद गुमानजी जैन बोर्डिंग स्कूल ट्रस्ट')}</p>
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm mb-4">
@@ -231,7 +230,8 @@ export default function AboutPage() {
                         <Users className="h-5 w-5 text-rose-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-xl">{t('R. R. Shravika Ashram (Ladies Hostel)', 'आर. आर. श्राविका आश्रम (महिला छात्रावास)')}</CardTitle>
+                        <CardTitle className="text-xl">{t("R. R. Shravika Ashram (Girls' Hostel)", 'आर. आर. श्राविका आश्रम (बालिका छात्रावास)')}</CardTitle>
+                        <p className="text-sm font-medium text-foreground/70">{t('Ratanben Rukmanibai Shravika Ashram, Mumbai', 'रतनबेन रुक्मणीबाई श्राविका आश्रम, मुंबई')}</p>
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm mb-4">
@@ -246,7 +246,7 @@ export default function AboutPage() {
                         <span className="text-muted-foreground">Jubilee Baug, Dadaji Road, Opposite Navjeevan Society, Lamington Road, Mumbai - 400007</span>
                       </div>
                       <p className="text-muted-foreground">
-                        <strong>{t('Legacy:', 'विरासत:')}</strong> {t('Named in honour of Rukmanibai, wife of Seth Panachand Hirachand, and their daughter Ratanben.', 'सेठ पानाचंद हीराचंद की पत्नी रुक्मणीबाई और उनकी पुत्री रतनबेन के सम्मान में नामित।')}
+                        <strong>{t('Legacy:', 'विरासत:')}</strong> {t('Named in honour of Rukmanibai, wife of Sheth Pannachand Hirachand, and their daughter Ratanben.', 'सेठ पानाचंद हीराचंद की पत्नी रुक्मणीबाई और उनकी पुत्री रतनबेन के सम्मान में नामित।')}
                       </p>
                       <p className="text-muted-foreground">
                         <strong>{t('Target Group:', 'लक्षित समूह:')}</strong> {t('Jain girls (post-10th grade) and working professionals', 'जैन लड़कियां (10वीं के बाद) और कामकाजी पेशेवर')}
@@ -271,7 +271,7 @@ export default function AboutPage() {
                         <Home className="h-5 w-5 text-amber-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-xl">{t('Seth Hirachand Gumanji Dharamshala (Hirabaug)', 'सेठ हीराचंद गुमानजी धर्मशाला (हीराबाग)')}</CardTitle>
+                        <CardTitle className="text-xl">{t('Sheth Hirachand Gumanji Dharamshala', 'सेठ हीराचंद गुमानजी धर्मशाला')}</CardTitle>
                       </div>
                     </div>
                     <p className="text-muted-foreground text-sm mb-4">

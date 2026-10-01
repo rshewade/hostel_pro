@@ -12,14 +12,26 @@ const DonationCTA = () => {
     {
       icon: Home,
       label: t('Student Accommodation', 'छात्र आवास'),
+      detail: t(
+        'To provide accommodation for Jain students studying for graduation, C.A. or equivalent courses',
+        'स्नातक, सी.ए. या समकक्ष पाठ्यक्रमों की पढ़ाई करने वाले जैन छात्रों को आवास प्रदान करना'
+      ),
     },
     {
       icon: GraduationCap,
       label: t('Scholarships', 'छात्रवृत्ति'),
+      detail: t(
+        'To provide scholarships for graduation or equivalent courses',
+        'स्नातक या समकक्ष पाठ्यक्रमों के लिए छात्रवृत्ति प्रदान करना'
+      ),
     },
     {
       icon: Stethoscope,
       label: t('Medical & Hospitalisation Aid', 'चिकित्सा एवं अस्पताल सहायता'),
+      detail: t(
+        'To support medical bills and hospitalisation expenses',
+        'चिकित्सा बिलों और अस्पताल में भर्ती के खर्चों में सहायता करना'
+      ),
     },
   ];
 
@@ -46,14 +58,17 @@ const DonationCTA = () => {
             )}
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+          <div className="grid sm:grid-cols-3 gap-4 mb-8 text-left">
             {donationPurposes.map((purpose, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full"
+                className="bg-primary-foreground/10 rounded-xl p-4"
               >
-                <purpose.icon className="h-4 w-4 text-accent" />
-                <span className="text-sm">{purpose.label}</span>
+                <div className="flex items-center gap-2 mb-2">
+                  <purpose.icon className="h-4 w-4 text-accent shrink-0" />
+                  <span className="text-sm font-semibold">{purpose.label}</span>
+                </div>
+                <p className="text-sm text-primary-foreground/80 leading-relaxed">{purpose.detail}</p>
               </div>
             ))}
           </div>
