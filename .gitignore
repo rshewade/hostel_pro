@@ -54,3 +54,6 @@ test-results.json
 test-results-*.json
 
 
+
+# Full-size source photos (web copies live in frontend/public/gallery/)
+photo-originals/
