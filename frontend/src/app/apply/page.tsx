@@ -330,6 +330,20 @@ export default function ApplyPage() {
                 <span className="text-blue-600 font-semibold">•</span>
                 <div>
                   <h4 className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+                    {t("Admission Fee — ₹500 (Non-Refundable)", "प्रवेश शुल्क — ₹500 (अप्रतिदेय)")}
+                  </h4>
+                  <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                    {t(
+                      "A non-refundable admission fee of ₹500 is payable online at the time of submitting a Boys Hostel or Girls Ashram application. On approval, this amount is adjusted against your hostel fees.",
+                      "बॉयज़ हॉस्टल या गर्ल्स आश्रम का आवेदन जमा करते समय ₹500 का अप्रतिदेय प्रवेश शुल्क ऑनलाइन देय है। स्वीकृति मिलने पर यह राशि आपके हॉस्टल शुल्क में समायोजित की जाएगी।"
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-blue-600 font-semibold">•</span>
+                <div>
+                  <h4 className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
                     {t("No Account Required Yet", "अभी खाता बनाने की आवश्यकता नहीं")}
                   </h4>
                   <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
