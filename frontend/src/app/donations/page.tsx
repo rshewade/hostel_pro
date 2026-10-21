@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/shadcn/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
@@ -102,23 +103,25 @@ export default function DonationsPage() {
                 </CardTitle>
                 <CardDescription>
                   {t(
-                    'Contact our office to make a donation via cheque, bank transfer, or in person.',
-                    'चेक, बैंक ट्रांसफर, या व्यक्तिगत रूप से दान करने के लिए हमारे कार्यालय से संपर्क करें।'
+                    'Donate online, or contact our office to donate via cheque or in person.',
+                    'ऑनलाइन दान करें, या चेक या व्यक्तिगत रूप से दान करने के लिए हमारे कार्यालय से संपर्क करें।'
                   )}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  {t(
-                    'For online payment options, please contact our office.',
-                    'ऑनलाइन भुगतान विकल्पों के लिए, कृपया हमारे कार्यालय से संपर्क करें।'
-                  )}
-                </p>
-                <Button size="lg" className="gap-2" asChild>
-                  <a href="tel:+912224141234">
-                    {t('Contact: +91 22 2414 1234', 'संपर्क: +91 22 2414 1234')}
-                  </a>
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button size="lg" className="gap-2" asChild>
+                    <Link href="/donations/donate">
+                      <Heart className="h-4 w-4" />
+                      {t('Donate Now', 'अभी दान करें')}
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" className="gap-2" asChild>
+                    <a href="tel:+912224141234">
+                      {t('Contact: +91 22 2414 1234', 'संपर्क: +91 22 2414 1234')}
+                    </a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
