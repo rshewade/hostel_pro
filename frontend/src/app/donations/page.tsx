@@ -108,16 +108,6 @@ export default function DonationsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="font-medium mb-2">{t('Bank Details', 'बैंक विवरण')}</p>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p>{t('Account Name: Seth Hirachand Gumanji Jain Trust', 'खाता नाम: सेठ हीराचंद गुमानजी जैन ट्रस्ट')}</p>
-                    <p>{t('Bank: State Bank of India', 'बैंक: स्टेट बैंक ऑफ इंडिया')}</p>
-                    <p>{t('Branch: Dadar (East)', 'शाखा: दादर (पूर्व)')}</p>
-                    <p>IFSC: SBIN0001234</p>
-                    <p>{t('Account No: XXXX XXXX XXXX', 'खाता संख्या: XXXX XXXX XXXX')}</p>
-                  </div>
-                </div>
                 <p className="text-sm text-muted-foreground">
                   {t(
                     'For online payment options, please contact our office.',
